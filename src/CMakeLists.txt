@@ -72,6 +72,7 @@ configure_file(
 find_package(frozen REQUIRED CONFIG)
 find_package(spdlog REQUIRED CONFIG)
 find_package(srell MODULE REQUIRED)
+find_package(directxtk CONFIG REQUIRED)
 find_package(CommonLibSSE CONFIG REQUIRED)
 find_package(xbyak CONFIG REQUIRED)
 

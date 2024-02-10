@@ -891,7 +891,7 @@ namespace Items
 			type = kType::DefaultPotion;
 
 			//MagicItem::EffectItem* pEffect = CALL_MEMBER_FN(potion, GetCostliestEffectItem)(5, false);
-			Effect* pEffect = potion->GetCostliestEffectItem(5, false);
+			Effect* pEffect = potion->GetCostliestEffectItem();
 			if (pEffect && pEffect->baseEffect) {
 				ActorValue primaryValue = pEffect->baseEffect->GetMagickSkill();
 

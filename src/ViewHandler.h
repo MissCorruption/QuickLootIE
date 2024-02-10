@@ -104,7 +104,7 @@ private:
 		const auto src = _src.get();
 		const auto dst = _dst.get();
 		if (controlMap && menuControls) {
-			const auto& priorityStack = controlMap->contextPriorityStack;
+			const auto& priorityStack = controlMap->GetRuntimeData().contextPriorityStack;
 			if (!src ||
 				src->IsLocked() ||
 				src->IsActivationBlocked() ||
