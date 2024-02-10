@@ -134,11 +134,30 @@ namespace Scaleform
 				_openCloseHandler.Open();
 
 				if (Settings::DispelInvisibility() && dst->AsMagicTarget()) {
-					dst->AsMagicTarget()->DispelEffectsWithArchetype(RE::EffectArchetypes::ArchetypeID::kInvisibility, false);
+					// `MagicTarget::DispelEffectsWithArchetype` is gated behind VR for some reason, and I had 
+					// to disable VR because it was causing crashes elsewhere
+					//
+					
+					//dst->AsMagicTarget()->DispelEffectsWithArchetype(RE::EffectArchetypes::ArchetypeID::kInvisibility, false);
+					DispelEffectsWithArchetype(dst->AsMagicTarget(), RE::EffectArchetypes::ArchetypeID::kInvisibility, false);
 				}
 			}
 
 			QueueInventoryRefresh();
+		}
+
+		// See `TakeStack`
+		void DispelEffectsWithArchetype(RE::MagicTarget* a_target, RE::MagicTarget::Archetype a_type, bool a_force)
+		{
+			if (!a_target || !a_target->GetActiveEffectList()) {
+				return;
+			}
+
+			for (auto* effect : *a_target->GetActiveEffectList()) {
+				if (effect && effect->GetBaseObject() && effect->GetBaseObject()->HasArchetype(a_type)) {
+					effect->Dispel(a_force);
+				}
+			}
 		}
 
 	protected:
