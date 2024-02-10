@@ -38,11 +38,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <srell.hpp>
 
-#ifdef NDEBUG
-#	include <spdlog/sinks/basic_file_sink.h>
-#else
-#	include <spdlog/sinks/msvc_sink.h>
-#endif
+#include <spdlog/sinks/basic_file_sink.h>
 #pragma warning(pop)
 
 namespace logger = SKSE::log;

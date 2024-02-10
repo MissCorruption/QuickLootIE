@@ -85,9 +85,7 @@ namespace
 	{
 		switch (a_msg->type) {
 		case SKSE::MessagingInterface::kDataLoaded:
-#ifndef NDEBUG
 			InputHandler::Register();
-#endif
 
 			Animation::AnimationManager::Install();
 
@@ -105,11 +103,9 @@ namespace
 		}
 	}
 
+#pragma warning(disable: 4702)
 	void InitializeLog()
 	{
-#ifndef NDEBUG
-		auto sink = std::make_shared<spdlog::sinks::msvc_sink_mt>();
-#else
 		auto path = logger::log_directory();
 		if (!path) {
 			stl::report_and_fail("Failed to find standard logging directory"sv);
@@ -117,13 +113,7 @@ namespace
 
 		*path /= fmt::format("{}.log", Plugin::NAME);
 		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
-#endif
-
-#ifndef NDEBUG
-		const auto level = spdlog::level::trace;
-#else
 		const auto level = spdlog::level::info;
-#endif
 
 		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 		log->set_level(level);
