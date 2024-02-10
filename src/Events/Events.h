@@ -118,7 +118,8 @@ namespace Events
 				}
 			}
 
-			return a_ref->HasContainer();
+			// Which Key? NG compatibility
+			return a_ref->HasContainer() && !a_ref->IsLocked();
 		}
 
 		RE::ObjectRefHandle _cachedRef;
