@@ -24,7 +24,7 @@ else()
 	message(STATUS "Skyrim64Path is ${Skyrim64Path}")
 endif()
 
-option(COPY_OUTPUT "copy the output of build operations to the game directory" ON)
+option(COPY_OUTPUT "copy the output of build operations to the game directory" OFF)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
