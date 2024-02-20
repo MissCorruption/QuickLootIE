@@ -21,7 +21,7 @@ file(COPY ${OPENVR_FILES} DESTINATION "${SOURCE_PATH}/extern/openvr")
 vcpkg_configure_cmake(
     SOURCE_PATH "${SOURCE_PATH}"
     PREFER_NINJA
-    OPTIONS -DBUILD_TESTS=off -DSKSE_SUPPORT_XBYAK=on -DENABLE_SKYRIM_VR=off
+    OPTIONS -DBUILD_TESTS=off -DSKSE_SUPPORT_XBYAK=on
 )
 
 vcpkg_install_cmake()
