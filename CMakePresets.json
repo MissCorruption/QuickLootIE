@@ -1,34 +1,8 @@
 {
   "configurePresets": [
     {
-      "name": "cmake-dev-release",
+      "name": "cmake-dev",
       "binaryDir": "${sourceDir}/build",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": {
-          "type": "STRING",
-          "value": "RelWithDebInfo"
-        },
-        "CMAKE_CONFIGURATION_TYPES": "RelWithDebInfo"
-      },
-      "errors": {
-        "deprecated": true
-      },
-      "hidden": true,
-      "warnings": {
-        "deprecated": true,
-        "dev": true
-      }
-    },
-    {
-      "name": "cmake-dev-debug",
-      "binaryDir": "${sourceDir}/build",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": {
-          "type": "STRING",
-          "value": "Debug"
-        },
-        "CMAKE_CONFIGURATION_TYPES": "Debug"
-      },
       "errors": {
         "deprecated": true
       },
@@ -75,21 +49,42 @@
         "CMAKE_CXX_FLAGS": "/EHsc /MP /W4 /WX"
       },
       "generator": "Visual Studio 17 2022",
-      "inherits": [ "vcpkg", "windows" ],
+      "inherits": [
+        "vcpkg",
+        "windows"
+      ],
       "hidden": true,
       "name": "vs2022-windows",
       "toolset": "v143"
     },
     {
+      "name": "Skyrim",
+      "binaryDir": "${sourceDir}/build/",
+      "inherits": [
+        "cmake-dev",
+        "vcpkg",
+        "windows",
+        "vs2022-windows"
+      ]
+    }
+  ],
+  "version": 3,
+  "buildPresets": [
+    {
       "name": "Release",
-      "binaryDir": "${sourceDir}/build/Release",
-      "inherits": [ "cmake-dev-release", "vcpkg", "windows", "vs2022-windows" ]
+      "configurePreset": "Skyrim",
+      "configuration": "Release"
+    },
+    {
+      "name": "RelWithDebInfo",
+      "displayName": "Release With Debug Info",
+      "configurePreset": "Skyrim",
+      "configuration": "Release"
     },
     {
       "name": "Debug",
-      "binaryDir": "${sourceDir}/build/Debug",
-      "inherits": [ "cmake-dev-debug", "vcpkg", "windows", "vs2022-windows" ]
+      "configurePreset": "Skyrim",
+      "configuration": "Debug"
     }
-  ],
-  "version": 3
+  ]
 }
