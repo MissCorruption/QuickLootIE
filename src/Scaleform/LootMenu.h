@@ -279,17 +279,16 @@ namespace Scaleform
 			const float WindowW = Settings::WindowW();
 			const float WindowH = Settings::WindowH();
 
-			_rootObj.X( WindowX > 1.f ? WindowX : _rootObj.X() + def->GetWidth() / 5);
+			_rootObj.X(WindowX > 1.f ? WindowX : _rootObj.X() + def->GetWidth() / 5);
 
 			if (WindowY > 1.f)
-				_rootObj.Y( WindowY);
+				_rootObj.Y(WindowY);
 
 			if (WindowW > 1.f)
-				_rootObj.Width( WindowW);
+				_rootObj.Width(WindowW);
 
 			if (WindowH > 1.f)
-				_rootObj.Height( WindowH);
-
+				_rootObj.Height(WindowH);
 		}
 
 		void Close();
