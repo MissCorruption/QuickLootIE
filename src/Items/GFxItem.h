@@ -184,7 +184,7 @@ namespace Items
 
 		std::variant<inventory_t, ground_t> _src;
 		std::ptrdiff_t _count;
-		mutable Cache _cache;
+		mutable Cache _cache{};
 		bool _stealing;
 		kType _item_type;
 	};
