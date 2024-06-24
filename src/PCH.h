@@ -134,3 +134,9 @@ using json = nlohmann::json;
 #include "SimpleMath.h"
 
 using uint = uint32_t;
+
+using ScriptObjectPtr = RE::BSTSmartPointer<RE::BSScript::Object>;
+using ScriptArrayPtr = RE::BSTSmartPointer<RE::BSScript::Array>;
+using ScriptCallbackPtr = RE::BSTSmartPointer<RE::BSScript::IStackCallbackFunctor>;
+
+using Settings = QuickLoot::Settings;
