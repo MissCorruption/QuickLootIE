@@ -60,6 +60,8 @@
 		loadSetting(settings, "anchorFractionX", "number");
 		loadSetting(settings, "anchorFractionY", "number");
 		
+		if(scale == 0) scale = 1;
+		
 		// The CoreList constructor sets a scale9Grid, which causes very odd
 		// behavior when changing the list size after it's created.
 		itemList["container"].scale9Grid = null;
@@ -142,16 +144,27 @@
 		arrowDown._visible = itemList.canScrollDown();
 	}
 	
+	private function contains(array: Array, element) {
+		for(var i in array) {
+			if(array[i] == element) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	private function setOpacity(opacity: Number)
 	{
 		for(var member in this) {
 			var element = this[member];
 			
-			if(nonTransparentElements.indexOf(element) >= 0) {
+			if(!(element instanceof MovieClip) && !(element instanceof TextField)) continue;
+			if(contains(nonTransparentElements, element)) {
 				continue;
 			}
 			
-			element._alpha = opacity;
+			element._alpha = opacity * 100;
 		}
 	}
 	
