@@ -1,7 +1,7 @@
 #include "LootMenuManager.h"
 
 #include "HUDManager.h"
-#include "Scaleform/LootMenu.h"
+#include "LootMenu.h"
 
 void LootMenuManager::Close()
 {
