@@ -12,7 +12,7 @@
 #include "OpenCloseHandler.h"
 #include "ViewHandler.h"
 
-namespace Scaleform
+namespace QuickLoot
 {
 	class LootMenu :
 		public RE::IMenu

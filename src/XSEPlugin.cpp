@@ -58,7 +58,7 @@ namespace
 					continue;
 				}
 
-				auto& loot = LootMenuManager::GetSingleton();
+				auto& loot = QuickLoot::LootMenuManager::GetSingleton();
 				switch (button->idCode) {
 				case Keyboard::kNum0:
 					loot.Enable();
@@ -96,7 +96,7 @@ namespace
 			Animation::AnimationManager::Install();
 
 			Events::Register();
-			Scaleform::LootMenu::Register();
+			QuickLoot::LootMenu::Register();
 
 			QuickLoot::Papyrus::Init();
             QuickLoot::Integrations::LOTD::Init();
