@@ -2,7 +2,7 @@
 
 #include "LootMenuManager.h"
 
-namespace Scaleform
+namespace QuickLoot
 {
 	void LootMenu::Close()
 	{

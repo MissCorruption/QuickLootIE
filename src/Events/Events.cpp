@@ -50,7 +50,7 @@ namespace Events
 {
 	void CrosshairRefManager::Evaluate(RE::TESObjectREFRPtr a_ref)
 	{
-		auto& loot = LootMenuManager::GetSingleton();
+		auto& loot = QuickLoot::LootMenuManager::GetSingleton();
 		if (CanOpen(std::move(a_ref))) {
 			loot.SetContainer(_cachedAshPile ? _cachedAshPile : _cachedRef);
 		} else {
@@ -60,7 +60,7 @@ namespace Events
 
 	void CombatManager::Close()
 	{
-		auto& loot = LootMenuManager::GetSingleton();
+		auto& loot = QuickLoot::LootMenuManager::GetSingleton();
 		loot.Close();
 	}
 
