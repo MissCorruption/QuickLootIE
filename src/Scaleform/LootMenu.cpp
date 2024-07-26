@@ -1,30 +1,30 @@
 #include "Scaleform/LootMenu.h"
 
-#include "Loot.h"
+#include "LootMenuManager.h"
 
 namespace Scaleform
 {
 	void LootMenu::Close()
 	{
-		auto& loot = Loot::GetSingleton();
+		auto& loot = LootMenuManager::GetSingleton();
 		loot.Close();
 	}
 
 	void LootMenu::ProcessDelegate()
 	{
-		auto& loot = Loot::GetSingleton();
+		auto& loot = LootMenuManager::GetSingleton();
 		loot.Process(*this);
 	}
 
 	void LootMenu::QueueInventoryRefresh()
 	{
-		auto& loot = Loot::GetSingleton();
+		auto& loot = LootMenuManager::GetSingleton();
 		loot.RefreshInventory();
 	}
 
 	void LootMenu::QueueUIRefresh()
 	{
-		auto& loot = Loot::GetSingleton();
+		auto& loot = LootMenuManager::GetSingleton();
 		loot.RefreshUI();
 	}
 

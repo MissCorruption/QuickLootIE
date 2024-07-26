@@ -6,15 +6,15 @@ namespace Scaleform
 }
 
 // Interface for interacting with the loot menu outside of UI threads
-class Loot
+class LootMenuManager
 {
 private:
 	using LootMenu = Scaleform::LootMenu;
 
 public:
-	static Loot& GetSingleton()
+	static LootMenuManager& GetSingleton()
 	{
-		static Loot singleton;
+		static LootMenuManager singleton;
 		return singleton;
 	}
 
@@ -62,14 +62,14 @@ protected:
 private:
 	using Tasklet = std::function<void(LootMenu&)>;
 
-	Loot() = default;
-	Loot(const Loot&) = delete;
-	Loot(Loot&&) = delete;
+	LootMenuManager() = default;
+	LootMenuManager(const LootMenuManager&) = delete;
+	LootMenuManager(LootMenuManager&&) = delete;
 
-	~Loot() = default;
+	~LootMenuManager() = default;
 
-	Loot& operator=(const Loot&) = delete;
-	Loot& operator=(Loot&&) = delete;
+	LootMenuManager& operator=(const LootMenuManager&) = delete;
+	LootMenuManager& operator=(LootMenuManager&&) = delete;
 
 	void AddTask(Tasklet a_task);
 

@@ -3,7 +3,7 @@
 #include "Animation/Animation.h"
 #include "Events/Events.h"
 #include "Hooks.h"
-#include "Loot.h"
+#include "LootMenuManager.h"
 #include "Scaleform/LootMenu.h"
 #include "Integrations/LOTD.h"
 #include "Integrations/Completionist.h"
@@ -58,7 +58,7 @@ namespace
 					continue;
 				}
 
-				auto& loot = Loot::GetSingleton();
+				auto& loot = LootMenuManager::GetSingleton();
 				switch (button->idCode) {
 				case Keyboard::kNum0:
 					loot.Enable();
