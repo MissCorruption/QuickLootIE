@@ -1,6 +1,6 @@
 #include "ActivationBlocker.h"
 
-namespace QuickLoot::Hooks
+namespace QuickLoot::Behaviors
 {
 	template <std::uint64_t VTableRelocationID>
 	class GetActivateTextHook

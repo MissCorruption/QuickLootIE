@@ -2,7 +2,7 @@
 
 #include <atomic>
 
-namespace QuickLoot::Hooks
+namespace QuickLoot::Behaviors
 {
 	class ActivationBlocker
 	{

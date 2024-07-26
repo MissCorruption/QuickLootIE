@@ -1,6 +1,6 @@
 #include "ViewHandler.h"
 
-#include "Hooks/ActivationBlocker.h"
+#include "Behaviors/ActivationBlocker.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
 
@@ -45,10 +45,10 @@ void ViewHandler::RefreshUI()
 
 void ViewHandler::EnableHUDBlocker()
 {
-	QuickLoot::Hooks::ActivationBlocker::BlockActivation();
+	QuickLoot::Behaviors::ActivationBlocker::BlockActivation();
 }
 
 void ViewHandler::DisableHUDBlocker()
 {
-	QuickLoot::Hooks::ActivationBlocker::UnblockActivation();
+	QuickLoot::Behaviors::ActivationBlocker::UnblockActivation();
 }

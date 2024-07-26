@@ -4,7 +4,7 @@
 #include "Events/Events.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
-#include "Hooks/ActivationBlocker.h"
+#include "Behaviors/ActivationBlocker.h"
 #include "Integrations/LOTD.h"
 #include "Integrations/Completionist.h"
 #include "Papyrus/Papyrus.h"
@@ -134,7 +134,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		return false;
 	}
 
-	QuickLoot::Hooks::ActivationBlocker::Install();
+	QuickLoot::Behaviors::ActivationBlocker::Install();
 	Input::InputManager::Install();
 	QuickLoot::Papyrus::Init();
 
