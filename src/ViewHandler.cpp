@@ -15,7 +15,7 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 	switch (a_priority) {
 	case Priority::kDefault:
 		_menu->depthPriority =
-			Scaleform::LootMenu::SortPriority();
+			QuickLoot::LootMenu::SortPriority();
 		break;
 	case Priority::kLowest:
 		_menu->depthPriority = -1;
@@ -35,13 +35,13 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 
 void ViewHandler::Close()
 {
-	auto& loot = LootMenuManager::GetSingleton();
+	auto& loot = QuickLoot::LootMenuManager::GetSingleton();
 	loot.Close();
 }
 
 void ViewHandler::RefreshUI()
 {
-	auto& loot = LootMenuManager::GetSingleton();
+	auto& loot = QuickLoot::LootMenuManager::GetSingleton();
 	loot.RefreshUI();
 }
 
