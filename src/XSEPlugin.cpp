@@ -1,6 +1,5 @@
 #define DLLEXPORT __declspec(dllexport)
 
-#include "Animation/Animation.h"
 #include "Events/Events.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
@@ -90,8 +89,6 @@ namespace
 #ifndef NDEBUG
 			InputHandler::Register();
 #endif
-
-			Animation::AnimationManager::Install();
 
 			Events::Register();
 			QuickLoot::LootMenu::Register();
