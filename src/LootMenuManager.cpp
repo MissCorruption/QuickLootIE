@@ -1,6 +1,6 @@
 #include "LootMenuManager.h"
 
-#include "HUDManager.h"
+#include "Behaviors/ActivationBlocker.h"
 #include "LootMenu.h"
 
 namespace QuickLoot
@@ -11,7 +11,7 @@ namespace QuickLoot
 			auto msgQ = RE::UIMessageQueue::GetSingleton();
 			if (msgQ) {
 				msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
-				auto& hud = HUDManager::GetSingleton();
+				auto& hud = Behaviors::ActivationBlocker::GetSingleton();
 				hud.Disable();
 			}
 		}
@@ -23,7 +23,7 @@ namespace QuickLoot
 			auto msgQ = RE::UIMessageQueue::GetSingleton();
 			if (msgQ) {
 				msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
-				auto& hud = HUDManager::GetSingleton();
+				auto& hud = Behaviors::ActivationBlocker::GetSingleton();
 				hud.Enable();
 			}
 		}
