@@ -35,14 +35,12 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 
 void ViewHandler::Close()
 {
-	auto& loot = QuickLoot::LootMenuManager::GetSingleton();
-	loot.Close();
+	QuickLoot::LootMenuManager::Close();
 }
 
 void ViewHandler::RefreshUI()
 {
-	auto& loot = QuickLoot::LootMenuManager::GetSingleton();
-	loot.RefreshUI();
+	QuickLoot::LootMenuManager::RefreshUI();
 }
 
 void ViewHandler::EnableHUDBlocker()

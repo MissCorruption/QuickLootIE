@@ -8,70 +8,62 @@ namespace QuickLoot
 	class LootMenuManager
 	{
 	public:
-		static LootMenuManager& GetSingleton()
-		{
-			static LootMenuManager singleton;
-			return singleton;
-		}
+		LootMenuManager() = delete;
+		~LootMenuManager() = delete;
+		LootMenuManager(LootMenuManager&&) = delete;
+		LootMenuManager(const LootMenuManager&) = delete;
+		LootMenuManager& operator=(LootMenuManager&&) = delete;
+		LootMenuManager& operator=(const LootMenuManager&) = delete;
 
-		void Disable()
+		static void Disable()
 		{
 			_enabled = false;
 			Close();
 		}
 
-		void Enable() { _enabled = true; }
+		static void Enable() { _enabled = true; }
 
-		void RefreshUI()
+		static void RefreshUI()
 		{
 			auto task = SKSE::GetTaskInterface();
-			task->AddTask([this]() {
+			task->AddTask([] {
 				_refreshUI = true;
 			});
 		}
 
-		void Close();
-		void Open();
+		static void Close();
+		static void Open();
 
-		void ModSelectedIndex(double a_mod);
-		void ModSelectedPage(double a_mod);
+		static void ModSelectedIndex(double a_mod);
+		static void ModSelectedPage(double a_mod);
 
-		void RefreshInventory()
+		static void RefreshInventory()
 		{
 			// Need to delay inventory processing so the game has time to process it before us
 			auto task = SKSE::GetTaskInterface();
-			task->AddTask([this]() {
+			task->AddTask([] {
 				_refreshInventory = true;
 			});
 		}
 
-		void SetContainer(RE::ObjectRefHandle a_container);
-		void TakeStack();
-		void TakeAll();
+		static void SetContainer(RE::ObjectRefHandle a_container);
+		static void TakeStack();
+		static void TakeAll();
 
 	protected:
 		friend class LootMenu;
 
-		void Process(LootMenu& a_menu);
+		static void Process(LootMenu& a_menu);
 
 	private:
 		using Tasklet = std::function<void(LootMenu&)>;
 
-		LootMenuManager() = default;
-		LootMenuManager(const LootMenuManager&) = delete;
-		LootMenuManager(LootMenuManager&&) = delete;
+		static void AddTask(Tasklet a_task);
 
-		~LootMenuManager() = default;
+		static [[nodiscard]] RE::GPtr<LootMenu> GetMenu();
+		static [[nodiscard]] bool IsOpen();
 
-		LootMenuManager& operator=(const LootMenuManager&) = delete;
-		LootMenuManager& operator=(LootMenuManager&&) = delete;
-
-		void AddTask(Tasklet a_task);
-
-		[[nodiscard]] RE::GPtr<LootMenu> GetMenu() const;
-		[[nodiscard]] bool IsOpen() const;
-
-		[[nodiscard]] bool ShouldOpen() const
+		static [[nodiscard]] bool ShouldOpen()
 		{
 			if (!_enabled || IsOpen()) {
 				return false;
@@ -88,10 +80,10 @@ namespace QuickLoot
 			return true;
 		}
 
-		mutable std::mutex _lock;
-		std::vector<Tasklet> _taskQueue;
-		std::atomic_bool _enabled{ true };
-		bool _refreshUI{ false };
-		bool _refreshInventory{ false };
+		static inline std::mutex _lock{};
+		static inline std::vector<Tasklet> _taskQueue{};
+		static inline std::atomic_bool _enabled = true ;
+		static inline bool _refreshUI = false;
+		static inline bool _refreshInventory = false;
 	};
 }
