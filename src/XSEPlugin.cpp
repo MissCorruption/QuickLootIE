@@ -2,14 +2,13 @@
 
 #include "Animation/Animation.h"
 #include "Events/Events.h"
-#include "Hooks.h"
+#include "HUDManager.h"
+#include "Integrations/APIServer.h"
+#include "Integrations/Completionist.h"
+#include "Integrations/LOTD.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
-#include "Integrations/LOTD.h"
-#include "Integrations/Completionist.h"
-#include "Integrations/APIServer.h"
 #include "Papyrus/Papyrus.h"
-
 
 namespace
 {
@@ -98,7 +97,7 @@ namespace
 			QuickLoot::LootMenu::Register();
 
 			QuickLoot::Papyrus::Init();
-            QuickLoot::Integrations::LOTD::Init();
+			QuickLoot::Integrations::LOTD::Init();
 			QuickLoot::Integrations::Completionist::Init();
 			break;
 		}
@@ -127,7 +126,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 {
 	InitializeLog();
 	logger::info("Loaded plugin {} {}", Plugin::NAME, Plugin::VERSION.string());
-    Init(a_skse);
+	Init(a_skse);
 	SKSE::AllocTrampoline(1 << 6);
 
 	auto message = SKSE::GetMessagingInterface();
@@ -135,8 +134,9 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		return false;
 	}
 	QuickLoot::API::APIServer::Init(message);
-	
-	Hooks::Install();
+
+	HUDManager::Install();
+	Input::InputManager::Install();
 
 	return true;
 }
@@ -149,7 +149,6 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() noexcept {
 	v.HasNoStructUse();
 	return v;
 }();
-
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface*, SKSE::PluginInfo* pluginInfo)
 {
