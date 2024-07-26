@@ -45,12 +45,10 @@ void ViewHandler::RefreshUI()
 
 void ViewHandler::EnableHUDBlocker()
 {
-	auto& hud = QuickLoot::Hooks::ActivationBlocker::GetSingleton();
-	hud.Enable();
+	QuickLoot::Hooks::ActivationBlocker::BlockActivation();
 }
 
 void ViewHandler::DisableHUDBlocker()
 {
-	auto& hud = QuickLoot::Hooks::ActivationBlocker::GetSingleton();
-	hud.Disable();
+	QuickLoot::Hooks::ActivationBlocker::UnblockActivation();
 }
