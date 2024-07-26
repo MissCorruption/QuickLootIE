@@ -1,6 +1,6 @@
 #include "ViewHandler.h"
 
-#include "HUDManager.h"
+#include "Behaviors/ActivationBlocker.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
 
@@ -45,12 +45,12 @@ void ViewHandler::RefreshUI()
 
 void ViewHandler::EnableHUDBlocker()
 {
-	auto& hud = HUDManager::GetSingleton();
+	auto& hud = QuickLoot::Behaviors::ActivationBlocker::GetSingleton();
 	hud.Enable();
 }
 
 void ViewHandler::DisableHUDBlocker()
 {
-	auto& hud = HUDManager::GetSingleton();
+	auto& hud = QuickLoot::Behaviors::ActivationBlocker::GetSingleton();
 	hud.Disable();
 }

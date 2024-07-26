@@ -1,8 +1,8 @@
 #define DLLEXPORT __declspec(dllexport)
 
 #include "Animation/Animation.h"
+#include "Behaviors/ActivationBlocker.h"
 #include "Events/Events.h"
-#include "HUDManager.h"
 #include "Integrations/APIServer.h"
 #include "Integrations/Completionist.h"
 #include "Integrations/LOTD.h"
@@ -135,7 +135,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	}
 	QuickLoot::API::APIServer::Init(message);
 
-	HUDManager::Install();
+	QuickLoot::Behaviors::ActivationBlocker::Install();
 	Input::InputManager::Install();
 
 	return true;
