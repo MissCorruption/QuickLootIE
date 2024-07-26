@@ -142,17 +142,17 @@ namespace QuickLoot {
 
 			if constexpr (std::is_same_v<T, float>) {
 				variable = prop->GetFloat();
-				logger::info("{}: {}", propertyName, variable);
+				logger::trace("{}: {}", propertyName, variable);
 				return;
 			}
 
 		    if constexpr (std::is_same_v<T, std::vector<std::string>>) {
 				variable = ConvertScriptArrayToVector(prop->GetArray());
-				logger::info("{}: {} strings", propertyName, variable.size());
+				logger::trace("{}: {} strings", propertyName, variable.size());
 				return;
 			}
 
-		    logger::info("{}: unsupported type {}", propertyName, typeid(T).name());
+		    logger::trace("{}: unsupported type {}", propertyName, typeid(T).name());
 		}
 	};
 }
