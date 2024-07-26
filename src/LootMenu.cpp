@@ -1,4 +1,4 @@
-#include "Scaleform/LootMenu.h"
+#include "LootMenu.h"
 
 #include "LootMenuManager.h"
 

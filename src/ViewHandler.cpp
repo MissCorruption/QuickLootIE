@@ -1,8 +1,8 @@
 #include "ViewHandler.h"
 
 #include "HUDManager.h"
+#include "LootMenu.h"
 #include "LootMenuManager.h"
-#include "Scaleform/LootMenu.h"
 
 void ViewHandler::AdjustPriority(Priority a_priority)
 {
