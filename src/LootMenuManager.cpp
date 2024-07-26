@@ -11,8 +11,7 @@ namespace QuickLoot
 			auto msgQ = RE::UIMessageQueue::GetSingleton();
 			if (msgQ) {
 				msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
-				auto& hud = Behaviors::ActivationBlocker::GetSingleton();
-				hud.Disable();
+				Behaviors::ActivationBlocker::UnblockActivation();
 			}
 		}
 	}
@@ -23,8 +22,7 @@ namespace QuickLoot
 			auto msgQ = RE::UIMessageQueue::GetSingleton();
 			if (msgQ) {
 				msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
-				auto& hud = Behaviors::ActivationBlocker::GetSingleton();
-				hud.Enable();
+				Behaviors::ActivationBlocker::BlockActivation();
 			}
 		}
 	}
