@@ -1,6 +1,6 @@
 #include "ContainerChangedHandler.h"
 
-#include "Loot.h"
+#include "LootMenuManager.h"
 
 auto ContainerChangedHandler::ProcessEvent(const RE::TESContainerChangedEvent* a_event, RE::BSTEventSource<RE::TESContainerChangedEvent>*)
 	-> EventResult
@@ -10,7 +10,7 @@ auto ContainerChangedHandler::ProcessEvent(const RE::TESContainerChangedEvent* a
 		container &&
 		(a_event->oldContainer == container->GetFormID() ||
 			a_event->newContainer == container->GetFormID())) {
-		auto& loot = Loot::GetSingleton();
+		auto& loot = LootMenuManager::GetSingleton();
 		loot.RefreshInventory();
 	}
 

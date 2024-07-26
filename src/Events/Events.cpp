@@ -1,6 +1,6 @@
 #include "Events.h"
 
-#include "Loot.h"
+#include "LootMenuManager.h"
 
 #define WIN32_LEAN_AND_MEAN
 
@@ -50,7 +50,7 @@ namespace Events
 {
 	void CrosshairRefManager::Evaluate(RE::TESObjectREFRPtr a_ref)
 	{
-		auto& loot = Loot::GetSingleton();
+		auto& loot = LootMenuManager::GetSingleton();
 		if (CanOpen(std::move(a_ref))) {
 			loot.SetContainer(_cachedAshPile ? _cachedAshPile : _cachedRef);
 		} else {
@@ -60,7 +60,7 @@ namespace Events
 
 	void CombatManager::Close()
 	{
-		auto& loot = Loot::GetSingleton();
+		auto& loot = LootMenuManager::GetSingleton();
 		loot.Close();
 	}
 
