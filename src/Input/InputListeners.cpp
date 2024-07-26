@@ -1,7 +1,7 @@
 #include "Input/InputListeners.h"
 
 #include "Input.h"
-#include "Loot.h"
+#include "LootMenuManager.h"
 
 namespace Input
 {
@@ -16,36 +16,36 @@ namespace Input
 
 		if (groups[Group::kPageKeys]) {
 			auto& mappings = _mappings[Device::kKeyboard];
-			mappings.emplace(Keyboard::kPageUp, [] { Loot::GetSingleton().ModSelectedPage(-1.0); });
-			mappings.emplace(Keyboard::kPageDown, [] { Loot::GetSingleton().ModSelectedPage(1.0); });
+			mappings.emplace(Keyboard::kPageUp, [] { LootMenuManager::GetSingleton().ModSelectedPage(-1.0); });
+			mappings.emplace(Keyboard::kPageDown, [] { LootMenuManager::GetSingleton().ModSelectedPage(1.0); });
 		}
 
 		if (groups[Group::kArrowKeys]) {
 			auto& mappings = _mappings[Device::kKeyboard];
-			mappings.emplace(Keyboard::kUp, [] { Loot::GetSingleton().ModSelectedIndex(-1.0); });
-			mappings.emplace(Keyboard::kDown, [] { Loot::GetSingleton().ModSelectedIndex(1.0); });
-			mappings.emplace(Keyboard::kLeft, [] { Loot::GetSingleton().ModSelectedPage(-1.0); });
-			mappings.emplace(Keyboard::kRight, [] { Loot::GetSingleton().ModSelectedPage(1.0); });
+			mappings.emplace(Keyboard::kUp, [] { LootMenuManager::GetSingleton().ModSelectedIndex(-1.0); });
+			mappings.emplace(Keyboard::kDown, [] { LootMenuManager::GetSingleton().ModSelectedIndex(1.0); });
+			mappings.emplace(Keyboard::kLeft, [] { LootMenuManager::GetSingleton().ModSelectedPage(-1.0); });
+			mappings.emplace(Keyboard::kRight, [] { LootMenuManager::GetSingleton().ModSelectedPage(1.0); });
 		}
 
 		if (groups[Group::kMouseWheel]) {
 			auto& mappings = _mappings[Device::kMouse];
-			mappings.emplace(Mouse::kWheelUp, [] { Loot::GetSingleton().ModSelectedIndex(-1.0); });
-			mappings.emplace(Mouse::kWheelDown, [] { Loot::GetSingleton().ModSelectedIndex(1.0); });
+			mappings.emplace(Mouse::kWheelUp, [] { LootMenuManager::GetSingleton().ModSelectedIndex(-1.0); });
+			mappings.emplace(Mouse::kWheelDown, [] { LootMenuManager::GetSingleton().ModSelectedIndex(1.0); });
 		}
 
 		if (groups[Group::kDPAD]) {
 			auto& mappings = _mappings[Device::kGamepad];
-			mappings.emplace(Gamepad::kUp, [] { Loot::GetSingleton().ModSelectedIndex(-1.0); });
-			mappings.emplace(Gamepad::kDown, [] { Loot::GetSingleton().ModSelectedIndex(1.0); });
-			mappings.emplace(Gamepad::kLeft, [] { Loot::GetSingleton().ModSelectedPage(-1.0); });
-			mappings.emplace(Gamepad::kRight, [] { Loot::GetSingleton().ModSelectedPage(1.0); });
+			mappings.emplace(Gamepad::kUp, [] { LootMenuManager::GetSingleton().ModSelectedIndex(-1.0); });
+			mappings.emplace(Gamepad::kDown, [] { LootMenuManager::GetSingleton().ModSelectedIndex(1.0); });
+			mappings.emplace(Gamepad::kLeft, [] { LootMenuManager::GetSingleton().ModSelectedPage(-1.0); });
+			mappings.emplace(Gamepad::kRight, [] { LootMenuManager::GetSingleton().ModSelectedPage(1.0); });
 		}
 	}
 
 	void TakeHandler::TakeStack()
 	{
-		auto& loot = Loot::GetSingleton();
+		auto& loot = LootMenuManager::GetSingleton();
 		loot.TakeStack();
 	}
 
@@ -67,14 +67,14 @@ namespace Input
 			activateHandler->SetHeldButtonActionSuccess(true);
 		}
 
-		auto& loot = Loot::GetSingleton();
+		auto& loot = LootMenuManager::GetSingleton();
 		loot.Close();
 	}
 
 	// TODO: Actually take all items
 	void TakeHandler::TakeAll()
 	{
-		auto& loot = Loot::GetSingleton();
+		auto& loot = LootMenuManager::GetSingleton();
 		loot.TakeAll();
 	}
 
@@ -98,7 +98,7 @@ namespace Input
 					player->ActivatePickRef();
 				}
 
-				auto& loot = Loot::GetSingleton();
+				auto& loot = LootMenuManager::GetSingleton();
 				loot.Close();
 				return;
 			}

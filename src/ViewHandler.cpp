@@ -1,7 +1,7 @@
 #include "ViewHandler.h"
 
 #include "HUDManager.h"
-#include "Loot.h"
+#include "LootMenuManager.h"
 #include "Scaleform/LootMenu.h"
 
 void ViewHandler::AdjustPriority(Priority a_priority)
@@ -35,13 +35,13 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 
 void ViewHandler::Close()
 {
-	auto& loot = Loot::GetSingleton();
+	auto& loot = LootMenuManager::GetSingleton();
 	loot.Close();
 }
 
 void ViewHandler::RefreshUI()
 {
-	auto& loot = Loot::GetSingleton();
+	auto& loot = LootMenuManager::GetSingleton();
 	loot.RefreshUI();
 }
 
