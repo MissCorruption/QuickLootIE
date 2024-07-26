@@ -90,12 +90,12 @@ namespace QuickLoot
 		_taskQueue.push_back(std::move(a_task));
 	}
 
-	bool LootMenuManager::IsOpen() const
+	bool LootMenuManager::IsOpen()
 	{
 		return static_cast<bool>(GetMenu());
 	}
 
-	auto LootMenuManager::GetMenu() const
+	auto LootMenuManager::GetMenu()
 		-> RE::GPtr<LootMenu>
 	{
 		auto ui = RE::UI::GetSingleton();
