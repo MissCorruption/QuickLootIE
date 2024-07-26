@@ -4,12 +4,19 @@ namespace QuickLoot::Behaviors
 {
 	class ActivationBlocker
 	{
+		static inline std::atomic_bool _blocked = false;
+
 	public:
-		static ActivationBlocker& GetSingleton()
-		{
-			static ActivationBlocker singleton;
-			return singleton;
-		}
+		ActivationBlocker() = delete;
+		~ActivationBlocker() = delete;
+		ActivationBlocker(ActivationBlocker&&) = delete;
+		ActivationBlocker(const ActivationBlocker&) = delete;
+		ActivationBlocker& operator=(ActivationBlocker&&) = delete;
+		ActivationBlocker& operator=(const ActivationBlocker&) = delete;
+
+		static void BlockActivation() noexcept { _blocked = true; }
+		static void UnblockActivation() noexcept { _blocked = false; }
+		[[nodiscard]] static bool IsActivationBlocked() noexcept { return _blocked; }
 
 		static void Install()
 		{
@@ -22,60 +29,40 @@ namespace QuickLoot::Behaviors
 				Handler<234000>::Install();  // TESObjectACTI
 				Handler<234148>::Install();  // TESObjectCONT
 			}
+
 			logger::info("Installed {}"sv, typeid(ActivationBlocker).name());
 		}
 
-		void Enable() noexcept { _enabled = true; }
-		void Disable() noexcept { _enabled = false; }
-
 	protected:
-		template <std::uint64_t ID>
+		template <std::uint64_t RelocationID>
 		class Handler
 		{
-		public:
-			static void Install()
+			static bool GetActivateText(RE::TESBoundObject* a_this, RE::TESObjectREFR* a_activator, RE::BSString& a_dst)
 			{
-				REL::Relocation<std::uintptr_t> vtbl{ REL::ID(ID) };
-				_func = vtbl.write_vfunc(0x4C, GetActivateText);
-				logger::info("Installed {}"sv, typeid(Handler).name());
+				if (IsActivationBlocked()) {
+					return false;
+				}
+
+				return _GetActivateText(a_this, a_activator, a_dst);
 			}
 
-		private:
-			Handler() = delete;
-			Handler(const Handler&) = delete;
-			Handler(Handler&&) = delete;
+			static inline REL::Relocation<decltype(GetActivateText)> _GetActivateText;
 
+		public:
+			Handler() = delete;
 			~Handler() = delete;
 
+			Handler(const Handler&) = delete;
+			Handler(Handler&&) = delete;
 			Handler& operator=(const Handler&) = delete;
 			Handler& operator=(Handler&&) = delete;
 
-			static bool GetActivateText(RE::TESBoundObject* a_this, RE::TESObjectREFR* a_activator, RE::BSString& a_dst)
+			static void Install()
 			{
-				const auto& proxy = ActivationBlocker::GetSingleton();
-				if (proxy.Enabled()) {
-					return false;
-				} else {
-					return _func(a_this, a_activator, a_dst);
-				}
-			}
-
-			static inline REL::Relocation<decltype(GetActivateText)> _func;
+				REL::Relocation vtbl{ REL::ID(RelocationID) };
+				_GetActivateText = vtbl.write_vfunc(0x4C, GetActivateText);
+				logger::info("Installed {}", typeid(Handler).name());
+			};
 		};
-
-		[[nodiscard]] bool Enabled() const noexcept { return _enabled; }
-		[[nodiscard]] bool Disabled() const noexcept { return !_enabled; }
-
-	private:
-		constexpr ActivationBlocker() noexcept = default;
-		ActivationBlocker(const ActivationBlocker&) = delete;
-		ActivationBlocker(ActivationBlocker&&) = delete;
-
-		~ActivationBlocker() = default;
-
-		ActivationBlocker& operator=(const ActivationBlocker&) = delete;
-		ActivationBlocker& operator=(ActivationBlocker&&) = delete;
-
-		std::atomic_bool _enabled{ false };
 	};
 }
