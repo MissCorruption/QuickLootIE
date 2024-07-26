@@ -6,26 +6,22 @@ namespace QuickLoot
 {
 	void LootMenu::Close()
 	{
-		auto& loot = LootMenuManager::GetSingleton();
-		loot.Close();
+        LootMenuManager::Close();
 	}
 
 	void LootMenu::ProcessDelegate()
 	{
-		auto& loot = LootMenuManager::GetSingleton();
-		loot.Process(*this);
+        LootMenuManager::Process(*this);
 	}
 
 	void LootMenu::QueueInventoryRefresh()
 	{
-		auto& loot = LootMenuManager::GetSingleton();
-		loot.RefreshInventory();
+        LootMenuManager::RefreshInventory();
 	}
 
 	void LootMenu::QueueUIRefresh()
 	{
-		auto& loot = LootMenuManager::GetSingleton();
-		loot.RefreshUI();
+        LootMenuManager::RefreshUI();
 	}
 
 	class ProxyFunctionHandler : public RE::GFxFunctionHandler

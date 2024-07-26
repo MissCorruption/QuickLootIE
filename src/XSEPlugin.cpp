@@ -58,13 +58,12 @@ namespace
 					continue;
 				}
 
-				auto& loot = QuickLoot::LootMenuManager::GetSingleton();
 				switch (button->idCode) {
 				case Keyboard::kNum0:
-					loot.Enable();
+					QuickLoot::LootMenuManager::Enable();
 					break;
 				case Keyboard::kNum9:
-					loot.Disable();
+					QuickLoot::LootMenuManager::Disable();
 					break;
 				default:
 					break;
