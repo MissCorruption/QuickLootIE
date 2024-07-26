@@ -5,16 +5,16 @@ namespace QuickLoot::Behaviors
 	template <std::uint64_t VTableRelocationID>
 	class GetActivateTextHook
 	{
-		static bool GetActivateText(RE::TESBoundObject* a_this, RE::TESObjectREFR* a_activator, RE::BSString& a_dst)
+		static inline REL::Relocation<bool(RE::TESBoundObject*, RE::TESObjectREFR*, RE::BSString&)> GetActivateText;
+
+		static bool Hook_GetActivateText(RE::TESBoundObject* a_this, RE::TESObjectREFR* a_activator, RE::BSString& a_dst)
 		{
 			if (ActivationBlocker::IsActivationBlocked()) {
 				return false;
 			}
 
-			return _GetActivateText(a_this, a_activator, a_dst);
+			return GetActivateText(a_this, a_activator, a_dst);
 		}
-
-		static inline REL::Relocation<decltype(GetActivateText)> _GetActivateText;
 
 	public:
 		GetActivateTextHook() = delete;
@@ -27,7 +27,7 @@ namespace QuickLoot::Behaviors
 		static void Install()
 		{
 			REL::Relocation vTable{ REL::ID(VTableRelocationID) };
-			_GetActivateText = vTable.write_vfunc(0x4C, GetActivateText);
+			GetActivateText = vTable.write_vfunc(0x4C, Hook_GetActivateText);
 
 			logger::info("Installed {}", typeid(GetActivateTextHook).name());
 		};
