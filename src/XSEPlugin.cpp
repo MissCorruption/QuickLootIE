@@ -1,12 +1,12 @@
 #define DLLEXPORT __declspec(dllexport)
 
 #include "Behaviors/ActivationBlocker.h"
-#include "Events/Events.h"
 #include "Integrations/APIServer.h"
 #include "Integrations/Completionist.h"
 #include "Integrations/LOTD.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
+#include "MenuVisibilityManager.h"
 #include "Papyrus/Papyrus.h"
 
 namespace
@@ -90,7 +90,6 @@ namespace
 			InputHandler::Register();
 #endif
 
-			Events::Register();
 			QuickLoot::LootMenu::Register();
 
 			QuickLoot::Papyrus::Init();
@@ -132,6 +131,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	}
 	QuickLoot::API::APIServer::Init(message);
 
+	QuickLoot::MenuVisibilityManager::InstallHooks();
 	QuickLoot::Behaviors::ActivationBlocker::Install();
 	Input::InputManager::Install();
 

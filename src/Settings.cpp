@@ -35,6 +35,7 @@ namespace QuickLoot
 		return QLIEDisableForAnimals;
 	}
 
+	// TODO rename to DisableForDragons
 	bool Settings::DisableForMonsters()
 	{
 		return false; //Unimplemented ?
