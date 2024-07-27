@@ -5,7 +5,6 @@ namespace QuickLoot::Config
 {
 	void Papyrus::Init()
 	{
-		RE::UI::GetSingleton()->AddEventSink(GetSingleton());
 		SKSE::GetPapyrusInterface()->Register(RegisterFunctions);
 	}
 
@@ -29,21 +28,6 @@ namespace QuickLoot::Config
 	};
 
 	//---------------------------------------------------
-	//-- Variables Functions ( On Menu Closed ) ---------
-	//---------------------------------------------------
-
-	RE::BSEventNotifyControl Papyrus::ProcessEvent(RE::MenuOpenCloseEvent const* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*)
-	{
-		// TODO move this to MenuVisibilityManager
-		if (!a_event->opening && a_event->menuName == RE::JournalMenu::MENU_NAME) {
-			logger::info("Updating variables after menu close");
-			UpdateVariables(nullptr);
-		};
-
-		return RE::BSEventNotifyControl::kContinue;
-	}
-
-	//---------------------------------------------------
 	//-- Variables Functions ( Set MCM Pointer ) --------
 	//---------------------------------------------------
 
@@ -61,7 +45,7 @@ namespace QuickLoot::Config
 		};
 
 		logger::info("MCM pointer set successfully");
-		UpdateVariables(nullptr);
+		UpdateVariables();
 	};
 
 	//---------------------------------------------------
@@ -106,7 +90,7 @@ namespace QuickLoot::Config
 
 	void Papyrus::LogWithPlugin(RE::StaticFunctionTag*, std::string a_message)
 	{
-		logger::info("Papyrus Message: {}", a_message);
+		logger::info("! {}", a_message);
 	}
 
 	//---------------------------------------------------
@@ -140,6 +124,7 @@ namespace QuickLoot::Config
 		if (elementPos >= 0 && elementPos < static_cast<int32_t>(userList.size())) {
 			userList.erase(userList.begin() + elementPos);
 		}
+
 		return userList;
 	}
 
