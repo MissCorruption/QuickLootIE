@@ -4,7 +4,6 @@
 #include "CLIK/GFx/Controls/ButtonBar.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
-#include "ContainerChangedHandler.h"
 #include "Items/OldGroundItems.h"
 #include "Items/OldInventoryItem.h"
 #include "Items/OldItem.h"
@@ -65,7 +64,6 @@ namespace QuickLoot
 			assert(a_ref);
 			_src = a_ref;
 			_viewHandler->SetSource(a_ref);
-			_containerChangedHandler.SetContainer(a_ref);
 			_openCloseHandler.SetSource(a_ref);
 			_itemList.SelectedIndex(0);
 
@@ -622,7 +620,6 @@ namespace QuickLoot
 		RE::ObjectRefHandle _src;
 
 		std::optional<ViewHandler> _viewHandler;
-		ContainerChangedHandler _containerChangedHandler;
 		OpenCloseHandler _openCloseHandler{ _dst };
 
 		CLIK::MovieClip _rootObj;
