@@ -45,8 +45,8 @@ namespace QuickLoot
 			return false;
 		}
 
-		if (_cameraState == RE::CameraState::kAutoVanity ||
-			_cameraState == RE::CameraState::kVATS) {
+		const auto cameraState = RE::PlayerCamera::GetSingleton()->currentState;
+		if (cameraState && (cameraState->id == RE::CameraState::kAutoVanity || cameraState->id == RE::CameraState::kVATS)) {
 			logger::debug("LootMenu disabled because of camera state");
 			return false;
 		}
@@ -110,22 +110,14 @@ namespace QuickLoot
 	{
 		logger::trace("OnCameraStateChanged: {}", std::to_underlying(state));
 
-		if (state != _cameraState) {
-			_cameraState = state;
-			RefreshOpenState();
-		}
+	    RefreshOpenState();
 	}
 
 	void MenuVisibilityManager::OnCombatStateChanged(RE::ACTOR_COMBAT_STATE state)
 	{
 		logger::trace("OnCombatStateChanged: {}", std::to_underlying(state));
 
-		const bool isInCombat = RE::PlayerCharacter::GetSingleton()->IsInCombat();
-
-		if (isInCombat != _isInCombat) {
-			_isInCombat = isInCombat;
-			RefreshOpenState();
-		}
+	    RefreshOpenState();
 	}
 
 	void MenuVisibilityManager::OnContainerChanged(RE::FormID container)

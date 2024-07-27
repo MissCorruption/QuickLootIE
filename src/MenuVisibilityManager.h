@@ -23,9 +23,6 @@ namespace QuickLoot
 		static void OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName);
 
 	private:
-		static inline RE::CameraState _cameraState = RE::CameraState::kFirstPerson;
-		static inline bool _isInCombat = false;
-
 		static inline RE::ObjectRefHandle _focusedRef{};
 		static inline RE::ObjectRefHandle _displayedContainer{};
 
