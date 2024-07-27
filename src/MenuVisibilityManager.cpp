@@ -203,10 +203,14 @@ namespace QuickLoot
 	{
 		logger::trace("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", menuName);
 
-		// TODO move Papyrus::UpdateVariables() here to make sure it is executed before the refresh
+		if (!opening && menuName == RE::JournalMenu::MENU_NAME) {
+			Config::Papyrus::UpdateVariables();
+		}
 
-		// TODO hide this behavior behind a setting
-		RefreshOpenState();
+		// TODO hide this behavior behind a setting Settings::OpenWhenClosingContainer
+		if (!opening && menuName == RE::ContainerMenu::MENU_NAME) {
+			RefreshOpenState();
+		}
 	}
 
 #pragma warning(pop)

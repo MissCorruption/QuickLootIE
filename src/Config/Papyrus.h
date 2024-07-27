@@ -33,20 +33,15 @@ namespace QuickLoot::Config
 
 	inline std::vector<std::string> QLIESortPriorityStrings;
 
-	class Papyrus : public RE::BSTEventSink<RE::MenuOpenCloseEvent>
+	class Papyrus
 	{
 	public:
+		Papyrus() = delete;
+		~Papyrus() = delete;
 		Papyrus(Papyrus const&) = delete;
 		Papyrus(Papyrus const&&) = delete;
 		Papyrus& operator=(Papyrus&) = delete;
 		Papyrus& operator=(Papyrus&&) = delete;
-
-		static Papyrus* GetSingleton()
-		{
-			static Papyrus singleton;
-			return &singleton;
-		}
-		RE::BSEventNotifyControl ProcessEvent(RE::MenuOpenCloseEvent const* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* source) override;
 
 		static void Init();
 		static void SetFrameworkQuest(RE::StaticFunctionTag*, RE::TESQuest* a_quest);
@@ -63,9 +58,6 @@ namespace QuickLoot::Config
 		static std::vector<std::string> AddPresetsToArray(RE::StaticFunctionTag*, std::vector<std::string> userList, std::vector<std::string> presetList);
 
 	private:
-		Papyrus() = default;
-		~Papyrus() = default;
-
 		static bool RegisterFunctions(RE::BSScript::IVirtualMachine* a_vm);
 		static std::string ReplaceStr(const std::string& in, const std::string& from, const std::string& to)
 		{
