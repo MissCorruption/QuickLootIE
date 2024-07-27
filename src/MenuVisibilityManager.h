@@ -2,7 +2,6 @@
 
 namespace QuickLoot
 {
-	// TODO move this out of the hooks namespace
 	class MenuVisibilityManager
 	{
 	public:
@@ -21,7 +20,7 @@ namespace QuickLoot
 		static void OnCrosshairRefChanged(const RE::ObjectRefHandle& ref);
 		static void OnLifeStateChanged(RE::Actor& actor);
 		static void OnLockChanged(RE::TESObjectREFR& container);
-		static void OnMenuOpenClose(bool opening, const char* menuName);
+		static void OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName);
 
 	private:
 		static inline RE::CameraState _cameraState = RE::CameraState::kFirstPerson;

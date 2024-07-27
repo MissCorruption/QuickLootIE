@@ -165,14 +165,18 @@ namespace QuickLoot
 		}
 	}
 
-	void MenuVisibilityManager::OnMenuOpenClose(bool opening, const char* menuName)
+	void MenuVisibilityManager::OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName)
 	{
 		logger::trace("OnMenuOpenClose: {} {}", opening ? "open" : "close", menuName);
 
-		// TODO move Papyrus::UpdateVariables() here to make sure it is executed before the refresh
+		if (!opening && menuName == RE::JournalMenu::MENU_NAME) {
+			Papyrus::UpdateVariables();
+		}
 
-		// TODO hide this behavior behind a setting
-		RefreshOpenState();
+		// TODO hide this behavior behind a setting Settings::OpenWhenClosingContainer
+		if (!opening && menuName == RE::ContainerMenu::MENU_NAME) {
+			RefreshOpenState();
+		}
 	}
 
 #pragma warning(pop)
