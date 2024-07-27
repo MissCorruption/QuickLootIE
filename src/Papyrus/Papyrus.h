@@ -49,7 +49,7 @@ namespace QuickLoot {
 		static void Init();
 		static void SetFrameworkQuest(RE::StaticFunctionTag*, RE::TESQuest* a_quest);
 		static void LogWithPlugin(RE::StaticFunctionTag*, std::string a_message);
-		static void UpdateVariables(RE::StaticFunctionTag*);
+		static void UpdateVariables(RE::StaticFunctionTag* = nullptr);
 		static std::string GetVersion(RE::StaticFunctionTag*);
 
 		static std::vector<std::string> FormatSortOptionsList(RE::StaticFunctionTag*, std::vector<std::string> options, std::vector<std::string> userList);

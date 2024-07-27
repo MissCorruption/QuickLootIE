@@ -34,6 +34,7 @@ namespace QuickLoot
 
 	RE::BSEventNotifyControl Papyrus::ProcessEvent(RE::MenuOpenCloseEvent const* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*)
 	{
+		// TODO move this to MenuVisibilityManager
 		if (!a_event->opening && a_event->menuName == RE::JournalMenu::MENU_NAME)
 		{
 			logger::info("Updating variables after menu close");

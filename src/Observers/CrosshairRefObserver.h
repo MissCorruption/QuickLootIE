@@ -1,0 +1,26 @@
+#pragma once
+
+namespace QuickLoot::Observers
+{
+	class CrosshairRefObserver : public RE::BSTEventSink<SKSE::CrosshairRefEvent>
+	{
+		static CrosshairRefObserver* GetSingleton()
+		{
+			static CrosshairRefObserver instance;
+			return &instance;
+		}
+
+		CrosshairRefObserver() = default;
+		~CrosshairRefObserver() override = default;
+
+	public:
+		CrosshairRefObserver(CrosshairRefObserver&&) = delete;
+		CrosshairRefObserver(const CrosshairRefObserver&) = delete;
+		CrosshairRefObserver& operator=(CrosshairRefObserver&&) = delete;
+		CrosshairRefObserver& operator=(const CrosshairRefObserver&) = delete;
+
+		static void Install();
+
+        RE::BSEventNotifyControl ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override;
+    };
+}
