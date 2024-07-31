@@ -5,7 +5,6 @@ namespace QuickLoot
 {
 	void Papyrus::Init()
 	{
-		RE::UI::GetSingleton()->AddEventSink(GetSingleton());
 		SKSE::GetPapyrusInterface()->Register(RegisterFunctions);
 	}
 
@@ -24,24 +23,9 @@ namespace QuickLoot
 		a_vm->RegisterFunction("InsertSortOptionPriority",	"QuickLootIENative", InsertSortOptionPriority);
 		a_vm->RegisterFunction("GetSortingPreset",			"QuickLootIENative", GetSortingPreset);
 		a_vm->RegisterFunction("GetSortingPresets",			"QuickLootIENative", GetSortingPresets);
-		a_vm->RegisterFunction("AddPresetsToArray",			"QuickLootIENative", AddPresetsToArray);		
+		a_vm->RegisterFunction("AddPresetsToArray",			"QuickLootIENative", AddPresetsToArray);
 		return true;
 	};
-
-	//---------------------------------------------------
-	//-- Variables Functions ( On Menu Closed ) ---------
-	//---------------------------------------------------
-
-	RE::BSEventNotifyControl Papyrus::ProcessEvent(RE::MenuOpenCloseEvent const* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*)
-	{
-		if (!a_event->opening && a_event->menuName == RE::JournalMenu::MENU_NAME)
-		{
-			logger::info("Updating variables after menu close");
-			UpdateVariables(nullptr);
-		};
-
-		return RE::BSEventNotifyControl::kContinue;
-	}
 
 	//---------------------------------------------------
 	//-- Variables Functions ( Set MCM Pointer ) --------
@@ -49,21 +33,19 @@ namespace QuickLoot
 
 	void Papyrus::SetFrameworkQuest(RE::StaticFunctionTag*, RE::TESQuest* a_quest)
 	{
-		if (!a_quest)
-		{
+		if (!a_quest) {
 			logger::info("No quest passed to registration function");
 			return;
 		};
 
 		MCMScript = ScriptObject::FromForm(a_quest, "QuickLootIEMCM");
-		if (!MCMScript)
-		{
+		if (!MCMScript) {
 			logger::info("Unable to locate MCM script on form");
 			return;
 		};
 
 		logger::info("MCM pointer set successfully");
-		UpdateVariables(nullptr);
+		UpdateVariables();
 	};
 
 	//---------------------------------------------------
@@ -108,8 +90,7 @@ namespace QuickLoot
 
 	void Papyrus::LogWithPlugin(RE::StaticFunctionTag*, std::string a_message) 
 	{
-
-		logger::info("Papyrus Message: {}", a_message);
+		logger::info("! {}", a_message);
 	}
 
 	//---------------------------------------------------
@@ -128,9 +109,9 @@ namespace QuickLoot
 	std::vector<std::string> Papyrus::FormatSortOptionsList(RE::StaticFunctionTag*, std::vector<std::string> options, std::vector<std::string> userList)
 	{
 		options.erase(
-			std::remove_if(options.begin(), options.end(), [&userList](const std::string& option) {
-				return std::find(userList.begin(), userList.end(), option) != userList.end();
-				}),
+			std::ranges::remove_if(options, [&userList](const std::string& option) {
+                return std::ranges::find(userList, option) != userList.end();
+            }).begin(),
 			options.end()
 		);
 
@@ -146,6 +127,7 @@ namespace QuickLoot
 		if (elementPos >= 0 && elementPos < static_cast<int32_t>(userList.size())) {
 			userList.erase(userList.begin() + elementPos);
 		}
+
 		return userList;
 	}
 
@@ -185,14 +167,15 @@ namespace QuickLoot
 	//-- Framework Functions (Get Preset Elements) ------
 	//---------------------------------------------------
 
-	std::vector<std::string> Papyrus::GetSortingPreset(RE::StaticFunctionTag*, int32_t presetChoice) {
-
-		switch (presetChoice)
-		{
-		case 1: return ConvertArrayToVector(SortingPresets_Default);
-		case 2: return ConvertArrayToVector(SortingPresets_Goblin);
-		default: 
-			return  ConvertArrayToVector(SortingPresets_Default);
+	std::vector<std::string> Papyrus::GetSortingPreset(RE::StaticFunctionTag*, int32_t presetChoice)
+    {
+		switch (presetChoice) {
+		case 1:
+			return ConvertArrayToVector(SortingPresets_Default);
+		case 2:
+			return ConvertArrayToVector(SortingPresets_Goblin);
+		default:
+			return ConvertArrayToVector(SortingPresets_Default);
 		}
 	}
 }

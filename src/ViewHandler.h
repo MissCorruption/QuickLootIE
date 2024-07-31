@@ -1,12 +1,10 @@
 #pragma once
 
-#include "Animation/Animation.h"
 #include "Input/InputDisablers.h"
 #include "Input/InputListeners.h"
 
 class ViewHandler :
-	public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
-	public Animation::IEventSink
+	public RE::BSTEventSink<RE::MenuOpenCloseEvent>
 {
 public:
 	ViewHandler() = delete;
@@ -57,8 +55,6 @@ protected:
 		Evaluate();
 		return EventResult::kContinue;
 	}
-
-	void OnAnimationEvent() override { Evaluate(); }
 
 private:
 	enum class Priority : std::size_t

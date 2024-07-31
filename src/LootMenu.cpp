@@ -1,31 +1,27 @@
-#include "Scaleform/LootMenu.h"
+#include "LootMenu.h"
 
-#include "Loot.h"
+#include "LootMenuManager.h"
 
-namespace Scaleform
+namespace QuickLoot
 {
 	void LootMenu::Close()
 	{
-		auto& loot = Loot::GetSingleton();
-		loot.Close();
+        LootMenuManager::Close();
 	}
 
 	void LootMenu::ProcessDelegate()
 	{
-		auto& loot = Loot::GetSingleton();
-		loot.Process(*this);
+        LootMenuManager::Process(*this);
 	}
 
 	void LootMenu::QueueInventoryRefresh()
 	{
-		auto& loot = Loot::GetSingleton();
-		loot.RefreshInventory();
+        LootMenuManager::RefreshInventory();
 	}
 
 	void LootMenu::QueueUIRefresh()
 	{
-		auto& loot = Loot::GetSingleton();
-		loot.RefreshUI();
+        LootMenuManager::RefreshUI();
 	}
 
 	class ProxyFunctionHandler : public RE::GFxFunctionHandler

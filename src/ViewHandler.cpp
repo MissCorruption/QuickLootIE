@@ -1,8 +1,8 @@
 #include "ViewHandler.h"
 
-#include "HUDManager.h"
-#include "Loot.h"
-#include "Scaleform/LootMenu.h"
+#include "Behaviors/ActivationBlocker.h"
+#include "LootMenu.h"
+#include "LootMenuManager.h"
 
 void ViewHandler::AdjustPriority(Priority a_priority)
 {
@@ -15,7 +15,7 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 	switch (a_priority) {
 	case Priority::kDefault:
 		_menu->depthPriority =
-			Scaleform::LootMenu::SortPriority();
+			QuickLoot::LootMenu::SortPriority();
 		break;
 	case Priority::kLowest:
 		_menu->depthPriority = -1;
@@ -35,24 +35,20 @@ void ViewHandler::AdjustPriority(Priority a_priority)
 
 void ViewHandler::Close()
 {
-	auto& loot = Loot::GetSingleton();
-	loot.Close();
+	QuickLoot::LootMenuManager::Close();
 }
 
 void ViewHandler::RefreshUI()
 {
-	auto& loot = Loot::GetSingleton();
-	loot.RefreshUI();
+	QuickLoot::LootMenuManager::RefreshUI();
 }
 
 void ViewHandler::EnableHUDBlocker()
 {
-	auto& hud = HUDManager::GetSingleton();
-	hud.Enable();
+	QuickLoot::Behaviors::ActivationBlocker::BlockActivation();
 }
 
 void ViewHandler::DisableHUDBlocker()
 {
-	auto& hud = HUDManager::GetSingleton();
-	hud.Disable();
+	QuickLoot::Behaviors::ActivationBlocker::UnblockActivation();
 }

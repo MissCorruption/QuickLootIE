@@ -1,10 +1,9 @@
 #define DLLEXPORT __declspec(dllexport)
 
-#include "Animation/Animation.h"
-#include "Events/Events.h"
-#include "Hooks.h"
-#include "Loot.h"
-#include "Scaleform/LootMenu.h"
+#include "LootMenu.h"
+#include "LootMenuManager.h"
+#include "MenuVisibilityManager.h"
+#include "Behaviors/ActivationBlocker.h"
 #include "Integrations/LOTD.h"
 #include "Integrations/Completionist.h"
 #include "Papyrus/Papyrus.h"
@@ -57,13 +56,12 @@ namespace
 					continue;
 				}
 
-				auto& loot = Loot::GetSingleton();
 				switch (button->idCode) {
 				case Keyboard::kNum0:
-					loot.Enable();
+					QuickLoot::LootMenuManager::Enable();
 					break;
 				case Keyboard::kNum9:
-					loot.Disable();
+					QuickLoot::LootMenuManager::Disable();
 					break;
 				default:
 					break;
@@ -92,10 +90,7 @@ namespace
 			InputHandler::Register();
 #endif
 
-			Animation::AnimationManager::Install();
-
-			Events::Register();
-			Scaleform::LootMenu::Register();
+			QuickLoot::LootMenu::Register();
 
 			QuickLoot::Papyrus::Init();
             QuickLoot::Integrations::LOTD::Init();
@@ -134,8 +129,10 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	if (!message->RegisterListener(MessageHandler)) {
 		return false;
 	}
-	
-	Hooks::Install();
+
+	QuickLoot::MenuVisibilityManager::InstallHooks();
+	QuickLoot::Behaviors::ActivationBlocker::Install();
+	Input::InputManager::Install();
 	QuickLoot::Papyrus::Init();
 
 	return true;
