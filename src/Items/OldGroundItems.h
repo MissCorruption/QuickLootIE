@@ -34,16 +34,35 @@ namespace QuickLoot::Items
 				return;
 			}
 
+			std::vector<QuickLoot::Integrations::Element> elements;
 			for (auto& handle : _items) {
 				auto item = handle.get();
 				if (item) {
 					const auto xCount = std::clamp<std::ptrdiff_t>(item->extraList.GetCount(), 1, toRemove);
 					a_dst.PickUpObject(item.get(), static_cast<std::int32_t>(xCount), false, true);
 					toRemove -= xCount;
-
+					elements.push_back(QuickLoot::Integrations::Element(item, xCount));
 					if (toRemove <= 0) {
 						break;
 					}
+				}
+			}
+			QuickLoot::Integrations::PluginServer::HandleOnTake(&a_dst, &elements);
+		}
+
+		void DoSelect(RE::Actor& a_dst) override
+		{
+			std::vector<QuickLoot::Integrations::Element> elements;
+			FillElementsVector(&elements);
+			QuickLoot::Integrations::PluginServer::HandleOnSelect(&a_dst, &elements);
+		}
+
+		void FillElementsVector(std::vector<QuickLoot::Integrations::Element>* elements) override
+		{
+			for (auto& handle : _items) {
+				auto item = handle.get();
+				if (item) {
+					elements->push_back(QuickLoot::Integrations::Element(item, Count()));
 				}
 			}
 		}

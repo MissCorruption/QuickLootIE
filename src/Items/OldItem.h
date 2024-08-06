@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Integrations/PluginServer.h"
 #include "Items/ItemListEntry.h"
 
 namespace QuickLoot::Items
@@ -31,6 +32,9 @@ namespace QuickLoot::Items
 		void Take(RE::Actor& a_dst, std::ptrdiff_t a_count) { DoTake(a_dst, a_count); }
 		void Take(RE::Actor& a_dst) { DoTake(a_dst, 1); }
 		void TakeAll(RE::Actor& a_dst) { DoTake(a_dst, Count()); }
+		void OnSelected(RE::Actor& a_dst) { DoSelect(a_dst); }
+
+		virtual void FillElementsVector(std::vector<QuickLoot::Integrations::Element>* elements) = 0;
 
 		[[nodiscard]] double EnchantmentCharge() const { return _item.GetEnchantmentCharge(); }
 
@@ -40,6 +44,7 @@ namespace QuickLoot::Items
 
 	protected:
 		virtual void DoTake(RE::Actor& a_dst, std::ptrdiff_t a_count) = 0;
+		virtual void DoSelect(RE::Actor& a_dst) = 0;
 
 		[[nodiscard]] std::ptrdiff_t Count() const { return std::max<std::ptrdiff_t>(_item.Count(), 0); }
 		[[nodiscard]] bool Stolen() const { return _item.IsStolen(); }

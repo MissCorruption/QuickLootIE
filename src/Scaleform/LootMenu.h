@@ -5,6 +5,7 @@
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
 #include "ContainerChangedHandler.h"
+#include "Integrations/PluginServer.h"
 #include "Items/OldGroundItems.h"
 #include "Items/OldInventoryItem.h"
 #include "Items/OldItem.h"
@@ -46,6 +47,7 @@ namespace Scaleform
 				_lastSelectedIndex = static_cast<ptrdiff_t>(idx);
 				_itemList.SelectedIndex(idx);
 				UpdateInfoBar();
+				OnSelectedIndexChanged();
 			}
 		}
 
@@ -58,6 +60,7 @@ namespace Scaleform
 				inst.Invoke("modSelectedPage", args);
 			assert(success);
 			UpdateInfoBar();
+			OnSelectedIndexChanged();
 		}
 
 		void SetContainer(RE::ObjectRefHandle a_ref)
@@ -114,9 +117,11 @@ namespace Scaleform
 				Close();
 			} else {
 				Sort();
+				std::vector<QuickLoot::Integrations::Element> elements;
 				_itemListProvider.ClearElements();
 				for (const auto& elem : _itemListImpl) {
 					_itemListProvider.PushBack(elem->GFxValue(*_view));
+					elem->FillElementsVector(&elements);
 				}
 				_itemList.InvalidateData();
 				_rootObj.GetInstance().Invoke("refresh");
@@ -133,6 +138,9 @@ namespace Scaleform
 				UpdateInfoBar();
 
 				_rootObj.Visible(true);
+				OnSelectedIndexChanged();
+
+				QuickLoot::Integrations::PluginServer::HandleOnInvalidateLootMenu(&elements, _src);
 			}
 		}
 
@@ -227,6 +235,18 @@ namespace Scaleform
 		LootMenu& operator=(LootMenu&&) = default;
 
 		static stl::owner<RE::IMenu*> Creator() { return new LootMenu(); }
+
+		void OnSelectedIndexChanged()
+		{
+			const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
+			if (0 <= idx && idx < std::ssize(_itemListImpl)) {
+				auto dst = _dst.get();
+				const auto& item = _itemListImpl[static_cast<std::size_t>(idx)];
+				if (item && dst) {
+					item->OnSelected(*dst);
+				}
+			}
+		}
 
 		// IMenu
 		void PostCreate() override { OnOpen(); }
@@ -336,7 +356,10 @@ namespace Scaleform
 			InjectUtilsClass();
 		}
 
-		void OnClose() { return; }
+		void OnClose() {
+			QuickLoot::Integrations::PluginServer::HandleOnCloseLootMenu();
+			return; 
+		}
 
 		void OnOpen()
 		{
@@ -382,6 +405,8 @@ namespace Scaleform
 			_buttonBar.DataProvider(CLIK::Array{ _buttonBarProvider });
 
 			ProcessDelegate();
+
+			QuickLoot::Integrations::PluginServer::HandleOnOpenLootMenu(_src);
 		}
 
 		RE::GFxValue BuildSettingsObject() const
