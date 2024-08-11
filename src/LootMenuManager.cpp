@@ -5,6 +5,14 @@
 
 namespace QuickLoot
 {
+	void LootMenuManager::RefreshUI()
+	{
+		auto task = SKSE::GetTaskInterface();
+		task->AddTask([] {
+			_refreshUI = true;
+		});
+	}
+
 	void LootMenuManager::Close()
 	{
 		if (IsOpen()) {
@@ -38,6 +46,15 @@ namespace QuickLoot
 	{
 		AddTask([a_mod](LootMenu& a_menu) {
 			a_menu.ModSelectedPage(a_mod);
+		});
+	}
+
+	void LootMenuManager::RefreshInventory()
+	{
+		// Need to delay inventory processing so the game has time to process it before us
+		auto task = SKSE::GetTaskInterface();
+		task->AddTask([] {
+			_refreshInventory = true;
 		});
 	}
 
@@ -93,8 +110,24 @@ namespace QuickLoot
 		return static_cast<bool>(GetMenu());
 	}
 
-	auto LootMenuManager::GetMenu()
-		-> RE::GPtr<LootMenu>
+	bool LootMenuManager::ShouldOpen()
+	{
+		if (!_enabled || IsOpen()) {
+			return false;
+		}
+
+		auto player = RE::PlayerCharacter::GetSingleton();
+		if (!player ||
+			player->IsGrabbing() ||
+			player->HasActorDoingCommand() ||
+			(Settings::CloseInCombat() && player->IsInCombat())) {
+			return false;
+		}
+
+		return true;
+	}
+
+	RE::GPtr<LootMenu> LootMenuManager::GetMenu()
 	{
 		auto ui = RE::UI::GetSingleton();
 		return ui ? ui->GetMenu<LootMenu>(LootMenu::MenuName()) : nullptr;
