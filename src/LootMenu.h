@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Behaviors/ContainerAnimator.h"
 #include "CLIK/Array.h"
 #include "CLIK/GFx/Controls/ButtonBar.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
@@ -8,7 +9,6 @@
 #include "Items/OldGroundItems.h"
 #include "Items/OldInventoryItem.h"
 #include "Items/OldItem.h"
-#include "OpenCloseHandler.h"
 #include "ViewHandler.h"
 
 namespace QuickLoot
@@ -64,10 +64,10 @@ namespace QuickLoot
 
 		void SetContainer(RE::ObjectRefHandle a_ref)
 		{
+			Behaviors::ContainerAnimator::CloseContainer(_src);
 			assert(a_ref);
 			_src = a_ref;
 			_viewHandler->SetSource(a_ref);
-			_openCloseHandler.SetSource(a_ref);
 			_itemList.SelectedIndex(0);
 
 			logger::trace("Looking at container {:#016x}. Last container was {:#016x}. Last index was {}.",
@@ -155,7 +155,7 @@ namespace QuickLoot
 			auto pos = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
 			if (dst && 0 <= pos && pos < std::ssize(_itemListImpl)) {
 				_itemListImpl[static_cast<std::size_t>(pos)]->TakeAll(*dst);
-				_openCloseHandler.Open();
+				Behaviors::ContainerAnimator::OpenContainer(_src);
 
 				// Taken from WaterFox' fork of QuickLootEE
 				// See: https://github.com/Eloquence4/QuickLootEE/blob/c93e56dcb7f0372a5ad7df4b22e118e37deeb286/src/Scaleform/LootMenu.h#L136-L162
@@ -176,7 +176,7 @@ namespace QuickLoot
 				for (std::size_t i = 0; i < _itemListImpl.size(); ++i) {
 					_itemListImpl[i]->TakeAll(*dst);
 				}
-				_openCloseHandler.Open();
+				Behaviors::ContainerAnimator::OpenContainer(_src);
 
 				if (Settings::DispelInvisibility() && dst->AsMagicTarget()) {
 					DispelEffectsWithArchetype(dst->AsMagicTarget(), RE::EffectArchetypes::ArchetypeID::kInvisibility, false);
@@ -354,9 +354,10 @@ namespace QuickLoot
 			InjectUtilsClass();
 		}
 
-		void OnClose() {
-			QuickLoot::API::APIServer::DispatchCloseLootMenuEvent(_src);
-			return; 
+		void OnClose()
+		{
+			API::APIServer::DispatchCloseLootMenuEvent(_src);
+			Behaviors::ContainerAnimator::CloseContainer(_src);
 		}
 
 		void OnOpen()
@@ -408,7 +409,7 @@ namespace QuickLoot
 		}
 
 		RE::GFxValue BuildSettingsObject() const
-        {
+		{
 			RE::GFxValue settings{};
 
 			if (!_view) {
@@ -548,7 +549,7 @@ namespace QuickLoot
 			const bool stealing = WouldBeStealing();
 
 			_buttonBarProvider.ClearElements();
-			
+
 			for (std::size_t i = 0; i < buttonDefs.size(); ++i) {
 				const auto& button = buttonDefs[i];
 
@@ -645,7 +646,6 @@ namespace QuickLoot
 		RE::ObjectRefHandle _src;
 
 		std::optional<ViewHandler> _viewHandler;
-		OpenCloseHandler _openCloseHandler{ _dst };
 
 		CLIK::MovieClip _rootObj;
 		CLIK::TextField _title;
