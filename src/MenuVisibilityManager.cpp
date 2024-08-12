@@ -53,6 +53,9 @@ namespace QuickLoot
 
 	bool MenuVisibilityManager::CanOpen(const RE::TESObjectREFRPtr& container)
 	{
+		const auto player = RE::PlayerCharacter::GetSingleton();
+		const auto cameraState = RE::PlayerCamera::GetSingleton()->currentState;
+
 		if (!container) {
 			return false;
 		}
@@ -67,19 +70,28 @@ namespace QuickLoot
 			return false;
 		}
 
-		if (Settings::CloseInCombat() && RE::PlayerCharacter::GetSingleton()->IsInCombat()) {
-			logger::debug("LootMenu disabled because of combat state");
+		if (Settings::CloseInCombat() && player->IsInCombat()) {
+			logger::debug("LootMenu disabled because player is in combat");
 			return false;
 		}
 
-		const auto cameraState = RE::PlayerCamera::GetSingleton()->currentState;
-		if (cameraState && !IsValidCameraState(cameraState->id)) {
-			logger::debug("LootMenu disabled because of camera state");
+		if (player->IsGrabbing()) {
+			logger::debug("LootMenu disabled because player is grabbing something");
+			return false;
+		}
+
+		if (player->HasActorDoingCommand()) {
+			logger::debug("LootMenu disabled because player is commanding a follower");
 			return false;
 		}
 
 		if (RE::MenuControls::GetSingleton()->InBeastForm()) {
 			logger::debug("LootMenu disabled because player is in beast form");
+			return false;
+		}
+
+		if (cameraState && !IsValidCameraState(cameraState->id)) {
+			logger::debug("LootMenu disabled because of camera state");
 			return false;
 		}
 

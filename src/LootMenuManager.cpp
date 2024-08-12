@@ -112,19 +112,7 @@ namespace QuickLoot
 
 	bool LootMenuManager::ShouldOpen()
 	{
-		if (!_enabled || IsOpen()) {
-			return false;
-		}
-
-		auto player = RE::PlayerCharacter::GetSingleton();
-		if (!player ||
-			player->IsGrabbing() ||
-			player->HasActorDoingCommand() ||
-			(Settings::CloseInCombat() && player->IsInCombat())) {
-			return false;
-		}
-
-		return true;
+		return _enabled && !IsOpen();
 	}
 
 	RE::GPtr<LootMenu> LootMenuManager::GetMenu()
