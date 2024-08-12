@@ -85,14 +85,20 @@ namespace
 	void MessageHandler(SKSE::MessagingInterface::Message* a_msg)
 	{
 		switch (a_msg->type) {
-		case SKSE::MessagingInterface::kDataLoaded:
-#ifndef NDEBUG
-			InputHandler::Register();
-#endif
+		case SKSE::MessagingInterface::kPostLoad:
 
-			QuickLoot::LootMenu::Register();
+			// This needs to run before kInputLoaded
+			Input::InputManager::Install();
+			break;
+
+		case SKSE::MessagingInterface::kDataLoaded:
 
 			QuickLoot::Papyrus::Init();
+			QuickLoot::LootMenu::Register();
+			QuickLoot::MenuVisibilityManager::InstallHooks();
+
+			QuickLoot::Behaviors::ActivationBlocker::Install();
+
 			QuickLoot::Integrations::LOTD::Init();
 			QuickLoot::Integrations::Completionist::Init();
 			break;
@@ -129,11 +135,8 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 	if (!message->RegisterListener(MessageHandler)) {
 		return false;
 	}
-	QuickLoot::API::APIServer::Init(message);
 
-	QuickLoot::MenuVisibilityManager::InstallHooks();
-	QuickLoot::Behaviors::ActivationBlocker::Install();
-	Input::InputManager::Install();
+	QuickLoot::API::APIServer::Init(message);
 
 	return true;
 }
