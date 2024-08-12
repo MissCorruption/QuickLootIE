@@ -3,8 +3,7 @@
 #include "Input/InputDisablers.h"
 #include "Input/InputListeners.h"
 
-class ViewHandler :
-	public RE::BSTEventSink<RE::MenuOpenCloseEvent>
+class ViewHandler
 {
 public:
 	ViewHandler() = delete;
@@ -20,13 +19,11 @@ public:
 		assert(_view != nullptr);
 
 		SetVisible(false);
-		Register();
 		Evaluate();
 	}
 
 	~ViewHandler()
 	{
-		Unregister();
 		ShowHUD();
 	}
 
@@ -41,20 +38,6 @@ public:
 
 protected:
 	using EventResult = RE::BSEventNotifyControl;
-
-	EventResult ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override
-	{
-		auto intfcStr = RE::InterfaceStrings::GetSingleton();
-		if (intfcStr 
-			&& a_event 
-			&& a_event->menuName == intfcStr->lockpickingMenu 
-			&& (!Settings::OpenWhenContainerUnlocked() || a_event->opening)) {
-			Close();
-		}
-
-		Evaluate();
-		return EventResult::kContinue;
-	}
 
 private:
 	enum class Priority : std::size_t
@@ -76,22 +59,6 @@ private:
 		kFieldValue,
 		kFieldText
 	};
-
-	void Register()
-	{
-		auto menuSrc = RE::UI::GetSingleton();
-		if (menuSrc) {
-			menuSrc->AddEventSink(this);
-		}
-	}
-
-	void Unregister()
-	{
-		auto menuSrc = RE::UI::GetSingleton();
-		if (menuSrc) {
-			menuSrc->RemoveEventSink(this);
-		}
-	}
 
 	void Evaluate()
 	{
