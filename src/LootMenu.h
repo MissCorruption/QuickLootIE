@@ -67,8 +67,12 @@ namespace QuickLoot
 			Behaviors::ContainerAnimator::CloseContainer(_src);
 			assert(a_ref);
 			_src = a_ref;
+
+			_viewHandler->Disable();
 			_viewHandler->SetSource(a_ref);
-			_itemList.SelectedIndex(0);
+			_viewHandler->Enable();
+
+			_itemList.SelectedIndex(-1);
 
 			logger::trace("Looking at container {:#016x}. Last container was {:#016x}. Last index was {}.",
 				reinterpret_cast<uintptr_t>(a_ref.get().get()), reinterpret_cast<uintptr_t>(_lastContainer.get().get()), _lastSelectedIndex);
@@ -358,6 +362,7 @@ namespace QuickLoot
 		{
 			API::APIServer::DispatchCloseLootMenuEvent(_src);
 			Behaviors::ContainerAnimator::CloseContainer(_src);
+			_viewHandler->Disable();
 		}
 
 		void OnOpen()
