@@ -118,7 +118,7 @@ namespace util
 }
 
 #include "Plugin.h"
-#include "Settings.h"
+#include "Config/Settings.h"
 
 #include <ClibUtil/distribution.hpp>
 #include <ClibUtil/editorID.hpp>
@@ -139,4 +139,4 @@ using ScriptObjectPtr = RE::BSTSmartPointer<RE::BSScript::Object>;
 using ScriptArrayPtr = RE::BSTSmartPointer<RE::BSScript::Array>;
 using ScriptCallbackPtr = RE::BSTSmartPointer<RE::BSScript::IStackCallbackFunctor>;
 
-using Settings = QuickLoot::Settings;
+using Settings = QuickLoot::Config::Settings;

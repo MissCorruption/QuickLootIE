@@ -6,7 +6,7 @@
 #include "Integrations/LOTD.h"
 #include "LootMenu.h"
 #include "MenuVisibilityManager.h"
-#include "Papyrus/Papyrus.h"
+#include "Config/Papyrus.h"
 
 void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 {
@@ -21,7 +21,7 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 
 	case SKSE::MessagingInterface::kDataLoaded:
 
-		QuickLoot::Papyrus::Init();
+		QuickLoot::Config::Papyrus::Init();
 		QuickLoot::LootMenu::Register();
 		QuickLoot::MenuVisibilityManager::InstallHooks();
 
