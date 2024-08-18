@@ -74,13 +74,13 @@ jobs:
           chmod +x .github/spriggit/Spriggit.CLI
 
       - name: Run Spriggit
-        run: .github/spriggit/Spriggit.CLI deserialize --InputPath "Papyrus/Source/ESP" --OutputPath "${{ github.workspace }}/to-pack/QuickLootIE.esp"
+        run: .github/spriggit/Spriggit.CLI deserialize --InputPath "res/esp/Source" --OutputPath "res/esp/QuickLootIE.esp"
 
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
           name: plugin
-          path: ${{ github.workspace }}/to-pack/QuickLootIE.esp
+          path: res/esp/QuickLootIE.esp
 
   compile-scripts:
     name: Compile Papyrus scripts
@@ -91,7 +91,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          sparse-checkout: Papyrus/Source/Scripts
+          sparse-checkout: res/pex/Source/Scripts
 
       - name: Cache Script Sources
         id: cache-ss
@@ -154,13 +154,13 @@ jobs:
           Remove-Item temp -Recurse -Force
 
       - name: Run Caprica
-        run: .github/Caprica/Caprica.exe --game skyrim --import ".github/Papyrus/SRC;.github/Papyrus/SRC_SKYUI;.github/Papyrus/SRC_PAPUTIL;" --output "Scripts" --flags=".github/Papyrus/SRC/TESV_Papyrus_Flags.flg" "${{ github.workspace }}/Papyrus/Source/Scripts" -R -q
+        run: .github/Caprica/Caprica.exe --game skyrim --import ".github/Papyrus/SRC;.github/Papyrus/SRC_SKYUI;.github/Papyrus/SRC_PAPUTIL;" --output "res/pex/Scripts" --flags=".github/Papyrus/SRC/TESV_Papyrus_Flags.flg" "${{ github.workspace }}/res/pex/Source/Scripts" -R -q
 
       - name: Upload Compiled Scripts Artifact
         uses: actions/upload-artifact@v4
         with:
           name: compiled-scripts
-          path: Scripts
+          path: res/pex/Scripts
 
   compile-skse:
     name: Build SKSE plugin
@@ -222,18 +222,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: plugin
+          path: res/esp
 
       - name: Download Compiled Scripts Artifact
         uses: actions/download-artifact@v4
         with:
           name: compiled-scripts
-          path: Scripts
+          path: res/pex/Scripts
 
       - name: Download SKSE Plugin Artifact
         uses: actions/download-artifact@v4
         with:
           name: skse-plugin
-          path: SKSE
+          path: res/dll/SKSE/Plugins
 
       - name: Create Packing Structure
         run: |
@@ -241,13 +242,13 @@ jobs:
           mkdir -p "${{ github.workspace }}/to-pack/SKSE/Plugins"
           mkdir -p "${{ github.workspace }}/to-pack/Interface"
           mkdir -p "${{ github.workspace }}/to-pack/Scripts"
-          cp -a "Papyrus/Source/Scripts/." "${{ github.workspace }}/to-pack/Source/Scripts"
-          cp -a "QuickLootIE.esp" "${{ github.workspace }}/to-pack/QuickLootIE.esp"
-          cp -a "Papyrus/Interface/." "${{ github.workspace }}/to-pack/Interface"
-          cp -a "swf/bin/." "${{ github.workspace }}/to-pack/Interface"
-          cp -a "SKSE/." "${{ github.workspace }}/to-pack/SKSE/Plugins"
-          cp -a "Scripts/." "${{ github.workspace }}/to-pack/Scripts"
           cp -a "LICENSE" "${{ github.workspace }}/to-pack/QLIE-LICENSE.md"
+          cp -a "res/dll/SKSE/Plugins/." "${{ github.workspace }}/to-pack/SKSE/Plugins"
+          cp -a "res/esp/QuickLootIE.esp" "${{ github.workspace }}/to-pack/QuickLootIE.esp"
+          cp -a "res/pex/Scripts/." "${{ github.workspace }}/to-pack/Scripts"
+          cp -a "res/pex/Source/Scripts/." "${{ github.workspace }}/to-pack/Source/Scripts"
+          cp -a "res/txt/Interface/." "${{ github.workspace }}/to-pack/Interface"
+          cp -a "res/swf/Interface/." "${{ github.workspace }}/to-pack/Interface"
 
       - name: Zip Release Files
         uses: vimtor/action-zip@v1.2
