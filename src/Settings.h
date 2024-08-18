@@ -26,6 +26,10 @@ namespace QuickLoot
 		static bool CloseWhenEmpty();
 		static bool DispelInvisibility();
 		static bool OpenWhenContainerUnlocked();
+
+		static bool ShowInThirdPersonView();
+		static bool ShowWhenMounted();
+
 		static bool DisableForAnimals();
 		static bool DisableForMonsters();
 
@@ -37,7 +41,7 @@ namespace QuickLoot
 
 		static bool ShowCompNeeded();
 		static bool ShowCompCollected();
-		
+
 		static AnchorPoint GetAnchorPoint();
 		static int32_t GetWindowX();
 		static int32_t GetWindowY();
