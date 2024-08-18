@@ -8,7 +8,7 @@
 #include "Observers/LifeStateObserver.h"
 #include "Observers/LockChangedObserver.h"
 #include "Observers/MenuObserver.h"
-#include "Papyrus/Papyrus.h"
+#include "Config/Papyrus.h"
 
 namespace QuickLoot
 {

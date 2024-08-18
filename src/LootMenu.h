@@ -443,44 +443,45 @@ namespace QuickLoot
 			return settings;
 		}
 
-		static void ResolveAnchorPoint(QuickLoot::AnchorPoint anchor, double& fractionX, double& fractionY)
+		static void ResolveAnchorPoint(Config::AnchorPoint anchor, double& fractionX, double& fractionY)
 		{
+			using enum Config::AnchorPoint;
 			switch (anchor) {
-			case QuickLoot::kTopLeft:
-			case QuickLoot::kCenterLeft:
-			case QuickLoot::kBottomLeft:
+			case kTopLeft:
+			case kCenterLeft:
+			case kBottomLeft:
 				fractionX = 0.0;
 				break;
 
-			case QuickLoot::kTopCenter:
-			case QuickLoot::kCenter:
-			case QuickLoot::kBottomCenter:
+			case kTopCenter:
+			case kCenter:
+			case kBottomCenter:
 				fractionX = 0.5;
 				break;
 
-			case QuickLoot::kTopRight:
-			case QuickLoot::kCenterRight:
-			case QuickLoot::kBottomRight:
+			case kTopRight:
+			case kCenterRight:
+			case kBottomRight:
 				fractionX = 1.0;
 				break;
 			}
 
 			switch (anchor) {
-			case QuickLoot::kTopLeft:
-			case QuickLoot::kTopCenter:
-			case QuickLoot::kTopRight:
+			case kTopLeft:
+			case kTopCenter:
+			case kTopRight:
 				fractionY = 0.0;
 				break;
 
-			case QuickLoot::kCenterLeft:
-			case QuickLoot::kCenter:
-			case QuickLoot::kCenterRight:
+			case kCenterLeft:
+			case kCenter:
+			case kCenterRight:
 				fractionY = 0.5;
 				break;
 
-			case QuickLoot::kBottomLeft:
-			case QuickLoot::kBottomCenter:
-			case QuickLoot::kBottomRight:
+			case kBottomLeft:
+			case kBottomCenter:
+			case kBottomRight:
 				fractionY = 1.0;
 				break;
 			}
