@@ -2,11 +2,8 @@
 
 namespace QuickLoot::Config
 {
-
-	// Forward declaration of ScriptObjectPtr
 	static ScriptObjectPtr MCMScript;
 
-	// Forward declarations of Papyrus settings
 	inline bool QLIECloseInCombat;
 	inline bool QLIECloseWhenEmpty;
 	inline bool QLIEDispelInvisibility;
@@ -36,15 +33,19 @@ namespace QuickLoot::Config
 
 	inline std::vector<std::string> QLIESortPriorityStrings;
 
-	// Forward declaration of Papyrus class
-	class Papyrus : public RE::BSTEventSink<RE::MenuOpenCloseEvent> {
+	class Papyrus : public RE::BSTEventSink<RE::MenuOpenCloseEvent>
+	{
 	public:
 		Papyrus(Papyrus const&) = delete;
 		Papyrus(Papyrus const&&) = delete;
 		Papyrus& operator=(Papyrus&) = delete;
 		Papyrus& operator=(Papyrus&&) = delete;
 
-		static Papyrus* GetSingleton() { static Papyrus singleton; return &singleton; }
+		static Papyrus* GetSingleton()
+		{
+			static Papyrus singleton;
+			return &singleton;
+		}
 		RE::BSEventNotifyControl ProcessEvent(RE::MenuOpenCloseEvent const* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>* source) override;
 
 		static void Init();
@@ -66,11 +67,13 @@ namespace QuickLoot::Config
 		~Papyrus() = default;
 
 		static bool RegisterFunctions(RE::BSScript::IVirtualMachine* a_vm);
-		static std::string ReplaceStr(const std::string& in, const std::string& from, const std::string& to) {
+		static std::string ReplaceStr(const std::string& in, const std::string& from, const std::string& to)
+		{
 			return std::regex_replace(in, std::regex(from), to);
 		}
 
-		static RE::BSScript::Variable* GetProperty(const std::string& a_prop) {
+		static RE::BSScript::Variable* GetProperty(const std::string& a_prop)
+		{
 			if (!MCMScript || a_prop.empty()) {
 				return nullptr;
 			}
@@ -83,7 +86,8 @@ namespace QuickLoot::Config
 			return nullptr;
 		}
 
-		static std::vector<std::string> ConvertScriptArrayToVector(ScriptArrayPtr scriptArrayPtr) {
+		static std::vector<std::string> ConvertScriptArrayToVector(ScriptArrayPtr scriptArrayPtr)
+		{
 			std::vector<std::string> result;
 
 			if (!scriptArrayPtr) {
@@ -102,7 +106,8 @@ namespace QuickLoot::Config
 		}
 
 		template <size_t N>
-		static std::vector<std::string> ConvertArrayToVector(const std::array<const char*, N>& arr) {
+		static std::vector<std::string> ConvertArrayToVector(const std::array<const char*, N>& arr)
+		{
 			std::vector<std::string> vec;
 			vec.reserve(N);
 
@@ -114,7 +119,8 @@ namespace QuickLoot::Config
 		}
 
 		template <typename T>
-		static void LoadSetting(T& variable, const std::string& propertyName, const T& defaultValue) {
+		static void LoadSetting(T& variable, const std::string& propertyName, const T& defaultValue)
+		{
 			const auto* prop = GetProperty(propertyName);
 
 			if (!prop) {
@@ -147,20 +153,20 @@ namespace QuickLoot::Config
 				return;
 			}
 
-		    if constexpr (std::is_same_v<T, std::vector<std::string>>) {
+			if constexpr (std::is_same_v<T, std::vector<std::string>>) {
 				variable = ConvertScriptArrayToVector(prop->GetArray());
 				logger::trace("{}: {} strings", propertyName, variable.size());
 				return;
 			}
 
-		    logger::trace("{}: unsupported type {}", propertyName, typeid(T).name());
+			logger::trace("{}: unsupported type {}", propertyName, typeid(T).name());
 		}
 	};
 }
 
 //These are just examples, we should localise these for the MCM e.g "The Goblin" would be "$qlie_preset_goblin"
 constexpr std::array<const char*, 3> SortingPresets = {
-	"Select Preset...", //Mandatory Entry
+	"Select Preset...",  //Mandatory Entry
 	"Default Preset",
 	"The Goblin",
 	//Add more as you see fit.
