@@ -1,6 +1,7 @@
 #pragma once
 
-namespace QuickLoot {
+namespace QuickLoot::Config
+{
 
 	// Forward declaration of ScriptObjectPtr
 	static ScriptObjectPtr MCMScript;

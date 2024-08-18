@@ -1,7 +1,7 @@
 #include "Papyrus.h"
 #include "Helpers/ScriptObject.hpp"
 
-namespace QuickLoot
+namespace QuickLoot::Config
 {
 	void Papyrus::Init()
 	{

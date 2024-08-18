@@ -1,7 +1,7 @@
 #include "Settings.h"
-#include "Papyrus/Papyrus.h"
+#include "Config/Papyrus.h"
 
-namespace QuickLoot
+namespace QuickLoot::Config
 {
 	std::shared_ptr<std::vector<std::string>> Settings::GetUserDefinedSortPriority()
 	{

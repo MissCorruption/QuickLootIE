@@ -1,5 +1,5 @@
 #pragma once
-namespace QuickLoot
+namespace QuickLoot::Config
 {
 	enum AnchorPoint
 	{
