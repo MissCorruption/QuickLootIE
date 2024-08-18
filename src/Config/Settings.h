@@ -17,6 +17,8 @@ namespace QuickLoot::Config
 	class Settings
 	{
 	public:
+		Settings() = delete;
+		~Settings() = delete;
 		Settings(Settings const&) = delete;
 		Settings(Settings const&&) = delete;
 		Settings operator=(Settings&) = delete;
@@ -35,6 +37,7 @@ namespace QuickLoot::Config
 
 		static bool ShowBookRead();
 		static bool ShowEnchanted();
+
 		static bool ShowDBMDisplayed();
 		static bool ShowDBMFound();
 		static bool ShowDBMNew();
@@ -54,9 +57,5 @@ namespace QuickLoot::Config
 		static float GetEmptyWindowTransparency();
 
 		static std::shared_ptr<std::vector<std::string>> GetUserDefinedSortPriority();
-
-	private:
-		Settings() = default;
-		~Settings() = default;
 	};
 }

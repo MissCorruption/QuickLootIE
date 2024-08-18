@@ -5,9 +5,9 @@ namespace QuickLoot::Config
 {
 	std::shared_ptr<std::vector<std::string>> Settings::GetUserDefinedSortPriority()
 	{
-		return QLIESortPriorityStrings.size() == 0 ? 
-			std::make_shared<std::vector<std::string>>(Papyrus::GetSortingPreset(nullptr, 1)) : 
-			std::make_shared<std::vector<std::string>>(QLIESortPriorityStrings);
+		return QLIESortPriorityStrings.size() == 0 ?
+		           std::make_shared<std::vector<std::string>>(Papyrus::GetSortingPreset(nullptr, 1)) :
+		           std::make_shared<std::vector<std::string>>(QLIESortPriorityStrings);
 	}
 
 	bool Settings::CloseInCombat()
@@ -129,5 +129,5 @@ namespace QuickLoot::Config
 	{
 		return QLIETransparency_Empty;
 	}
-	
+
 }
