@@ -34,6 +34,23 @@ namespace QuickLoot
 		return nullptr;
 	}
 
+	bool MenuVisibilityManager::IsValidCameraState(RE::CameraState state)
+	{
+		switch (state) {
+		case RE::CameraState::kFirstPerson:
+			return true;
+
+		case RE::CameraState::kThirdPerson:
+			return Settings::ShowInThirdPersonView();
+
+		case RE::CameraState::kMount:
+			return Settings::ShowWhenMounted();
+
+		default:
+			return false;
+		}
+	}
+
 	bool MenuVisibilityManager::CanOpen(const RE::TESObjectREFRPtr& container)
 	{
 		if (!container) {
@@ -56,7 +73,7 @@ namespace QuickLoot
 		}
 
 		const auto cameraState = RE::PlayerCamera::GetSingleton()->currentState;
-		if (cameraState && (cameraState->id == RE::CameraState::kAutoVanity || cameraState->id == RE::CameraState::kVATS)) {
+		if (cameraState && !IsValidCameraState(cameraState->id)) {
 			logger::debug("LootMenu disabled because of camera state");
 			return false;
 		}

@@ -15,6 +15,7 @@ namespace QuickLoot
 		return QLIECloseInCombat;
 	}
 
+	// TODO invert logic (ShowWhenEmpty)
 	bool Settings::CloseWhenEmpty()
 	{
 		return QLIECloseWhenEmpty;
@@ -30,6 +31,18 @@ namespace QuickLoot
 		return QLIEOpenWhenContainerUnlocked;
 	}
 
+	bool Settings::ShowInThirdPersonView()
+	{
+		// TODO implement
+		return true;
+	}
+
+	bool Settings::ShowWhenMounted()
+	{
+		// TODO implement
+		return true;
+	}
+
 	bool Settings::DisableForAnimals()
 	{
 		return QLIEDisableForAnimals;
@@ -38,7 +51,8 @@ namespace QuickLoot
 	// TODO rename to DisableForDragons
 	bool Settings::DisableForMonsters()
 	{
-		return false; //Unimplemented ?
+		// TODO implement
+		return false;
 	}
 
 	bool Settings::ShowBookRead()
