@@ -16,7 +16,7 @@ auto FormUtil::GetFormFromIdentifier(const std::string& a_identifier) -> RE::TES
 auto FormUtil::GetIdentifierFromForm(RE::TESForm* a_form) -> std::string
 {
 	if (!a_form) {
-		return ""s;
+		return "";
 	}
 
 	auto file = a_form->GetFile();
@@ -33,7 +33,7 @@ auto FormUtil::GetIdentifierFromForm(RE::TESForm* a_form) -> std::string
 auto FormUtil::GetIdentifierFromForm(RE::BGSRefAlias* a_form) -> std::string
 {
 	if (!a_form) {
-		return ""s;
+		return "";
 	}
 
 	auto file = a_form->owningQuest->GetFile();
@@ -52,5 +52,5 @@ auto FormUtil::GetModName(RE::TESForm* a_form) -> std::string
 	auto file = a_form ? a_form->GetFile() : nullptr;
 	auto fileName = file ? file->fileName : nullptr;
 
-	return fileName ? std::filesystem::path{ fileName }.stem().string() : ""s;
+	return fileName ? std::filesystem::path{ fileName }.stem().string() : "";
 }

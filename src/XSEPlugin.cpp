@@ -1,5 +1,7 @@
 #define DLLEXPORT __declspec(dllexport)
 
+#include <spdlog/sinks/basic_file_sink.h>
+
 #include "Behaviors/ActivationBlocker.h"
 #include "Integrations/APIServer.h"
 #include "Integrations/Completionist.h"
@@ -37,12 +39,12 @@ void InitializeLog(spdlog::level::level_enum level = spdlog::level::info)
 {
 	auto path = logger::log_directory();
 	if (!path) {
-		util::report_and_fail("Failed to find standard logging directory"sv);
+		SKSE::stl::report_and_fail("Failed to find standard logging directory"sv);
 	}
 
 	*path /= std::format("{}.log"sv, Plugin::NAME);
 	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
-	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+	auto log = std::make_shared<spdlog::logger>("global log", std::move(sink));
 
 	log->set_level(level);
 	log->flush_on(level);

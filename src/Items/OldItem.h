@@ -12,7 +12,7 @@ namespace QuickLoot::Items
 		OldItem(const OldItem&) = delete;
 		OldItem(OldItem&&) = default;
 
-		OldItem(std::ptrdiff_t a_count, bool a_stealing, stl::observer<RE::InventoryEntryData*> a_item) :
+		OldItem(std::ptrdiff_t a_count, bool a_stealing, SKSE::stl::observer<RE::InventoryEntryData*> a_item) :
 			_item(a_count, a_stealing, a_item)
 		{}
 

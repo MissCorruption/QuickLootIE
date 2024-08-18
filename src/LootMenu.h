@@ -5,11 +5,14 @@
 #include "CLIK/GFx/Controls/ButtonBar.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
+#include "Config/Settings.h"
 #include "Integrations/APIServer.h"
 #include "Items/OldGroundItems.h"
 #include "Items/OldInventoryItem.h"
 #include "Items/OldItem.h"
 #include "ViewHandler.h"
+
+using Settings = QuickLoot::Config::Settings;
 
 namespace QuickLoot
 {
@@ -236,7 +239,7 @@ namespace QuickLoot
 		LootMenu& operator=(const LootMenu&) = default;
 		LootMenu& operator=(LootMenu&&) = default;
 
-		static stl::owner<RE::IMenu*> Creator() { return new LootMenu(); }
+		static SKSE::stl::owner<RE::IMenu*> Creator() { return new LootMenu(); }
 
 		void OnSelectedIndexChanged()
 		{
@@ -613,9 +616,8 @@ namespace QuickLoot
 		{
 			auto src = _src.get();
 			if (src) {
-				_title.HTMLText(
-					stl::safe_string(
-						src->GetDisplayFullName()));
+				const auto name = src->GetDisplayFullName();
+				_title.HTMLText(name ? name : "");
 				_title.Visible(true);
 			}
 		}
