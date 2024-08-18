@@ -40,6 +40,16 @@ namespace QuickLoot
 			return false;
 		}
 
+		if (container->IsLocked()) {
+			logger::debug("LootMenu disabled because container is locked");
+			return false;
+		}
+
+		if (container->IsActivationBlocked()) {
+			logger::debug("LootMenu disabled because container activation is blocked");
+			return false;
+		}
+
 		if (Settings::CloseInCombat() && RE::PlayerCharacter::GetSingleton()->IsInCombat()) {
 			logger::debug("LootMenu disabled because of combat state");
 			return false;
@@ -51,8 +61,12 @@ namespace QuickLoot
 			return false;
 		}
 
-		if (const auto actor = container->As<RE::Actor>()) {
+		if (RE::MenuControls::GetSingleton()->InBeastForm()) {
+			logger::debug("LootMenu disabled because player is in beast form");
+			return false;
+		}
 
+		if (const auto actor = container->As<RE::Actor>()) {
 			if (!actor->IsDead()) {
 				logger::debug("LootMenu disabled because the actor isn't dead");
 				return false;
@@ -109,14 +123,14 @@ namespace QuickLoot
 	{
 		logger::trace("OnCameraStateChanged: {}", std::to_underlying(state));
 
-	    RefreshOpenState();
+		RefreshOpenState();
 	}
 
 	void MenuVisibilityManager::OnCombatStateChanged(RE::ACTOR_COMBAT_STATE state)
 	{
 		logger::trace("OnCombatStateChanged: {}", std::to_underlying(state));
 
-	    RefreshOpenState();
+		RefreshOpenState();
 	}
 
 	void MenuVisibilityManager::OnContainerChanged(RE::FormID container)

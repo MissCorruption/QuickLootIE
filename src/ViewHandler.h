@@ -17,14 +17,6 @@ public:
 	{
 		assert(_menu != nullptr);
 		assert(_view != nullptr);
-
-		SetVisible(false);
-		Evaluate();
-	}
-
-	~ViewHandler()
-	{
-		ShowHUD();
 	}
 
 	ViewHandler& operator=(const ViewHandler&) = default;
@@ -33,13 +25,8 @@ public:
 	void SetSource(RE::ObjectRefHandle a_src)
 	{
 		_src = a_src;
-		Evaluate();
 	}
 
-protected:
-	using EventResult = RE::BSEventNotifyControl;
-
-private:
 	enum class Priority : std::size_t
 	{
 		kDefault,
@@ -59,30 +46,6 @@ private:
 		kFieldValue,
 		kFieldText
 	};
-
-	void Evaluate()
-	{
-		const auto controlMap = RE::ControlMap::GetSingleton();
-		const auto menuControls = RE::MenuControls::GetSingleton();
-		const auto src = _src.get();
-		const auto dst = _dst.get();
-		if (controlMap && menuControls) {
-			const auto& priorityStack = controlMap->GetRuntimeData().contextPriorityStack;
-			if (!src ||
-				src->IsLocked() ||
-				src->IsActivationBlocked() ||
-				!dst ||
-				dst->IsInKillMove() ||
-				dst->GetOccupiedFurniture() ||
-				menuControls->InBeastForm() ||
-				priorityStack.empty() ||
-				priorityStack.back() != RE::UserEvents::INPUT_CONTEXT_ID::kGameplay) {
-				Disable();
-			} else {
-				Enable();
-			}
-		}
-	}
 
 	void Enable()
 	{
