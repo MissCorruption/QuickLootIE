@@ -1,6 +1,8 @@
 #include "MenuVisibilityManager.h"
 
 #include "LootMenuManager.h"
+#include "Config/Papyrus.h"
+#include "Config/Settings.h"
 #include "Observers/CameraStateObserver.h"
 #include "Observers/CombatStateObserver.h"
 #include "Observers/ContainerObserver.h"
@@ -8,7 +10,8 @@
 #include "Observers/LifeStateObserver.h"
 #include "Observers/LockChangedObserver.h"
 #include "Observers/MenuObserver.h"
-#include "Config/Papyrus.h"
+
+using Settings = QuickLoot::Config::Settings;
 
 namespace QuickLoot
 {
