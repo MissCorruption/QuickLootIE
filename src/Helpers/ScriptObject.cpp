@@ -142,7 +142,7 @@ auto ScriptObject::GetString(ScriptObjectPtr a_object, std::string_view a_variab
 -> std::string
 {
 	auto variable = GetVariable(a_object, a_variableName);
-	return variable ? std::string{ variable->GetString() } : ""s;
+	return variable ? std::string{ variable->GetString() } : "";
 }
 
 void ScriptObject::SetString(

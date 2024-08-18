@@ -1,5 +1,9 @@
 #pragma once
 
+using ScriptObjectPtr = RE::BSTSmartPointer<RE::BSScript::Object>;
+using ScriptArrayPtr = RE::BSTSmartPointer<RE::BSScript::Array>;
+using ScriptCallbackPtr = RE::BSTSmartPointer<RE::BSScript::IStackCallbackFunctor>;
+
 namespace ScriptObject
 {
 	auto FromForm(RE::TESForm* a_form, const std::string& a_scriptName)->ScriptObjectPtr;

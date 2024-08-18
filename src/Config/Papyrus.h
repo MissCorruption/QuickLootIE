@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Helpers/ScriptObject.hpp"
+
 namespace QuickLoot::Config
 {
 	static ScriptObjectPtr MCMScript;

@@ -1,7 +1,10 @@
 #include "ItemListEntry.h"
 
+#include "Config/Settings.h"
 #include "Integrations/Completionist.h"
 #include "Integrations/LOTD.h"
+
+using Settings = QuickLoot::Config::Settings;
 
 #undef GetModuleHandle
 
