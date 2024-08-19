@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Helpers/ScriptObject.hpp"
+#include "Util/ScriptObject.h"
 
 namespace QuickLoot::Config
 {
-	static ScriptObjectPtr MCMScript;
+	static Util::ScriptObject MCMScript;
 
 	inline bool QLIECloseInCombat;
 	inline bool QLIECloseWhenEmpty;
@@ -66,20 +66,6 @@ namespace QuickLoot::Config
 			return std::regex_replace(in, std::regex(from), to);
 		}
 
-		static RE::BSScript::Variable* GetProperty(const std::string& a_prop)
-		{
-			if (!MCMScript || a_prop.empty()) {
-				return nullptr;
-			}
-
-			if (auto* var = MCMScript->GetProperty(a_prop)) {
-				return var;
-			}
-
-			logger::warn("Unable to get property [{}]", a_prop);
-			return nullptr;
-		}
-
 		static std::vector<std::string> ConvertScriptArrayToVector(ScriptArrayPtr scriptArrayPtr)
 		{
 			std::vector<std::string> result;
@@ -115,7 +101,7 @@ namespace QuickLoot::Config
 		template <typename T>
 		static void LoadSetting(T& variable, const std::string& propertyName, const T& defaultValue)
 		{
-			const auto* prop = GetProperty(propertyName);
+			const auto* prop = MCMScript.GetProperty(propertyName);
 
 			if (!prop) {
 				variable = defaultValue;
