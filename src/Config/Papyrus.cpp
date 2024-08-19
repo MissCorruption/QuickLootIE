@@ -1,5 +1,5 @@
 #include "Papyrus.h"
-#include "Helpers/ScriptObject.hpp"
+#include "Util/ScriptObject.h"
 
 namespace QuickLoot::Config
 {
@@ -38,8 +38,8 @@ namespace QuickLoot::Config
 			return;
 		};
 
-		MCMScript = ScriptObject::FromForm(a_quest, "QuickLootIEMCM");
-		if (!MCMScript) {
+		MCMScript = Util::ScriptObject::FromForm(a_quest, "QuickLootIEMCM");
+		if (!MCMScript.IsValid()) {
 			logger::info("Unable to locate MCM script on form");
 			return;
 		};
