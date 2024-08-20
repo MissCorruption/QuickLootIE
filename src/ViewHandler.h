@@ -55,7 +55,6 @@ public:
 			HideHUD();
 			if (!_enabled) {
 				AdjustPriority(Priority::kDefault);
-				SetVisible(true);
 				_disablers.Enable();
 				_listeners.Enable();
 				_enabled = true;
@@ -71,28 +70,11 @@ public:
 			ShowHUD();
 			if (_enabled) {
 				AdjustPriority(Priority::kLowest);
-				SetVisible(false);
 				_disablers.Disable();
 				_listeners.Disable();
 				_enabled = false;
 			}
 		});
-	}
-
-	void SetVisible(bool a_visible)
-	{
-		if (_view) {
-			const auto prev = _view->GetVisible();
-			if (prev != a_visible) {
-				_view->SetVisible(a_visible);
-
-				if (a_visible) {
-					RefreshUI();
-				}
-			}
-		} else {
-			assert(false);
-		}
 	}
 
 	[[nodiscard]] RE::GFxValue GetHUDObject()
