@@ -213,6 +213,10 @@ namespace QuickLoot
 		{
 			auto menu = static_cast<super*>(this);
 			menu->depthPriority = -1;
+			menu->menuFlags.set(
+				Flag::kAllowSaving,
+				Flag::kHasButtonBar);
+
 			auto scaleformManager = RE::BSScaleformManager::GetSingleton();
 
 			[[maybe_unused]] const auto success = scaleformManager->LoadMovie(menu, menu->uiMovie, FILE_NAME.data());
