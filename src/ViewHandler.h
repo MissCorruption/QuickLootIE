@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Behaviors/ActivationBlocker.h"
 #include "Input/InputDisablers.h"
 #include "Input/InputListeners.h"
 
@@ -54,7 +55,6 @@ public:
 		task->AddUITask([this, safety]() {
 			HideHUD();
 			if (!_enabled) {
-				AdjustPriority(Priority::kDefault);
 				_disablers.Enable();
 				_listeners.Enable();
 				_enabled = true;
@@ -69,7 +69,6 @@ public:
 		task->AddUITask([this, safety]() {
 			ShowHUD();
 			if (_enabled) {
-				AdjustPriority(Priority::kLowest);
 				_disablers.Disable();
 				_listeners.Disable();
 				_enabled = false;
@@ -93,7 +92,7 @@ public:
 
 	void ShowHUD()
 	{
-		DisableHUDBlocker();
+		QuickLoot::Behaviors::ActivationBlocker::UnblockActivation();
 
 		auto hud = GetHUDObject();
 		if (hud.IsObject()) {
@@ -128,14 +127,8 @@ public:
 			hud.Invoke("SetCrosshairTarget", args);
 		}
 
-		EnableHUDBlocker();
+		QuickLoot::Behaviors::ActivationBlocker::BlockActivation();
 	}
-
-	void AdjustPriority(Priority a_priority);
-	void Close();
-	void RefreshUI();
-	void EnableHUDBlocker();
-	void DisableHUDBlocker();
 
 	SKSE::stl::observer<RE::IMenu*> _menu;
 	RE::GPtr<RE::GFxMovieView> _view;

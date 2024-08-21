@@ -212,7 +212,7 @@ namespace QuickLoot
 		LootMenu()
 		{
 			auto menu = static_cast<super*>(this);
-			menu->depthPriority = -1;
+			menu->depthPriority = SORT_PRIORITY;
 			menu->menuFlags.set(
 				Flag::kAllowSaving,
 				Flag::kHasButtonBar);
