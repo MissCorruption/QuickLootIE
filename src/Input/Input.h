@@ -1,5 +1,7 @@
 #pragma once
 
+#include <frozen/map.h>
+
 namespace Input
 {
 	constexpr inline auto QUICKLOOT_FLAG = static_cast<RE::UserEvents::USER_EVENT_FLAG>(1 << 12);
