@@ -1,8 +1,8 @@
 #include "MenuVisibilityManager.h"
 
-#include "LootMenuManager.h"
 #include "Config/Papyrus.h"
 #include "Config/Settings.h"
+#include "LootMenuManager.h"
 #include "Observers/CameraStateObserver.h"
 #include "Observers/CombatStateObserver.h"
 #include "Observers/ContainerObserver.h"
@@ -54,6 +54,24 @@ namespace QuickLoot
 		}
 	}
 
+	bool MenuVisibilityManager::IsBlacklistMenuOpen()
+	{
+		const auto ui = RE::UI::GetSingleton();
+
+		// TODO make this configurable via ini setting
+		static std::array blacklist = {
+			RE::DialogueMenu::MENU_NAME,
+		};
+
+		for (const auto& menu : blacklist) {
+			if (ui->IsMenuOpen(menu)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	bool MenuVisibilityManager::CanOpen(const RE::TESObjectREFRPtr& container)
 	{
 		const auto player = RE::PlayerCharacter::GetSingleton();
@@ -95,6 +113,16 @@ namespace QuickLoot
 
 		if (cameraState && !IsValidCameraState(cameraState->id)) {
 			logger::debug("LootMenu disabled because of camera state");
+			return false;
+		}
+
+		if (RE::UI::GetSingleton()->GameIsPaused()) {
+			logger::debug("LootMenu disabled because the game is paused");
+			return false;
+		}
+
+		if (IsBlacklistMenuOpen()) {
+			logger::debug("LootMenu disabled because a blacklisted menu is open");
 			return false;
 		}
 
@@ -210,10 +238,7 @@ namespace QuickLoot
 			Config::Papyrus::UpdateVariables();
 		}
 
-		// TODO hide this behavior behind a setting Settings::OpenWhenClosingContainer
-		if (!opening && menuName == RE::ContainerMenu::MENU_NAME) {
-			RefreshOpenState();
-		}
+		RefreshOpenState();
 	}
 
 #pragma warning(pop)

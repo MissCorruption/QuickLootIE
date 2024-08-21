@@ -28,6 +28,7 @@ namespace QuickLoot
 
 		static RE::TESObjectREFRPtr GetContainerObject(RE::ObjectRefHandle ref);
 		static bool IsValidCameraState(RE::CameraState state);
+		static bool IsBlacklistMenuOpen();
 		static bool CanOpen(const RE::TESObjectREFRPtr& container);
 		static void RefreshOpenState();
 		static void RefreshInventory();
