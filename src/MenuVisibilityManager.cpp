@@ -2,6 +2,7 @@
 
 #include "Config/Papyrus.h"
 #include "Config/Settings.h"
+#include "LootMenu.h"
 #include "LootMenuManager.h"
 #include "Observers/CameraStateObserver.h"
 #include "Observers/CombatStateObserver.h"
@@ -233,6 +234,10 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName)
 	{
 		logger::trace("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", menuName);
+
+		if (menuName == LootMenu::MENU_NAME) {
+			return;
+		}
 
 		if (!opening && menuName == RE::JournalMenu::MENU_NAME) {
 			Config::Papyrus::UpdateVariables();

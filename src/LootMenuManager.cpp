@@ -41,7 +41,7 @@ namespace QuickLoot
 		if (IsOpen()) {
 			auto msgQ = RE::UIMessageQueue::GetSingleton();
 			if (msgQ) {
-				msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kHide, nullptr);
+				msgQ->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 				Behaviors::ActivationBlocker::UnblockActivation();
 			}
 		}
@@ -52,7 +52,7 @@ namespace QuickLoot
 		if (ShouldOpen()) {
 			auto msgQ = RE::UIMessageQueue::GetSingleton();
 			if (msgQ) {
-				msgQ->AddMessage(LootMenu::MenuName(), RE::UI_MESSAGE_TYPE::kShow, nullptr);
+				msgQ->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
 				Behaviors::ActivationBlocker::BlockActivation();
 			}
 		}
@@ -141,6 +141,6 @@ namespace QuickLoot
 	RE::GPtr<LootMenu> LootMenuManager::GetMenu()
 	{
 		auto ui = RE::UI::GetSingleton();
-		return ui ? ui->GetMenu<LootMenu>(LootMenu::MenuName()) : nullptr;
+		return ui ? ui->GetMenu<LootMenu>(LootMenu::MENU_NAME) : nullptr;
 	}
 };
