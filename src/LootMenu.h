@@ -27,8 +27,9 @@ namespace QuickLoot
 		static inline bool _restoreLastSelectedIndex = false;
 
 	public:
-		static constexpr std::string_view MenuName() noexcept { return MENU_NAME; }
-		static constexpr std::int8_t SortPriority() noexcept { return SORT_PRIORITY; }
+		static constexpr std::string_view FILE_NAME{ "LootMenuIE" };
+		static constexpr std::string_view MENU_NAME{ "LootMenu" };
+		static constexpr std::int8_t SORT_PRIORITY{ 3 };
 
 		static void Register()
 		{
@@ -307,7 +308,7 @@ namespace QuickLoot
 				std::vsnprintf(buf.data(), buf.size(), fmt.c_str(), args);
 				va_end(args);
 
-				logger::info("{}: {}"sv, LootMenu::MenuName(), buf.data());
+				logger::info("{}: {}"sv, MENU_NAME, buf.data());
 			}
 		};
 
@@ -648,10 +649,6 @@ namespace QuickLoot
 			auto src = _src.get();
 			return dst && src && dst->WouldBeStealing(src.get());
 		}
-
-		static constexpr std::string_view FILE_NAME{ "LootMenuIE" };
-		static constexpr std::string_view MENU_NAME{ "LootMenu" };
-		static constexpr std::int8_t SORT_PRIORITY{ 3 };
 
 		RE::GPtr<RE::GFxMovieView> _view;
 		RE::ActorHandle _dst{ RE::PlayerCharacter::GetSingleton() };
