@@ -1028,13 +1028,13 @@ namespace QuickLoot::Items
 		    };
 
 			for (const auto& skill : avSubtypes) {
-				if (potAV == skill.first) {
-					subType = skill.second;
-					break;
-				} else if (alchemy->IsFood()) {
+				if (alchemy->IsFood()) {
 					subType = 14;
 				} else if (alchemy->IsPoison()) {
 					subType = 15;
+				} else if (potAV == skill.first) {
+					subType = skill.second;
+					break;
 				}
 			}
 
