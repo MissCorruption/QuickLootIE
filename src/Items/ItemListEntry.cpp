@@ -857,11 +857,11 @@ namespace QuickLoot::Items
 		        {BGSBipedObjectForm::BipedObjectSlot::kBody, 3},		// EquipType::Body
 		        {BGSBipedObjectForm::BipedObjectSlot::kForearms, 4},	// EquipType::Forearms
 		        {BGSBipedObjectForm::BipedObjectSlot::kHands, 5},		// EquipType::Hands
-		        {BGSBipedObjectForm::BipedObjectSlot::kShield, 6},	// EquipType::Shield
-		        {BGSBipedObjectForm::BipedObjectSlot::kCalves, 7},	// EquipType::Calves
+		        {BGSBipedObjectForm::BipedObjectSlot::kShield, 6},		// EquipType::Shield
+		        {BGSBipedObjectForm::BipedObjectSlot::kCalves, 7},		// EquipType::Calves
 		        {BGSBipedObjectForm::BipedObjectSlot::kFeet, 8},		// EquipType::Feet
-		        {BGSBipedObjectForm::BipedObjectSlot::kCirclet, 9},	// EquipType::Circlet
-		        {BGSBipedObjectForm::BipedObjectSlot::kAmulet, 10},	// EquipType::Amulet
+		        {BGSBipedObjectForm::BipedObjectSlot::kCirclet, 9},		// EquipType::Circlet
+		        {BGSBipedObjectForm::BipedObjectSlot::kAmulet, 10},		// EquipType::Amulet
 		        {BGSBipedObjectForm::BipedObjectSlot::kEars, 11},		// EquipType::Ears
 		        {BGSBipedObjectForm::BipedObjectSlot::kRing, 12},		// EquipType::Ring
 		        {BGSBipedObjectForm::BipedObjectSlot::kTail, 13}		// EquipType::Tail
