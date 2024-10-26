@@ -944,32 +944,23 @@ namespace QuickLoot::Items
 			break;
 		}
 
-		case RE::FormType::SoulGem:
+		case RE::FormType::SoulGem: 
 		{
-			RE::TESSoulGem* soulGem = skyrim_cast<RE::TESSoulGem*>(obj);
+			auto* soulGem = skyrim_cast<RE::TESSoulGem*>(obj);
 			if (!soulGem) break;
-			
-			RE::SOUL_LEVEL currentSoul = GetSoulSize();
 
 			const static UINT32 DA01SoulGemAzurasStar = 0x063B27;
 			const static UINT32 DA01SoulGemBlackStar = 0x063B29;
 
-			if (soulGem->formID == DA01SoulGemBlackStar || soulGem->formID == DA01SoulGemAzurasStar) {
-				value.SetMember("subType", 6);
-			} else {
-				value.SetMember("subType", soulGem->soulCapacity.underlying());
-			}
+			RE::SOUL_LEVEL currentSoul = GetSoulSize();
+			int subType = (soulGem->formID == DA01SoulGemBlackStar || soulGem->formID == DA01SoulGemAzurasStar) ? 6 : soulGem->soulCapacity.underlying();
+			int status = (currentSoul == RE::SOUL_LEVEL::kNone) ? 0 : (currentSoul >= soulGem->soulCapacity) ? 2 : 1;
 
+			value.SetMember("subType", subType);
 			value.SetMember("gemSize", soulGem->soulCapacity.underlying());
 			value.SetMember("soulSize", currentSoul);
-			if (currentSoul == RE::SOUL_LEVEL::kNone) {
-				value.SetMember("status", 0);
-			} else if (currentSoul >= soulGem->soulCapacity) {
-				value.SetMember("status", 2);
-			} else {
-				value.SetMember("status", 1);
-			}
-		
+			value.SetMember("status", status);
+
 			break;
 		}
 		case RE::FormType::Book:
