@@ -950,6 +950,16 @@ namespace QuickLoot::Items
 			if (!soulGem) break;
 			
 			RE::SOUL_LEVEL currentSoul = GetSoulSize();
+
+			const static UINT32 DA01SoulGemAzurasStar = 0x063B27;
+			const static UINT32 DA01SoulGemBlackStar = 0x063B29;
+
+			if (soulGem->formID == DA01SoulGemBlackStar || soulGem->formID == DA01SoulGemAzurasStar) {
+				value.SetMember("subType", 6);
+			} else {
+				value.SetMember("subType", soulGem->soulCapacity.underlying());
+			}
+
 			value.SetMember("gemSize", soulGem->soulCapacity.underlying());
 			value.SetMember("soulSize", currentSoul);
 			if (currentSoul == RE::SOUL_LEVEL::kNone) {
