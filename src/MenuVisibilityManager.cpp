@@ -55,19 +55,19 @@ namespace QuickLoot
 		}
 	}
 
-	bool MenuVisibilityManager::IsBlacklistMenuOpen()
+	bool MenuVisibilityManager::IsBlockingMenuOpen()
 	{
 		const auto ui = RE::UI::GetSingleton();
+		const auto lootMenu = ui->GetMenu(LootMenu::MENU_NAME);
 
-		// TODO make this configurable via ini setting
-		static std::array blacklist = {
-			RE::DialogueMenu::MENU_NAME,
-		};
+		for (auto menu : ui->menuStack) {
+			if (menu->menuFlags & RE::UI_MENU_FLAGS::kAlwaysOpen)
+				continue;
 
-		for (const auto& menu : blacklist) {
-			if (ui->IsMenuOpen(menu)) {
-				return true;
-			}
+			if (menu == lootMenu)
+				continue;
+
+			return true;
 		}
 
 		return false;
@@ -122,8 +122,8 @@ namespace QuickLoot
 			return false;
 		}
 
-		if (IsBlacklistMenuOpen()) {
-			logger::debug("LootMenu disabled because a blacklisted menu is open");
+		if (IsBlockingMenuOpen()) {
+			logger::debug("LootMenu disabled because a blocking menu is open");
 			return false;
 		}
 
