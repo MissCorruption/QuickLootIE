@@ -139,7 +139,7 @@ namespace QuickLoot::Config
 				return;
 			}
 
-			logger::trace("{}: unsupported type {}", propertyName, typeid(T).name());
+			//logger::trace("{}: unsupported type {}", propertyName, typeid(T).name());
 		}
 	};
 }

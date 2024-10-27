@@ -18,5 +18,7 @@ namespace QuickLoot::Util
 		static std::string GetIdentifierFromForm(RE::BGSRefAlias* form);
 
 		static std::string GetModName(RE::TESForm* form);
+
+		static bool FormExists(std::string_view pluginName, const int formId);
 	};
 }
