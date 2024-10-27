@@ -1,6 +1,6 @@
 #include "LootMenuManager.h"
 
-#include "Behaviors/ActivationBlocker.h"
+#include "Behaviors/ActivationPrompt.h"
 #include "LootMenu.h"
 
 namespace QuickLoot
@@ -42,7 +42,7 @@ namespace QuickLoot
 			auto msgQ = RE::UIMessageQueue::GetSingleton();
 			if (msgQ) {
 				msgQ->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-				Behaviors::ActivationBlocker::UnblockActivation();
+				Behaviors::ActivationPrompt::Unblock();
 			}
 		}
 	}
@@ -53,7 +53,7 @@ namespace QuickLoot
 			auto msgQ = RE::UIMessageQueue::GetSingleton();
 			if (msgQ) {
 				msgQ->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
-				Behaviors::ActivationBlocker::BlockActivation();
+				Behaviors::ActivationPrompt::Block();
 			}
 		}
 	}

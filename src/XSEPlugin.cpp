@@ -2,7 +2,7 @@
 
 #include <spdlog/sinks/basic_file_sink.h>
 
-#include "Behaviors/ActivationBlocker.h"
+#include "Behaviors/ActivationPrompt.h"
 #include "Integrations/APIServer.h"
 #include "Integrations/Completionist.h"
 #include "Integrations/LOTD.h"
@@ -31,7 +31,7 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 		QuickLoot::LootMenu::Register();
 		QuickLoot::MenuVisibilityManager::InstallHooks();
 
-		QuickLoot::Behaviors::ActivationBlocker::Install();
+		QuickLoot::Behaviors::ActivationPrompt::Install();
 
 		QuickLoot::Integrations::LOTD::Init();
 		QuickLoot::Integrations::Completionist::Init();

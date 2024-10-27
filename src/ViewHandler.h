@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Behaviors/ActivationBlocker.h"
+#include "Behaviors/ActivationPrompt.h"
 #include "Input/InputDisablers.h"
 #include "Input/InputListeners.h"
 
@@ -92,7 +92,7 @@ public:
 
 	void ShowHUD()
 	{
-		QuickLoot::Behaviors::ActivationBlocker::UnblockActivation();
+		QuickLoot::Behaviors::ActivationPrompt::Unblock();
 
 		auto hud = GetHUDObject();
 		if (hud.IsObject()) {
@@ -127,7 +127,7 @@ public:
 			hud.Invoke("SetCrosshairTarget", args);
 		}
 
-		QuickLoot::Behaviors::ActivationBlocker::BlockActivation();
+		QuickLoot::Behaviors::ActivationPrompt::Block();
 	}
 
 	SKSE::stl::observer<RE::IMenu*> _menu;
