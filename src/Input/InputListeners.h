@@ -176,7 +176,7 @@ namespace Input
 
 		void TakeAll();
 
-		stl::observer<const RE::Setting*> _grabDelay{ RE::GetINISetting("fZKeyDelay:Controls") };
+		SKSE::stl::observer<const RE::Setting*> _grabDelay{ RE::GetINISetting("fZKeyDelay:Controls") };
 		bool _context{ false };
 	};
 
