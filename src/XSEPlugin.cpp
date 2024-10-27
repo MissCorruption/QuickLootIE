@@ -7,6 +7,7 @@
 #include "Integrations/Completionist.h"
 #include "Integrations/LOTD.h"
 #include "LootMenu.h"
+#include "LootMenuManager.h"
 #include "MenuVisibilityManager.h"
 #include "Config/Papyrus.h"
 
@@ -17,6 +18,9 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 
 		// This needs to run before kInputLoaded
 		Input::InputManager::Install();
+
+		// Checking the LootMenu as early as possible
+		QuickLoot::LootMenuManager::CheckScaleform();
 
 		QuickLoot::API::APIServer::Init(SKSE::GetMessagingInterface());
 		break;
