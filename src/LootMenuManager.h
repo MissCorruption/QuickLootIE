@@ -37,6 +37,8 @@ namespace QuickLoot
 
 		static void Enable() { _enabled = true; }
 
+		static void CheckScaleform();
+
 		static void RefreshUI();
 		static void RefreshInventory();
 

@@ -34,6 +34,9 @@
 #include <xbyak/xbyak.h>
 #pragma warning(pop)
 
+constexpr auto LEGACY_SCALEFORM { "Data\\Interface\\LootMenu.swf" };
+constexpr auto SCALEFORM { "Data\\Interface\\LootMenuIE.swf" };
+
 using namespace std::literals::string_view_literals;
 
 namespace logger = SKSE::log;
