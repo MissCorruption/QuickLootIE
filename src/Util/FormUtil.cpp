@@ -56,4 +56,12 @@ namespace QuickLoot::Util
 
 		return fileName ? std::filesystem::path{ fileName }.stem().string() : "";
 	}
+
+	bool FormUtil::FormExists(std::string_view pluginName, const int formId)
+	{
+		const auto dataHandler = RE::TESDataHandler::GetSingleton();
+		const auto* form = dataHandler->LookupForm(formId, pluginName);
+
+		return form;
+	}
 }

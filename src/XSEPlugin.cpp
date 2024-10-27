@@ -10,22 +10,22 @@
 #include "LootMenuManager.h"
 #include "MenuVisibilityManager.h"
 #include "Config/Papyrus.h"
+#include "SanityChecks.h"
 
 void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 {
 	switch (msg->type) {
 	case SKSE::MessagingInterface::kPostLoad:
-
 		// This needs to run before kInputLoaded
 		Input::InputManager::Install();
-
-		// Checking the LootMenu as early as possible
-		QuickLoot::LootMenuManager::CheckScaleform();
 
 		QuickLoot::API::APIServer::Init(SKSE::GetMessagingInterface());
 		break;
 
 	case SKSE::MessagingInterface::kDataLoaded:
+
+		
+		QuickLoot::SanityChecks::PerformChecks();
 
 		QuickLoot::Config::Papyrus::Init();
 		QuickLoot::LootMenu::Register();
@@ -81,7 +81,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* sks
 	logger::info("Loaded plugin {} {}", Plugin::NAME, Plugin::VERSION.string());
 
 	SKSE::Init(skse);
-	SKSE::AllocTrampoline(1 << 6);
+	SKSE::AllocTrampoline(1 << 8);
 
 	return SKSE::GetMessagingInterface()->RegisterListener(OnSKSEMessage);
 }
