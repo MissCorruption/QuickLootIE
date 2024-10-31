@@ -33,11 +33,34 @@ namespace QuickLoot
 
 		static void Register()
 		{
-			auto ui = RE::UI::GetSingleton();
-			if (ui) {
-				ui->Register(MENU_NAME, Creator);
-				logger::info("Registered {}"sv, MENU_NAME);
-			}
+			const auto ui = RE::UI::GetSingleton();
+			if (!ui)
+				return;
+
+			ui->Register(MENU_NAME, Creator);
+			logger::info("Registered {}"sv, MENU_NAME);
+		}
+
+		static int GetSwfVersion()
+		{
+			LootMenu dummy{ nullptr };
+			RE::GPtr<RE::GFxMovieView> movieView{};
+			RE::BSScaleformManager::GetSingleton()->LoadMovie(&dummy, movieView, FILE_NAME.data());
+
+			if (!movieView)
+				return -2;
+
+			RE::GFxValue lootMenuObj;
+			movieView->GetVariable(&lootMenuObj, "_root.lootMenu");
+
+			if (!lootMenuObj.IsObject())
+				return -1;
+
+			RE::GFxValue version;
+			if (!lootMenuObj.Invoke("getVersion", &version) || !version.IsNumber())
+				return 0;
+
+			return static_cast<int>(version.GetSInt());
 		}
 
 		void ModSelectedIndex(double a_mod)
@@ -209,6 +232,11 @@ namespace QuickLoot
 
 	protected:
 		using UIResult = RE::UI_MESSAGE_RESULTS;
+
+		// dummy constructor that doesn't do any initialization
+		LootMenu(nullptr_t)
+		{
+		}
 
 		LootMenu()
 		{
