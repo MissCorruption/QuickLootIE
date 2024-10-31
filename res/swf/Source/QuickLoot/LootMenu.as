@@ -52,6 +52,10 @@
 	
 	// public functions
 	
+	public function getVersion() {
+		return 2;
+	}
+	
 	public function init(settings: Object)
 	{
 		//QuickLoot.Utils.log("Initializing LootMenu");

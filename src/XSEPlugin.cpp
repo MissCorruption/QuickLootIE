@@ -23,9 +23,10 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 		break;
 
 	case SKSE::MessagingInterface::kDataLoaded:
-
-		
-		QuickLoot::SanityChecks::PerformChecks();
+		if (!QuickLoot::SanityChecks::PerformChecks()) {
+			logger::error("Sanity checks failed. Disabling QuickLootIE.");
+			return;
+		}
 
 		QuickLoot::Config::Papyrus::Init();
 		QuickLoot::LootMenu::Register();
