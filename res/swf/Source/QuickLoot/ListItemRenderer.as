@@ -119,7 +119,7 @@
 	private function arrangeInfoColumns() {
 		_totalColumnWidth = 0;
 		
-		for(var i in _lootMenu.infoColumns) {
+		for(var i = _lootMenu.infoColumns.length - 1; i >= 0; i--) {
 			var columnName = _lootMenu.infoColumns[i];
 			var element = this[columnName + "Text"];
 			

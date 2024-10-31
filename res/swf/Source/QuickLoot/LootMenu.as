@@ -128,7 +128,7 @@
 		}
 		
 		var x = COLUMNS_BASE_X;
-		for(var i in infoColumns) {
+		for(var i = infoColumns.length - 1; i >= 0; i--) {
 			var columnName = infoColumns[i];
 			var element = this[columnName + "Header"];
 			if(typeof(element) == "object") {
