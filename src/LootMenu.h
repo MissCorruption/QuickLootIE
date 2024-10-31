@@ -448,6 +448,15 @@ namespace QuickLoot
 			settings.SetMember("anchorFractionX", anchorFractionX);
 			settings.SetMember("anchorFractionY", anchorFractionY);
 
+			RE::GFxValue infoColumns{};
+			_view->CreateArray(&infoColumns);
+
+			infoColumns.PushBack("value");
+			infoColumns.PushBack("weight");
+			infoColumns.PushBack("valuePerWeight");
+
+			settings.SetMember("infoColumns", infoColumns);
+
 			return settings;
 		}
 

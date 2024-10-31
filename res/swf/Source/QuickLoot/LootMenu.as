@@ -5,6 +5,8 @@
 	private static var NEUTRAL_WIDTH = 546;
 	private static var NEUTRAL_HEIGHT = 371;
 	
+	private static var COLUMNS_BASE_X = NEUTRAL_WIDTH - 23;
+	
 	// stage elements
 	
 	private var itemList: QuickLoot.ScrollingList;
@@ -16,10 +18,15 @@
 	private var arrowUp: MovieClip;
 	private var arrowDown: MovieClip;
 	
+	private var valueHeader: TextField;
+	private var weightHeader: TextField;
+	private var valuePerWeightHeader: TextField;
+	
 	private var background: MovieClip;
 	
 	// private variables
 	
+	private var columnHeaders: Array;
 	private var movingElements: Array;
 	private var nonTransparentElements: Array;
 	
@@ -41,6 +48,8 @@
 	public var anchorFractionX = 0;
 	public var anchorFractionY = 0;
 	
+	public var infoColumns = ["value", "weight", "valuePerWeight"];
+	
 	// public functions
 	
 	public function init(settings: Object)
@@ -60,6 +69,8 @@
 		loadSetting(settings, "anchorFractionX", "number");
 		loadSetting(settings, "anchorFractionY", "number");
 		
+		loadSetting(settings, "infoColumns", "object");
+		
 		if(scale == 0) scale = 1;
 		
 		// The CoreList constructor sets a scale9Grid, which causes very odd
@@ -69,10 +80,12 @@
 		var self = this;
 		itemList.addEventListener("scrollPositionChanged", function() { self.updateScrollArrows(); });
 		
+		columnHeaders = [valueHeader, weightHeader, valuePerWeightHeader];
 		movingElements = [weight, infoBar, buttonBar, arrowDown];
 		nonTransparentElements = [buttonBar];
 		
 		saveInitialElementBounds();
+		initColumnHeaders()
 		refresh();
 	}
 	
@@ -91,10 +104,29 @@
 	
 	private function loadSetting(settings: Object, name: String, type: String)
 	{
-		//QuickLoot.Utils.log(name + " (" + type + "): " + settings[name]);
+		//QuickLoot.Utils.log(name + " (" + type + "): " + settings[name] + " (" + typeof(settings[name]) + ")");
 		
 		if(typeof(settings[name]) == type) {
 			this[name] = settings[name];
+		}
+	}
+	
+	private function initColumnHeaders()
+	{
+		for(var i in columnHeaders) {
+			var element = columnHeaders[i];
+			element._visible = false;
+		}
+		
+		var x = COLUMNS_BASE_X;
+		for(var i in infoColumns) {
+			var columnName = infoColumns[i];
+			var element = this[columnName + "Header"];
+			if(typeof(element) == "object") {
+				element._visible = true;
+				x = x - element._width;
+				element._x = x;
+			}
 		}
 	}
 	

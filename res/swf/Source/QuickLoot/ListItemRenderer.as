@@ -4,13 +4,14 @@
 
 	private static var STEALING_TEXT_COLOR: Number = 0xEF9A9A;
 	private static var DEFAULT_TEXT_COLOR: Number = 0xFFFFFF;
-	private static var MAX_TEXT_WIDTH: Number = 315;
 	
 	private static var DEFAULT_ICON_SOURCE = "skyui/icons_item_psychosteve.swf";
 	private static var DEFAULT_ICON_LABEL = "default_misc";
 	private static var DEFAULT_ICON_COLOR = 0xFFFFFF;
 	private static var ICON_SPACING = 3;
 	private static var ICON_SIZE = 24;
+	
+	private var _lootMenu: QuickLoot.LootMenu;
 	
 	private var _iconLoader: MovieClipLoader;
 	private var _iconSource: String = DEFAULT_ICON_SOURCE;
@@ -19,6 +20,7 @@
 	
 	private var _selectedIcons: Array = [];
 	private var _totalIconWidth: Number = 0;
+	private var _totalColumnWidth: Number = 0;
 	private var _isTextTrimmed: Boolean = false;
 
 	/* STAGE ELEMENTS */
@@ -40,13 +42,15 @@
 	public var compNew: MovieClip;
 	public var compFound: MovieClip;
 	
-	public var itemWeight: TextField;
-	public var itemValue: TextField;
-	public var itemValuePerWeight: TextField;
+	public var weightText: TextField;
+	public var valueText: TextField;
+	public var valuePerWeightText: TextField;
 	
 	public function ListItemRenderer(a_obj: Object)
 	{
 		super();
+		
+		_lootMenu = _root.lootMenu;
 		
 		_iconLoader = new MovieClipLoader();
 		_iconLoader.addListener(this);
@@ -73,9 +77,9 @@
 		compNew._visible = false;
 		compFound._visible = false;
 		
-		itemWeight._visible = false;
-		itemValue._visible = false;
-		itemValuePerWeight._visible = false;
+		weightText._visible = false;
+		valueText._visible = false;
+		valuePerWeightText._visible = false;
 	}
 	
 	public function setData(data: Object): Void
@@ -100,9 +104,10 @@
 		
 		// Column values
 		
-		updateColumnValue(itemValue, value, 2);
-		updateColumnValue(itemWeight, weight, 2);
-		updateColumnValue(itemValuePerWeight, value / weight, 0);
+		arrangeInfoColumns();
+		updateColumnValue(valueText, value, 2);
+		updateColumnValue(weightText, weight, 2);
+		updateColumnValue(valuePerWeightText, value / weight, 0);
 		
 		// Item name and trailing icons
 		
@@ -111,13 +116,39 @@
 		arrangeIcons();
 	}
 	
+	private function arrangeInfoColumns() {
+		_totalColumnWidth = 0;
+		
+		for(var i in _lootMenu.infoColumns) {
+			var columnName = _lootMenu.infoColumns[i];
+			var element = this[columnName + "Text"];
+			
+			if(typeof(element) == "object") {
+				element._visible = true;
+				_totalColumnWidth = _totalColumnWidth + element._width;
+				element._x = this._width - _totalColumnWidth;
+			}
+		}
+	}
+	
+	private function updateColumnValue(text: TextField, value: Number, precision: Number)
+	{
+		if(!value || isNaN(value) || !isFinite(value)) {
+			text.text = "-";
+			return;
+		}
+		
+		text.text = formatNumber(value, precision);
+	}
+	
 	public function updateItemName(displayName: String, color: Number, count: Number, stealing: Boolean)
 	{
 		if(!displayName) displayName = "<unnamed>";
 		if(!color) color = stealing ? STEALING_TEXT_COLOR : DEFAULT_TEXT_COLOR;
 		if(!count) count = 1;
 		
-		label = trimItemName(displayName, count, textField.getTextFormat(), MAX_TEXT_WIDTH - _totalIconWidth);
+		var textWidth = this._width - _totalColumnWidth - _totalIconWidth - textField._x;
+		label = trimItemName(displayName, count, textField.getTextFormat(), textWidth);
 		textField.autoSize = "left";
 		textField.wordWrap = false;
 		textField.textColor = color;
@@ -189,10 +220,9 @@
 	
 	private function arrangeIcons()
 	{
-		var x = textField._x;
-		x += _isTextTrimmed
-			? MAX_TEXT_WIDTH - _totalIconWidth
-			: textField._width;
+		var x = _isTextTrimmed
+			? this._width - _totalColumnWidth - _totalIconWidth
+			: textField._x + textField._width;
 		
 		// Using a for in loop here iterates in reverse index order for some reason.
 		for(var i = 0; i < _selectedIcons.length; i++) {
@@ -201,18 +231,6 @@
 			icon._x = x + ICON_SPACING
 			x += ICON_SPACING + icon._width;
 		}
-	}
-	
-	private function updateColumnValue(text: TextField, value: Number, precision: Number)
-	{
-		if(!value || isNaN(value) || !isFinite(value)) {
-			text.text = "-";
-			text._visible = true;
-			return;
-		}
-		
-		text.text = formatNumber(value, precision);
-		text._visible = true;
 	}
 	
 	private function formatNumber(number: Number, precision: Number)
