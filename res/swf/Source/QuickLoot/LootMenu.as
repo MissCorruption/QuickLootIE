@@ -53,6 +53,11 @@
 	// public functions
 	
 	public function getVersion() {
+		/*
+		Feature levels:
+		1: supports getVersion()
+		2: supports configurable info columns
+		*/
 		return 2;
 	}
 	
