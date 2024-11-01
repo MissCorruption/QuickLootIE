@@ -145,14 +145,14 @@ namespace QuickLoot::Config
 }
 
 //These are just examples, we should localise these for the MCM e.g "The Goblin" would be "$qlie_preset_goblin"
-constexpr std::array<const char*, 3> SortingPresets = {
+constexpr std::array SortingPresets = {
 	"Select Preset...",  //Mandatory Entry
 	"Default Preset",
 	"The Goblin",
 	//Add more as you see fit.
 };
 
-constexpr std::array<const char*, 22> SortingPresets_Default = {
+constexpr std::array SortingPresets_Default = {
 	"$qlie_sortOption_Gold",
 	"$qlie_sortOption_Gems",
 	"$qlie_sortOption_SoulGems",
@@ -177,7 +177,7 @@ constexpr std::array<const char*, 22> SortingPresets_Default = {
 	"$qlie_sortOption_CompletionistNeeded",
 };
 
-constexpr std::array<const char*, 22> SortingPresets_Goblin = {
+constexpr std::array SortingPresets_Goblin = {
 	"$qlie_sortOption_Gold",
 	"$qlie_sortOption_Gems",
 	"$qlie_sortOption_SoulGems",
@@ -198,6 +198,6 @@ constexpr std::array<const char*, 22> SortingPresets_Goblin = {
 	"$qlie_sortOption_ByWeight",
 	"$qlie_sortOption_ByValue",
 	"$qlie_sortOption_ByName",
-	"$qlie_sortOption_LOTD Needed",
+	"$qlie_sortOption_LOTDNeeded",
 	"$qlie_sortOption_CompletionistNeeded",
 };
