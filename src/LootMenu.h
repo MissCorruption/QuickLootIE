@@ -1,16 +1,18 @@
 #pragma once
 
+#include "Behaviors/ActivationPrompt.h"
 #include "Behaviors/ContainerAnimator.h"
 #include "CLIK/Array.h"
 #include "CLIK/GFx/Controls/ButtonBar.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
 #include "Config/Settings.h"
+#include "Input/InputDisablers.h"
+#include "Input/InputListeners.h"
 #include "Integrations/APIServer.h"
 #include "Items/OldGroundItems.h"
 #include "Items/OldInventoryItem.h"
 #include "Items/OldItem.h"
-#include "ViewHandler.h"
 
 using Settings = QuickLoot::Config::Settings;
 
@@ -95,9 +97,8 @@ namespace QuickLoot
 			assert(a_ref);
 			_src = a_ref;
 
-			_viewHandler->Disable();
-			_viewHandler->SetSource(a_ref);
-			_viewHandler->Enable();
+			ViewHandlerDisable();
+			ViewHandlerEnable();
 
 			_itemList.SelectedIndex(-1);
 
@@ -258,7 +259,6 @@ namespace QuickLoot
 					RE::make_gptr<Logger>().get());
 			}
 
-			_viewHandler.emplace(menu, _dst);
 			_view = menu->uiMovie;
 			_view->SetMouseCursorCount(0);  // disable input, we'll handle it ourselves
 			InitExtensions();
@@ -394,11 +394,33 @@ namespace QuickLoot
 			InjectUtilsClass();
 		}
 
+		void ViewHandlerEnable()
+		{
+			if (_viewHandlerEnabled)
+				return;
+
+			Behaviors::ActivationPrompt::Block();
+			_disablers.Enable();
+			_listeners.Enable();
+			_viewHandlerEnabled = true;
+		}
+
+		void ViewHandlerDisable()
+		{
+			if (!_viewHandlerEnabled)
+				return;
+
+			Behaviors::ActivationPrompt::Unblock();
+			_disablers.Disable();
+			_listeners.Disable();
+			_viewHandlerEnabled = false;
+		}
+
 		void OnClose()
 		{
 			API::APIServer::DispatchCloseLootMenuEvent(_src);
 			Behaviors::ContainerAnimator::CloseContainer(_src);
-			_viewHandler->Disable();
+			ViewHandlerDisable();
 		}
 
 		void OnOpen()
@@ -691,7 +713,9 @@ namespace QuickLoot
 		RE::ActorHandle _dst{ RE::PlayerCharacter::GetSingleton() };
 		RE::ObjectRefHandle _src;
 
-		std::optional<ViewHandler> _viewHandler;
+		bool _viewHandlerEnabled;
+		Input::Disablers _disablers;
+		Input::Listeners _listeners;
 
 		CLIK::MovieClip _rootObj;
 		CLIK::TextField _title;
