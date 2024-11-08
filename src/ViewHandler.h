@@ -53,7 +53,7 @@ public:
 		RE::GPtr safety{ _menu };
 		auto task = SKSE::GetTaskInterface();
 		task->AddUITask([this, safety]() {
-			HideHUD();
+			QuickLoot::Behaviors::ActivationPrompt::Block();
 			if (!_enabled) {
 				_disablers.Enable();
 				_listeners.Enable();
@@ -67,67 +67,13 @@ public:
 		RE::GPtr safety{ _menu };
 		auto task = SKSE::GetTaskInterface();
 		task->AddUITask([this, safety]() {
-			ShowHUD();
+			QuickLoot::Behaviors::ActivationPrompt::Unblock();
 			if (_enabled) {
 				_disablers.Disable();
 				_listeners.Disable();
 				_enabled = false;
 			}
 		});
-	}
-
-	[[nodiscard]] RE::GFxValue GetHUDObject()
-	{
-		RE::GFxValue object;
-
-		auto ui = RE::UI::GetSingleton();
-		auto hud = ui ? ui->GetMenu<RE::HUDMenu>() : nullptr;
-		auto view = hud ? hud->uiMovie : nullptr;
-		if (view) {
-			view->GetVariable(std::addressof(object), "_root.HUDMovieBaseInstance");
-		}
-
-		return object;
-	}
-
-	void ShowHUD()
-	{
-		QuickLoot::Behaviors::ActivationPrompt::Unblock();
-
-		auto hud = GetHUDObject();
-		if (hud.IsObject()) {
-			std::array<RE::GFxValue, 10> args;
-			args[kActivate] = true;
-			args[kShowButton] = true;
-			args[kTextOnly] = true;
-
-			const auto src = _src.get();
-			const auto objRef = src ? src->GetObjectReference() : nullptr;
-			RE::BSString name;
-			if (objRef) {
-				objRef->GetActivateText(src.get(), name);
-			}
-			args[kName] = name.empty() ? "" : name.c_str();
-
-			hud.Invoke("SetCrosshairTarget", args);
-		}
-	}
-
-	void HideHUD()
-	{
-		auto hud = GetHUDObject();
-		if (hud.IsObject()) {
-			std::array<RE::GFxValue, 10> args;
-			args[kActivate] = false;
-			args[kShowButton] = false;
-			args[kTextOnly] = true;
-
-			args[kName] = "";
-
-			hud.Invoke("SetCrosshairTarget", args);
-		}
-
-		QuickLoot::Behaviors::ActivationPrompt::Block();
 	}
 
 	SKSE::stl::observer<RE::IMenu*> _menu;
