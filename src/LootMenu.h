@@ -143,7 +143,7 @@ namespace QuickLoot
 				}
 			}
 
-			if (Settings::CloseWhenEmpty() && _itemListImpl.empty()) {
+			if (!Settings::EnableWhenEmpty() && _itemListImpl.empty()) {
 				Close();
 			} else {
 				Sort();
