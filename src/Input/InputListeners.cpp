@@ -95,7 +95,7 @@ namespace Input
 					player->ActivatePickRef();
 				}
 
-				QuickLoot::LootMenuManager::Close();
+				//QuickLoot::LootMenuManager::Close();
 				return;
 			}
 		}
