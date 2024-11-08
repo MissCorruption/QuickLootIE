@@ -3,13 +3,13 @@
 #include <spdlog/sinks/basic_file_sink.h>
 
 #include "Behaviors/ActivationPrompt.h"
+#include "Behaviors/LockpickActivation.h"
+#include "Config/Papyrus.h"
 #include "Integrations/APIServer.h"
 #include "Integrations/Completionist.h"
 #include "Integrations/LOTD.h"
 #include "LootMenu.h"
-#include "LootMenuManager.h"
 #include "MenuVisibilityManager.h"
-#include "Config/Papyrus.h"
 #include "SanityChecks.h"
 
 void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
@@ -33,6 +33,7 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 		QuickLoot::MenuVisibilityManager::InstallHooks();
 
 		QuickLoot::Behaviors::ActivationPrompt::Install();
+		QuickLoot::Behaviors::LockpickActivation::Install();
 
 		QuickLoot::Integrations::LOTD::Init();
 		QuickLoot::Integrations::Completionist::Init();

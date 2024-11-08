@@ -1,4 +1,6 @@
 #include "Settings.h"
+
+#include "Behaviors/LockpickActivation.h"
 #include "Config/Papyrus.h"
 
 namespace QuickLoot::Config
@@ -8,6 +10,17 @@ namespace QuickLoot::Config
 		return QLIESortPriorityStrings.size() == 0 ?
 		           std::make_shared<std::vector<std::string>>(Papyrus::GetSortingPreset(nullptr, 1)) :
 		           std::make_shared<std::vector<std::string>>(QLIESortPriorityStrings);
+	}
+
+	void Settings::Update()
+	{
+		Papyrus::UpdateVariables();
+
+		if (OpenWhenContainerUnlocked()) {
+			Behaviors::LockpickActivation::Block();
+		} else {
+			Behaviors::LockpickActivation::Unblock();
+		}
 	}
 
 	bool Settings::CloseInCombat()

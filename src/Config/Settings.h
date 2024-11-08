@@ -1,4 +1,5 @@
 #pragma once
+
 namespace QuickLoot::Config
 {
 	enum AnchorPoint
@@ -23,6 +24,8 @@ namespace QuickLoot::Config
 		Settings(Settings const&&) = delete;
 		Settings operator=(Settings&) = delete;
 		Settings operator=(Settings&&) = delete;
+
+		static void Update();
 
 		static bool CloseInCombat();
 		static bool CloseWhenEmpty();

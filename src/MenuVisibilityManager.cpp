@@ -235,12 +235,21 @@ namespace QuickLoot
 	{
 		logger::trace("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", menuName);
 
+		// Always ignore events related to the loot menu to avoid feedback loops
 		if (menuName == LootMenu::MENU_NAME) {
 			return;
 		}
 
+		if (!opening && menuName == RE::LockpickingMenu::MENU_NAME && !Settings::OpenWhenContainerUnlocked()) {
+			// Without this the activation prompt will continue to show the container as locked
+			RE::PlayerCharacter::GetSingleton()->UpdateCrosshairs();
+
+			// Don't refresh open state when OpenWhenContainerUnlocked is false
+			return;
+		}
+
 		if (!opening && menuName == RE::JournalMenu::MENU_NAME) {
-			Config::Papyrus::UpdateVariables();
+			Settings::Update();
 		}
 
 		RefreshOpenState();
