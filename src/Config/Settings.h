@@ -2,7 +2,7 @@
 
 namespace QuickLoot::Config
 {
-	enum AnchorPoint
+	enum AnchorPoint : uint8_t
 	{
 		kTopLeft,
 		kCenterLeft,
@@ -27,16 +27,17 @@ namespace QuickLoot::Config
 
 		static void Update();
 
-		static bool CloseInCombat();
-		static bool CloseWhenEmpty();
+		static bool EnableInCombat();
+		static bool EnableWhenEmpty();
+		static bool EnableAfterUnlocking();
+
+		static bool EnableInThirdPersonView();
+		static bool EnableWhenMounted();
+
+		static bool EnableForAnimals();
+		static bool EnableForDragons();
+
 		static bool DispelInvisibility();
-		static bool OpenWhenContainerUnlocked();
-
-		static bool ShowInThirdPersonView();
-		static bool ShowWhenMounted();
-
-		static bool DisableForAnimals();
-		static bool DisableForMonsters();
 
 		static bool ShowBookRead();
 		static bool ShowEnchanted();

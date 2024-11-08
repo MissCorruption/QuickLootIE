@@ -45,10 +45,10 @@ namespace QuickLoot
 			return true;
 
 		case RE::CameraState::kThirdPerson:
-			return Settings::ShowInThirdPersonView();
+			return Settings::EnableInThirdPersonView();
 
 		case RE::CameraState::kMount:
-			return Settings::ShowWhenMounted();
+			return Settings::EnableWhenMounted();
 
 		default:
 			return false;
@@ -92,7 +92,7 @@ namespace QuickLoot
 			return false;
 		}
 
-		if (Settings::CloseInCombat() && player->IsInCombat()) {
+		if (!Settings::EnableInCombat() && player->IsInCombat()) {
 			logger::debug("LootMenu disabled because player is in combat");
 			return false;
 		}
@@ -138,12 +138,12 @@ namespace QuickLoot
 				return false;
 			}
 
-			if (Settings::DisableForAnimals() && actor->HasKeywordString("ActorTypeAnimal")) {
+			if (!Settings::EnableForAnimals() && actor->HasKeywordString("ActorTypeAnimal")) {
 				logger::debug("LootMenu disabled for animals");
 				return false;
 			}
 
-			if (Settings::DisableForMonsters() && actor->HasKeywordString("ActorTypeDragon")) {
+			if (!Settings::EnableForDragons() && actor->HasKeywordString("ActorTypeDragon")) {
 				logger::debug("LootMenu disabled for dragons");
 				return false;
 			}
@@ -226,7 +226,7 @@ namespace QuickLoot
 	{
 		logger::trace("OnLockChanged: {:08X}", container.GetFormID());
 
-		if (Settings::OpenWhenContainerUnlocked() && container.GetHandle() == _focusedRef) {
+		if (Settings::EnableAfterUnlocking() && container.GetHandle() == _focusedRef) {
 			RefreshOpenState();
 		}
 	}
@@ -240,11 +240,11 @@ namespace QuickLoot
 			return;
 		}
 
-		if (!opening && menuName == RE::LockpickingMenu::MENU_NAME && !Settings::OpenWhenContainerUnlocked()) {
+		if (!opening && menuName == RE::LockpickingMenu::MENU_NAME && !Settings::EnableAfterUnlocking()) {
 			// Without this the activation prompt will continue to show the container as locked
 			RE::PlayerCharacter::GetSingleton()->UpdateCrosshairs();
 
-			// Don't refresh open state when OpenWhenContainerUnlocked is false
+			// Don't refresh open state when EnableAfterUnlocking is false
 			return;
 		}
 

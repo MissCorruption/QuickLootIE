@@ -16,56 +16,54 @@ namespace QuickLoot::Config
 	{
 		Papyrus::UpdateVariables();
 
-		if (OpenWhenContainerUnlocked()) {
+		if (EnableAfterUnlocking()) {
 			Behaviors::LockpickActivation::Block();
 		} else {
 			Behaviors::LockpickActivation::Unblock();
 		}
 	}
 
-	bool Settings::CloseInCombat()
+	bool Settings::EnableInCombat()
 	{
-		return QLIECloseInCombat;
+		return !QLIECloseInCombat;
 	}
 
-	// TODO invert logic (ShowWhenEmpty)
-	bool Settings::CloseWhenEmpty()
+	bool Settings::EnableWhenEmpty()
 	{
-		return QLIECloseWhenEmpty;
+		return !QLIECloseWhenEmpty;
+	}
+
+	bool Settings::EnableAfterUnlocking()
+	{
+		return QLIEOpenWhenContainerUnlocked;
+	}
+
+	bool Settings::EnableInThirdPersonView()
+	{
+		// TODO implement
+		return true;
+	}
+
+	bool Settings::EnableWhenMounted()
+	{
+		// TODO implement
+		return true;
+	}
+
+	bool Settings::EnableForAnimals()
+	{
+		return !QLIEDisableForAnimals;
+	}
+
+	bool Settings::EnableForDragons()
+	{
+		// TODO implement
+		return true;
 	}
 
 	bool Settings::DispelInvisibility()
 	{
 		return QLIEDispelInvisibility;
-	}
-
-	bool Settings::OpenWhenContainerUnlocked()
-	{
-		return QLIEOpenWhenContainerUnlocked;
-	}
-
-	bool Settings::ShowInThirdPersonView()
-	{
-		// TODO implement
-		return true;
-	}
-
-	bool Settings::ShowWhenMounted()
-	{
-		// TODO implement
-		return true;
-	}
-
-	bool Settings::DisableForAnimals()
-	{
-		return QLIEDisableForAnimals;
-	}
-
-	// TODO rename to DisableForDragons
-	bool Settings::DisableForMonsters()
-	{
-		// TODO implement
-		return false;
 	}
 
 	bool Settings::ShowBookRead()
