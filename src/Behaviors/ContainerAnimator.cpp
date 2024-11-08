@@ -30,7 +30,7 @@ namespace QuickLoot::Behaviors
 		const auto playerRefPtr = RE::PlayerCharacter::GetSingleton()->GetHandle().get();
 
 		const auto events = RE::ScriptEventSourceHolder::GetSingleton();
-		events->SendOpenCloseEvent(containerRefPtr, playerRefPtr, true);
+		events->SendOpenCloseEvent(containerRefPtr, playerRefPtr, false);
 	}
 
 	bool ContainerAnimator::Animate(const RE::ObjectRefHandle& container, OpenState idleState, OpenState waitState, bool open)
