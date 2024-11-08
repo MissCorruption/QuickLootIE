@@ -23,122 +23,37 @@ namespace QuickLoot::Config
 		}
 	}
 
-	bool Settings::EnableInCombat()
-	{
-		return !QLIECloseInCombat;
-	}
+	bool Settings::EnableInCombat() { return !QLIECloseInCombat; }
+	bool Settings::EnableWhenEmpty() { return !QLIECloseWhenEmpty; }
+	bool Settings::EnableAfterUnlocking() { return QLIEOpenWhenContainerUnlocked; }
 
-	bool Settings::EnableWhenEmpty()
-	{
-		return !QLIECloseWhenEmpty;
-	}
+	bool Settings::EnableInThirdPersonView() { return true; }  // TODO implement
+	bool Settings::EnableWhenMounted() { return true; }        // TODO implement
 
-	bool Settings::EnableAfterUnlocking()
-	{
-		return QLIEOpenWhenContainerUnlocked;
-	}
+	bool Settings::EnableForAnimals() { return !QLIEDisableForAnimals; }
+	bool Settings::EnableForDragons() { return true; }  // TODO implement
 
-	bool Settings::EnableInThirdPersonView()
-	{
-		// TODO implement
-		return true;
-	}
+	bool Settings::DispelInvisibility() { return QLIEDispelInvisibility; }
 
-	bool Settings::EnableWhenMounted()
-	{
-		// TODO implement
-		return true;
-	}
+	bool Settings::ShowBookRead() { return QLIEIconShowBookRead; }
+	bool Settings::ShowEnchanted() { return QLIEIconShowEnchanted; }
 
-	bool Settings::EnableForAnimals()
-	{
-		return !QLIEDisableForAnimals;
-	}
+	bool Settings::ShowDBMDisplayed() { return QLIEIconShowDBMDisplayed; }
+	bool Settings::ShowDBMFound() { return QLIEIconShowDBMFound; }
+	bool Settings::ShowDBMNew() { return QLIEIconShowDBMNew; }
 
-	bool Settings::EnableForDragons()
-	{
-		// TODO implement
-		return true;
-	}
+	bool Settings::ShowCompNeeded() { return QLIEShowCompNeeded; }
+	bool Settings::ShowCompCollected() { return QLIEShowCompCollected; }
 
-	bool Settings::DispelInvisibility()
-	{
-		return QLIEDispelInvisibility;
-	}
+	AnchorPoint Settings::GetAnchorPoint() { return static_cast<AnchorPoint>(QLIEAnchorPoint); }
+	int32_t Settings::GetWindowX() { return QLIEWindowX; }
+	int32_t Settings::GetWindowY() { return QLIEWindowY; }
+	float Settings::GetWindowScale() { return QLIEWindowScale; }
 
-	bool Settings::ShowBookRead()
-	{
-		return QLIEIconShowBookRead;
-	}
+	int32_t Settings::GetMinLines() { return QLIEMinLines; }
+	int32_t Settings::GetMaxLines() { return QLIEMaxLines; }
 
-	bool Settings::ShowEnchanted()
-	{
-		return QLIEIconShowEnchanted;
-	}
-
-	bool Settings::ShowDBMDisplayed()
-	{
-		return QLIEIconShowDBMDisplayed;
-	}
-
-	bool Settings::ShowDBMFound()
-	{
-		return QLIEIconShowDBMFound;
-	}
-
-	bool Settings::ShowDBMNew()
-	{
-		return QLIEIconShowDBMNew;
-	}
-
-	bool Settings::ShowCompNeeded()
-	{
-		return QLIEShowCompNeeded;
-	}
-
-	bool Settings::ShowCompCollected()
-	{
-		return QLIEShowCompCollected;
-	}
-
-	AnchorPoint Settings::GetAnchorPoint()
-	{
-		return static_cast<AnchorPoint>(QLIEAnchorPoint);
-	}
-
-	int32_t Settings::GetWindowX()
-	{
-		return QLIEWindowX;
-	}
-
-	int32_t Settings::GetWindowY()
-	{
-		return QLIEWindowY;
-	}
-
-	float Settings::GetWindowScale()
-	{
-		return QLIEWindowScale;
-	}
-
-	int32_t Settings::GetMinLines()
-	{
-		return QLIEMinLines;
-	}
-
-	int32_t Settings::GetMaxLines()
-	{
-		return QLIEMaxLines;
-	}
-
-	float Settings::GetNormalWindowTransparency()
-	{
-		return QLIETransparency_Normal;
-	}
-
-	float Settings::GetEmptyWindowTransparency()
-	{
-		return QLIETransparency_Empty;
-	}
+	float Settings::GetNormalWindowTransparency() { return QLIETransparency_Normal; }
+	float Settings::GetEmptyWindowTransparency() { return QLIETransparency_Empty; }
 
 }
