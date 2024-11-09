@@ -49,6 +49,7 @@ jobs:
     name: Build ESP from Spriggit files
     needs: check-changes
     if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
