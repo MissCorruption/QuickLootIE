@@ -7,7 +7,13 @@ on:
     branches:
       - "master"
     paths-ignore:
-      - '.github/**'
+      - '*.yaml'
+      - '*.txt'
+      - '*.md'
+  pull_request:
+    branches: 
+      - "master"
+    paths-ignore:
       - '*.yaml'
       - '*.txt'
       - '*.md'
@@ -75,7 +81,7 @@ jobs:
           chmod +x .github/spriggit/Spriggit.CLI
 
       - name: Run Spriggit
-        run: .github/spriggit/Spriggit.CLI deserialize --InputPath "res/esp/Source" --OutputPath "res/esp/QuickLootIE.esp"
+        run: .github/spriggit/Spriggit.CLI deserialize --InputPath "res/esp" --OutputPath "res/esp/QuickLootIE.esp"
 
       - name: Upload Plugin Artifact
         uses: actions/upload-artifact@v4
