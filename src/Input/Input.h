@@ -135,11 +135,11 @@ namespace Input
 				using Keyboard = RE::BSWin32KeyboardDevice::Key;
 				using Mouse = RE::BSWin32MouseDevice::Key;
 
-				insert<OptionalGroup>(Group::kPageKeys, Device::kKeyboard, { Keyboard::kPageUp, Keyboard::kPageDown });
-				insert<OptionalGroup>(Group::kArrowKeys, Device::kKeyboard, { Keyboard::kUp, Keyboard::kDown, Keyboard::kLeft, Keyboard::kRight });
+				insert(Group::kPageKeys, false, Device::kKeyboard, { Keyboard::kPageUp, Keyboard::kPageDown });
+				insert(Group::kArrowKeys, false, Device::kKeyboard, { Keyboard::kUp, Keyboard::kDown, Keyboard::kLeft, Keyboard::kRight });
 
-				insert<MandatoryGroup>(Group::kMouseWheel, Device::kMouse, { Mouse::kWheelUp, Mouse::kWheelDown });
-				insert<MandatoryGroup>(Group::kDPAD, Device::kGamepad, { Gamepad::kUp, Gamepad::kDown, Gamepad::kLeft, Gamepad::kRight });
+				insert(Group::kMouseWheel, true, Device::kMouse, { Mouse::kWheelUp, Mouse::kWheelDown });
+				insert(Group::kDPAD, true, Device::kGamepad, { Gamepad::kUp, Gamepad::kDown, Gamepad::kLeft, Gamepad::kRight });
 			}
 
 			void operator()(std::size_t a_device, RE::ControlMap::UserEventMapping& a_userEvent) const
@@ -166,20 +166,20 @@ namespace Input
 			public:
 				using value_type = RE::ControlMap::UserEventMapping;
 
-				IControlGroup(Group a_group) noexcept :
-					_group(a_group)
+				IControlGroup(Group a_group, bool a_mandatory) noexcept :
+					_group(a_group), _mandatory(a_mandatory)
 				{}
 
 				virtual ~IControlGroup() = default;
 
 				void accept(value_type& a_mapping)
 				{
-					if (_good) {
-						if (can_accept(a_mapping)) {
-							_queued.emplace_back(a_mapping);
-						} else {
-							_good = false;
-						}
+					if (!_good) return;
+
+					if (const bool canAccept = _mandatory || !a_mapping.linked) {
+						_queued.emplace_back(a_mapping);
+					} else {
+						_good = false;
 					}
 				}
 
@@ -201,55 +201,16 @@ namespace Input
 					ControlGroups::get()[_group] = _good;
 				}
 
-			protected:
-				[[nodiscard]] virtual bool can_accept(const value_type& a_mapping) const noexcept = 0;
-
 			private:
 				std::vector<std::reference_wrapper<value_type>> _queued;
 				Group _group;
 				bool _good{ true };
+				bool _mandatory;
 			};
 
-			class MandatoryGroup final :
-				public IControlGroup
+			void insert(Group a_group, bool a_mandatory, RE::INPUT_DEVICE a_device, std::initializer_list<value_type> a_idCodes)
 			{
-			private:
-				using super = IControlGroup;
-
-			public:
-				using value_type = typename super::value_type;
-
-				using super::super;
-				using super::operator=;
-
-			protected:
-				[[nodiscard]] bool can_accept(const value_type&) const noexcept override { return true; }
-			};
-
-			class OptionalGroup final :
-				public IControlGroup
-			{
-			private:
-				using super = IControlGroup;
-
-			public:
-				using value_type = typename super::value_type;
-
-				using super::super;
-				using super::operator=;
-
-			protected:
-				[[nodiscard]] bool can_accept(const value_type& a_mapping) const noexcept override { return !a_mapping.linked; }
-			};
-
-			template <
-				class T,
-				std::enable_if_t<
-					std::is_base_of_v<IControlGroup, T>,
-					int> = 0>
-			void insert(Group a_group, RE::INPUT_DEVICE a_device, std::initializer_list<value_type> a_idCodes)
-			{
-				const auto group = std::make_shared<T>(a_group);
+				const auto group = std::make_shared<IControlGroup>(a_group, a_mandatory);
 				for (const auto& idCode : a_idCodes) {
 					_mappings[a_device].emplace(idCode, group);
 				}
