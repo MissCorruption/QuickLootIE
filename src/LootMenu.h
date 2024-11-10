@@ -7,6 +7,7 @@
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
 #include "Config/Settings.h"
+#include "Input/ButtonArt.h"
 #include "Input/InputDisablers.h"
 #include "Input/InputListeners.h"
 #include "Integrations/APIServer.h"
@@ -631,7 +632,7 @@ namespace QuickLoot
 
 				const auto setting = RE::GameSettingCollection::GetSingleton()->GetSetting(labelKey);
 				const auto label = setting ? setting->GetString() : labelFallback;
-				const auto index = Input::ControlMap()(button.keybindEvent);
+				const auto index = Input::ButtonArt::GetFrameIndexForEvent(button.keybindEvent);
 
 				RE::GFxValue obj;
 				_view->CreateObject(&obj);
@@ -714,8 +715,8 @@ namespace QuickLoot
 		RE::ObjectRefHandle _src;
 
 		bool _viewHandlerEnabled;
-		Input::Disablers _disablers;
-		Input::Listeners _listeners;
+		::Input::Disablers _disablers;
+		::Input::Listeners _listeners;
 
 		CLIK::MovieClip _rootObj;
 		CLIK::TextField _title;
