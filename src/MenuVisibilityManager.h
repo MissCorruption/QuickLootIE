@@ -14,6 +14,9 @@ namespace QuickLoot
 
 		static void InstallHooks();
 
+		static void EnableLootMenu(const std::string& modName);
+		static void DisableLootMenu(const std::string& modName);
+
 		static void OnCameraStateChanged(RE::CameraState state);
 		static void OnCombatStateChanged(RE::ACTOR_COMBAT_STATE state);
 		static void OnContainerChanged(RE::FormID container);
@@ -25,6 +28,7 @@ namespace QuickLoot
 	private:
 		static inline RE::ObjectRefHandle _focusedRef{};
 		static inline RE::ObjectRefHandle _currentContainer{};
+		static inline std::set<std::string> _disablingMods{};
 
 		static RE::TESObjectREFRPtr GetContainerObject(RE::ObjectRefHandle ref);
 		static bool IsValidCameraState(RE::CameraState state);
