@@ -80,6 +80,42 @@ namespace QuickLoot
 		});
 	}
 
+	void LootMenuManager::OnInputAction(Input::QuickLootAction action)
+	{
+		logger::trace("Input action {}", static_cast<int>(action));
+
+		switch (action) {
+		case Input::QuickLootAction::kTake:
+			TakeStack();
+			break;
+
+		case Input::QuickLootAction::kTakeAll:
+			TakeAll();
+			break;
+
+		case Input::QuickLootAction::kTransfer:
+			// TODO directly call ActivateRef on the container instead?
+			RE::PlayerCharacter::GetSingleton()->ActivatePickRef();
+			break;
+
+		case Input::QuickLootAction::kScrollUp:
+			ModSelectedIndex(-1);
+			break;
+
+		case Input::QuickLootAction::kScrollDown:
+			ModSelectedIndex(1);
+			break;
+
+		case Input::QuickLootAction::kPrevPage:
+			ModSelectedPage(-1);
+			break;
+
+		case Input::QuickLootAction::kNextPage:
+			ModSelectedPage(1);
+			break;
+		}
+	}
+
 	void LootMenuManager::Process(LootMenu& a_menu)
 	{
 		if (!_taskQueue.empty()) {

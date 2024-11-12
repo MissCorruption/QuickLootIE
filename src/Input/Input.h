@@ -12,6 +12,17 @@ namespace QuickLoot::Input
 
 	constexpr UEFlag QUICKLOOT_EVENT_GROUP_FLAG = static_cast<UEFlag>(1 << 12);
 
+	enum class ModifierKeys : uint8_t
+	{
+		kNone = 0,
+
+		kShift = 1 << 0,
+		kControl = 1 << 1,
+		kAlt = 1 << 2,
+
+		kIgnore = static_cast<ModifierKeys>(-1),
+	};
+
 	enum class ControlGroup : uint8_t
 	{
 		kNone,
@@ -20,7 +31,7 @@ namespace QuickLoot::Input
 		// always active
 		kButtonBar = 1,
 		kMouseWheel = 2,
-		kDpad = 2,
+		kDpad = 3,
 
 		// disabled on conflict
 		kArrowKeys = 11 | kOptional,
@@ -43,12 +54,13 @@ namespace QuickLoot::Input
 	{
 		// If a keybinding is part of a group with the kOptional bit set and conflicts with a
 		// predefined keybinding, then all keybindings within the same group will be disabled.
-		REL::stl::enumeration<ControlGroup> group = ControlGroup::kNone;
+		RE::stl::enumeration<ControlGroup> group = ControlGroup::kNone;
 		DeviceType deviceType;
 		uint16_t inputKey;
-		uint16_t modifier;
+		RE::stl::enumeration<ModifierKeys> modifiers;
 		QuickLootAction action;
 		// Whether the action should be periodically re-triggered when the button is held.
 		bool retrigger;
+		float nextRetriggerTime = 0.0f;
 	};
 }

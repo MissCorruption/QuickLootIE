@@ -1,4 +1,5 @@
 #pragma once
+#include "Input/Input.h"
 
 namespace QuickLoot
 {
@@ -51,6 +52,8 @@ namespace QuickLoot
 		static void SetContainer(RE::ObjectRefHandle a_container);
 		static void TakeStack();
 		static void TakeAll();
+
+		static void OnInputAction(Input::QuickLootAction action);
 
 	protected:
 		friend class LootMenu;

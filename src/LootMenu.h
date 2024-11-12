@@ -8,8 +8,8 @@
 #include "CLIK/TextField.h"
 #include "Config/Settings.h"
 #include "Input/ButtonArt.h"
-#include "Input/InputListeners.h"
 #include "Input/InputManager.h"
+#include "Input/InputObserver.h"
 #include "Integrations/APIServer.h"
 #include "Items/OldGroundItems.h"
 #include "Items/OldInventoryItem.h"
@@ -402,7 +402,7 @@ namespace QuickLoot
 
 			Behaviors::ActivationPrompt::Block();
 			Input::InputManager::BlockConflictingInputs();
-			_listeners.Enable();
+			Input::InputObserver::StartListening();
 			_viewHandlerEnabled = true;
 		}
 
@@ -413,7 +413,7 @@ namespace QuickLoot
 
 			Behaviors::ActivationPrompt::Unblock();
 			Input::InputManager::UnblockConflictingInputs();
-			_listeners.Disable();
+			Input::InputObserver::StopListening();
 			_viewHandlerEnabled = false;
 		}
 
@@ -715,7 +715,6 @@ namespace QuickLoot
 		RE::ObjectRefHandle _src;
 
 		bool _viewHandlerEnabled;
-		::Input::Listeners _listeners;
 
 		CLIK::MovieClip _rootObj;
 		CLIK::TextField _title;
