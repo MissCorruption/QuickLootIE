@@ -125,6 +125,16 @@ namespace QuickLoot::Input
 		});
 	}
 
+	void InputManager::BlockConflictingInputs()
+	{
+		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, false);
+	}
+
+	void InputManager::UnblockConflictingInputs()
+	{
+		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, true);
+	}
+
 	void InputManager::ReloadKeybindings()
 	{
 		_keybindings.clear();

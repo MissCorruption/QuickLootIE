@@ -17,6 +17,9 @@ namespace QuickLoot::Input
 		static void Install();
 		static void UpdateMappings();
 
+		static void BlockConflictingInputs();
+		static void UnblockConflictingInputs();
+
 	private:
 		static inline std::vector<Keybinding> _keybindings{};
 
