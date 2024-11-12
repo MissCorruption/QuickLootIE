@@ -5,6 +5,7 @@
 #include "Behaviors/ActivationPrompt.h"
 #include "Behaviors/LockpickActivation.h"
 #include "Config/Papyrus.h"
+#include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
 #include "Integrations/Completionist.h"
 #include "Integrations/LOTD.h"
@@ -16,9 +17,6 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 {
 	switch (msg->type) {
 	case SKSE::MessagingInterface::kPostLoad:
-		// This needs to run before kInputLoaded
-		Input::InputManager::Install();
-
 		QuickLoot::API::APIServer::Init(SKSE::GetMessagingInterface());
 		break;
 
@@ -29,6 +27,10 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 		}
 
 		QuickLoot::Config::Papyrus::Init();
+
+		// Do this after settings are loaded
+		QuickLoot::Input::InputManager::Install();
+
 		QuickLoot::LootMenu::Register();
 		QuickLoot::MenuVisibilityManager::InstallHooks();
 

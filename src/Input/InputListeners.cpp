@@ -1,6 +1,5 @@
 #include "Input/InputListeners.h"
 
-#include "Input.h"
 #include "LootMenuManager.h"
 
 namespace Input
@@ -12,15 +11,13 @@ namespace Input
 		using Keyboard = RE::BSWin32KeyboardDevice::Key;
 		using Mouse = RE::BSWin32MouseDevice::Key;
 
-		const auto& groups = ControlGroups::get();
-
-		if (groups[Group::kPageKeys]) {
+		{
 			auto& mappings = _mappings[Device::kKeyboard];
 			mappings.emplace(Keyboard::kPageUp, [] { QuickLoot::LootMenuManager::ModSelectedPage(-1.0); });
 			mappings.emplace(Keyboard::kPageDown, [] { QuickLoot::LootMenuManager::ModSelectedPage(1.0); });
 		}
 
-		if (groups[Group::kArrowKeys]) {
+		{
 			auto& mappings = _mappings[Device::kKeyboard];
 			mappings.emplace(Keyboard::kUp, [] { QuickLoot::LootMenuManager::ModSelectedIndex(-1.0); });
 			mappings.emplace(Keyboard::kDown, [] { QuickLoot::LootMenuManager::ModSelectedIndex(1.0); });
@@ -28,13 +25,13 @@ namespace Input
 			mappings.emplace(Keyboard::kRight, [] { QuickLoot::LootMenuManager::ModSelectedPage(1.0); });
 		}
 
-		if (groups[Group::kMouseWheel]) {
+		{
 			auto& mappings = _mappings[Device::kMouse];
 			mappings.emplace(Mouse::kWheelUp, [] { QuickLoot::LootMenuManager::ModSelectedIndex(-1.0); });
 			mappings.emplace(Mouse::kWheelDown, [] { QuickLoot::LootMenuManager::ModSelectedIndex(1.0); });
 		}
 
-		if (groups[Group::kDPAD]) {
+		{
 			auto& mappings = _mappings[Device::kGamepad];
 			mappings.emplace(Gamepad::kUp, [] { QuickLoot::LootMenuManager::ModSelectedIndex(-1.0); });
 			mappings.emplace(Gamepad::kDown, [] { QuickLoot::LootMenuManager::ModSelectedIndex(1.0); });
@@ -86,8 +83,8 @@ namespace Input
 			auto controlMap = RE::ControlMap::GetSingleton();
 			const auto idCode =
 				controlMap ?
-                    controlMap->GetMappedKey("Favorites"sv, event->GetDevice()) :
-                    RE::ControlMap::kInvalid;
+					controlMap->GetMappedKey("Favorites"sv, event->GetDevice()) :
+					RE::ControlMap::kInvalid;
 
 			if (event->GetIDCode() == idCode && event->IsDown()) {
 				auto player = RE::PlayerCharacter::GetSingleton();

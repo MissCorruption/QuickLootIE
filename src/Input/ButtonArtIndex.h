@@ -1,11 +1,9 @@
 #pragma once
 
+#include "Input.h"
+
 namespace QuickLoot::Input
 {
-	using KeyboardKey = RE::BSWin32KeyboardDevice::Key;
-	using MouseButton = RE::BSWin32MouseDevice::Key;
-	using GamepadInput = RE::BSWin32GamepadDevice::Key;
-
 	// Frame indices as provided by buttonArt.swf
 	enum class ButtonArtIndex : uint16_t
 	{

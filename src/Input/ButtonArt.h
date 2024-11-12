@@ -5,13 +5,6 @@
 
 namespace QuickLoot::Input
 {
-	enum class DeviceType : uint16_t  // NOLINT(performance-enum-size)
-	{
-		kKeyboard = RE::INPUT_DEVICE::kKeyboard,
-		kMouse = RE::INPUT_DEVICE::kMouse,
-		kGamepad = RE::INPUT_DEVICE::kGamepad,
-	};
-
 	class ButtonArt
 	{
 	public:

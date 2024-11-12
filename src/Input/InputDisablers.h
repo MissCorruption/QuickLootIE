@@ -20,7 +20,7 @@ namespace Input
 		{
 			auto controlMap = RE::ControlMap::GetSingleton();
 			if (controlMap) {
-				controlMap->ToggleControls(QUICKLOOT_FLAG, false);
+				controlMap->ToggleControls(QuickLoot::Input::QUICKLOOT_EVENT_GROUP_FLAG, false);
 			}
 		}
 
@@ -28,7 +28,7 @@ namespace Input
 		{
 			auto controlMap = RE::ControlMap::GetSingleton();
 			if (controlMap) {
-				controlMap->ToggleControls(QUICKLOOT_FLAG, true);
+				controlMap->ToggleControls(QuickLoot::Input::QUICKLOOT_EVENT_GROUP_FLAG, true);
 			}
 		}
 	};
