@@ -1,6 +1,5 @@
 #include "MenuVisibilityManager.h"
 
-#include "Config/Papyrus.h"
 #include "Config/Settings.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
@@ -127,6 +126,11 @@ namespace QuickLoot
 			return false;
 		}
 
+		if (!_disablingMods.empty()) {
+			logger::debug("LootMenu disabled by {}", *_disablingMods.begin());
+			return false;
+		}
+
 		if (const auto actor = container->As<RE::Actor>()) {
 			if (!actor->IsDead()) {
 				logger::debug("LootMenu disabled because the actor isn't dead");
@@ -157,16 +161,16 @@ namespace QuickLoot
 		const auto container = GetContainerObject(_focusedRef);
 		if (CanOpen(container)) {
 			_currentContainer = container->GetHandle();
-			LootMenuManager::SetContainer(_currentContainer);
+			LootMenuManager::RequestOpen(_currentContainer);
 		} else {
 			_currentContainer.reset();
-			LootMenuManager::Close();
+			LootMenuManager::RequestClose();
 		}
 	}
 
 	void MenuVisibilityManager::RefreshInventory()
 	{
-		LootMenuManager::RefreshInventory();
+		LootMenuManager::RequestRefresh(RefreshFlags::kInventory);
 	}
 
 	void MenuVisibilityManager::InstallHooks()
@@ -178,6 +182,18 @@ namespace QuickLoot
 		Observers::LifeStateObserver::Install();
 		Observers::LockChangedObserver::Install();
 		Observers::MenuObserver::Install();
+	}
+
+	void MenuVisibilityManager::EnableLootMenu(const std::string& modName)
+	{
+		_disablingMods.insert(modName);
+		RefreshOpenState();
+	}
+
+	void MenuVisibilityManager::DisableLootMenu(const std::string& modName)
+	{
+		_disablingMods.erase(modName);
+		RefreshOpenState();
 	}
 
 	void MenuVisibilityManager::OnCameraStateChanged(RE::CameraState state)

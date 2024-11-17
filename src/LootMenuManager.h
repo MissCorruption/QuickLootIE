@@ -1,26 +1,13 @@
 #pragma once
 
+#include "Input/Input.h"
+#include "LootMenu.h"
+
 namespace QuickLoot
 {
-	class LootMenu;
-
-	// Interface for interacting with the loot menu outside of UI threads
+	// Interface for interacting with the loot menu outside of UI threads.
 	class LootMenuManager
 	{
-		using Tasklet = std::function<void(LootMenu&)>;
-
-		static inline std::mutex _lock{};
-		static inline std::vector<Tasklet> _taskQueue{};
-		static inline std::atomic_bool _enabled = true;
-		static inline bool _refreshUI = false;
-		static inline bool _refreshInventory = false;
-
-		static void AddTask(Tasklet a_task);
-
-		static [[nodiscard]] RE::GPtr<LootMenu> GetMenu();
-		static [[nodiscard]] bool IsOpen();
-		static [[nodiscard]] bool ShouldOpen();
-
 	public:
 		LootMenuManager() = delete;
 		~LootMenuManager() = delete;
@@ -29,32 +16,27 @@ namespace QuickLoot
 		LootMenuManager& operator=(LootMenuManager&&) = delete;
 		LootMenuManager& operator=(const LootMenuManager&) = delete;
 
-		static void Disable()
-		{
-			_enabled = false;
-			Close();
-		}
+		static bool IsOpen();
+		static void RequestOpen(const RE::ObjectRefHandle& container);
+		static void RequestClose();
+		static void RequestRefresh(RefreshFlags flags);
 
-		static void Enable() { _enabled = true; }
+		static void OnInputAction(Input::QuickLootAction action);
 
-		static void CheckScaleform();
+		// These should only ever be called from the loot menu itself.
+		static void ProcessPendingTasks(LootMenu& menu);
+		static void SaveLastSelectedIndex(const RE::ObjectRefHandle& container, int selectedIndex);
 
-		static void RefreshUI();
-		static void RefreshInventory();
+	private:
+		using LootMenuTask = std::function<void(LootMenu& menu)>;
 
-		static void Open();
-		static void Close();
+		static inline std::recursive_mutex _lock{};
+		static inline std::vector<LootMenuTask> _taskQueue{};
+		static inline RE::ObjectRefHandle _currentContainer{};
+		static inline RE::ObjectRefHandle _lastContainer{};
+		static inline int _lastSelectedIndex = 0;
 
-		static void ModSelectedIndex(double a_mod);
-		static void ModSelectedPage(double a_mod);
-
-		static void SetContainer(RE::ObjectRefHandle a_container);
-		static void TakeStack();
-		static void TakeAll();
-
-	protected:
-		friend class LootMenu;
-
-		static void Process(LootMenu& a_menu);
+		static void QueueLootMenuTask(LootMenuTask task);
+		static [[nodiscard]] RE::GPtr<LootMenu> GetMenu();
 	};
 }
