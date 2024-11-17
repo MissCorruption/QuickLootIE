@@ -165,6 +165,21 @@ namespace QuickLoot::Input
 		HandleRetrigger(event, keybinding);
 	}
 
+	std::vector<Keybinding> InputManager::GetButtonBarKeybindings()
+	{
+		std::vector<Keybinding> filtered{};
+
+		bool isGamepad = RE::BSInputDeviceManager::GetSingleton()->IsGamepadEnabled();
+
+		std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
+			return keybinding.group == ControlGroup::kButtonBar &&
+			       isGamepad == (keybinding.deviceType == DeviceType::kGamepad) &&
+			       (keybinding.modifiers == ModifierKeys::kIgnore || keybinding.modifiers == _currentModifiers);
+		});
+
+		return filtered;
+	}
+
 	void InputManager::ReloadKeybindings()
 	{
 		_keybindings.clear();

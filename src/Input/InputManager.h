@@ -23,6 +23,7 @@ namespace QuickLoot::Input
 		static void UpdateModifierKeys();
 
 		static void HandleButtonEvent(const RE::ButtonEvent* event);
+		static std::vector<Keybinding> GetButtonBarKeybindings();
 
 	private:
 		static inline std::vector<Keybinding> _keybindings{};

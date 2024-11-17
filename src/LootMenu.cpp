@@ -7,6 +7,7 @@
 #include "CLIK/TextField.h"
 #include "Config/Settings.h"
 #include "Input/ButtonArt.h"
+#include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
 #include "Items/OldGroundItems.h"
 #include "Items/OldInventoryItem.h"
@@ -502,36 +503,14 @@ namespace QuickLoot
 			return;
 		}
 
-		struct ButtonDefinition
-		{
-			const char* labelKey;
-			const char* labelFallback;
-
-			const char* stealingLabelKey;
-			const char* stealingLabelFallback;
-
-			const char* keybindEvent;
-		};
-
-		const std::array buttonDefs{
-			ButtonDefinition{ "sSearch", "Search", "sStealFrom", "Steal From", "Favorites" },
-			ButtonDefinition{ "sTake", "Take", "sSteal", "Steal", "Activate" },
-			ButtonDefinition{ "sTakeAll", "Take All", "sTakeAll", "Take All", "Ready Weapon" },
-		};
-
+		const auto keybindings = Input::InputManager::GetButtonBarKeybindings();
 		const bool stealing = WouldBeStealing();
 
 		_buttonBarProvider.ClearElements();
 
-		for (std::size_t i = 0; i < buttonDefs.size(); ++i) {
-			const auto& button = buttonDefs[i];
-
-			const auto labelKey = stealing ? button.stealingLabelKey : button.labelKey;
-			const auto labelFallback = stealing ? button.stealingLabelFallback : button.labelFallback;
-
-			const auto setting = RE::GameSettingCollection::GetSingleton()->GetSetting(labelKey);
-			const auto label = setting ? setting->GetString() : labelFallback;
-			const auto index = Input::ButtonArt::GetFrameIndexForEvent(button.keybindEvent);
+		for (const auto& keybinding : keybindings) {
+			const auto label = GetActionDisplayName(keybinding.action, stealing);
+			const auto index = Input::ButtonArt::GetFrameIndexForDeviceKey(keybinding.deviceType, keybinding.inputKey);
 
 			RE::GFxValue obj;
 			uiMovie->CreateObject(&obj);
@@ -542,6 +521,7 @@ namespace QuickLoot
 
 			_buttonBarProvider.PushBack(obj);
 		}
+
 		_buttonBar.InvalidateData();
 	}
 
@@ -593,6 +573,52 @@ namespace QuickLoot
 			_title.HTMLText(name ? name : "");
 			_title.Visible(true);
 		}
+	}
+
+	const char* LootMenu::GetActionDisplayName(Input::QuickLootAction action, bool stealing)
+	{
+		struct ActionDefinition
+		{
+			const char* labelKey;
+			const char* labelFallback;
+
+			const char* stealingLabelKey;
+			const char* stealingLabelFallback;
+		};
+
+		constexpr std::array actionDefinitions{
+			ActionDefinition{ "sTake", "Take", "sSteal", "Steal" },
+			ActionDefinition{ "sTakeAll", "Take All", "sTakeAll", "Take All" },
+			ActionDefinition{ "sSearch", "Search", "sStealFrom", "Steal From" },
+		};
+
+		int actionIndex;
+		switch (action) {
+		case Input::QuickLootAction::kTake:
+			actionIndex = 0;
+			break;
+
+		case Input::QuickLootAction::kTakeAll:
+			actionIndex = 1;
+			break;
+
+		case Input::QuickLootAction::kTransfer:
+			actionIndex = 2;
+			break;
+
+		default:
+			return "<invalid>";
+		}
+
+		const auto& button = actionDefinitions[actionIndex];
+
+		const auto labelKey = stealing ? button.stealingLabelKey : button.labelKey;
+		const auto labelFallback = stealing ? button.stealingLabelFallback : button.labelFallback;
+
+		const auto setting = RE::GameSettingCollection::GetSingleton()->GetSetting(labelKey);
+		const auto label = setting ? setting->GetString() : labelFallback;
+
+		return label;
 	}
 
 	bool LootMenu::CanDisplay(const RE::TESBoundObject& object)
