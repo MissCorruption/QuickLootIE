@@ -203,6 +203,10 @@ namespace QuickLoot::Input
 		_keybindings.emplace_back(ControlGroup::kDpad, DeviceType::kGamepad, GamepadInput::kLeft, ModifierKeys::kIgnore, QuickLootAction::kPrevPage, false);
 		_keybindings.emplace_back(ControlGroup::kDpad, DeviceType::kGamepad, GamepadInput::kRight, ModifierKeys::kIgnore, QuickLootAction::kNextPage, false);
 
+		_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kGamepad, GamepadInput::kA, ModifierKeys::kIgnore, QuickLootAction::kTake, false);
+		_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kGamepad, GamepadInput::kX, ModifierKeys::kIgnore, QuickLootAction::kTakeAll, false);
+		_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kGamepad, GamepadInput::kY, ModifierKeys::kIgnore, QuickLootAction::kTransfer, false);
+
 		_usedModifiers = ModifierKeys::kNone;
 
 		for (const auto& keybinding : _keybindings) {
