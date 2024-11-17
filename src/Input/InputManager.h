@@ -20,6 +20,8 @@ namespace QuickLoot::Input
 		static void BlockConflictingInputs();
 		static void UnblockConflictingInputs();
 
+		static void UpdateModifierKeys();
+
 		static void HandleButtonEvent(const RE::ButtonEvent* event);
 
 	private:

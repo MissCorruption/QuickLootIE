@@ -134,6 +134,7 @@ namespace QuickLoot::Input
 	void InputManager::BlockConflictingInputs()
 	{
 		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, false);
+		UpdateModifierKeys(nullptr);
 	}
 
 	void InputManager::UnblockConflictingInputs()
@@ -259,12 +260,17 @@ namespace QuickLoot::Input
 			return;
 		}
 
+		UpdateModifierKeys();
+	}
+
+	void InputManager::UpdateModifierKeys()
+	{
 		const auto oldModifiers = _currentModifiers;
 		_currentModifiers = ModifierKeys::kNone;
 
 		// We have to upcast this to BSKeyboardDevice because BSWin32KeyboardDevice::IsPressed is not implemented in CLib.
 		const auto* keyboard = reinterpret_cast<RE::BSKeyboardDevice*>(RE::BSInputDeviceManager::GetSingleton()->GetKeyboard());
-		
+
 		if (keyboard->IsPressed(KeyboardKey::kLeftShift) || keyboard->IsPressed(KeyboardKey::kRightShift)) {
 			_currentModifiers |= ModifierKeys::kShift;
 		}

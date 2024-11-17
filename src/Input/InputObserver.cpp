@@ -10,6 +10,9 @@ namespace QuickLoot::Input
 			_isListening = true;
 			RE::BSInputDeviceManager::GetSingleton()->AddEventSink(GetSingleton());
 			logger::debug("{}", __func__);
+
+			// We might have missed modifier key changes while input wasn't listening.
+			InputManager::UpdateModifierKeys();
 		}
 	}
 
