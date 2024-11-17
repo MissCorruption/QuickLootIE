@@ -128,7 +128,7 @@ namespace QuickLoot::Input
 			logger::debug("Added mapping to the QuickLoot user event group: {} (device {}, key code {})", mapping.eventID, static_cast<int>(deviceType), mapping.inputKey);
 		});
 
-		LootMenuManager::RefreshUI();
+		LootMenuManager::RequestRefresh(RefreshFlags::kButtonBar);
 	}
 
 	void InputManager::BlockConflictingInputs()
@@ -283,7 +283,7 @@ namespace QuickLoot::Input
 		
 		if (_currentModifiers != oldModifiers) {
 			// The button bar needs to be updated when the pressed modifier keys change.
-			LootMenuManager::RefreshUI();
+			LootMenuManager::RequestRefresh(RefreshFlags::kButtonBar);
 		}
 	}
 
@@ -327,7 +327,7 @@ namespace QuickLoot::Input
 			activateHandler->SetHeldButtonActionSuccess(true);
 		}
 
-		LootMenuManager::Close();
+		LootMenuManager::RequestClose();
 	}
 
 	void InputManager::TriggerKeybinding(const Keybinding* keybinding)

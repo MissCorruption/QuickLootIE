@@ -1,6 +1,5 @@
 #include "MenuVisibilityManager.h"
 
-#include "Config/Papyrus.h"
 #include "Config/Settings.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
@@ -162,16 +161,16 @@ namespace QuickLoot
 		const auto container = GetContainerObject(_focusedRef);
 		if (CanOpen(container)) {
 			_currentContainer = container->GetHandle();
-			LootMenuManager::SetContainer(_currentContainer);
+			LootMenuManager::RequestOpen(_currentContainer);
 		} else {
 			_currentContainer.reset();
-			LootMenuManager::Close();
+			LootMenuManager::RequestClose();
 		}
 	}
 
 	void MenuVisibilityManager::RefreshInventory()
 	{
-		LootMenuManager::RefreshInventory();
+		LootMenuManager::RequestRefresh(RefreshFlags::kInventory);
 	}
 
 	void MenuVisibilityManager::InstallHooks()
