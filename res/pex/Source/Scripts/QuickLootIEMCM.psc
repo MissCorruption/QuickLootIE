@@ -7,7 +7,7 @@ import utility
 import debug
 
 ; Maintenance Script
-QuickLootIEMaintenance Property QLIEMaintenance Auto
+QuickLootIEMaintenance property QLIEMaintenance auto
 
 ; General Settings
 bool property QLIECloseInCombat = false auto hidden
@@ -43,14 +43,14 @@ int property QLIEMaxLines = 7 auto hidden
 float property QLIETransparency_Normal = 1.0 auto hidden
 float property QLIETransparency_Empty = 0.3 auto hidden
 
-;Menu Anchor Options
+; Menu Anchor Options
 string[] Anchor_Options
 int anchor_options_state
-int Property QLIEAnchorOptionChoice = 0 auto hidden
+int property QLIEAnchorOptionChoice = 0 auto hidden
 
 ; Sort priortiy for Loot Menu
 string[] property user_selected_sort_options auto hidden
-Int Property SortOptionsChoice = 0 Auto Hidden
+int property SortOptionsChoice = 0 auto hidden
 bool property user_selected_sort_options_initialised = false auto hidden
 
 string[] Sort_Options
@@ -63,7 +63,7 @@ int SortOptionIndx
 int sort_options_state
 int OID_QLIE_SaveSortPreset
 
-;Preset Selections
+; Preset Selections
 string[] sort_presets 	; Presets Menu
 int sort_presets_state	; State
 int property Sort_Presets_Choice = 0 auto hidden
@@ -83,8 +83,8 @@ bool comp_installed
 event OnConfigInit()
 	if (!AutoLoaded)
 		AutoLoadConfig()
-	endIf
-endEvent
+	endif
+endevent
 
 ;---------------------------------------------------
 ;-- Events -----------------------------------------
@@ -99,7 +99,7 @@ event OnConfigOpen()
 	pages[1] = "$qlie_WindMCMPage"
 	; pages[2] = "$qlie_SortMCMPage"
 	pages[2] = "$qlie_CompMCMPage"
-endEvent
+endevent
 
 ;---------------------------------------------------
 ;-- Events -----------------------------------------
@@ -109,66 +109,66 @@ event OnPageReset(string page)
     if (CurrentPage == "$qlie_MainMCMPage")
 		BuildMainPage()
 		return
-	endIf
+	endif
 
     if (CurrentPage == "$qlie_WindMCMPage")
 		BuildWindPage()
 		return
-	endIf
-	
+	endif
+
     ; if (CurrentPage == "$qlie_SortMCMPage")
 	; 	BuildSortPage()
 	; 	return
-	; endIf
+	; endif
 
     if (CurrentPage == "$qlie_CompMCMPage")
 		BuildCompPage()
 		return
-	endIf
-endEvent
+	endif
+endevent
 
 ;---------------------------------------------------
 ;-- Events -----------------------------------------
 ;---------------------------------------------------
 
-event OnOptionHighlight(Int val)
+event OnOptionHighlight(int val)
 	if (val == OID_QLIE_SaveSortPreset)
 		SetInfoText("$qlie_sort_presets_state_save_info")
 	else
 		SetInfoText(GetSortOptionHighlight(val))
 	endif
-endEvent
+endevent
 
 ;---------------------------------------------------
 ;-- Events -----------------------------------------
 ;---------------------------------------------------
 
-event OnOptionInputOpen(Int val)
+event OnOptionInputOpen(int val)
 	if (val == OID_QLIE_SaveSortPreset)
 		SetInputDialogStartText("$qlie_SaveSortPreset")
-	endIf
-endEvent
+	endif
+endevent
 
 ;---------------------------------------------------
 ;-- Events -----------------------------------------
 ;---------------------------------------------------
 
-event OnOptionInputAccept(Int val, String presetName)
+event OnOptionInputAccept(int val, string presetName)
 	if (val == OID_QLIE_SaveSortPreset)
 		SaveSortPreset(presetName)
-	endIf
-endEvent
+	endif
+endevent
 
 ;---------------------------------------------------
 ;-- Events -----------------------------------------
 ;---------------------------------------------------
 
-event OnOptionSelect(Int val)
+event OnOptionSelect(int val)
 	
 	string name = GetSortOptionName(val)
 	if name == ""
 		return
-	endIf
+	endif
 	
 	if marked_sort_option == name
 		if ShowMessage("$qlie_sort_option_click", true, "$qlie_sort_option_unmark", "$qlie_sort_option_remove")
@@ -183,7 +183,7 @@ event OnOptionSelect(Int val)
 			RemoveSortOption(val)
 		endif
 	endif
-endEvent
+endevent
 	
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -197,31 +197,31 @@ function UpdateCompatibilityVariables()
 		QLIEIconShowDBMNew = false
 		QLIEIconShowDBMFound = false
 		QLIEIconShowDBMDisplayed = false
-	endIf
+	endif
 
 	if (!comp_installed)
 		QLIEShowCompNeeded = false
 		QLIEShowCompCollected = false
-	endIf
-endFunction
+	endif
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
 ;---------------------------------------------------
 
-string function GetEnabledStatus(Bool bValue)
+string function GetEnabledStatus(bool bValue)
 	if (bValue)
 		return "$qlie_Enabled"
-	endIf
+	endif
 
 	return "$qlie_Disabled"
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
 ;---------------------------------------------------
 
-string function GetCompatibilityEnabledStatus(Bool bValue, Bool bInstalled)
+string function GetCompatibilityEnabledStatus(bool bValue, bool bInstalled)
 	
 	if !bInstalled
 		bValue = false
@@ -230,10 +230,10 @@ string function GetCompatibilityEnabledStatus(Bool bValue, Bool bInstalled)
 	
 	if (bValue)
 		return "$qlie_Enabled"
-	endIf
+	endif
 
 	return "$qlie_Disabled"
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -243,10 +243,10 @@ string function GetConfigSaveString()
 	
 	if papyrusutil.GetScriptVersion() > 31
 		return "$qlie_SavePreset"
-	endIf
+	endif
 	
 	return "$qlie_PapUtilError"
-endFunction	
+endfunction	
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -256,10 +256,10 @@ string function GetConfigLoadString()
 
 	if papyrusutil.GetScriptVersion() > 31
 		return "$qlie_LoadPreset"
-	endIf
+	endif
 	
 	return "$qlie_PapUtilError"
-endFunction	
+endfunction	
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -267,18 +267,18 @@ endFunction
 
 function BuildSortOptions(bool forceReset = false)
 	
-	;Get Default List
+	; Get Default List
 	Sort_Options = GetSortingPreset(1)
 	
-	;Reset to default on first load or if reset button is pressed.
+	; Reset to default on first load or if reset button is pressed.
 	if forceReset || !user_selected_sort_options_initialised
 		user_selected_sort_options = Sort_Options
 		user_selected_sort_options_initialised = true
-	endIf
+	endif
 	
 	; Remove entries from Sort List if they are in the User List
 	Sort_Options = FormatSortOptionsList(Sort_Options, user_selected_sort_options)
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -295,7 +295,7 @@ function BuildAnchorOptions()
 	Anchor_Options[6] = "$qlie_anchorOption_6"
 	Anchor_Options[7] = "$qlie_anchorOption_7"
 	Anchor_Options[8] = "$qlie_anchorOption_8"
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -303,16 +303,16 @@ endFunction
 
 function BuildPresetList()
 
-	;Grab presets from the DLL.
+	; Grab presets from the DLL.
 	sort_presets = GetSortingPresets()
-	max_dll_preset_count = sort_presets.length
+	max_dll_preset_count = sort_presets.Length
 
-	;Grab custom presets from the JSON Path
+	; Grab custom presets from the JSON Path
 	string[] custom_presets = jsonutil.JsonInFolder("../QuickLootIE/Profiles/SortPresets/")
-	if custom_presets.length > 0
+	if custom_presets.Length > 0
 		sort_presets = AddPresetsToArray(sort_presets, custom_presets)
 	endif
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -325,40 +325,40 @@ function load_preset()
 			user_selected_sort_options = GetSortingPreset(Sort_Presets_Choice)
 		else
 			user_selected_sort_options = jsonutil.PathStringElements("../QuickLootIE/Profiles/SortPresets/" + sort_presets[Sort_Presets_Choice], ".!QLIESortOrder")
-		endIf
+		endif
 	endif
 	
 	Sort_Presets_Choice = 0
 	ForcePageReset()
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
 ;---------------------------------------------------
 
-string function GetSortOptionName(Int val)
+string function GetSortOptionName(int val)
 	
 	int Index = SortOptionSlot.Find(val)
 	if (Index != -1)
 		return SortOptionName[Index]
-	endIf
+	endif
 		
-	Return ""
-endFunction
+	return ""
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
 ;---------------------------------------------------
 
-string function GetSortOptionHighlight(Int val)
+string function GetSortOptionHighlight(int val)
 	
 	int Index = SortOptionSlot.Find(val)
 	if (Index != -1)
 		return SortOptionHigh[Index]
-	endIf
+	endif
 		
-	Return ""
-endFunction
+	return ""
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -368,7 +368,7 @@ function SaveSortPreset(string presetName)
 	
 	if presetName == ""
 		return
-	endIf
+	endif
 	
 	if papyrusutil.GetScriptVersion() > 31
 		jsonutil.SetPathStringArray("../QuickLootIE/Profiles/SortPresets/" + presetName, ".!QLIESortOrder", user_selected_sort_options, false)
@@ -378,8 +378,8 @@ function SaveSortPreset(string presetName)
 	else
 		ShowMessage("$qlie_PapUtilError")
 		ForcePageReset()
-	endIf
-endFunction
+	endif
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -395,14 +395,14 @@ function RemoveSortOption(int val)
 			
 			if marked_sort_option == name
 				marked_sort_option = ""
-			endIf
+			endif
 			
 			user_selected_sort_options = RemoveSortOptionPriority(user_selected_sort_options, Index)
 			SortOptionsChoice = 0
 			ForcePageReset()
-		endIf
-	endIf
-endFunction
+		endif
+	endif
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -411,7 +411,7 @@ endFunction
 function UnMarkSortOptionPosition(int val)
 	marked_sort_option = ""
 	ForcePageReset()
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -422,8 +422,8 @@ function MarkSortOptionPosition(int val)
 	if (Index != -1)
 		marked_sort_option = SortOptionName[Index]
 		ForcePageReset()
-	endIf
-endFunction
+	endif
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -432,19 +432,19 @@ endFunction
 function InsertSortOption()
 		
 	if marked_sort_option == ""
-		user_selected_sort_options = InsertSortOptionPriority(user_selected_sort_options, Sort_Options[SortOptionsChoice], user_selected_sort_options.length)
+		user_selected_sort_options = InsertSortOptionPriority(user_selected_sort_options, Sort_Options[SortOptionsChoice], user_selected_sort_options.Length)
 	else
 		int index = user_selected_sort_options.find(marked_sort_option)
 	
 		if (Index != -1)
 			user_selected_sort_options = InsertSortOptionPriority(user_selected_sort_options, Sort_Options[SortOptionsChoice], Index)
-			marked_sort_option = user_selected_sort_options[Min(user_selected_sort_options.length, index + 1)]
-		endIf
+			marked_sort_option = user_selected_sort_options[Min(user_selected_sort_options.Length, index + 1)]
+		endif
 	endif
 	
 	SortOptionsChoice = 0
 	ForcePageReset()
-EndFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -454,7 +454,7 @@ int function Min(int first, int second)
 
 	if first < second
 		return first
-	endIf
+	endif
 
 	return second
 endfunction
@@ -488,7 +488,7 @@ function BuildMainPage()
 	AddEmptyOption()
 	AddHeaderOption("")
 	AddTextOptionST("ProfileReset", 					"$qlie_ProfileText2", 			"$qlie_ProfileText3", 0)
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -530,7 +530,7 @@ function BuildWindPage()
 	AddTextOptionST("show_enchanted_icon", 					"$qlie_show_enchanted_icon_text", 			GetEnabledStatus(QLIEIconShowEnchanted), 0)
 	AddTextOptionST("show_knownenchanted_icon", 			"$qlie_show_knownenchanted_icon_text", 		GetEnabledStatus(QLIEIconShowKnownEnchanted), 0)
 	AddTextOptionST("show_specialenchanted_icon", 			"$qlie_show_specialenchanted_icon_text", 	GetEnabledStatus(QLIEIconShowSpecialEnchanted), 0)
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -548,14 +548,14 @@ function BuildSortPage()
 	SetCursorFillMode(TOP_TO_BOTTOM)
 	SetCursorPosition(0)
 	AddHeaderOption("$qlie_SortOptionsHeader", 0)
-	AddMenuOptionST("sort_options_state", 			"$qlie_sort_options_state_text",   		Sort_Options[SortOptionsChoice], (!(Sort_Options.length) as bool) as Int)
+	AddMenuOptionST("sort_options_state", 			"$qlie_sort_options_state_text",   		Sort_Options[SortOptionsChoice], (!(Sort_Options.Length) as bool) as int)
 	
 	AddEMptyOption()
-	if Sort_Options.length == 0
+	if Sort_Options.Length == 0
 		AddTextOptionST("sort_options_insert", 		"$qlie_sort_options_insert_none_text", 		"$qlie_sort_option_insert", 1)
 	else
 		AddTextOptionST("sort_options_insert", 		"$qlie_sort_options_insert_text{" + Sort_Options[SortOptionsChoice] + "}", 		"$qlie_sort_option_insert", 0)
-	endIf
+	endif
 	AddTextOptionST("sort_options_reset", 			"$qlie_sort_options_reset_text", "Reset", 0)
 	
 	AddEmptyOption()
@@ -567,7 +567,7 @@ function BuildSortPage()
 	AddHeaderOption("$qlie_SortPriorityHeader", 0)
 	
 	int idx = 0	
-	while idx < user_selected_sort_options.length
+	while idx < user_selected_sort_options.Length
 		if user_selected_sort_options[idx] != ""
 			SortOptionName[SortOptionIndx] = user_selected_sort_options[idx]
 			SortOptionHigh[SortOptionIndx] = "$qlie_sort_option_highlight_text"
@@ -581,8 +581,8 @@ function BuildSortPage()
 			SortOptionIndx += 1
 		endif
 		idx += 1
-	endWhile
-endFunction
+	endwhile
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -593,9 +593,9 @@ function BuildCompPage()
 	
 	SetCursorPosition(0)
 	AddHeaderOption("$qlie_LOTDCompatHeader", 0)
-	AddTextOptionST("show_lotd_new_icon", 			"$qlie_show_lotd_new_icon_text", 		GetCompatibilityEnabledStatus(QLIEIconShowDBMNew, lotd_installed), (!lotd_installed as Bool) as Int)
-	AddTextOptionST("show_lotd_found_icon", 		"$qlie_show_lotd_found_icon_text", 		GetCompatibilityEnabledStatus(QLIEIconShowDBMFound, lotd_installed), (!lotd_installed as Bool) as Int)
-	AddTextOptionST("show_lotd_disp_icon", 			"$qlie_show_lotd_disp_icon_text", 		GetCompatibilityEnabledStatus(QLIEIconShowDBMDisplayed, lotd_installed), (!lotd_installed as Bool) as Int)
+	AddTextOptionST("show_lotd_new_icon", 			"$qlie_show_lotd_new_icon_text", 		GetCompatibilityEnabledStatus(QLIEIconShowDBMNew, lotd_installed), (!lotd_installed as bool) as int)
+	AddTextOptionST("show_lotd_found_icon", 		"$qlie_show_lotd_found_icon_text", 		GetCompatibilityEnabledStatus(QLIEIconShowDBMFound, lotd_installed), (!lotd_installed as bool) as int)
+	AddTextOptionST("show_lotd_disp_icon", 			"$qlie_show_lotd_disp_icon_text", 		GetCompatibilityEnabledStatus(QLIEIconShowDBMDisplayed, lotd_installed), (!lotd_installed as bool) as int)
 	
 	AddEmptyOption()
 	AddHeaderOption("$qlie_MiscCompatHeader", 0)
@@ -603,34 +603,34 @@ function BuildCompPage()
 	
 	SetCursorPosition(1)
 	AddHeaderOption("$qlie_CompCompatHeader", 0)
-	AddTextOptionST("show_comp_needed_icon", 		"$qlie_show_comp_needed_icon_text", 	GetCompatibilityEnabledStatus(QLIEShowCompNeeded, comp_installed), (!comp_installed as Bool) as Int)
-	AddTextOptionST("show_comp_collected_icon", 	"$qlie_show_comp_collected_icon_text", 	GetCompatibilityEnabledStatus(QLIEShowCompCollected, comp_installed), (!comp_installed as Bool) as Int)
-endFunction
+	AddTextOptionST("show_comp_needed_icon", 		"$qlie_show_comp_needed_icon_text", 	GetCompatibilityEnabledStatus(QLIEShowCompNeeded, comp_installed), (!comp_installed as bool) as int)
+	AddTextOptionST("show_comp_collected_icon", 	"$qlie_show_comp_collected_icon_text", 	GetCompatibilityEnabledStatus(QLIEShowCompCollected, comp_installed), (!comp_installed as bool) as int)
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
 ;---------------------------------------------------
 
-Function Begin_Config_Save()
+function Begin_Config_Save()
 	if papyrusutil.GetScriptVersion() > 31
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseInCombat", QLIECloseInCombat as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseWhenEmpty", QLIECloseWhenEmpty as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDispelInvisibility", QLIEDispelInvisibility as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEOpenWhenContainerUnlocked", QLIEOpenWhenContainerUnlocked as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDisableForAnimals", QLIEDisableForAnimals as Int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseInCombat", QLIECloseInCombat as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseWhenEmpty", QLIECloseWhenEmpty as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDispelInvisibility", QLIEDispelInvisibility as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEOpenWhenContainerUnlocked", QLIEOpenWhenContainerUnlocked as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDisableForAnimals", QLIEDisableForAnimals as int)
 		
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowBookRead", QLIEIconShowBookRead as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowStealing", QLIEIconShowStealing as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowEnchanted", QLIEIconShowEnchanted as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowKnownEnchanted", QLIEIconShowKnownEnchanted as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowSpecialEnchanted", QLIEIconShowSpecialEnchanted as Int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowBookRead", QLIEIconShowBookRead as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowStealing", QLIEIconShowStealing as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowEnchanted", QLIEIconShowEnchanted as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowKnownEnchanted", QLIEIconShowKnownEnchanted as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowSpecialEnchanted", QLIEIconShowSpecialEnchanted as int)
 		
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMDisplayed", QLIEIconShowDBMDisplayed as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMFound", QLIEIconShowDBMFound as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMNew", QLIEIconShowDBMNew as Int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMDisplayed", QLIEIconShowDBMDisplayed as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMFound", QLIEIconShowDBMFound as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMNew", QLIEIconShowDBMNew as int)
 		
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompNeeded", QLIEShowCompNeeded as Int)
-		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompCollected", QLIEShowCompCollected as Int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompNeeded", QLIEShowCompNeeded as int)
+		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompCollected", QLIEShowCompCollected as int)
 		
 		jsonutil.SetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEAnchorOptionChoice", QLIEAnchorOptionChoice)
 		jsonutil.SetPathFloatValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEWindowX", QLIEWindowX)
@@ -649,14 +649,14 @@ Function Begin_Config_Save()
 	else
 		ShowMessage("$qlie_PapUtilError")
 		ForcePageReset()
-	endIf
-EndFunction
+	endif
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
 ;---------------------------------------------------
 
-Function Begin_Config_Load()
+function Begin_Config_Load()
 
 	if papyrusutil.GetScriptVersion() > 31
 		if jsonutil.JsonExists("../QuickLootIE/Profiles/MCMConfig")
@@ -668,27 +668,27 @@ Function Begin_Config_Load()
 					Notification("$qlie_ProfileLoadCorrupt");
 					Begin_Config_Default()
 					return 
-				endIf
-			endIf
+				endif
+			endif
 			
-			QLIECloseInCombat = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseInCombat", QLIECloseInCombat as Int))
-			QLIECloseWhenEmpty = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseWhenEmpty", QLIECloseWhenEmpty as Int))
-			QLIEDispelInvisibility = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDispelInvisibility", QLIEDispelInvisibility as Int))
-			QLIEOpenWhenContainerUnlocked = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEOpenWhenContainerUnlocked", QLIEOpenWhenContainerUnlocked as Int))
-			QLIEDisableForAnimals = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDisableForAnimals", QLIEDisableForAnimals as Int))
+			QLIECloseInCombat = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseInCombat", QLIECloseInCombat as int))
+			QLIECloseWhenEmpty = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseWhenEmpty", QLIECloseWhenEmpty as int))
+			QLIEDispelInvisibility = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDispelInvisibility", QLIEDispelInvisibility as int))
+			QLIEOpenWhenContainerUnlocked = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEOpenWhenContainerUnlocked", QLIEOpenWhenContainerUnlocked as int))
+			QLIEDisableForAnimals = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDisableForAnimals", QLIEDisableForAnimals as int))
 			
-			QLIEIconShowBookRead = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowBookRead", QLIEIconShowBookRead as Int))
-			QLIEIconShowStealing = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowStealing", QLIEIconShowStealing as Int))
-			QLIEIconShowEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowEnchanted", QLIEIconShowEnchanted as Int))
-			QLIEIconShowKnownEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowKnownEnchanted", QLIEIconShowKnownEnchanted as Int))
-			QLIEIconShowSpecialEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowSpecialEnchanted", QLIEIconShowSpecialEnchanted as Int))
+			QLIEIconShowBookRead = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowBookRead", QLIEIconShowBookRead as int))
+			QLIEIconShowStealing = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowStealing", QLIEIconShowStealing as int))
+			QLIEIconShowEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowEnchanted", QLIEIconShowEnchanted as int))
+			QLIEIconShowKnownEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowKnownEnchanted", QLIEIconShowKnownEnchanted as int))
+			QLIEIconShowSpecialEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowSpecialEnchanted", QLIEIconShowSpecialEnchanted as int))
 			
-			QLIEIconShowDBMDisplayed = lotd_installed && (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMDisplayed", QLIEIconShowDBMDisplayed as Int))
-			QLIEIconShowDBMFound = lotd_installed && (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMFound", QLIEIconShowDBMFound as Int))
-			QLIEIconShowDBMNew = lotd_installed && (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMNew", QLIEIconShowDBMNew as Int))
+			QLIEIconShowDBMDisplayed = lotd_installed && (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMDisplayed", QLIEIconShowDBMDisplayed as int))
+			QLIEIconShowDBMFound = lotd_installed && (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMFound", QLIEIconShowDBMFound as int))
+			QLIEIconShowDBMNew = lotd_installed && (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMNew", QLIEIconShowDBMNew as int))
 			
-			QLIEShowCompNeeded = comp_installed && (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompNeeded", QLIEShowCompNeeded as Int))
-			QLIEShowCompCollected = comp_installed && (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompCollected", QLIEShowCompCollected as Int))			
+			QLIEShowCompNeeded = comp_installed && (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompNeeded", QLIEShowCompNeeded as int))
+			QLIEShowCompCollected = comp_installed && (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompCollected", QLIEShowCompCollected as int))			
 			
 			QLIEAnchorOptionChoice = jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEAnchorOptionChoice", QLIEAnchorOptionChoice)
 			QLIEWindowX = jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEWindowX", QLIEWindowX)
@@ -705,22 +705,22 @@ Function Begin_Config_Load()
 			if IsInMenuMode()
 				ShowMessage("$qlie_ProfileLoadSuccessMenu")
 				ForcePageReset()
-			endIf
+			endif
 		else
 			if IsInMenuMode()
 				ShowMessage("$qlie_ProfileLoadMissingMenu")
 				ForcePageReset()
 			else
 				Begin_Config_Default()
-			endIf
-		endIf
+			endif
+		endif
 	else
 		if IsInMenuMode()
 			ShowMessage("$qlie_PapUtilError")
 			ForcePageReset()
-		endIf
-	endIf
-EndFunction	
+		endif
+	endif
+endfunction	
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -730,28 +730,28 @@ function AutoLoadConfig()
 	UpdateCompatibilityVariables()
 	
 	if (papyrusutil.GetScriptVersion() > 31) && (jsonutil.JsonExists("../QuickLootIE/Profiles/MCMConfig")) && (jsonutil.IsGood("../QuickLootIE/Profiles/MCMConfig"))
-		QLIECloseInCombat = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseInCombat", QLIECloseInCombat as Int))
-		QLIECloseWhenEmpty = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseWhenEmpty", QLIECloseWhenEmpty as Int))
-		QLIEDispelInvisibility = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDispelInvisibility", QLIEDispelInvisibility as Int))
-		QLIEOpenWhenContainerUnlocked = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEOpenWhenContainerUnlocked", QLIEOpenWhenContainerUnlocked as Int))
-		QLIEDisableForAnimals = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDisableForAnimals", QLIEDisableForAnimals as Int))
+		QLIECloseInCombat = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseInCombat", QLIECloseInCombat as int))
+		QLIECloseWhenEmpty = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIECloseWhenEmpty", QLIECloseWhenEmpty as int))
+		QLIEDispelInvisibility = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDispelInvisibility", QLIEDispelInvisibility as int))
+		QLIEOpenWhenContainerUnlocked = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEOpenWhenContainerUnlocked", QLIEOpenWhenContainerUnlocked as int))
+		QLIEDisableForAnimals = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEDisableForAnimals", QLIEDisableForAnimals as int))
 		
-		QLIEIconShowBookRead = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowBookRead", QLIEIconShowBookRead as Int))
-		QLIEIconShowStealing = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowStealing", QLIEIconShowStealing as Int))
-		QLIEIconShowEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowEnchanted", QLIEIconShowEnchanted as Int))
-		QLIEIconShowKnownEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowKnownEnchanted", QLIEIconShowKnownEnchanted as Int))
-		QLIEIconShowSpecialEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowSpecialEnchanted", QLIEIconShowSpecialEnchanted as Int))
+		QLIEIconShowBookRead = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowBookRead", QLIEIconShowBookRead as int))
+		QLIEIconShowStealing = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowStealing", QLIEIconShowStealing as int))
+		QLIEIconShowEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowEnchanted", QLIEIconShowEnchanted as int))
+		QLIEIconShowKnownEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowKnownEnchanted", QLIEIconShowKnownEnchanted as int))
+		QLIEIconShowSpecialEnchanted = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowSpecialEnchanted", QLIEIconShowSpecialEnchanted as int))
 		
 		if (lotd_installed)
-			QLIEIconShowDBMDisplayed = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMDisplayed", QLIEIconShowDBMDisplayed as Int))
-			QLIEIconShowDBMFound = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMFound", QLIEIconShowDBMFound as Int))
-			QLIEIconShowDBMNew = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMNew", QLIEIconShowDBMNew as Int))
-		endIf
+			QLIEIconShowDBMDisplayed = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMDisplayed", QLIEIconShowDBMDisplayed as int))
+			QLIEIconShowDBMFound = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMFound", QLIEIconShowDBMFound as int))
+			QLIEIconShowDBMNew = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEIconShowDBMNew", QLIEIconShowDBMNew as int))
+		endif
 		
 		if (comp_installed)
-			QLIEShowCompNeeded = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompNeeded", QLIEShowCompNeeded as Int))
-			QLIEShowCompCollected = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompCollected", QLIEShowCompCollected as Int))
-		endIf
+			QLIEShowCompNeeded = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompNeeded", QLIEShowCompNeeded as int))
+			QLIEShowCompCollected = (jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEShowCompCollected", QLIEShowCompCollected as int))
+		endif
 		
 		QLIEAnchorOptionChoice = jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEAnchorOptionChoice", QLIEAnchorOptionChoice)
 		QLIEWindowX = jsonutil.GetPathIntValue("../QuickLootIE/Profiles/MCMConfig", ".!QLIEWindowX", QLIEWindowX)
@@ -769,16 +769,16 @@ function AutoLoadConfig()
 	else
 		Begin_Config_Default()
 		Notification("$qlie_ProfileLoadMissing")
-	endIf
-	AutoLoaded = True
+	endif
+	AutoLoaded = true
 	UpdateVariables()
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
 ;---------------------------------------------------
 
-Function Begin_Config_Default()
+function Begin_Config_Default()
 
 	QLIECloseInCombat = false
 	QLIECloseWhenEmpty = true
@@ -812,8 +812,8 @@ Function Begin_Config_Default()
 	
 	if IsInMenuMode()
 		ForcePageReset()
-	endIf
-endFunction
+	endif
+endfunction
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -823,12 +823,12 @@ state ProfileSave
 	event OnSelectST()
 		SetTitleText("$qlie_SaveProfileTitleText") 
 		Begin_Config_Save()
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_SaveProfileTitleInfo")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -839,12 +839,12 @@ state ProfileLoad
 		SetTitleText("$qlie_LoadProfileTitleText") 
 		Begin_Config_Load()
 		UpdateVariables()
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_LoadProfileTitleInfo")
-	endEvent
-endState
+	endevent
+endstate
 ;---------------------------------------------------
 ;-- States -----------------------------------------
 ;---------------------------------------------------
@@ -854,12 +854,12 @@ state ProfileReset
 		SetTitleText("$qlie_ResetProfileTitleText") 
 		Begin_Config_Default()
 		UpdateVariables()
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_ResetProfileTitleInfo")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -871,23 +871,23 @@ state anchor_options_state
 		SetMenuDialogStartIndex(QLIEAnchorOptionChoice)
 		SetMenuDialogDefaultIndex(0)
 		SetMenuDialogOptions(Anchor_Options)
-	endEvent
+	endevent
 					
-	event OnMenuAcceptST(Int index)
+	event OnMenuAcceptST(int index)
 		QLIEAnchorOptionChoice = Index
 		SetMenuOptionValueST(anchor_options_state, Anchor_Options[QLIEAnchorOptionChoice])
 		ForcePageReset()
-	endEvent
+	endevent
 
 	event OnDefaultST()
 		QLIEAnchorOptionChoice = 0
 		SetMenuOptionValueST(anchor_options_state, Anchor_Options[QLIEAnchorOptionChoice])
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_anchor_options_state_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -899,23 +899,23 @@ state sort_options_state
 		SetMenuDialogStartIndex(SortOptionsChoice)
 		SetMenuDialogDefaultIndex(0)
 		SetMenuDialogOptions(Sort_Options)
-	endEvent
+	endevent
 					
-	event OnMenuAcceptST(Int index)
+	event OnMenuAcceptST(int index)
 		SortOptionsChoice = Index
 		SetMenuOptionValueST(sort_options_state, Sort_Options[SortOptionsChoice])
 		ForcePageReset()
-	endEvent
+	endevent
 
 	event OnDefaultST()
 		SortOptionsChoice = 0
 		SetMenuOptionValueST(sort_options_state, Sort_Options[SortOptionsChoice])
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_sort_options_state_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -927,9 +927,9 @@ state sort_presets_state
 		SetMenuDialogStartIndex(Sort_Presets_Choice)
 		SetMenuDialogDefaultIndex(0)
 		SetMenuDialogOptions(sort_presets)
-	endEvent
+	endevent
 					
-	event OnMenuAcceptST(Int index)
+	event OnMenuAcceptST(int index)
 		Sort_Presets_Choice = Index
 		
 		if Sort_Presets_Choice > 0
@@ -938,18 +938,18 @@ state sort_presets_state
 
 		SetMenuOptionValueST(sort_presets_state, sort_presets[Sort_Presets_Choice])
 		ForcePageReset()
-	endEvent
+	endevent
 
 	event OnDefaultST()
 		Sort_Presets_Choice = 0
 		BuildSortOptions(true)
 		SetMenuOptionValueST(sort_presets_state, sort_presets[Sort_Presets_Choice])
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_sort_presets_state_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -960,12 +960,12 @@ state sort_options_reset
 	event OnSelectST()
 		BuildSortOptions(true)
 		ForcePageReset()
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_sort_options_reset_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -974,12 +974,12 @@ endState
 state sort_options_insert
 	event OnSelectST()
 		InsertSortOption()
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_sort_options_insert_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -990,17 +990,17 @@ state close_in_combat
 	event OnSelectST()
 		QLIECloseInCombat = !QLIECloseInCombat
 		SetTextOptionValueST(GetEnabledStatus(QLIECloseInCombat))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIECloseInCombat = True
+		QLIECloseInCombat = true
 		SetTextOptionValueST(GetEnabledStatus(QLIECloseInCombat))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_close_in_combat_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1011,17 +1011,17 @@ state close_when_empty
 	event OnSelectST()
 		QLIECloseWhenEmpty = !QLIECloseWhenEmpty
 		SetTextOptionValueST(GetEnabledStatus(QLIECloseWhenEmpty))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIECloseWhenEmpty = True
+		QLIECloseWhenEmpty = true
 		SetTextOptionValueST(GetEnabledStatus(QLIECloseWhenEmpty))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_close_when_empty_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1032,17 +1032,17 @@ state dispel_invis
 	event OnSelectST()
 		QLIEDispelInvisibility = !QLIEDispelInvisibility
 		SetTextOptionValueST(GetEnabledStatus(QLIEDispelInvisibility))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEDispelInvisibility = True
+		QLIEDispelInvisibility = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEDispelInvisibility))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_dispel_invis_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1053,17 +1053,17 @@ state open_when_container_unlocked
 	event OnSelectST()
 		QLIEOpenWhenContainerUnlocked = !QLIEOpenWhenContainerUnlocked
 		SetTextOptionValueST(GetEnabledStatus(QLIEOpenWhenContainerUnlocked))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEOpenWhenContainerUnlocked = True
+		QLIEOpenWhenContainerUnlocked = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEOpenWhenContainerUnlocked))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_open_when_container_unlocked_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1074,105 +1074,105 @@ state disable_for_animals
 	event OnSelectST()
 		QLIEDisableForAnimals = !QLIEDisableForAnimals
 		SetTextOptionValueST(GetEnabledStatus(QLIEDisableForAnimals))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEDisableForAnimals = True
+		QLIEDisableForAnimals = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEDisableForAnimals))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_disable_for_animals_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
 ;---------------------------------------------------
 
 state window_X
-	event OnSliderAcceptST(Float value)
-		QLIEWindowX = value as Int
+	event OnSliderAcceptST(float value)
+		QLIEWindowX = value as int
 		self.SetSliderOptionValueST(value, "{0}", false, "")
-    endEvent
+    endevent
 
 	event OnSliderOpenST()
-		self.SetSliderDialogStartValue(QLIEWindowX as Float)
-		self.SetSliderDialogDefaultValue(100 as Float)
-		self.SetSliderDialogRange(-960 as Float, 960 as Float)
-		self.SetSliderDialogInterval(1 as Float)
-	endEvent
+		self.SetSliderDialogStartValue(QLIEWindowX as float)
+		self.SetSliderDialogDefaultValue(100 as float)
+		self.SetSliderDialogRange(-960 as float, 960 as float)
+		self.SetSliderDialogInterval(1 as float)
+	endevent
 
 	event OnDefaultST()
 		QLIEWindowX = 100
-		self.SetSliderOptionValueST(QLIEWindowX as Float, "{0}", false, "")
-	endEvent
+		self.SetSliderOptionValueST(QLIEWindowX as float, "{0}", false, "")
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_window_X_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
 ;---------------------------------------------------
 
 state window_Y
-	event OnSliderAcceptST(Float value)
-		QLIEWindowY = value as Int
+	event OnSliderAcceptST(float value)
+		QLIEWindowY = value as int
 		self.SetSliderOptionValueST(value, "{0}", false, "")
-    endEvent
+    endevent
 
 	event OnSliderOpenST()
-		self.SetSliderDialogStartValue(QLIEWindowY as Float)
-		self.SetSliderDialogDefaultValue(-200 as Float)
-		self.SetSliderDialogRange(-540 as Float, 540 as Float)
-		self.SetSliderDialogInterval(1 as Float)
-	endEvent
+		self.SetSliderDialogStartValue(QLIEWindowY as float)
+		self.SetSliderDialogDefaultValue(-200 as float)
+		self.SetSliderDialogRange(-540 as float, 540 as float)
+		self.SetSliderDialogInterval(1 as float)
+	endevent
 
 	event OnDefaultST()
 		QLIEWindowY = -200
-		self.SetSliderOptionValueST(QLIEWindowY as Float, "{0}", false, "")
-	endEvent
+		self.SetSliderOptionValueST(QLIEWindowY as float, "{0}", false, "")
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_window_Y_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
 ;---------------------------------------------------
 
 state window_scale
-	event OnSliderAcceptST(Float value)
+	event OnSliderAcceptST(float value)
 		QLIEWindowScale = value
 		self.SetSliderOptionValueST(value, "{1}", false, "")
-    endEvent
+    endevent
 
 	event OnSliderOpenST()
 		self.SetSliderDialogStartValue(QLIEWindowScale)
-		self.SetSliderDialogDefaultValue(1.0 as Float)
-		self.SetSliderDialogRange(0.1 as Float, 3.0 as Float)
-		self.SetSliderDialogInterval(0.1 as Float)
-	endEvent
+		self.SetSliderDialogDefaultValue(1.0 as float)
+		self.SetSliderDialogRange(0.1 as float, 3.0 as float)
+		self.SetSliderDialogInterval(0.1 as float)
+	endevent
 
 	event OnDefaultST()
 		QLIEWindowScale = 1.0
-		self.SetSliderOptionValueST(QLIEWindowScale as Float, "{1}", false, "")
-	endEvent
+		self.SetSliderOptionValueST(QLIEWindowScale as float, "{1}", false, "")
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_window_scale_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
 ;---------------------------------------------------
 
 state window_minLines
-	event OnSliderAcceptST(Float value)
+	event OnSliderAcceptST(float value)
 		QLIEMinLines = value as int
 		self.SetSliderOptionValueST(value, "{0}", false, "")
 
@@ -1180,31 +1180,31 @@ state window_minLines
 			QLIEMaxLines = QLIEMinLines
 			ForcePageReset()
 		endif
-    endEvent
+    endevent
 
 	event OnSliderOpenST()
 		self.SetSliderDialogStartValue(QLIEMinLines)
-		self.SetSliderDialogDefaultValue(0 as Float)
-		self.SetSliderDialogRange(0 as Float, 25 as Float)
-		self.SetSliderDialogInterval(1 as Float)
-	endEvent
+		self.SetSliderDialogDefaultValue(0 as float)
+		self.SetSliderDialogRange(0 as float, 25 as float)
+		self.SetSliderDialogInterval(1 as float)
+	endevent
 
 	event OnDefaultST()
 		QLIEMinLines = 0
-		self.SetSliderOptionValueST(QLIEMinLines as Float, "{0}", false, "")
-	endEvent
+		self.SetSliderOptionValueST(QLIEMinLines as float, "{0}", false, "")
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_window_minLines_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
 ;---------------------------------------------------
 
 state window_maxLines
-	event OnSliderAcceptST(Float value)
+	event OnSliderAcceptST(float value)
 		QLIEMaxLines = value as int
 		self.SetSliderOptionValueST(value, "{0}", false, "")
 		
@@ -1212,78 +1212,78 @@ state window_maxLines
 			QLIEMinLines = QLIEMaxLines
 			ForcePageReset()
 		endif
-    endEvent
+    endevent
 
 	event OnSliderOpenST()
 		self.SetSliderDialogStartValue(QLIEMaxLines)
-		self.SetSliderDialogDefaultValue(7 as Float)
-		self.SetSliderDialogRange(1 as Float, 25 as Float)
-		self.SetSliderDialogInterval(1 as Float)
-	endEvent
+		self.SetSliderDialogDefaultValue(7 as float)
+		self.SetSliderDialogRange(1 as float, 25 as float)
+		self.SetSliderDialogInterval(1 as float)
+	endevent
 
 	event OnDefaultST()
 		QLIEMaxLines = 0
-		self.SetSliderOptionValueST(QLIEMaxLines as Float, "{0}", false, "")
-	endEvent
+		self.SetSliderOptionValueST(QLIEMaxLines as float, "{0}", false, "")
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_window_maxLines_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
 ;---------------------------------------------------
 
 state transparency_normal
-	event OnSliderAcceptST(Float value)
+	event OnSliderAcceptST(float value)
 		QLIETransparency_Normal = value
 		self.SetSliderOptionValueST(value, "{1}", false, "")
-    endEvent
+    endevent
 
 	event OnSliderOpenST()
 		self.SetSliderDialogStartValue(QLIETransparency_Normal)
-		self.SetSliderDialogDefaultValue(1.0 as Float)
-		self.SetSliderDialogRange(0.1 as Float, 1.0 as Float)
-		self.SetSliderDialogInterval(0.1 as Float)
-	endEvent
+		self.SetSliderDialogDefaultValue(1.0 as float)
+		self.SetSliderDialogRange(0.1 as float, 1.0 as float)
+		self.SetSliderDialogInterval(0.1 as float)
+	endevent
 
 	event OnDefaultST()
 		QLIETransparency_Normal = 1.0
-		self.SetSliderOptionValueST(QLIETransparency_Normal as Float, "{1}", false, "")
-	endEvent
+		self.SetSliderOptionValueST(QLIETransparency_Normal as float, "{1}", false, "")
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_window_transparency_normal_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
 ;---------------------------------------------------
 
 state transparency_empty
-	event OnSliderAcceptST(Float value)
+	event OnSliderAcceptST(float value)
 		QLIETransparency_Empty = value
 		self.SetSliderOptionValueST(value, "{1}", false, "")
-    endEvent
+    endevent
 
 	event OnSliderOpenST()
 		self.SetSliderDialogStartValue(QLIETransparency_Empty)
-		self.SetSliderDialogDefaultValue(0.3 as Float)
-		self.SetSliderDialogRange(0.1 as Float, 1.0 as Float)
-		self.SetSliderDialogInterval(0.1 as Float)
-	endEvent
+		self.SetSliderDialogDefaultValue(0.3 as float)
+		self.SetSliderDialogRange(0.1 as float, 1.0 as float)
+		self.SetSliderDialogInterval(0.1 as float)
+	endevent
 
 	event OnDefaultST()
 		QLIETransparency_Empty = 0.3
-		self.SetSliderOptionValueST(QLIETransparency_Empty as Float, "{1}", false, "")
-	endEvent
+		self.SetSliderOptionValueST(QLIETransparency_Empty as float, "{1}", false, "")
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_window_transparency_empty_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1294,17 +1294,17 @@ state show_book_read_icon
 	event OnSelectST()
 		QLIEIconShowBookRead = !QLIEIconShowBookRead
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowBookRead))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEIconShowBookRead = True
+		QLIEIconShowBookRead = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowBookRead))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_show_book_read_icon_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1315,17 +1315,17 @@ state show_stealing_icon
 	event OnSelectST()
 		QLIEIconShowStealing = !QLIEIconShowStealing
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowStealing))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEIconShowStealing = True
+		QLIEIconShowStealing = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowStealing))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_show_stealing_icon_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1336,17 +1336,17 @@ state show_enchanted_icon
 	event OnSelectST()
 		QLIEIconShowEnchanted = !QLIEIconShowEnchanted
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowEnchanted))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEIconShowEnchanted = True
+		QLIEIconShowEnchanted = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowEnchanted))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_show_enchanted_icon_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1357,17 +1357,17 @@ state show_knownenchanted_icon
 	event OnSelectST()
 		QLIEIconShowKnownEnchanted = !QLIEIconShowKnownEnchanted
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowKnownEnchanted))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEIconShowKnownEnchanted = True
+		QLIEIconShowKnownEnchanted = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowKnownEnchanted))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_show_knownenchanted_icon_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1378,17 +1378,17 @@ state show_specialenchanted_icon
 	event OnSelectST()
 		QLIEIconShowSpecialEnchanted = !QLIEIconShowSpecialEnchanted
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowSpecialEnchanted))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEIconShowSpecialEnchanted = True
+		QLIEIconShowSpecialEnchanted = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowSpecialEnchanted))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_show_specialenchanted_icon_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1399,17 +1399,17 @@ state show_lotd_disp_icon
 	event OnSelectST()
 		QLIEIconShowDBMDisplayed = !QLIEIconShowDBMDisplayed
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowDBMDisplayed))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEIconShowDBMDisplayed = True
+		QLIEIconShowDBMDisplayed = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowDBMDisplayed))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_show_lotd_disp_icon_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1420,17 +1420,17 @@ state show_lotd_found_icon
 	event OnSelectST()
 		QLIEIconShowDBMFound = !QLIEIconShowDBMFound
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowDBMFound))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEIconShowDBMFound = True
+		QLIEIconShowDBMFound = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowDBMFound))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_show_lotd_found_icon_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1441,17 +1441,17 @@ state show_lotd_new_icon
 	event OnSelectST()
 		QLIEIconShowDBMNew = !QLIEIconShowDBMNew
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowDBMNew))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEIconShowDBMNew = True
+		QLIEIconShowDBMNew = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEIconShowDBMNew))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_show_lotd_new_icon_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1462,17 +1462,17 @@ state show_comp_needed_icon
 	event OnSelectST()
 		QLIEShowCompNeeded = !QLIEShowCompNeeded
 		SetTextOptionValueST(GetEnabledStatus(QLIEShowCompNeeded))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEShowCompNeeded = True
+		QLIEShowCompNeeded = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEShowCompNeeded))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_show_comp_needed_icon_info")
-	endEvent
-endState
+	endevent
+endstate
 
 ;---------------------------------------------------
 ;-- States -----------------------------------------
@@ -1483,14 +1483,14 @@ state show_comp_collected_icon
 	event OnSelectST()
 		QLIEShowCompCollected = !QLIEShowCompCollected
 		SetTextOptionValueST(GetEnabledStatus(QLIEShowCompCollected))
-	endEvent
+	endevent
 	
 	event OnDefaultST()
-		QLIEShowCompCollected = True
+		QLIEShowCompCollected = true
 		SetTextOptionValueST(GetEnabledStatus(QLIEShowCompCollected))
-	endEvent
+	endevent
 
 	event OnHighlightST()
 		SetInfoText("$qlie_show_comp_collected_icon_info")
-	endEvent
-endState
+	endevent
+endstate

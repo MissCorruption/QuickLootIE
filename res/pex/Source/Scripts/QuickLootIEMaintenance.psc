@@ -1,18 +1,18 @@
-scriptname QuickLootIEMaintenance extends quest
+scriptname QuickLootIEMaintenance extends Quest
 
 import QuickLootIENative
 import utility
 import debug
 
-bool property bFirstTimeSetupFinished auto Hidden
+bool property bFirstTimeSetupFinished auto hidden
 
-float property fSKSE Auto Hidden
+float property fSKSE auto hidden
  
-int property fVersion auto Hidden
-int property fVMajor auto Hidden 
-int property fVMinor auto Hidden
-int property fVPatch auto Hidden
-int property fVTweak auto Hidden
+int property fVersion auto hidden
+int property fVMajor auto hidden 
+int property fVMinor auto hidden
+int property fVPatch auto hidden
+int property fVTweak auto hidden
 
 int curVersion
 int curVMajor
@@ -20,7 +20,7 @@ int curVMinor
 int curVPatch
 int curVTweak
 
-string property ModVersion auto Hidden
+string property ModVersion auto hidden
 
 bool bUpdated
 
@@ -30,14 +30,14 @@ bool bUpdated
 
 event OnInit()
 	RegisterForSingleUpdate(1)
-endEvent
+endevent
 
 ;---------------------------------------------------
 ;-- Events -----------------------------------------
 ;---------------------------------------------------
 
 event OnUpdate()
-	SetFrameworkQuest(self as quest)
+	SetFrameworkQuest(self as Quest)
 	
 	if (!bFirstTimeSetupFinished)
 		DoVersioning()
@@ -45,7 +45,7 @@ event OnUpdate()
 	endif
 	
 	self.CheckVersioning()
-endEvent
+endevent
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -53,13 +53,13 @@ endEvent
 
 function GetSKSEVersion()
 	fSKSE = (SKSE.GetVersion() * 10000 + SKSE.GetVersionMinor() * 100 + SKSE.GetVersionBeta())
-EndFunction	
+endfunction	
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
 ;---------------------------------------------------
 
-function DoVersioning() ;Initial versioning on a new game.
+function DoVersioning() ; Initial versioning on a new game.
 	
 	GetSKSEVersion()
 	fVMajor = 1
@@ -70,14 +70,14 @@ function DoVersioning() ;Initial versioning on a new game.
 	ModVersion = (fVMajor + "." + fVMinor + "." + fVPatch + "." + fVTweak)
 	
 	LogWithPlugin("QuickLootIE UDS: Initial Versioning Completed")
-	bFirstTimeSetupFinished = True
-endFunction	
+	bFirstTimeSetupFinished = true
+endfunction	
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
 ;---------------------------------------------------
 
-function CheckVersioning() ;Versioning ran from OnPlayerLoadGame()
+function CheckVersioning() ; Versioning ran from OnPlayerLoadGame()
 	
 	GetSKSEVersion()
 	curVMajor = 1
@@ -86,14 +86,14 @@ function CheckVersioning() ;Versioning ran from OnPlayerLoadGame()
 	curVTweak = 0
 	curVersion = (curVMajor * 1000) + (curVMinor * 100) + (curVPatch * 10) + (curVTweak)
 	
-	While IsInMenuMode()
+	while IsInMenuMode()
 		Wait(0.1)
-	endWhile
+	endwhile
 
 	if (fVersion < curVersion)
 		UpdateKicker()
 	endif
-endFunction
+endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
@@ -103,17 +103,17 @@ function UpdateKicker()
 	
 	Notification("QuickLootIE UDS: Running Updates...")
 	
-	bUpdated = False
+	bUpdated = false
 
 	if (fVersion < 1210)
-		;Handle any Updates here
+		; Handle any updates here
 		
 		fVMajor = curVMajor
 		fVMinor = curVMinor
 		fVPatch = curVPatch
 		fVTweak = curVTweak
 		fVersion = curVersion
-		bUpdated = True
+		bUpdated = true
 	endif
 	
 	if (!bUpdated)
@@ -124,4 +124,4 @@ function UpdateKicker()
 	ModVersion = (fVMajor + "." + fVMinor + "." + fVPatch + "." + fVTweak)
 	LogWithPlugin("QuickLootIE UDS: Update to Version " + fVMajor + "." + fVMinor + "." + fVPatch + "." + fVTweak + " Succeeded...")
 	Notification("QuickLoot IE UDS: Updated To Version " + ModVersion)
-endFunction
+endfunction
