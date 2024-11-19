@@ -134,7 +134,6 @@ namespace QuickLoot::Input
 	void InputManager::BlockConflictingInputs()
 	{
 		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, false);
-		UpdateModifierKeys(nullptr);
 	}
 
 	void InputManager::UnblockConflictingInputs()
