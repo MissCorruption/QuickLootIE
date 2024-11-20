@@ -146,19 +146,19 @@ namespace QuickLoot
 
 		uiMovie->CreateObject(&settings);
 
-		settings.SetMember("minLines", Settings::GetMinLines());
-		settings.SetMember("maxLines", Settings::GetMaxLines());
+		settings.SetMember("minLines", Settings::GetWindowMinLines());
+		settings.SetMember("maxLines", Settings::GetWindowMaxLines());
 
 		settings.SetMember("offsetX", Settings::GetWindowX());
 		settings.SetMember("offsetY", Settings::GetWindowY());
 		settings.SetMember("scale", Settings::GetWindowScale());
 
-		settings.SetMember("alphaNormal", Settings::GetNormalWindowTransparency());
-		settings.SetMember("alphaEmpty", Settings::GetEmptyWindowTransparency());
+		settings.SetMember("alphaNormal", Settings::GetWindowOpacityNormal());
+		settings.SetMember("alphaEmpty", Settings::GetWindowOpacityEmpty());
 
 		double anchorFractionX = 0;
 		double anchorFractionY = 0;
-		ResolveAnchorPoint(Settings::GetAnchorPoint(), anchorFractionX, anchorFractionY);
+		ResolveAnchorPoint(Settings::GetWindowAnchor(), anchorFractionX, anchorFractionY);
 
 		settings.SetMember("anchorFractionX", anchorFractionX);
 		settings.SetMember("anchorFractionY", anchorFractionY);
@@ -458,7 +458,7 @@ namespace QuickLoot
 			}
 		}
 
-		if (!Settings::EnableWhenEmpty() && _itemListImpl.empty()) {
+		if (!Settings::ShowWhenEmpty() && _itemListImpl.empty()) {
 			LootMenuManager::RequestClose();
 			return;
 		}

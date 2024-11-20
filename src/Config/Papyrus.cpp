@@ -10,37 +10,29 @@ namespace QuickLoot::Config
 		SKSE::GetPapyrusInterface()->Register(RegisterFunctions);
 	}
 
-	//---------------------------------------------------
-	//-- Framework Functions ( Papyrus Registrations ) --
-	//---------------------------------------------------
-
-	bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* a_vm)
+	bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm)
 	{
-		a_vm->RegisterFunction("GetVersion",				"QuickLootIENative", GetVersion);
-		a_vm->RegisterFunction("SetFrameworkQuest",			"QuickLootIENative", SetFrameworkQuest);
-		a_vm->RegisterFunction("LogWithPlugin",				"QuickLootIENative", LogWithPlugin);
-		a_vm->RegisterFunction("UpdateVariables",			"QuickLootIENative", UpdateVariables);
-		a_vm->RegisterFunction("FormatSortOptionsList",		"QuickLootIENative", FormatSortOptionsList);
-		a_vm->RegisterFunction("RemoveSortOptionPriority",	"QuickLootIENative", RemoveSortOptionPriority);
-		a_vm->RegisterFunction("InsertSortOptionPriority",	"QuickLootIENative", InsertSortOptionPriority);
-		a_vm->RegisterFunction("GetSortingPreset",			"QuickLootIENative", GetSortingPreset);
-		a_vm->RegisterFunction("GetSortingPresets",			"QuickLootIENative", GetSortingPresets);
-		a_vm->RegisterFunction("AddPresetsToArray",			"QuickLootIENative", AddPresetsToArray);
+		vm->RegisterFunction("GetVersion",					"QuickLootIENative", GetVersion);
+		vm->RegisterFunction("SetFrameworkQuest",			"QuickLootIENative", SetFrameworkQuest);
+		vm->RegisterFunction("LogWithPlugin",				"QuickLootIENative", LogWithPlugin);
+		vm->RegisterFunction("UpdateVariables",				"QuickLootIENative", UpdateVariables);
+		vm->RegisterFunction("FormatSortOptionsList",		"QuickLootIENative", FormatSortOptionsList);
+		vm->RegisterFunction("RemoveSortOptionPriority",	"QuickLootIENative", RemoveSortOptionPriority);
+		vm->RegisterFunction("InsertSortOptionPriority",	"QuickLootIENative", InsertSortOptionPriority);
+		vm->RegisterFunction("GetSortingPreset",			"QuickLootIENative", GetSortingPreset);
+		vm->RegisterFunction("GetSortingPresets",			"QuickLootIENative", GetSortingPresets);
+		vm->RegisterFunction("AddPresetsToArray",			"QuickLootIENative", AddPresetsToArray);
 		return true;
 	};
 
-	//---------------------------------------------------
-	//-- Variables Functions ( Set MCM Pointer ) --------
-	//---------------------------------------------------
-
-	void Papyrus::SetFrameworkQuest(RE::StaticFunctionTag*, RE::TESQuest* a_quest)
+	void Papyrus::SetFrameworkQuest(RE::StaticFunctionTag*, RE::TESQuest* quest)
 	{
-		if (!a_quest) {
+		if (!quest) {
 			logger::info("No quest passed to registration function");
 			return;
 		};
 
-		MCMScript = Util::ScriptObject::FromForm(a_quest, "QuickLootIEMCM");
+		MCMScript = Util::ScriptObject::FromForm(quest, "QuickLootIEMCM");
 		if (!MCMScript.IsValid()) {
 			logger::info("Unable to locate MCM script on form");
 			return;
@@ -51,63 +43,57 @@ namespace QuickLoot::Config
 		Settings::Update();
 	};
 
-	//---------------------------------------------------
-	//-- Framework Functions ( Update From MCM ) --------
-	//---------------------------------------------------
-
 	void Papyrus::UpdateVariables(RE::StaticFunctionTag*)
 	{
-		LoadSetting(QLIECloseInCombat,				"QLIECloseInCombat", false);
-		LoadSetting(QLIECloseWhenEmpty,				"QLIECloseWhenEmpty", true);
-		LoadSetting(QLIEDispelInvisibility,			"QLIEDispelInvisibility", true);
-		LoadSetting(QLIEOpenWhenContainerUnlocked,	"QLIEOpenWhenContainerUnlocked", true);
-		LoadSetting(QLIEDisableForAnimals,			"QLIEDisableForAnimals", false);
+		// General > Behavior Settings
+		LoadSetting(QLIE_ShowInCombat,						"QLIE_ShowInCombat", false);
+		LoadSetting(QLIE_ShowWhenEmpty,						"QLIE_ShowWhenEmpty", true);
+		LoadSetting(QLIE_ShowWhenUnlocked,					"QLIE_ShowWhenUnlocked", true);
+		LoadSetting(QLIE_ShowInThirdPerson,					"QLIE_ShowInThirdPerson", true);
+		LoadSetting(QLIE_ShowWhenMounted,					"QLIE_ShowWhenMounted", false);
+		LoadSetting(QLIE_EnableForAnimals,					"QLIE_EnableForAnimals", false);
+		LoadSetting(QLIE_EnableForDragons,					"QLIE_EnableForDragons", false);
+		LoadSetting(QLIE_BreakInvisibility,					"QLIE_BreakInvisibility", true);
 
-		LoadSetting(QLIEIconShowBookRead,			"QLIEIconShowBookRead", true);
-		LoadSetting(QLIEIconShowEnchanted,			"QLIEIconShowEnchanted", true);
+		// Display > Window Settings
+		LoadSetting(QLIE_WindowOffsetX,						"QLIE_WindowOffsetX", 100);
+		LoadSetting(QLIE_WindowOffsetY,						"QLIE_WindowOffsetY", -200);
+		LoadSetting(QLIE_WindowScale,						"QLIE_WindowScale", 1.0f);
+		LoadSetting(QLIE_WindowAnchor,						"QLIE_WindowAnchor", 0);
+		LoadSetting(QLIE_WindowMinLines,					"QLIE_WindowMinLines", 0);
+		LoadSetting(QLIE_WindowMaxLines,					"QLIE_WindowMaxLines", 7);
+		LoadSetting(QLIE_WindowOpacityNormal,				"QLIE_WindowOpacityNormal", 1.0f);
+		LoadSetting(QLIE_WindowOpacityEmpty,				"QLIE_WindowOpacityEmpty", 0.3f);
 
-		LoadSetting(QLIEIconShowDBMDisplayed,		"QLIEIconShowDBMDisplayed", false);
-		LoadSetting(QLIEIconShowDBMFound,			"QLIEIconShowDBMFound", false);
-		LoadSetting(QLIEIconShowDBMNew,				"QLIEIconShowDBMNew", false);
+		// Display > Icon Settings
+		LoadSetting(QLIE_ShowIconRead,						"QLIE_ShowIconRead", true);
+		LoadSetting(QLIE_ShowIconStolen,					"QLIE_ShowIconStolen", true);
+		LoadSetting(QLIE_ShowIconEnchanted,					"QLIE_ShowIconEnchanted", true);
+		LoadSetting(QLIE_ShowIconEnchantedKnown,			"QLIE_ShowIconEnchantedKnown", true);
+		LoadSetting(QLIE_ShowIconEnchantedSpecial,			"QLIE_ShowIconEnchantedSpecial", true);
 
-		LoadSetting(QLIEShowCompNeeded,				"QLIEShowCompNeeded", false);
-		LoadSetting(QLIEShowCompCollected,			"QLIEShowCompCollected", false);
+		// Sorting
+		LoadSetting(QLIE_SortRulesActive,					"QLIE_SortRulesActive", {});
 
-		LoadSetting(QLIEAnchorPoint,				"QLIEAnchorOptionChoice", 0);
-		LoadSetting(QLIEWindowX,					"QLIEWindowX", 100);
-		LoadSetting(QLIEWindowY,					"QLIEWindowY", -200);
-		LoadSetting(QLIEWindowScale,				"QLIEWindowScale", 1.0f);
+		// Compatibility > LOTD Icons
+		LoadSetting(QLIE_ShowIconLOTDNew,					"QLIE_ShowIconLOTDNew", false);
+		LoadSetting(QLIE_ShowIconLOTDCarried,				"QLIE_ShowIconLOTDCarried", false);
+		LoadSetting(QLIE_ShowIconLOTDDisplayed,				"QLIE_ShowIconLOTDDisplayed", false);
 
-		LoadSetting(QLIEMinLines,					"QLIEMinLines", 0);
-		LoadSetting(QLIEMaxLines,					"QLIEMaxLines", 7);
-
-		LoadSetting(QLIETransparency_Normal,		"QLIETransparency_Normal", 1.0f);
-		LoadSetting(QLIETransparency_Empty,			"QLIETransparency_Empty", 0.3f);
-
-		LoadSetting(QLIESortPriorityStrings,		"user_selected_sort_options", {});
+		// Compatibility > Completionist Icons
+		LoadSetting(QLIE_ShowIconCompletionistNeeded,		"QLIE_ShowIconCompletionistNeeded", false);
+		LoadSetting(QLIE_ShowIconCompletionistCollected,	"QLIE_ShowIconCompletionistCollected", false);
 	}
 
-	//---------------------------------------------------
-	//-- Framework Functions ( Log From Papyrus ) -------
-	//---------------------------------------------------
-
-	void Papyrus::LogWithPlugin(RE::StaticFunctionTag*, std::string a_message)
+	void Papyrus::LogWithPlugin(RE::StaticFunctionTag*, std::string message)
 	{
-		logger::info("! {}", a_message);
+		logger::info("! {}", message);
 	}
-
-	//---------------------------------------------------
-	//-- Framework Functions ( Get DLL Version ) --------
-	//---------------------------------------------------
 
 	std::string Papyrus::GetVersion(RE::StaticFunctionTag*)
 	{
 		return std::string(ReplaceStr(Plugin::VERSION.string(), "-", "."));
 	}
-
-	//---------------------------------------------------
-	//-- Framework Functions (Format Sort Options ) -----
-	//---------------------------------------------------
 
 	std::vector<std::string> Papyrus::FormatSortOptionsList(RE::StaticFunctionTag*, std::vector<std::string> options, std::vector<std::string> userList)
 	{
@@ -118,35 +104,23 @@ namespace QuickLoot::Config
 		return options;
 	}
 
-	//---------------------------------------------------
-	//-- Framework Functions (Format Sort Options ) -----
-	//---------------------------------------------------
-
-	std::vector<std::string> Papyrus::RemoveSortOptionPriority(RE::StaticFunctionTag*, std::vector<std::string> userList, int32_t elementPos)
+	std::vector<std::string> Papyrus::RemoveSortOptionPriority(RE::StaticFunctionTag*, std::vector<std::string> userList, int elementPos)
 	{
-		if (elementPos >= 0 && elementPos < static_cast<int32_t>(userList.size())) {
+		if (elementPos >= 0 && elementPos < static_cast<int>(userList.size())) {
 			userList.erase(userList.begin() + elementPos);
 		}
 
 		return userList;
 	}
 
-	//---------------------------------------------------
-	//-- Framework Functions (Format Sort Options ) -----
-	//---------------------------------------------------
-
-	std::vector<std::string> Papyrus::InsertSortOptionPriority(RE::StaticFunctionTag*, std::vector<std::string> userList, std::string newElement, int32_t elementPos)
+	std::vector<std::string> Papyrus::InsertSortOptionPriority(RE::StaticFunctionTag*, std::vector<std::string> userList, std::string newElement, int elementPos)
 	{
-		if (elementPos >= 0 && elementPos <= static_cast<int32_t>(userList.size())) {
+		if (elementPos >= 0 && elementPos <= static_cast<int>(userList.size())) {
 			userList.insert(userList.begin() + elementPos, newElement);
 		}
 
 		return userList;
 	}
-
-	//---------------------------------------------------
-	//-- Framework Functions (Format Sort Options ) -----
-	//---------------------------------------------------
 
 	std::vector<std::string> Papyrus::AddPresetsToArray(RE::StaticFunctionTag*, std::vector<std::string> userList, std::vector<std::string> presetList)
 	{
@@ -154,20 +128,12 @@ namespace QuickLoot::Config
 		return userList;
 	}
 
-	//---------------------------------------------------
-	//-- Framework Functions (Get Names of Presets) -----
-	//---------------------------------------------------
-
 	std::vector<std::string> Papyrus::GetSortingPresets(RE::StaticFunctionTag*)
 	{
 		return ConvertArrayToVector(SortingPresets);
 	}
 
-	//---------------------------------------------------
-	//-- Framework Functions (Get Preset Elements) ------
-	//---------------------------------------------------
-
-	std::vector<std::string> Papyrus::GetSortingPreset(RE::StaticFunctionTag*, int32_t presetChoice)
+	std::vector<std::string> Papyrus::GetSortingPreset(RE::StaticFunctionTag*, int presetChoice)
 	{
 		switch (presetChoice) {
 		case 1:

@@ -1,28 +1,24 @@
 scriptname QuickLootIEMaintenance extends Quest
 
 import QuickLootIENative
-import utility
-import debug
+import Utility
+import Debug
 
-bool property bFirstTimeSetupFinished auto hidden
+int property LastVersionMajor auto hidden
+int property LastVersionMinor auto hidden
+int property LastVersionPatch auto hidden
+int property LastVersionTweak auto hidden
 
-float property fSKSE auto hidden
- 
-int property fVersion auto hidden
-int property fVMajor auto hidden 
-int property fVMinor auto hidden
-int property fVPatch auto hidden
-int property fVTweak auto hidden
+int property LastVersionNumber auto hidden
+string property LastVersionString auto hidden
 
-int curVersion
-int curVMajor
-int curVMinor
-int curVPatch
-int curVTweak
+int property CurrentVersionMajor auto hidden
+int property CurrentVersionMinor auto hidden
+int property CurrentVersionPatch auto hidden
+int property CurrentVersionTweak auto hidden
 
-string property ModVersion auto hidden
-
-bool bUpdated
+int property CurrentVersionNumber auto hidden
+string property CurrentVersionString auto hidden
 
 ;---------------------------------------------------
 ;-- Events -----------------------------------------
@@ -32,96 +28,68 @@ event OnInit()
 	RegisterForSingleUpdate(1)
 endevent
 
-;---------------------------------------------------
-;-- Events -----------------------------------------
-;---------------------------------------------------
-
 event OnUpdate()
 	SetFrameworkQuest(self as Quest)
-	
-	if (!bFirstTimeSetupFinished)
-		DoVersioning()
-		return
-	endif
-	
-	self.CheckVersioning()
+
+	InitCurrentVersion()
+	CheckVersionChange()
 endevent
 
 ;---------------------------------------------------
-;-- Functions --------------------------------------
+;-- Helper Functions -------------------------------
 ;---------------------------------------------------
 
-function GetSKSEVersion()
-	fSKSE = (SKSE.GetVersion() * 10000 + SKSE.GetVersionMinor() * 100 + SKSE.GetVersionBeta())
-endfunction	
+int function CombineVersionNumber(int major, int minor, int patch, int tweak)
+	return major * 1000 + minor * 100 + patch * 10 + tweak
+endfunction
 
-;---------------------------------------------------
-;-- Functions --------------------------------------
-;---------------------------------------------------
+string function CombineVersionString(int major, int minor, int patch, int tweak)
+	return major + "." + minor + "." + patch + "." + tweak
+endfunction
 
-function DoVersioning() ; Initial versioning on a new game.
-	
-	GetSKSEVersion()
-	fVMajor = 1
-	fVMinor = 2
-	fVPatch = 1
-	fVTweak = 0
-	fVersion = (fVMajor * 1000) + (fVMinor * 100) + (fVPatch * 10) + (fVTweak)
-	ModVersion = (fVMajor + "." + fVMinor + "." + fVPatch + "." + fVTweak)
-	
-	LogWithPlugin("QuickLootIE UDS: Initial Versioning Completed")
-	bFirstTimeSetupFinished = true
-endfunction	
+function InitCurrentVersion()
+	CurrentVersionMajor = 2
+	CurrentVersionMinor = 1
+	CurrentVersionPatch = 0
+	CurrentVersionTweak = 0
 
-;---------------------------------------------------
-;-- Functions --------------------------------------
-;---------------------------------------------------
+	CurrentVersionNumber = CombineVersionNumber(CurrentVersionMajor, CurrentVersionMinor, CurrentVersionPatch, CurrentVersionTweak)
+	CurrentVersionString = CombineVersionString(CurrentVersionMajor, CurrentVersionMinor, CurrentVersionPatch, CurrentVersionTweak)
+endfunction
 
-function CheckVersioning() ; Versioning ran from OnPlayerLoadGame()
-	
-	GetSKSEVersion()
-	curVMajor = 1
-	curVMinor = 2
-	curVPatch = 1
-	curVTweak = 0
-	curVersion = (curVMajor * 1000) + (curVMinor * 100) + (curVPatch * 10) + (curVTweak)
-	
-	while IsInMenuMode()
-		Wait(0.1)
-	endwhile
+function UpdateLastVersion()
+	LastVersionMajor = CurrentVersionMajor
+	LastVersionMinor = CurrentVersionMinor
+	LastVersionPatch = CurrentVersionPatch
+	LastVersionTweak = CurrentVersionTweak
 
-	if (fVersion < curVersion)
-		UpdateKicker()
-	endif
+	LastVersionNumber = CurrentVersionNumber
+	LastVersionString = CurrentVersionString
 endfunction
 
 ;---------------------------------------------------
 ;-- Functions --------------------------------------
 ;---------------------------------------------------
 
-function UpdateKicker()
-	
-	Notification("QuickLootIE UDS: Running Updates...")
-	
-	bUpdated = false
+function CheckVersionChange()
+	while IsInMenuMode()
+		Wait(0.1)
+	endwhile
 
-	if (fVersion < 1210)
-		; Handle any updates here
-		
-		fVMajor = curVMajor
-		fVMinor = curVMinor
-		fVPatch = curVPatch
-		fVTweak = curVTweak
-		fVersion = curVersion
-		bUpdated = true
+	if LastVersionNumber < CurrentVersionNumber
+		UpdateVersion()
 	endif
-	
-	if (!bUpdated)
-		LogWithPlugin("QuickLootIE UDS: Update Failed...")
-		return
+endfunction
+
+function UpdateVersion()
+	Notification("QuickLoot IE: Running updates...")
+
+	if LastVersionNumber < 2100
+		;
 	endif
 
-	ModVersion = (fVMajor + "." + fVMinor + "." + fVPatch + "." + fVTweak)
-	LogWithPlugin("QuickLootIE UDS: Update to Version " + fVMajor + "." + fVMinor + "." + fVPatch + "." + fVTweak + " Succeeded...")
-	Notification("QuickLoot IE UDS: Updated To Version " + ModVersion)
+	UpdateLastVersion()
+
+	LogWithPlugin("Updated to version " + CurrentVersionString)
+	Notification("QuickLoot IE: Updated to version " + CurrentVersionString)
 endfunction

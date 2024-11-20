@@ -1,11 +1,11 @@
 scriptname QuicklootIELoad extends ReferenceAlias
 
-QuickLootIEMaintenance property QLIEAPI auto
+QuickLootIEMaintenance property MaintenanceScript auto
 
 ;---------------------------------------------------
 ;-- Events -----------------------------------------
 ;---------------------------------------------------
 
 event OnPlayerLoadGame()
-	QLIEAPI.RegisterForSingleUpdate(0.1)
+	MaintenanceScript.RegisterForSingleUpdate(0.1)
 endevent

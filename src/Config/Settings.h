@@ -27,39 +27,36 @@ namespace QuickLoot::Config
 
 		static void Update();
 
-		static bool EnableInCombat();
-		static bool EnableWhenEmpty();
-		static bool EnableAfterUnlocking();
-
-		static bool EnableInThirdPersonView();
-		static bool EnableWhenMounted();
-
+		static bool ShowInCombat();
+		static bool ShowWhenEmpty();
+		static bool ShowWhenUnlocked();
+		static bool ShowInThirdPersonView();
+		static bool ShowWhenMounted();
 		static bool EnableForAnimals();
 		static bool EnableForDragons();
-
 		static bool DispelInvisibility();
 
-		static bool ShowBookRead();
-		static bool ShowEnchanted();
+		static int GetWindowX();
+		static int GetWindowY();
+		static float GetWindowScale();
+		static AnchorPoint GetWindowAnchor();
+		static int GetWindowMinLines();
+		static int GetWindowMaxLines();
+		static float GetWindowOpacityNormal();
+		static float GetWindowOpacityEmpty();
+
+		static bool ShowIconRead();
+		static bool ShowIconStolen();
+		static bool ShowIconEnchanted();
+		static bool ShowIconEnchantedKnown();
+		static bool ShowIconEnchantedSpecial();
+
+		static const std::vector<std::string>& GetUserDefinedSortPriority();
 
 		static bool ShowDBMDisplayed();
 		static bool ShowDBMFound();
 		static bool ShowDBMNew();
-
 		static bool ShowCompNeeded();
 		static bool ShowCompCollected();
-
-		static AnchorPoint GetAnchorPoint();
-		static int32_t GetWindowX();
-		static int32_t GetWindowY();
-		static float GetWindowScale();
-
-		static int32_t GetMinLines();
-		static int32_t GetMaxLines();
-
-		static float GetNormalWindowTransparency();
-		static float GetEmptyWindowTransparency();
-
-		static std::shared_ptr<std::vector<std::string>> GetUserDefinedSortPriority();
 	};
 }
