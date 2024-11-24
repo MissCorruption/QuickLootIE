@@ -243,7 +243,12 @@ namespace QuickLoot::Input
 	Keybinding* InputManager::FindMatchingKeybinding(const RE::ButtonEvent* event)
 	{
 		const auto deviceType = event->GetDevice();
-		const auto inputKey = event->GetIDCode();
+		auto inputKey = event->GetIDCode();
+
+		if (deviceType == RE::INPUT_DEVICE::kGamepad &&
+			RE::ControlMap::GetSingleton()->GetGamePadType() == RE::PC_GAMEPAD_TYPE::kOrbis) {
+			inputKey = SKSE::InputMap::ScePadOffsetToXInput(inputKey);
+		}
 
 		const auto it = std::ranges::find_if(_keybindings, [&](const Keybinding& keybinding) {
 			return keybinding.deviceType == deviceType && keybinding.inputKey == inputKey && (keybinding.modifiers == ModifierKeys::kIgnore || keybinding.modifiers == (_currentModifiers & _usedModifiers));
