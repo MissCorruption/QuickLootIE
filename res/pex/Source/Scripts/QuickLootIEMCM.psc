@@ -13,7 +13,7 @@ import Debug
 QuickLootIEMaintenance property MaintenanceScript auto
 bool AutoLoadedProfile = false
 
-string ConfigPath = "../QuickLootIE/Profiles/MCMConfig"
+string ConfigPath = "../QuickLootIE/DefaultConfig"
 string SortPresetPath = "../QuickLootIE/SortPresets/"
 string ControlPresetPath = "../QuickLootIE/ControlPresets/"
 
@@ -389,7 +389,7 @@ function InitSortPresetList()
 	SortPredefinedPresetCount = SortPresetNames.Length
 
 	; Grab custom presets from the JSON Path
-	string[] custom_presets = JsonUtil.JsonInFolder("../QuickLootIE/Profiles/SortPresets/")
+	string[] custom_presets = JsonUtil.JsonInFolder(SortPresetPath)
 	if custom_presets.Length > 0
 		SortPresetNames = AddPresetsToArray(SortPresetNames, custom_presets)
 	endif
