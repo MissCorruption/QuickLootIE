@@ -173,7 +173,7 @@ namespace QuickLoot::Input
 		std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
 			return keybinding.group == ControlGroup::kButtonBar &&
 			       isGamepad == (keybinding.deviceType == DeviceType::kGamepad) &&
-			       (keybinding.modifiers == ModifierKeys::kIgnore || keybinding.modifiers == _currentModifiers);
+			       (keybinding.modifiers == ModifierKeys::kIgnore || keybinding.modifiers == (_currentModifiers & _usedModifiers));
 		});
 
 		return filtered;
@@ -246,7 +246,7 @@ namespace QuickLoot::Input
 		const auto inputKey = event->GetIDCode();
 
 		const auto it = std::ranges::find_if(_keybindings, [&](const Keybinding& keybinding) {
-			return keybinding.deviceType == deviceType && keybinding.inputKey == inputKey && (keybinding.modifiers == ModifierKeys::kIgnore || keybinding.modifiers == _currentModifiers);
+			return keybinding.deviceType == deviceType && keybinding.inputKey == inputKey && (keybinding.modifiers == ModifierKeys::kIgnore || keybinding.modifiers == (_currentModifiers & _usedModifiers));
 		});
 
 		return it != _keybindings.end() ? &*it : nullptr;
