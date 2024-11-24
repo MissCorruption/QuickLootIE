@@ -1059,8 +1059,8 @@ namespace QuickLoot::Items
 
 		if (Settings::ShowIconEnchanted()) {
 			value.SetMember("enchanted", IsEnchanted());
-			value.SetMember("knownEnchanted", IsKnownEnchanted());
-			value.SetMember("specialEnchanted", IsSpecialEnchanted());
+			value.SetMember("knownEnchanted", Settings::ShowIconEnchantedKnown() && IsKnownEnchanted());
+			value.SetMember("specialEnchanted", Settings::ShowIconEnchantedSpecial() && IsSpecialEnchanted());
 		}
 
 		if (LOTD::IsReady()) {
