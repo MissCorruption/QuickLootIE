@@ -296,8 +296,13 @@ namespace QuickLoot
 
 	void LootMenu::SetSelectedIndex(int newIndex)
 	{
-		if (newIndex < 0 || newIndex >= _itemListImpl.size()) {
-			newIndex = -1;
+		if (newIndex < 0) {
+			newIndex = 0;
+		}
+
+		// This sets the index to -1 of the container is empty.
+		if (newIndex >= _itemListImpl.size()) {
+			newIndex = static_cast<int>(_itemListImpl.size() - 1);
 		}
 
 		if (newIndex == _selectedIndex) {
@@ -430,8 +435,6 @@ namespace QuickLoot
 
 	void LootMenu::RefreshInventory()
 	{
-		const auto idx = static_cast<int>(_itemList.SelectedIndex());
-
 		_itemListImpl.clear();
 		auto src = _container.get();
 		if (!src) {
@@ -486,15 +489,13 @@ namespace QuickLoot
 		_itemList.InvalidateData();
 		_lootMenu.GetInstance().Invoke("refresh");
 
-		SetSelectedIndex(idx);
-
-		QueueRefresh(RefreshFlags::kWeight);
-		QueueRefresh(RefreshFlags::kInfoBar);
-
 		_lootMenu.Visible(true);
 
 		API::APIServer::DispatchInvalidateLootMenuEvent(elements, _container);
-		OnSelectedIndexChanged(_selectedIndex);
+		SetSelectedIndex(_selectedIndex);
+
+		QueueRefresh(RefreshFlags::kWeight);
+		QueueRefresh(RefreshFlags::kInfoBar);
 	}
 
 	void LootMenu::RefreshButtonBar()

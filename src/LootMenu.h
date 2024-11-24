@@ -45,7 +45,7 @@ namespace QuickLoot
 
 	private:
 		RE::ObjectRefHandle _container{};
-		int _selectedIndex = 0;
+		int _selectedIndex = -1;
 		RE::stl::enumeration<RefreshFlags> _refreshFlags = RefreshFlags::kAll;
 
 		CLIK::MovieClip _lootMenu;
