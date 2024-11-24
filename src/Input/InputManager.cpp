@@ -183,22 +183,10 @@ namespace QuickLoot::Input
 	{
 		_keybindings.clear();
 
-		// TODO load from settings
-
 		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceType::kMouse, MouseButton::kWheelUp, ModifierKeys::kNone, QuickLootAction::kScrollUp, false);
 		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceType::kMouse, MouseButton::kWheelDown, ModifierKeys::kNone, QuickLootAction::kScrollDown, false);
 		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceType::kMouse, MouseButton::kWheelUp, ModifierKeys::kShift, QuickLootAction::kPrevPage, false);
 		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceType::kMouse, MouseButton::kWheelDown, ModifierKeys::kShift, QuickLootAction::kNextPage, false);
-
-		if constexpr (true) {
-			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kKeyboard, KeyboardKey::kE, ModifierKeys::kIgnore, QuickLootAction::kTake, false);
-			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kKeyboard, KeyboardKey::kR, ModifierKeys::kIgnore, QuickLootAction::kTakeAll, false);
-			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kKeyboard, KeyboardKey::kQ, ModifierKeys::kIgnore, QuickLootAction::kTransfer, false);
-		} else {
-			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kKeyboard, KeyboardKey::kE, ModifierKeys::kNone, QuickLootAction::kTake, false);
-			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kKeyboard, KeyboardKey::kE, ModifierKeys::kShift, QuickLootAction::kTakeAll, false);
-			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kKeyboard, KeyboardKey::kR, ModifierKeys::kIgnore, QuickLootAction::kTransfer, false);
-		}
 
 		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceType::kKeyboard, KeyboardKey::kUp, ModifierKeys::kIgnore, QuickLootAction::kScrollUp, true);
 		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceType::kKeyboard, KeyboardKey::kDown, ModifierKeys::kIgnore, QuickLootAction::kScrollDown, true);
@@ -218,9 +206,7 @@ namespace QuickLoot::Input
 		_keybindings.emplace_back(ControlGroup::kDpad, DeviceType::kGamepad, GamepadInput::kLeft, ModifierKeys::kIgnore, QuickLootAction::kPrevPage, false);
 		_keybindings.emplace_back(ControlGroup::kDpad, DeviceType::kGamepad, GamepadInput::kRight, ModifierKeys::kIgnore, QuickLootAction::kNextPage, false);
 
-		_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kGamepad, GamepadInput::kA, ModifierKeys::kIgnore, QuickLootAction::kTake, false);
-		_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kGamepad, GamepadInput::kX, ModifierKeys::kIgnore, QuickLootAction::kTakeAll, false);
-		_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceType::kGamepad, GamepadInput::kY, ModifierKeys::kIgnore, QuickLootAction::kTransfer, false);
+		_keybindings.append_range(Settings::GetKeybindings());
 
 		_usedModifiers = ModifierKeys::kNone;
 
@@ -299,7 +285,7 @@ namespace QuickLoot::Input
 		if (keyboard->IsPressed(KeyboardKey::kLeftAlt) || keyboard->IsPressed(KeyboardKey::kRightAlt)) {
 			_currentModifiers |= ModifierKeys::kAlt;
 		}
-		
+
 		if (_currentModifiers != oldModifiers) {
 			// The button bar needs to be updated when the pressed modifier keys change.
 			LootMenuManager::RequestRefresh(RefreshFlags::kButtonBar);

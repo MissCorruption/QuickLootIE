@@ -1,7 +1,7 @@
 scriptname QuickLootIEMCM extends SKI_ConfigBase conditional
 
-; Script Imports
 import QuickLootIENative
+import PapyrusUtil
 import StringUtil
 import Utility
 import Debug
@@ -12,7 +12,10 @@ import Debug
 
 QuickLootIEMaintenance property MaintenanceScript auto
 bool AutoLoadedProfile = false
+
 string ConfigPath = "../QuickLootIE/Profiles/MCMConfig"
+string SortPresetPath = "../QuickLootIE/SortPresets/"
+string ControlPresetPath = "../QuickLootIE/ControlPresets/"
 
 ; General > Behavior Settings
 bool property QLIE_ShowInCombat = true auto hidden
@@ -50,6 +53,21 @@ int SortSelectedRuleIndex = -1		; Index of the selected option in the active lis
 string[] SortPresetNames			; Load preset dropdown values
 int SortPredefinedPresetCount		; How many presets are defined in the dll
 
+; Controls
+int property QLIE_KeybindingTake = 18 auto hidden
+int property QLIE_KeybindingTakeAll = 19 auto hidden
+int property QLIE_KeybindingTransfer = 16 auto hidden
+int property QLIE_KeybindingTakeModifier = 0 auto hidden
+int property QLIE_KeybindingTakeAllModifier = 0 auto hidden
+int property QLIE_KeybindingTransferModifier = 0 auto hidden
+int property QLIE_KeybindingTakeGamepad = 276 auto hidden
+int property QLIE_KeybindingTakeAllGamepad = 278 auto hidden
+int property QLIE_KeybindingTransferGamepad = 271 auto hidden
+string[] KeyModifierOptions
+string[] ControlPresetNames
+int ControlPredefinedPresetCount
+bool GamepadMode
+
 ; Compatibility > LOTD Icons
 bool property QLIE_ShowIconLOTDNew = true auto hidden
 bool property QLIE_ShowIconLOTDCarried = true auto hidden
@@ -68,11 +86,14 @@ event OnConfigInit()
 endevent
 
 event OnConfigOpen()
-	pages = new string[4]
-	pages[0] = "$qlie_GeneralPage"
-	pages[1] = "$qlie_DisplayPage"
-	pages[2] = "$qlie_SortingPage"
-	pages[3] = "$qlie_CompatibilityPage"
+	Pages = new string[5]
+	Pages[0] = "$qlie_GeneralPage"
+	Pages[1] = "$qlie_DisplayPage"
+	Pages[2] = "$qlie_SortingPage"
+	Pages[3] = "$qlie_ControlsPage"
+	Pages[4] = "$qlie_CompatibilityPage"
+
+	GamepadMode = Game.UsingGamepad()
 endevent
 
 event OnPageReset(string page)
@@ -88,6 +109,11 @@ event OnPageReset(string page)
 
     if (page == "$qlie_SortingPage")
 		BuildSortingPage()
+		return
+	endif
+
+    if (page == "$qlie_ControlsPage")
+		BuildControlsPage()
 		return
 	endif
 
@@ -244,9 +270,58 @@ function BuildSortingPage()
 	AddTextOptionST("state_SortReset",			"", "$qlie_SortReset_text")
 
 	AddEmptyOption()
+	AddEmptyOption()
 	AddHeaderOption("$qlie_SortPresetsHeader")
 	AddInputOptionST("state_SortPresetSave", 	"", "$qlie_SortPresetSave_text")
 	AddMenuOptionST("state_SortPresetLoad",		"", "$qlie_SortPresetLoad_text")
+endfunction
+
+function BuildControlsPage()
+	InitModifierOptions()
+	InitControlPresets()
+
+	SetCursorFillMode(LEFT_TO_RIGHT)
+
+	SetCursorPosition(0)
+	AddHeaderOption("$qlie_KeybindingsHeader")
+	AddHeaderOption("")
+
+	if GamepadMode
+		AddKeyMapOptionST("state_ControlsTake",				"$qlie_ControlsTake_text", QLIE_KeybindingTakeGamepad)
+		AddEmptyOption()
+		; AddMenuOptionST("state_ControlsTakeModifier",		"$qlie_ControlsModifier_text", KeyModifierOptions[0], OPTION_FLAG_DISABLED)
+		AddKeyMapOptionST("state_ControlsTakeAll",			"$qlie_ControlsTakeAll_text", QLIE_KeybindingTakeAllGamepad)
+		AddEmptyOption()
+		; AddMenuOptionST("state_ControlsTakeAllModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[0], OPTION_FLAG_DISABLED)
+		AddKeyMapOptionST("state_ControlsTransfer",			"$qlie_ControlsTransfer_text", QLIE_KeybindingTransferGamepad)
+		AddEmptyOption()
+		; AddMenuOptionST("state_ControlsTransferModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[0], OPTION_FLAG_DISABLED)
+	else
+		AddKeyMapOptionST("state_ControlsTake",				"$qlie_ControlsTake_text", QLIE_KeybindingTake)
+		AddMenuOptionST("state_ControlsTakeModifier",		"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingTakeModifier])
+		AddKeyMapOptionST("state_ControlsTakeAll",			"$qlie_ControlsTakeAll_text", QLIE_KeybindingTakeAll)
+		AddMenuOptionST("state_ControlsTakeAllModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingTakeAllModifier])
+		AddKeyMapOptionST("state_ControlsTransfer",			"$qlie_ControlsTransfer_text", QLIE_KeybindingTransfer)
+		AddMenuOptionST("state_ControlsTransferModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingTransferModifier])
+	endif
+
+	SetCursorPosition(12)
+	AddHeaderOption("")
+	AddHeaderOption("$qlie_ControlPresetsHeader")
+	AddEmptyOption()
+	AddTextOptionST("state_ControlReset",				"", "$qlie_ControlReset_text")
+
+	if PapyrusUtil.GetScriptVersion() > 31
+		AddEmptyOption()
+		AddInputOptionST("state_ControlPresetSave",		"", "$qlie_ControlPresetSave_text")
+		AddEmptyOption()
+		AddMenuOptionST("state_ControlPresetLoad",		"", "$qlie_ControlPresetLoad_text")
+	else
+		AddEmptyOption()
+		AddInputOptionST("state_ControlPresetSave",		"", "$qlie_ControlPresetSave_text", OPTION_FLAG_DISABLED)
+		AddEmptyOption()
+		AddMenuOptionST("state_ControlPresetLoad",		"", "$qlie_ControlPresetLoad_text", OPTION_FLAG_DISABLED)
+	endif
 endfunction
 
 function BuildCompatibilityPage()
@@ -284,6 +359,15 @@ function InitWindowAnchorNames()
 	WindowAnchorNames[8] = "$qlie_WindowAnchor_name8"
 endfunction
 
+function InitModifierOptions()
+	KeyModifierOptions = new string[5]
+	KeyModifierOptions[0] = "$qlie_ModifierKey_ignore"
+	KeyModifierOptions[1] = "$qlie_ModifierKey_none"
+	KeyModifierOptions[2] = "$qlie_ModifierKey_shift"
+	KeyModifierOptions[3] = "$qlie_ModifierKey_control"
+	KeyModifierOptions[4] = "$qlie_ModifierKey_alt"
+endfunction
+
 function InitSortPresetList()
 
 	; Grab presets from the DLL.
@@ -311,6 +395,15 @@ function InitSortRuleLists(bool forceReset = false)
 	SortRulesActiveIds = Utility.CreateIntArray(QLIE_SortRulesActive.Length, -1)
 endfunction
 
+function InitControlPresets()
+	ControlPresetNames = new string[2]
+	ControlPresetNames[0] = "Default (E, R, Q)"
+	ControlPresetNames[1] = "Fallout 4 Style (E, Shift+E, R)"
+	ControlPredefinedPresetCount = ControlPresetNames.Length
+
+	ControlPresetNames = MergeStringArray(ControlPresetNames, JsonUtil.JsonInFolder(ControlPresetPath))
+endfunction
+
 string function GetEnabledStatusText(bool enabled, bool installed = true)
 	if !installed
 		return "$qlie_NotInstalled"
@@ -336,7 +429,6 @@ state state_ProfileReset
 		SetTextOptionValueST("$qlie_ProfileReset_inprogress")
 		ResetSettings()
 		SetTextOptionValueST("$qlie_ProfileReset_text")
-		UpdateVariables()
 	endevent
 endstate
 
@@ -353,7 +445,6 @@ state state_ProfileLoad
 		SetTextOptionValueST("$qlie_ProfileLoad_inprogress")
 		LoadProfile()
 		SetTextOptionValueST("$qlie_ProfileLoad_text")
-		UpdateVariables()
 	endevent
 endstate
 
@@ -529,7 +620,6 @@ state state_WindowAnchor
 	event OnMenuAcceptST(int index)
 		QLIE_WindowAnchor = index
 		SetMenuOptionValueST(WindowAnchorNames[QLIE_WindowAnchor])
-		ForcePageReset()
 	endevent
 
 	event OnDefaultST()
@@ -784,8 +874,8 @@ function SaveSortPreset(string presetName)
 		return
 	endif
 
-	JsonUtil.SetPathStringArray("../QuickLootIE/Profiles/SortPresets/" + presetName, ".SortRules", QLIE_SortRulesActive, false)
-	JsonUtil.Save("../QuickLootIE/Profiles/SortPresets/" + presetName, false)
+	JsonUtil.SetPathStringArray(SortPresetPath + presetName, ".SortRules", QLIE_SortRulesActive, false)
+	JsonUtil.Save(SortPresetPath + presetName, false)
 	ShowMsg("$qlie_SortPresetSave_success")
 	ForcePageReset()
 endfunction
@@ -803,7 +893,229 @@ function LoadSortPreset(int index)
 	if index < SortPredefinedPresetCount
 		QLIE_SortRulesActive = GetSortingPreset(index)
 	else
-		QLIE_SortRulesActive = JsonUtil.PathStringElements("../QuickLootIE/Profiles/SortPresets/" + SortPresetNames[index], ".SortRules")
+		QLIE_SortRulesActive = JsonUtil.PathStringElements(SortPresetPath + SortPresetNames[index], ".SortRules")
+	endif
+
+	ForcePageReset()
+endfunction
+
+;---------------------------------------------------
+;-- Controls ---------------------------------------
+;---------------------------------------------------
+
+state state_ControlsTake
+	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
+		SetKeyMapOptionValueST(keyCode)
+
+		bool isGamepad = keyCode >= 266
+		if isGamepad
+			QLIE_KeybindingTakeGamepad = keyCode
+		else
+			QLIE_KeybindingTake = keyCode
+		endif
+
+		if isGamepad != GamepadMode
+			GamepadMode = isGamepad
+			ForcePageReset()
+		endif
+	endevent
+endstate
+
+state state_ControlsTakeAll
+	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
+		SetKeyMapOptionValueST(keyCode)
+
+		bool isGamepad = keyCode >= 266
+		if isGamepad
+			QLIE_KeybindingTakeAllGamepad = keyCode
+		else
+			QLIE_KeybindingTakeAll = keyCode
+		endif
+
+		if isGamepad != GamepadMode
+			GamepadMode = isGamepad
+			ForcePageReset()
+		endif
+	endevent
+endstate
+
+state state_ControlsTransfer
+	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
+		SetKeyMapOptionValueST(keyCode)
+
+		bool isGamepad = keyCode >= 266
+		if isGamepad
+			QLIE_KeybindingTransferGamepad = keyCode
+		else
+			QLIE_KeybindingTransfer = keyCode
+		endif
+
+		if isGamepad != GamepadMode
+			GamepadMode = isGamepad
+			ForcePageReset()
+		endif
+	endevent
+endstate
+
+state state_ControlsTakeModifier
+	event OnMenuOpenST()
+		SetMenuDialogStartIndex(0)
+		SetMenuDialogDefaultIndex(0)
+		SetMenuDialogOptions(KeyModifierOptions)
+	endevent
+
+	event OnMenuAcceptST(int index)
+		QLIE_KeybindingTakeModifier = index
+		SetMenuOptionValueST(KeyModifierOptions[QLIE_KeybindingTakeModifier])
+	endevent
+
+	event OnHighlightST()
+		SetInfoText("$qlie_ControlsModifier_info")
+	endevent
+endstate
+
+state state_ControlsTakeAllModifier
+	event OnMenuOpenST()
+		SetMenuDialogStartIndex(0)
+		SetMenuDialogDefaultIndex(0)
+		SetMenuDialogOptions(KeyModifierOptions)
+	endevent
+
+	event OnMenuAcceptST(int index)
+		QLIE_KeybindingTakeAllModifier = index
+		SetMenuOptionValueST(KeyModifierOptions[QLIE_KeybindingTakeAllModifier])
+	endevent
+
+	event OnHighlightST()
+		SetInfoText("$qlie_ControlsModifier_info")
+	endevent
+endstate
+
+state state_ControlsTransferModifier
+	event OnMenuOpenST()
+		SetMenuDialogStartIndex(0)
+		SetMenuDialogDefaultIndex(0)
+		SetMenuDialogOptions(KeyModifierOptions)
+	endevent
+
+	event OnMenuAcceptST(int index)
+		QLIE_KeybindingTransferModifier = index
+		SetMenuOptionValueST(KeyModifierOptions[QLIE_KeybindingTransferModifier])
+	endevent
+
+	event OnHighlightST()
+		SetInfoText("$qlie_ControlsModifier_info")
+	endevent
+endstate
+
+state state_ControlReset
+	event OnSelectST()
+		ResetControls()
+		ForcePageReset()
+	endevent
+endstate
+
+state state_ControlPresetSave
+	event OnInputAcceptST(string presetName)
+		SaveControlPreset(presetName)
+	endevent
+endstate
+
+state state_ControlPresetLoad
+	event OnMenuOpenST()
+		SetMenuDialogStartIndex(0)
+		SetMenuDialogDefaultIndex(0)
+		SetMenuDialogOptions(ControlPresetNames)
+	endevent
+
+	event OnMenuAcceptST(int index)
+		LoadControlPreset(index)
+	endevent
+endstate
+
+function ResetControls()
+	QLIE_KeybindingTake = 18
+	QLIE_KeybindingTakeModifier = 0
+	QLIE_KeybindingTakeAll = 19
+	QLIE_KeybindingTakeAllModifier = 0
+	QLIE_KeybindingTransfer = 16
+	QLIE_KeybindingTransferModifier = 0
+endfunction
+
+function SaveControlPreset(string presetName)
+	if presetName == ""
+		return
+	endif
+
+	if PapyrusUtil.GetScriptVersion() <= 31
+		ShowMsg("$qlie_ControlPresetSave_unsupported")
+		return
+	endif
+
+	string path = ControlPresetPath + presetName
+
+	JsonUtil.SetPathIntValue(path, "KeybindingTake", QLIE_KeybindingTake)
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
+	JsonUtil.SetPathIntValue(path, "KeybindingTransfer", QLIE_KeybindingTransfer)
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
+	JsonUtil.SetPathIntValue(path, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
+
+	JsonUtil.Save(path, false)
+	ShowMsg("$qlie_ControlPresetSave_success")
+	ForcePageReset()
+endfunction
+
+function LoadControlPreset(int index)
+	if index <= 0
+		return
+	endif
+
+	if PapyrusUtil.GetScriptVersion() <= 31
+		ShowMsg("$qlie_ControlPresetLoad_unsupported")
+		return
+	endif
+
+	if index < ControlPredefinedPresetCount
+		if index == 1
+			QLIE_KeybindingTake = 18				; E
+			QLIE_KeybindingTakeAll = 18				; E
+			QLIE_KeybindingTransfer = 19			; R
+			QLIE_KeybindingTakeModifier = 1			; None
+			QLIE_KeybindingTakeAllModifier = 2		; Shift
+			QLIE_KeybindingTransferModifier = 0		; Ignore
+			QLIE_KeybindingTakeGamepad = 276		; Gamepad A
+			QLIE_KeybindingTakeAllGamepad = 278		; Gamepad X
+			QLIE_KeybindingTransferGamepad = 273	; Gamepad Right Stick
+		else
+			QLIE_KeybindingTake = 18				; E
+			QLIE_KeybindingTakeAll = 19				; R
+			QLIE_KeybindingTransfer = 16			; Q
+			QLIE_KeybindingTakeModifier = 0			; Ignore
+			QLIE_KeybindingTakeAllModifier = 0		; Ignore
+			QLIE_KeybindingTransferModifier = 0		; Ignore
+			QLIE_KeybindingTakeGamepad = 276		; Gamepad A
+			QLIE_KeybindingTakeAllGamepad = 278		; Gamepad X
+			QLIE_KeybindingTransferGamepad = 271	; Gamepad Back
+		endif
+	else
+		string path = ControlPresetPath + ControlPresetNames[index]
+		JsonUtil.Load(path)
+
+		QLIE_KeybindingTake = JsonUtil.GetPathIntValue(path, "KeybindingTake", QLIE_KeybindingTake)
+		QLIE_KeybindingTakeAll = JsonUtil.GetPathIntValue(path, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
+		QLIE_KeybindingTransfer = JsonUtil.GetPathIntValue(path, "KeybindingTransfer", QLIE_KeybindingTransfer)
+		QLIE_KeybindingTakeModifier = JsonUtil.GetPathIntValue(path, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
+		QLIE_KeybindingTakeAllModifier = JsonUtil.GetPathIntValue(path, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
+		QLIE_KeybindingTransferModifier = JsonUtil.GetPathIntValue(path, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
+		QLIE_KeybindingTakeGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
+		QLIE_KeybindingTakeAllGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
+		QLIE_KeybindingTransferGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
+
+		JsonUtil.Unload(path)
 	endif
 
 	ForcePageReset()
@@ -966,6 +1278,16 @@ function SaveProfile()
 
 	JsonUtil.SetPathStringArray(ConfigPath, ".SortRulesActive", QLIE_SortRulesActive)
 
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTake", QLIE_KeybindingTake)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTransfer", QLIE_KeybindingTransfer)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
+
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconLOTDNew", QLIE_ShowIconLOTDNew as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconLOTDCarried", QLIE_ShowIconLOTDCarried as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconLOTDDisplayed", QLIE_ShowIconLOTDDisplayed as int)
@@ -1032,6 +1354,16 @@ function LoadProfile()
 
 	QLIE_SortRulesActive = JsonUtil.PathStringElements(ConfigPath, ".SortRulesActive", QLIE_SortRulesActive)
 
+	QLIE_KeybindingTake = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTake", QLIE_KeybindingTake)
+	QLIE_KeybindingTakeAll = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
+	QLIE_KeybindingTransfer = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTransfer", QLIE_KeybindingTransfer)
+	QLIE_KeybindingTakeModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
+	QLIE_KeybindingTakeAllModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
+	QLIE_KeybindingTransferModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
+	QLIE_KeybindingTakeGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
+	QLIE_KeybindingTakeAllGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
+	QLIE_KeybindingTransferGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
+
 	QLIE_ShowIconLOTDDisplayed = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconLOTDDisplayed", QLIE_ShowIconLOTDDisplayed as int)
 	QLIE_ShowIconLOTDCarried = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconLOTDCarried", QLIE_ShowIconLOTDCarried as int)
 	QLIE_ShowIconLOTDNew = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconLOTDNew", QLIE_ShowIconLOTDNew as int)
@@ -1056,5 +1388,4 @@ function AutoLoadConfig()
 
 	LoadProfile()
 	AutoLoadedProfile = true
-	UpdateVariables()
 endfunction

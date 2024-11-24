@@ -2,6 +2,7 @@
 
 #include "Behaviors/LockpickActivation.h"
 #include "Config/Papyrus.h"
+#include "Input/InputManager.h"
 
 namespace QuickLoot::Config
 {
@@ -14,6 +15,8 @@ namespace QuickLoot::Config
 		} else {
 			Behaviors::LockpickActivation::Unblock();
 		}
+
+		Input::InputManager::UpdateMappings();
 	}
 
 	bool Settings::ShowInCombat() { return QLIE_ShowInCombat; }
@@ -42,9 +45,61 @@ namespace QuickLoot::Config
 
 	const std::vector<std::string>& Settings::GetUserDefinedSortPriority() { return QLIE_SortRulesActive; }
 
+	std::vector<Input::Keybinding> Settings::GetKeybindings()
+	{
+		return {
+			GetKeybinding(QLIE_KeybindingTake, QLIE_KeybindingTakeModifier, Input::QuickLootAction::kTake),
+			GetKeybinding(QLIE_KeybindingTakeAll, QLIE_KeybindingTakeAllModifier, Input::QuickLootAction::kTakeAll),
+			GetKeybinding(QLIE_KeybindingTransfer, QLIE_KeybindingTransferModifier, Input::QuickLootAction::kTransfer),
+			GetKeybinding(QLIE_KeybindingTakeGamepad, 0, Input::QuickLootAction::kTake),
+			GetKeybinding(QLIE_KeybindingTakeAllGamepad, 0, Input::QuickLootAction::kTakeAll),
+			GetKeybinding(QLIE_KeybindingTransferGamepad, 0, Input::QuickLootAction::kTransfer),
+		};
+	}
+
 	bool Settings::ShowDBMDisplayed() { return QLIE_ShowIconLOTDDisplayed; }
 	bool Settings::ShowDBMFound() { return QLIE_ShowIconLOTDCarried; }
 	bool Settings::ShowDBMNew() { return QLIE_ShowIconLOTDNew; }
 	bool Settings::ShowCompNeeded() { return QLIE_ShowIconCompletionistNeeded; }
 	bool Settings::ShowCompCollected() { return QLIE_ShowIconCompletionistCollected; }
+
+	Input::Keybinding Settings::GetKeybinding(int skseKey, int modifierType, Input::QuickLootAction action)
+	{
+		Input::ModifierKeys modifiers = ModifierTypeToModifierKeys(modifierType);
+		Input::DeviceType deviceType;
+		uint16_t keyCode;
+		SkseKeyToDeviceKey(skseKey, deviceType, keyCode);
+
+		return Input::Keybinding{ Input::ControlGroup::kButtonBar, deviceType, keyCode, modifiers, action, false };
+	}
+
+	Input::ModifierKeys Settings::ModifierTypeToModifierKeys(int modifierType)
+	{
+		switch (modifierType) {
+		case 1:
+			return Input::ModifierKeys::kNone;
+		case 2:
+			return Input::ModifierKeys::kShift;
+		case 3:
+			return Input::ModifierKeys::kControl;
+		case 4:
+			return Input::ModifierKeys::kAlt;
+		default:
+			return Input::ModifierKeys::kIgnore;
+		}
+	}
+
+	void Settings::SkseKeyToDeviceKey(int skseKey, Input::DeviceType& deviceType, uint16_t& keyCode)
+	{
+		if (skseKey >= 266) {
+			deviceType = Input::DeviceType::kGamepad;
+			keyCode = static_cast<uint16_t>(SKSE::InputMap::GamepadKeycodeToMask(skseKey));
+		} else if (skseKey >= 256) {
+			deviceType = Input::DeviceType::kMouse;
+			keyCode = static_cast<uint16_t>(skseKey - 256);
+		} else {
+			deviceType = Input::DeviceType::kKeyboard;
+			keyCode = static_cast<uint16_t>(skseKey);
+		}
+	}
 }

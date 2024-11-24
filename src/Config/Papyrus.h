@@ -32,6 +32,16 @@ namespace QuickLoot::Config
 
 	inline std::vector<std::string> QLIE_SortRulesActive;
 
+	inline int QLIE_KeybindingTake;
+	inline int QLIE_KeybindingTakeAll;
+	inline int QLIE_KeybindingTransfer;
+	inline int QLIE_KeybindingTakeModifier;
+	inline int QLIE_KeybindingTakeAllModifier;
+	inline int QLIE_KeybindingTransferModifier;
+	inline int QLIE_KeybindingTakeGamepad;
+	inline int QLIE_KeybindingTakeAllGamepad;
+	inline int QLIE_KeybindingTransferGamepad;
+
 	inline bool QLIE_ShowIconLOTDNew;
 	inline bool QLIE_ShowIconLOTDCarried;
 	inline bool QLIE_ShowIconLOTDDisplayed;

@@ -1,4 +1,5 @@
 #pragma once
+#include "Input/Input.h"
 
 namespace QuickLoot::Config
 {
@@ -53,10 +54,17 @@ namespace QuickLoot::Config
 
 		static const std::vector<std::string>& GetUserDefinedSortPriority();
 
+		static std::vector<Input::Keybinding> GetKeybindings();
+
 		static bool ShowDBMDisplayed();
 		static bool ShowDBMFound();
 		static bool ShowDBMNew();
 		static bool ShowCompNeeded();
 		static bool ShowCompCollected();
+
+	private:
+		static Input::Keybinding GetKeybinding(int skseKey, int modifierType, Input::QuickLootAction action);
+		static Input::ModifierKeys ModifierTypeToModifierKeys(int modifierType);
+		static void SkseKeyToDeviceKey(int skseKey, Input::DeviceType& deviceType, uint16_t& keyCode);
 	};
 }

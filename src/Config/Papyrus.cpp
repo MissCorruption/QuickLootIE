@@ -75,6 +75,17 @@ namespace QuickLoot::Config
 		// Sorting
 		LoadSetting(QLIE_SortRulesActive,					"QLIE_SortRulesActive", {});
 
+		// Controls
+		LoadSetting(QLIE_KeybindingTake,					"QLIE_KeybindingTake", 18);
+		LoadSetting(QLIE_KeybindingTakeAll,					"QLIE_KeybindingTakeAll", 19);
+		LoadSetting(QLIE_KeybindingTransfer,				"QLIE_KeybindingTransfer", 16);
+		LoadSetting(QLIE_KeybindingTakeModifier,			"QLIE_KeybindingTakeModifier", 0);
+		LoadSetting(QLIE_KeybindingTakeAllModifier,			"QLIE_KeybindingTakeAllModifier", 0);
+		LoadSetting(QLIE_KeybindingTransferModifier,		"QLIE_KeybindingTransferModifier", 0);
+		LoadSetting(QLIE_KeybindingTakeGamepad,				"QLIE_KeybindingTakeGamepad", 276);
+		LoadSetting(QLIE_KeybindingTakeAllGamepad,			"QLIE_KeybindingTakeAllGamepad", 278);
+		LoadSetting(QLIE_KeybindingTransferGamepad,			"QLIE_KeybindingTransferGamepad", 271);
+
 		// Compatibility > LOTD Icons
 		LoadSetting(QLIE_ShowIconLOTDNew,					"QLIE_ShowIconLOTDNew", false);
 		LoadSetting(QLIE_ShowIconLOTDCarried,				"QLIE_ShowIconLOTDCarried", false);
