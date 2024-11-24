@@ -45,13 +45,11 @@ namespace QuickLoot
 
 	void LootMenuManager::RequestClose()
 	{
-		if (IsOpen()) {
-			RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
+		RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 
-			Behaviors::ActivationPrompt::Unblock();
-			Input::InputManager::UnblockConflictingInputs();
-			Input::InputObserver::StopListening();
-		}
+		Behaviors::ActivationPrompt::Unblock();
+		Input::InputManager::UnblockConflictingInputs();
+		Input::InputObserver::StopListening();
 
 		Behaviors::ContainerAnimator::CloseContainer(_currentContainer);
 		_currentContainer.reset();
