@@ -52,6 +52,8 @@ namespace QuickLoot::Config
 		static bool ShowIconEnchantedKnown();
 		static bool ShowIconEnchantedSpecial();
 
+		static std::vector<std::string> GetInfoColumns();
+
 		static const std::vector<std::string>& GetUserDefinedSortPriority();
 
 		static std::vector<Input::Keybinding> GetKeybindings();

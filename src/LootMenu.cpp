@@ -166,9 +166,9 @@ namespace QuickLoot
 		RE::GFxValue infoColumns{};
 		uiMovie->CreateArray(&infoColumns);
 
-		infoColumns.PushBack("value");
-		infoColumns.PushBack("weight");
-		infoColumns.PushBack("valuePerWeight");
+		for (const auto& column : Settings::GetInfoColumns()) {
+			infoColumns.PushBack(column.c_str());
+		}
 
 		settings.SetMember("infoColumns", infoColumns);
 

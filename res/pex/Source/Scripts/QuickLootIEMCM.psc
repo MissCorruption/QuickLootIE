@@ -45,6 +45,12 @@ bool property QLIE_ShowIconEnchanted = true auto hidden
 bool property QLIE_ShowIconEnchantedKnown = true auto hidden
 bool property QLIE_ShowIconEnchantedSpecial = true auto hidden
 
+; Display > Info Columns
+string[] property QLIE_InfoColumns auto hidden
+int InfoColumnPresetIndex = 2
+string[] InfoColumnPresetNames
+string[] InfoColumnPresetStrings
+
 ; Sorting
 string[] property QLIE_SortRulesActive auto hidden
 string[] SortRulesAvailable			; Options available for insertion
@@ -207,33 +213,36 @@ endfunction
 
 function BuildDisplayPage()
 	InitWindowAnchorNames()
+	InitInfoColumnPresetData()
 	SetCursorFillMode(TOP_TO_BOTTOM)
 
 	SetCursorPosition(0)
 	AddHeaderOption("$qlie_WindowSettingsHeader")
+	AddMenuOptionST("state_WindowAnchor",				"$qlie_WindowAnchor_text",				WindowAnchorNames[QLIE_WindowAnchor])
 	AddSliderOptionST("state_WindowOffsetX",			"$qlie_WindowOffsetX_text",				QLIE_WindowOffsetX, "{0}")
 	AddSliderOptionST("state_WindowOffsetY",			"$qlie_WindowOffsetY_text",				QLIE_WindowOffsetY, "{0}")
 	AddSliderOptionST("state_WindowScale",				"$qlie_WindowScale_text",				QLIE_WindowScale, "{1}")
-	AddMenuOptionST("state_WindowAnchor",				"$qlie_WindowAnchor_text",				WindowAnchorNames[QLIE_WindowAnchor])
-
-	SetCursorPosition(1)
-	AddHeaderOption("")
-	AddSliderOptionST("state_WindowMinLines",			"$qlie_WindowMinLines_text",			QLIE_WindowMinLines, "{0}")
-	AddSliderOptionST("state_WindowMaxLines",			"$qlie_WindowMaxLines_text",			QLIE_WindowMaxLines, "{0}")
 	AddSliderOptionST("state_WindowOpacityNormal",		"$qlie_WindowOpacityNormal_text",		QLIE_WindowOpacityNormal, "{1}")
 	AddSliderOptionST("state_WindowOpacityEmpty",		"$qlie_WindowOpacityEmpty_text",		QLIE_WindowOpacityEmpty, "{1}")
+	AddSliderOptionST("state_WindowMinLines",			"$qlie_WindowMinLines_text",			QLIE_WindowMinLines, "{0}")
+	AddSliderOptionST("state_WindowMaxLines",			"$qlie_WindowMaxLines_text",			QLIE_WindowMaxLines, "{0}")
 
-	SetCursorPosition(12)
+	SetCursorPosition(1)
 	AddHeaderOption("$qlie_IconSettingsHeader")
 	AddTextOptionST("state_ShowIconRead",				"$qlie_ShowIconRead_text",				GetEnabledStatusText(QLIE_ShowIconRead))
 	AddTextOptionST("state_ShowIconStolen",				"$qlie_ShowIconStolen_text",			GetEnabledStatusText(QLIE_ShowIconStolen))
-	AddEmptyOption()
-
-	SetCursorPosition(13)
-	AddHeaderOption("")
 	AddTextOptionST("state_ShowIconEnchanted",			"$qlie_ShowIconEnchanted_text",			GetEnabledStatusText(QLIE_ShowIconEnchanted))
 	AddTextOptionST("state_ShowIconEnchantedKnown",		"$qlie_ShowIconEnchantedKnown_text",	GetEnabledStatusText(QLIE_ShowIconEnchantedKnown))
 	AddTextOptionST("state_ShowIconEnchantedSpecial",	"$qlie_ShowIconEnchantedSpecial_text",	GetEnabledStatusText(QLIE_ShowIconEnchantedSpecial))
+
+	AddEmptyOption()
+	AddHeaderOption("$qlie_InfoColumnLayoutHeader")
+	if InfoColumnPresetIndex < 0
+		AddMenuOptionST("state_InfoColumnPreset",		"$qlie_InfoColumnPreset_text",			"$qlie_InfoColumnPreset_custom")
+	else
+		AddMenuOptionST("state_InfoColumnPreset",		"$qlie_InfoColumnString_text",			InfoColumnPresetNames[InfoColumnPresetIndex])
+	endif
+	AddInputOptionST("state_InfoColumnString",			"$qlie_InfoColumnString_text",			"$qlie_InfoColumnString_button")
 endfunction
 
 function BuildSortingPage()
@@ -306,8 +315,8 @@ function BuildControlsPage()
 	endif
 
 	SetCursorPosition(12)
-	AddHeaderOption("")
 	AddHeaderOption("$qlie_ControlPresetsHeader")
+	AddHeaderOption("")
 	AddEmptyOption()
 	AddTextOptionST("state_ControlReset",				"", "$qlie_ControlReset_text")
 
@@ -359,13 +368,18 @@ function InitWindowAnchorNames()
 	WindowAnchorNames[8] = "$qlie_WindowAnchor_name8"
 endfunction
 
-function InitModifierOptions()
-	KeyModifierOptions = new string[5]
-	KeyModifierOptions[0] = "$qlie_ModifierKey_ignore"
-	KeyModifierOptions[1] = "$qlie_ModifierKey_none"
-	KeyModifierOptions[2] = "$qlie_ModifierKey_shift"
-	KeyModifierOptions[3] = "$qlie_ModifierKey_control"
-	KeyModifierOptions[4] = "$qlie_ModifierKey_alt"
+function InitInfoColumnPresetData()
+	InfoColumnPresetNames = new string[4]
+	InfoColumnPresetNames[0] = "$qlie_InfoColumnPreset_v_w_vpw"
+	InfoColumnPresetNames[1] = "$qlie_InfoColumnPreset_v_vpw_w"
+	InfoColumnPresetNames[2] = "$qlie_InfoColumnPreset_v_w"
+	InfoColumnPresetNames[3] = "$qlie_InfoColumnPreset_none"
+
+	InfoColumnPresetStrings = new string[4]
+	InfoColumnPresetStrings[0] = "value,weight,valuePerWeight"
+	InfoColumnPresetStrings[1] = "value,valuePerWeight,weight"
+	InfoColumnPresetStrings[2] = "value,weight"
+	InfoColumnPresetStrings[3] = ""
 endfunction
 
 function InitSortPresetList()
@@ -393,6 +407,15 @@ function InitSortRuleLists(bool forceReset = false)
 	; Remove entries from available list if they are in the active list
 	SortRulesAvailable = FormatSortOptionsList(SortRulesAvailable, QLIE_SortRulesActive)
 	SortRulesActiveIds = Utility.CreateIntArray(QLIE_SortRulesActive.Length, -1)
+endfunction
+
+function InitModifierOptions()
+	KeyModifierOptions = new string[5]
+	KeyModifierOptions[0] = "$qlie_ModifierKey_ignore"
+	KeyModifierOptions[1] = "$qlie_ModifierKey_none"
+	KeyModifierOptions[2] = "$qlie_ModifierKey_shift"
+	KeyModifierOptions[3] = "$qlie_ModifierKey_control"
+	KeyModifierOptions[4] = "$qlie_ModifierKey_alt"
 endfunction
 
 function InitControlPresets()
@@ -777,6 +800,79 @@ state state_ShowIconEnchantedSpecial
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconEnchantedSpecial))
 	endevent
 endstate
+
+;---------------------------------------------------
+;-- Display > Info Columns -------------------------
+;---------------------------------------------------
+
+state state_InfoColumnPreset
+	event OnMenuOpenST()
+		SetMenuDialogDefaultIndex(2)
+		SetMenuDialogStartIndex(InfoColumnPresetIndex)
+		SetMenuDialogOptions(InfoColumnPresetNames)
+	endevent
+
+	event OnMenuAcceptST(int presetIndex)
+		SetInfoColumns(InfoColumnPresetStrings[presetIndex], presetIndex)
+	endevent
+
+	event OnDefaultST()
+		SetInfoColumns(InfoColumnPresetStrings[0], 0) ; Default
+	endevent
+endstate
+
+state state_InfoColumnString
+	event OnInputOpenST()
+		SetInputDialogStartText(StringJoin(QLIE_InfoColumns))
+	endevent
+
+	event OnInputAcceptST(string input)
+		SetInfoColumns(input, -1) ; Custom
+	endevent
+
+	event OnDefaultST()
+		SetInfoColumns(InfoColumnPresetStrings[0], 0) ; Default
+	endevent
+endstate
+
+function SetInfoColumns(string infoColumnsString, int presetIndex) ; Pass presetIndex = -1 to validate and auto detect
+	string[] columns = StringSplit(infoColumnsString)
+
+	if GetLength(infoColumnsString) == 0
+		columns = None
+	endif
+
+	if presetIndex < 0
+		if !ValidateInfoColumns(columns)
+			return
+		endif
+
+		presetIndex = InfoColumnPresetStrings.Find(infoColumnsString)
+	endif
+
+	InfoColumnPresetIndex = presetIndex
+	if presetIndex < 0
+		SetMenuOptionValueST("$qlie_InfoColumnPreset_custom", false, "state_InfoColumnPreset")
+	else
+		SetMenuOptionValueST(InfoColumnPresetNames[InfoColumnPresetIndex], false, "state_InfoColumnPreset")
+	endif
+
+	QLIE_InfoColumns = columns
+endfunction
+
+bool function ValidateInfoColumns(string[] columns)
+	int i = 0
+	while i < columns.Length
+		string col = columns[i]
+		if col != "value" && col != "weight" && col != "valuePerWeight"
+			ShowMsg("Invalid info column name: " + col)
+			return false
+		endif
+		i += 1
+	endwhile
+
+	return true
+endfunction
 
 ;---------------------------------------------------
 ;-- Sorting ----------------------------------------
@@ -1276,6 +1372,8 @@ function SaveProfile()
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconEnchantedKnown", QLIE_ShowIconEnchantedKnown as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconEnchantedSpecial", QLIE_ShowIconEnchantedSpecial as int)
 
+	JsonUtil.SetPathStringArray(ConfigPath, ".InfoColumns", QLIE_InfoColumns)
+
 	JsonUtil.SetPathStringArray(ConfigPath, ".SortRulesActive", QLIE_SortRulesActive)
 
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTake", QLIE_KeybindingTake)
@@ -1352,6 +1450,8 @@ function LoadProfile()
 	QLIE_ShowIconEnchantedKnown = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconEnchantedKnown", QLIE_ShowIconEnchantedKnown as int)
 	QLIE_ShowIconEnchantedSpecial = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconEnchantedSpecial", QLIE_ShowIconEnchantedSpecial as int)
 
+	QLIE_InfoColumns = JsonUtil.PathStringElements(ConfigPath, ".InfoColumns", QLIE_InfoColumns)
+
 	QLIE_SortRulesActive = JsonUtil.PathStringElements(ConfigPath, ".SortRulesActive", QLIE_SortRulesActive)
 
 	QLIE_KeybindingTake = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTake", QLIE_KeybindingTake)
@@ -1385,6 +1485,12 @@ function AutoLoadConfig()
 	if AutoLoadedProfile
 		return
 	endif
+
+	; Initialize QLIE_InfoColumns here since array properties can't have a default value
+	QLIE_InfoColumns = new string[3]
+	QLIE_InfoColumns[0] = "value"
+	QLIE_InfoColumns[1] = "weight"
+	QLIE_InfoColumns[2] = "valuePerWeight"
 
 	LoadProfile()
 	AutoLoadedProfile = true

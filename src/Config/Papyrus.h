@@ -30,6 +30,8 @@ namespace QuickLoot::Config
 	inline bool QLIE_ShowIconEnchantedKnown;
 	inline bool QLIE_ShowIconEnchantedSpecial;
 
+	inline std::vector<std::string> QLIE_InfoColumns;
+
 	inline std::vector<std::string> QLIE_SortRulesActive;
 
 	inline int QLIE_KeybindingTake;

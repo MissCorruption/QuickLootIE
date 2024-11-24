@@ -72,6 +72,9 @@ namespace QuickLoot::Config
 		LoadSetting(QLIE_ShowIconEnchantedKnown,			"QLIE_ShowIconEnchantedKnown", true);
 		LoadSetting(QLIE_ShowIconEnchantedSpecial,			"QLIE_ShowIconEnchantedSpecial", true);
 
+		// Display > Info Columns
+		LoadSetting(QLIE_InfoColumns,						"QLIE_InfoColumns", { "value", "weight", "valuePerWeight" });
+
 		// Sorting
 		LoadSetting(QLIE_SortRulesActive,					"QLIE_SortRulesActive", {});
 

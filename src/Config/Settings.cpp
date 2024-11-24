@@ -43,6 +43,8 @@ namespace QuickLoot::Config
 	bool Settings::ShowIconEnchantedKnown() { return QLIE_ShowIconEnchantedKnown; }
 	bool Settings::ShowIconEnchantedSpecial() { return QLIE_ShowIconEnchantedSpecial; }
 
+	std::vector<std::string> Settings::GetInfoColumns() { return QLIE_InfoColumns; }
+
 	const std::vector<std::string>& Settings::GetUserDefinedSortPriority() { return QLIE_SortRulesActive; }
 
 	std::vector<Input::Keybinding> Settings::GetKeybindings()
