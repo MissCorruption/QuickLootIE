@@ -1055,12 +1055,12 @@ namespace QuickLoot::Items
 		value.SetMember("iconLabel", GetItemIconLabel(GetItemType()));
 
 		value.SetMember("stolen", IsStolen());
-	    value.SetMember("read", Settings::ShowBookRead() && IsRead());
+	    value.SetMember("read", Settings::ShowIconRead() && IsRead());
 
-		if (Settings::ShowEnchanted()) {
+		if (Settings::ShowIconEnchanted()) {
 			value.SetMember("enchanted", IsEnchanted());
-			value.SetMember("knownEnchanted", IsKnownEnchanted());
-			value.SetMember("specialEnchanted", IsSpecialEnchanted());
+			value.SetMember("knownEnchanted", Settings::ShowIconEnchantedKnown() && IsKnownEnchanted());
+			value.SetMember("specialEnchanted", Settings::ShowIconEnchantedSpecial() && IsSpecialEnchanted());
 		}
 
 		if (LOTD::IsReady()) {

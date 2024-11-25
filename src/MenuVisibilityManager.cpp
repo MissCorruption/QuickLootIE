@@ -44,10 +44,10 @@ namespace QuickLoot
 			return true;
 
 		case RE::CameraState::kThirdPerson:
-			return Settings::EnableInThirdPersonView();
+			return Settings::ShowInThirdPersonView();
 
 		case RE::CameraState::kMount:
-			return Settings::EnableWhenMounted();
+			return Settings::ShowWhenMounted();
 
 		default:
 			return false;
@@ -91,7 +91,7 @@ namespace QuickLoot
 			return false;
 		}
 
-		if (!Settings::EnableInCombat() && player->IsInCombat()) {
+		if (!Settings::ShowInCombat() && player->IsInCombat()) {
 			logger::debug("LootMenu disabled because player is in combat");
 			return false;
 		}
@@ -242,7 +242,7 @@ namespace QuickLoot
 	{
 		logger::trace("OnLockChanged: {:08X}", container.GetFormID());
 
-		if (Settings::EnableAfterUnlocking() && container.GetHandle() == _focusedRef) {
+		if (Settings::ShowWhenUnlocked() && container.GetHandle() == _focusedRef) {
 			RefreshOpenState();
 		}
 	}
@@ -256,11 +256,11 @@ namespace QuickLoot
 			return;
 		}
 
-		if (!opening && menuName == RE::LockpickingMenu::MENU_NAME && !Settings::EnableAfterUnlocking()) {
+		if (!opening && menuName == RE::LockpickingMenu::MENU_NAME && !Settings::ShowWhenUnlocked()) {
 			// Without this the activation prompt will continue to show the container as locked
 			RE::PlayerCharacter::GetSingleton()->UpdateCrosshairs();
 
-			// Don't refresh open state when EnableAfterUnlocking is false
+			// Don't refresh open state when ShowWhenUnlocked is false
 			return;
 		}
 

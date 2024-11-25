@@ -1,4 +1,4 @@
-FormKey: 000805:QuickLootIE.esp
+FormKey: 000001:QuickLootIE.esp
 EditorID: MCMQuickLootIE
 VirtualMachineAdapter:
   Scripts:
@@ -6,24 +6,25 @@ VirtualMachineAdapter:
   - Name: QuickLootIEMCM
     Properties:
     - MutagenObjectType: ScriptStringProperty
-      Name: modname
+      Name: ModName
       Data: Quickloot IE
     - MutagenObjectType: ScriptObjectProperty
-      Name: QLIEMaintenance
-      Object: 000805:QuickLootIE.esp
+      Name: MaintenanceScript
+      Object: 000001:QuickLootIE.esp
+  - Name: QuickLootIENative
   FileName: ''
   Aliases:
   - Property:
       Name: ''
-      Object: 000805:QuickLootIE.esp
+      Object: 000001:QuickLootIE.esp
       Alias: 0
     Scripts:
     - Name: SKI_PlayerLoadGameAlias
     - Name: QuicklootIELoad
       Properties:
       - MutagenObjectType: ScriptObjectProperty
-        Name: QLIEAPI
-        Object: 000805:QuickLootIE.esp
+        Name: MaintenanceScript
+        Object: 000001:QuickLootIE.esp
 Flags:
 - StartGameEnabled
 - 0x10

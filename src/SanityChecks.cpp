@@ -21,7 +21,7 @@ bool QuickLoot::SanityChecks::ValidatePlugins()
 {
 	logger::info("Checking plugins...");
 
-	if (!Util::FormUtil::FormExists("QuickLootIE.esp", 0x805)) {
+	if (!Util::FormUtil::FormExists("QuickLootIE.esp", 0x001)) {
 		logger::error("MCM quest not found");
 
 		ShowFatalError(
