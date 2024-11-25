@@ -84,7 +84,7 @@ bool property QLIE_ShowIconCompletionistNeeded = true auto hidden
 bool property QLIE_ShowIconCompletionistCollected = true auto hidden
 
 ;---------------------------------------------------
-;-- Initialization ---------------------------------
+;-- SkyUI Events -----------------------------------
 ;---------------------------------------------------
 
 event OnConfigInit()
@@ -92,14 +92,14 @@ event OnConfigInit()
 endevent
 
 event OnConfigOpen()
+	Initialize()
+
 	Pages = new string[5]
 	Pages[0] = "$qlie_GeneralPage"
 	Pages[1] = "$qlie_DisplayPage"
 	Pages[2] = "$qlie_SortingPage"
 	Pages[3] = "$qlie_ControlsPage"
 	Pages[4] = "$qlie_CompatibilityPage"
-
-	GamepadMode = Game.UsingGamepad()
 endevent
 
 event OnPageReset(string page)
@@ -128,6 +128,93 @@ event OnPageReset(string page)
 		return
 	endif
 endevent
+
+;---------------------------------------------------
+;-- Initialization ---------------------------------
+;---------------------------------------------------
+
+function Initialize()
+	InitWindowAnchorNames()
+	InitInfoColumnPresetData()
+	InitSortPresetList()
+	InitSortRuleLists()
+	InitModifierOptions()
+	InitControlPresets()
+
+	GamepadMode = Game.UsingGamepad()
+endfunction
+
+function InitWindowAnchorNames()
+	WindowAnchorNames = new string[9]
+	WindowAnchorNames[0] = "$qlie_WindowAnchor_name0"
+	WindowAnchorNames[1] = "$qlie_WindowAnchor_name1"
+	WindowAnchorNames[2] = "$qlie_WindowAnchor_name2"
+	WindowAnchorNames[3] = "$qlie_WindowAnchor_name3"
+	WindowAnchorNames[4] = "$qlie_WindowAnchor_name4"
+	WindowAnchorNames[5] = "$qlie_WindowAnchor_name5"
+	WindowAnchorNames[6] = "$qlie_WindowAnchor_name6"
+	WindowAnchorNames[7] = "$qlie_WindowAnchor_name7"
+	WindowAnchorNames[8] = "$qlie_WindowAnchor_name8"
+endfunction
+
+function InitInfoColumnPresetData()
+	InfoColumnPresetNames = new string[4]
+	InfoColumnPresetNames[0] = "$qlie_InfoColumnPreset_v_w_vpw"
+	InfoColumnPresetNames[1] = "$qlie_InfoColumnPreset_v_vpw_w"
+	InfoColumnPresetNames[2] = "$qlie_InfoColumnPreset_v_w"
+	InfoColumnPresetNames[3] = "$qlie_InfoColumnPreset_none"
+
+	InfoColumnPresetStrings = new string[4]
+	InfoColumnPresetStrings[0] = "value,weight,valuePerWeight"
+	InfoColumnPresetStrings[1] = "value,valuePerWeight,weight"
+	InfoColumnPresetStrings[2] = "value,weight"
+	InfoColumnPresetStrings[3] = ""
+endfunction
+
+function InitSortPresetList()
+
+	; Grab presets from the DLL.
+	SortPresetNames = GetSortingPresets()
+	SortPredefinedPresetCount = SortPresetNames.Length
+
+	; Grab custom presets from the JSON Path
+	string[] custom_presets = JsonUtil.JsonInFolder(SortPresetPath)
+	if custom_presets.Length > 0
+		SortPresetNames = AddPresetsToArray(SortPresetNames, custom_presets)
+	endif
+endfunction
+
+function InitSortRuleLists(bool forceReset = false)
+	; Get Default List
+	SortRulesAvailable = GetSortingPreset(1)
+
+	; Reset to default on first load or if reset button is pressed.
+	if forceReset || QLIE_SortRulesActive.Length == 0
+		QLIE_SortRulesActive = SortRulesAvailable
+	endif
+
+	; Remove entries from available list if they are in the active list
+	SortRulesAvailable = FormatSortOptionsList(SortRulesAvailable, QLIE_SortRulesActive)
+	SortRulesActiveIds = Utility.CreateIntArray(QLIE_SortRulesActive.Length, -1)
+endfunction
+
+function InitModifierOptions()
+	KeyModifierOptions = new string[5]
+	KeyModifierOptions[0] = "$qlie_ModifierKey_ignore"
+	KeyModifierOptions[1] = "$qlie_ModifierKey_none"
+	KeyModifierOptions[2] = "$qlie_ModifierKey_shift"
+	KeyModifierOptions[3] = "$qlie_ModifierKey_control"
+	KeyModifierOptions[4] = "$qlie_ModifierKey_alt"
+endfunction
+
+function InitControlPresets()
+	ControlPresetNames = new string[2]
+	ControlPresetNames[0] = "Default (E, R, Q)"
+	ControlPresetNames[1] = "Fallout 4 Style (E, Shift+E, R)"
+	ControlPredefinedPresetCount = ControlPresetNames.Length
+
+	ControlPresetNames = MergeStringArray(ControlPresetNames, JsonUtil.JsonInFolder(ControlPresetPath))
+endfunction
 
 ;---------------------------------------------------
 ;-- Events -----------------------------------------
@@ -212,8 +299,6 @@ function BuildGeneralPage()
 endfunction
 
 function BuildDisplayPage()
-	InitWindowAnchorNames()
-	InitInfoColumnPresetData()
 	SetCursorFillMode(TOP_TO_BOTTOM)
 
 	SetCursorPosition(0)
@@ -246,9 +331,6 @@ function BuildDisplayPage()
 endfunction
 
 function BuildSortingPage()
-	InitSortPresetList()
-	InitSortRuleLists()
-
 	SetCursorFillMode(TOP_TO_BOTTOM)
 
 	SetCursorPosition(0)
@@ -286,9 +368,6 @@ function BuildSortingPage()
 endfunction
 
 function BuildControlsPage()
-	InitModifierOptions()
-	InitControlPresets()
-
 	SetCursorFillMode(LEFT_TO_RIGHT)
 
 	SetCursorPosition(0)
@@ -354,78 +433,6 @@ endfunction
 ;---------------------------------------------------
 ;-- Helper Functions -------------------------------
 ;---------------------------------------------------
-
-function InitWindowAnchorNames()
-	WindowAnchorNames = new string[9]
-	WindowAnchorNames[0] = "$qlie_WindowAnchor_name0"
-	WindowAnchorNames[1] = "$qlie_WindowAnchor_name1"
-	WindowAnchorNames[2] = "$qlie_WindowAnchor_name2"
-	WindowAnchorNames[3] = "$qlie_WindowAnchor_name3"
-	WindowAnchorNames[4] = "$qlie_WindowAnchor_name4"
-	WindowAnchorNames[5] = "$qlie_WindowAnchor_name5"
-	WindowAnchorNames[6] = "$qlie_WindowAnchor_name6"
-	WindowAnchorNames[7] = "$qlie_WindowAnchor_name7"
-	WindowAnchorNames[8] = "$qlie_WindowAnchor_name8"
-endfunction
-
-function InitInfoColumnPresetData()
-	InfoColumnPresetNames = new string[4]
-	InfoColumnPresetNames[0] = "$qlie_InfoColumnPreset_v_w_vpw"
-	InfoColumnPresetNames[1] = "$qlie_InfoColumnPreset_v_vpw_w"
-	InfoColumnPresetNames[2] = "$qlie_InfoColumnPreset_v_w"
-	InfoColumnPresetNames[3] = "$qlie_InfoColumnPreset_none"
-
-	InfoColumnPresetStrings = new string[4]
-	InfoColumnPresetStrings[0] = "value,weight,valuePerWeight"
-	InfoColumnPresetStrings[1] = "value,valuePerWeight,weight"
-	InfoColumnPresetStrings[2] = "value,weight"
-	InfoColumnPresetStrings[3] = ""
-endfunction
-
-function InitSortPresetList()
-
-	; Grab presets from the DLL.
-	SortPresetNames = GetSortingPresets()
-	SortPredefinedPresetCount = SortPresetNames.Length
-
-	; Grab custom presets from the JSON Path
-	string[] custom_presets = JsonUtil.JsonInFolder(SortPresetPath)
-	if custom_presets.Length > 0
-		SortPresetNames = AddPresetsToArray(SortPresetNames, custom_presets)
-	endif
-endfunction
-
-function InitSortRuleLists(bool forceReset = false)
-	; Get Default List
-	SortRulesAvailable = GetSortingPreset(1)
-
-	; Reset to default on first load or if reset button is pressed.
-	if forceReset || QLIE_SortRulesActive.Length == 0
-		QLIE_SortRulesActive = SortRulesAvailable
-	endif
-
-	; Remove entries from available list if they are in the active list
-	SortRulesAvailable = FormatSortOptionsList(SortRulesAvailable, QLIE_SortRulesActive)
-	SortRulesActiveIds = Utility.CreateIntArray(QLIE_SortRulesActive.Length, -1)
-endfunction
-
-function InitModifierOptions()
-	KeyModifierOptions = new string[5]
-	KeyModifierOptions[0] = "$qlie_ModifierKey_ignore"
-	KeyModifierOptions[1] = "$qlie_ModifierKey_none"
-	KeyModifierOptions[2] = "$qlie_ModifierKey_shift"
-	KeyModifierOptions[3] = "$qlie_ModifierKey_control"
-	KeyModifierOptions[4] = "$qlie_ModifierKey_alt"
-endfunction
-
-function InitControlPresets()
-	ControlPresetNames = new string[2]
-	ControlPresetNames[0] = "Default (E, R, Q)"
-	ControlPresetNames[1] = "Fallout 4 Style (E, Shift+E, R)"
-	ControlPredefinedPresetCount = ControlPresetNames.Length
-
-	ControlPresetNames = MergeStringArray(ControlPresetNames, JsonUtil.JsonInFolder(ControlPresetPath))
-endfunction
 
 string function GetEnabledStatusText(bool enabled, bool installed = true)
 	if !installed
@@ -1328,6 +1335,15 @@ function ResetSettings()
 	QLIE_ShowIconEnchantedKnown = true
 	QLIE_ShowIconEnchantedSpecial = true
 
+	; Display > Info Column Layout
+	SetInfoColumns(InfoColumnPresetStrings[0], 0)
+
+	; Sorting
+	LoadSortPreset(0)
+
+	; Controls
+	LoadControlPreset(0)
+
 	; Compatibility > LOTD Icons
 	QLIE_ShowIconLOTDNew = true
 	QLIE_ShowIconLOTDCarried = true
@@ -1486,12 +1502,7 @@ function AutoLoadConfig()
 		return
 	endif
 
-	; Initialize QLIE_InfoColumns here since array properties can't have a default value
-	QLIE_InfoColumns = new string[3]
-	QLIE_InfoColumns[0] = "value"
-	QLIE_InfoColumns[1] = "weight"
-	QLIE_InfoColumns[2] = "valuePerWeight"
-
+	Initialize()
 	LoadProfile()
 	AutoLoadedProfile = true
 endfunction
