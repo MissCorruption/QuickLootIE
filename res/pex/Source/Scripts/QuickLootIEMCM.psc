@@ -358,11 +358,10 @@ function BuildSortingPage()
 		AddMenuOptionST("state_SortInsert",		"", "$qlie_SortInsert_text", (SortRulesAvailable.Length == 0) as int)
 		AddTextOptionST("state_SortRemove",		"", "$qlie_SortRemove_text", OPTION_FLAG_DISABLED)
 	endif
-	AddTextOptionST("state_SortReset",			"", "$qlie_SortReset_text")
 
-	AddEmptyOption()
-	AddEmptyOption()
+	SetCursorPosition(13)
 	AddHeaderOption("$qlie_SortPresetsHeader")
+	AddTextOptionST("state_SortReset",			"", "$qlie_SortReset_text")
 	AddInputOptionST("state_SortPresetSave", 	"", "$qlie_SortPresetSave_text")
 	AddMenuOptionST("state_SortPresetLoad",		"", "$qlie_SortPresetLoad_text")
 endfunction
@@ -393,21 +392,16 @@ function BuildControlsPage()
 		AddMenuOptionST("state_ControlsTransferModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingTransferModifier])
 	endif
 
-	SetCursorPosition(12)
+	SetCursorFillMode(TOP_TO_BOTTOM)
+	SetCursorPosition(13)
 	AddHeaderOption("$qlie_ControlPresetsHeader")
-	AddHeaderOption("")
-	AddEmptyOption()
 	AddTextOptionST("state_ControlReset",				"", "$qlie_ControlReset_text")
 
 	if PapyrusUtil.GetScriptVersion() > 31
-		AddEmptyOption()
 		AddInputOptionST("state_ControlPresetSave",		"", "$qlie_ControlPresetSave_text")
-		AddEmptyOption()
 		AddMenuOptionST("state_ControlPresetLoad",		"", "$qlie_ControlPresetLoad_text")
 	else
-		AddEmptyOption()
 		AddInputOptionST("state_ControlPresetSave",		"", "$qlie_ControlPresetSave_text", OPTION_FLAG_DISABLED)
-		AddEmptyOption()
 		AddMenuOptionST("state_ControlPresetLoad",		"", "$qlie_ControlPresetLoad_text", OPTION_FLAG_DISABLED)
 	endif
 endfunction
