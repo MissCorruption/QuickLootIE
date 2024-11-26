@@ -100,6 +100,8 @@ event OnConfigOpen()
 	Pages[2] = "$qlie_SortingPage"
 	Pages[3] = "$qlie_ControlsPage"
 	Pages[4] = "$qlie_CompatibilityPage"
+
+	SendModEvent("SKICP_pageSelected", "$qlie_GeneralPage", 0) ; Select Geleral page
 endevent
 
 event OnPageReset(string page)
