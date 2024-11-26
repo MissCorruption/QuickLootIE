@@ -1,6 +1,5 @@
 #include "MenuVisibilityManager.h"
 
-#include "Config/Papyrus.h"
 #include "Config/Settings.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
@@ -45,10 +44,10 @@ namespace QuickLoot
 			return true;
 
 		case RE::CameraState::kThirdPerson:
-			return Settings::EnableInThirdPersonView();
+			return Settings::ShowInThirdPersonView();
 
 		case RE::CameraState::kMount:
-			return Settings::EnableWhenMounted();
+			return Settings::ShowWhenMounted();
 
 		default:
 			return false;
@@ -92,7 +91,7 @@ namespace QuickLoot
 			return false;
 		}
 
-		if (!Settings::EnableInCombat() && player->IsInCombat()) {
+		if (!Settings::ShowInCombat() && player->IsInCombat()) {
 			logger::debug("LootMenu disabled because player is in combat");
 			return false;
 		}
@@ -127,6 +126,11 @@ namespace QuickLoot
 			return false;
 		}
 
+		if (!_disablingMods.empty()) {
+			logger::debug("LootMenu disabled by {}", *_disablingMods.begin());
+			return false;
+		}
+
 		if (const auto actor = container->As<RE::Actor>()) {
 			if (!actor->IsDead()) {
 				logger::debug("LootMenu disabled because the actor isn't dead");
@@ -157,16 +161,16 @@ namespace QuickLoot
 		const auto container = GetContainerObject(_focusedRef);
 		if (CanOpen(container)) {
 			_currentContainer = container->GetHandle();
-			LootMenuManager::SetContainer(_currentContainer);
+			LootMenuManager::RequestOpen(_currentContainer);
 		} else {
 			_currentContainer.reset();
-			LootMenuManager::Close();
+			LootMenuManager::RequestClose();
 		}
 	}
 
 	void MenuVisibilityManager::RefreshInventory()
 	{
-		LootMenuManager::RefreshInventory();
+		LootMenuManager::RequestRefresh(RefreshFlags::kInventory);
 	}
 
 	void MenuVisibilityManager::InstallHooks()
@@ -178,6 +182,18 @@ namespace QuickLoot
 		Observers::LifeStateObserver::Install();
 		Observers::LockChangedObserver::Install();
 		Observers::MenuObserver::Install();
+	}
+
+	void MenuVisibilityManager::EnableLootMenu(const std::string& modName)
+	{
+		_disablingMods.insert(modName);
+		RefreshOpenState();
+	}
+
+	void MenuVisibilityManager::DisableLootMenu(const std::string& modName)
+	{
+		_disablingMods.erase(modName);
+		RefreshOpenState();
 	}
 
 	void MenuVisibilityManager::OnCameraStateChanged(RE::CameraState state)
@@ -226,7 +242,7 @@ namespace QuickLoot
 	{
 		logger::trace("OnLockChanged: {:08X}", container.GetFormID());
 
-		if (Settings::EnableAfterUnlocking() && container.GetHandle() == _focusedRef) {
+		if (Settings::ShowWhenUnlocked() && container.GetHandle() == _focusedRef) {
 			RefreshOpenState();
 		}
 	}
@@ -240,11 +256,11 @@ namespace QuickLoot
 			return;
 		}
 
-		if (!opening && menuName == RE::LockpickingMenu::MENU_NAME && !Settings::EnableAfterUnlocking()) {
+		if (!opening && menuName == RE::LockpickingMenu::MENU_NAME && !Settings::ShowWhenUnlocked()) {
 			// Without this the activation prompt will continue to show the container as locked
 			RE::PlayerCharacter::GetSingleton()->UpdateCrosshairs();
 
-			// Don't refresh open state when EnableAfterUnlocking is false
+			// Don't refresh open state when ShowWhenUnlocked is false
 			return;
 		}
 

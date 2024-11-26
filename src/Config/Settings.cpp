@@ -2,58 +2,106 @@
 
 #include "Behaviors/LockpickActivation.h"
 #include "Config/Papyrus.h"
+#include "Input/InputManager.h"
 
 namespace QuickLoot::Config
 {
-	std::shared_ptr<std::vector<std::string>> Settings::GetUserDefinedSortPriority()
-	{
-		return QLIESortPriorityStrings.size() == 0 ?
-		           std::make_shared<std::vector<std::string>>(Papyrus::GetSortingPreset(nullptr, 1)) :
-		           std::make_shared<std::vector<std::string>>(QLIESortPriorityStrings);
-	}
-
 	void Settings::Update()
 	{
 		Papyrus::UpdateVariables();
 
-		if (EnableAfterUnlocking()) {
+		if (ShowWhenUnlocked()) {
 			Behaviors::LockpickActivation::Block();
 		} else {
 			Behaviors::LockpickActivation::Unblock();
 		}
+
+		Input::InputManager::UpdateMappings();
 	}
 
-	bool Settings::EnableInCombat() { return !QLIECloseInCombat; }
-	bool Settings::EnableWhenEmpty() { return !QLIECloseWhenEmpty; }
-	bool Settings::EnableAfterUnlocking() { return QLIEOpenWhenContainerUnlocked; }
+	bool Settings::ShowInCombat() { return QLIE_ShowInCombat; }
+	bool Settings::ShowWhenEmpty() { return QLIE_ShowWhenEmpty; }
+	bool Settings::ShowWhenUnlocked() { return QLIE_ShowWhenUnlocked; }
+	bool Settings::ShowInThirdPersonView() { return QLIE_ShowInThirdPerson; }
+	bool Settings::ShowWhenMounted() { return QLIE_ShowWhenMounted; }
+	bool Settings::EnableForAnimals() { return QLIE_EnableForAnimals; }
+	bool Settings::EnableForDragons() { return QLIE_EnableForDragons; }
+	bool Settings::DispelInvisibility() { return QLIE_BreakInvisibility; }
 
-	bool Settings::EnableInThirdPersonView() { return true; }  // TODO implement
-	bool Settings::EnableWhenMounted() { return true; }        // TODO implement
+	int Settings::GetWindowX() { return QLIE_WindowOffsetX; }
+	int Settings::GetWindowY() { return QLIE_WindowOffsetY; }
+	float Settings::GetWindowScale() { return QLIE_WindowScale; }
+	AnchorPoint Settings::GetWindowAnchor() { return static_cast<AnchorPoint>(QLIE_WindowAnchor); }
+	int Settings::GetWindowMinLines() { return QLIE_WindowMinLines; }
+	int Settings::GetWindowMaxLines() { return QLIE_WindowMaxLines; }
+	float Settings::GetWindowOpacityNormal() { return QLIE_WindowOpacityNormal; }
+	float Settings::GetWindowOpacityEmpty() { return QLIE_WindowOpacityEmpty; }
 
-	bool Settings::EnableForAnimals() { return !QLIEDisableForAnimals; }
-	bool Settings::EnableForDragons() { return true; }  // TODO implement
+	bool Settings::ShowIconRead() { return QLIE_ShowIconRead; }
+	bool Settings::ShowIconStolen() { return QLIE_ShowIconStolen; }
+	bool Settings::ShowIconEnchanted() { return QLIE_ShowIconEnchanted; }
+	bool Settings::ShowIconEnchantedKnown() { return QLIE_ShowIconEnchantedKnown; }
+	bool Settings::ShowIconEnchantedSpecial() { return QLIE_ShowIconEnchantedSpecial; }
 
-	bool Settings::DispelInvisibility() { return QLIEDispelInvisibility; }
+	std::vector<std::string> Settings::GetInfoColumns() { return QLIE_InfoColumns; }
 
-	bool Settings::ShowBookRead() { return QLIEIconShowBookRead; }
-	bool Settings::ShowEnchanted() { return QLIEIconShowEnchanted; }
+	const std::vector<std::string>& Settings::GetUserDefinedSortPriority() { return QLIE_SortRulesActive; }
 
-	bool Settings::ShowDBMDisplayed() { return QLIEIconShowDBMDisplayed; }
-	bool Settings::ShowDBMFound() { return QLIEIconShowDBMFound; }
-	bool Settings::ShowDBMNew() { return QLIEIconShowDBMNew; }
+	std::vector<Input::Keybinding> Settings::GetKeybindings()
+	{
+		return {
+			GetKeybinding(QLIE_KeybindingTake, QLIE_KeybindingTakeModifier, Input::QuickLootAction::kTake),
+			GetKeybinding(QLIE_KeybindingTakeAll, QLIE_KeybindingTakeAllModifier, Input::QuickLootAction::kTakeAll),
+			GetKeybinding(QLIE_KeybindingTransfer, QLIE_KeybindingTransferModifier, Input::QuickLootAction::kTransfer),
+			GetKeybinding(QLIE_KeybindingTakeGamepad, 0, Input::QuickLootAction::kTake),
+			GetKeybinding(QLIE_KeybindingTakeAllGamepad, 0, Input::QuickLootAction::kTakeAll),
+			GetKeybinding(QLIE_KeybindingTransferGamepad, 0, Input::QuickLootAction::kTransfer),
+		};
+	}
 
-	bool Settings::ShowCompNeeded() { return QLIEShowCompNeeded; }
-	bool Settings::ShowCompCollected() { return QLIEShowCompCollected; }
+	bool Settings::ShowDBMDisplayed() { return QLIE_ShowIconLOTDDisplayed; }
+	bool Settings::ShowDBMFound() { return QLIE_ShowIconLOTDCarried; }
+	bool Settings::ShowDBMNew() { return QLIE_ShowIconLOTDNew; }
+	bool Settings::ShowCompNeeded() { return QLIE_ShowIconCompletionistNeeded; }
+	bool Settings::ShowCompCollected() { return QLIE_ShowIconCompletionistCollected; }
 
-	AnchorPoint Settings::GetAnchorPoint() { return static_cast<AnchorPoint>(QLIEAnchorPoint); }
-	int32_t Settings::GetWindowX() { return QLIEWindowX; }
-	int32_t Settings::GetWindowY() { return QLIEWindowY; }
-	float Settings::GetWindowScale() { return QLIEWindowScale; }
+	Input::Keybinding Settings::GetKeybinding(int skseKey, int modifierType, Input::QuickLootAction action)
+	{
+		Input::ModifierKeys modifiers = ModifierTypeToModifierKeys(modifierType);
+		Input::DeviceType deviceType;
+		uint16_t keyCode;
+		SkseKeyToDeviceKey(skseKey, deviceType, keyCode);
 
-	int32_t Settings::GetMinLines() { return QLIEMinLines; }
-	int32_t Settings::GetMaxLines() { return QLIEMaxLines; }
+		return Input::Keybinding{ Input::ControlGroup::kButtonBar, deviceType, keyCode, modifiers, action, false };
+	}
 
-	float Settings::GetNormalWindowTransparency() { return QLIETransparency_Normal; }
-	float Settings::GetEmptyWindowTransparency() { return QLIETransparency_Empty; }
+	Input::ModifierKeys Settings::ModifierTypeToModifierKeys(int modifierType)
+	{
+		switch (modifierType) {
+		case 1:
+			return Input::ModifierKeys::kNone;
+		case 2:
+			return Input::ModifierKeys::kShift;
+		case 3:
+			return Input::ModifierKeys::kControl;
+		case 4:
+			return Input::ModifierKeys::kAlt;
+		default:
+			return Input::ModifierKeys::kIgnore;
+		}
+	}
 
+	void Settings::SkseKeyToDeviceKey(int skseKey, Input::DeviceType& deviceType, uint16_t& keyCode)
+	{
+		if (skseKey >= 266) {
+			deviceType = Input::DeviceType::kGamepad;
+			keyCode = static_cast<uint16_t>(SKSE::InputMap::GamepadKeycodeToMask(skseKey));
+		} else if (skseKey >= 256) {
+			deviceType = Input::DeviceType::kMouse;
+			keyCode = static_cast<uint16_t>(skseKey - 256);
+		} else {
+			deviceType = Input::DeviceType::kKeyboard;
+			keyCode = static_cast<uint16_t>(skseKey);
+		}
+	}
 }

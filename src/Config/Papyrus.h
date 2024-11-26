@@ -6,34 +6,50 @@ namespace QuickLoot::Config
 {
 	static Util::ScriptObject MCMScript;
 
-	inline bool QLIECloseInCombat;
-	inline bool QLIECloseWhenEmpty;
-	inline bool QLIEDispelInvisibility;
-	inline bool QLIEOpenWhenContainerUnlocked;
-	inline bool QLIEDisableForAnimals;
+	inline bool QLIE_ShowInCombat;
+	inline bool QLIE_ShowWhenEmpty;
+	inline bool QLIE_ShowWhenUnlocked;
+	inline bool QLIE_ShowInThirdPerson;
+	inline bool QLIE_ShowWhenMounted;
+	inline bool QLIE_EnableForAnimals;
+	inline bool QLIE_EnableForDragons;
+	inline bool QLIE_BreakInvisibility;
 
-	inline bool QLIEIconShowBookRead;
-	inline bool QLIEIconShowEnchanted;
+	inline int QLIE_WindowOffsetX;
+	inline int QLIE_WindowOffsetY;
+	inline float QLIE_WindowScale;
+	inline int QLIE_WindowAnchor;
+	inline int QLIE_WindowMinLines;
+	inline int QLIE_WindowMaxLines;
+	inline float QLIE_WindowOpacityNormal;
+	inline float QLIE_WindowOpacityEmpty;
 
-	inline bool QLIEIconShowDBMDisplayed;
-	inline bool QLIEIconShowDBMFound;
-	inline bool QLIEIconShowDBMNew;
+	inline bool QLIE_ShowIconRead;
+	inline bool QLIE_ShowIconStolen;
+	inline bool QLIE_ShowIconEnchanted;
+	inline bool QLIE_ShowIconEnchantedKnown;
+	inline bool QLIE_ShowIconEnchantedSpecial;
 
-	inline bool QLIEShowCompNeeded;
-	inline bool QLIEShowCompCollected;
+	inline std::vector<std::string> QLIE_InfoColumns;
 
-	inline int32_t QLIEAnchorPoint;
-	inline int32_t QLIEWindowX;
-	inline int32_t QLIEWindowY;
-	inline float QLIEWindowScale;
+	inline std::vector<std::string> QLIE_SortRulesActive;
 
-	inline int32_t QLIEMinLines;
-	inline int32_t QLIEMaxLines;
+	inline int QLIE_KeybindingTake;
+	inline int QLIE_KeybindingTakeAll;
+	inline int QLIE_KeybindingTransfer;
+	inline int QLIE_KeybindingTakeModifier;
+	inline int QLIE_KeybindingTakeAllModifier;
+	inline int QLIE_KeybindingTransferModifier;
+	inline int QLIE_KeybindingTakeGamepad;
+	inline int QLIE_KeybindingTakeAllGamepad;
+	inline int QLIE_KeybindingTransferGamepad;
 
-	inline float QLIETransparency_Normal;
-	inline float QLIETransparency_Empty;
+	inline bool QLIE_ShowIconLOTDNew;
+	inline bool QLIE_ShowIconLOTDCarried;
+	inline bool QLIE_ShowIconLOTDDisplayed;
 
-	inline std::vector<std::string> QLIESortPriorityStrings;
+	inline bool QLIE_ShowIconCompletionistNeeded;
+	inline bool QLIE_ShowIconCompletionistCollected;
 
 	class Papyrus
 	{
@@ -46,21 +62,21 @@ namespace QuickLoot::Config
 		Papyrus& operator=(Papyrus&&) = delete;
 
 		static void Init();
-		static void SetFrameworkQuest(RE::StaticFunctionTag*, RE::TESQuest* a_quest);
-		static void LogWithPlugin(RE::StaticFunctionTag*, std::string a_message);
+		static void SetFrameworkQuest(RE::StaticFunctionTag*, RE::TESQuest* quest);
+		static void LogWithPlugin(RE::StaticFunctionTag*, std::string message);
 		static void UpdateVariables(RE::StaticFunctionTag* = nullptr);
 		static std::string GetVersion(RE::StaticFunctionTag*);
 
 		static std::vector<std::string> FormatSortOptionsList(RE::StaticFunctionTag*, std::vector<std::string> options, std::vector<std::string> userList);
-		static std::vector<std::string> RemoveSortOptionPriority(RE::StaticFunctionTag*, std::vector<std::string> userList, int32_t elementPos);
-		static std::vector<std::string> InsertSortOptionPriority(RE::StaticFunctionTag*, std::vector<std::string> userList, std::string newElement, int32_t elementPos);
+		static std::vector<std::string> RemoveSortOptionPriority(RE::StaticFunctionTag*, std::vector<std::string> userList, int elementPos);
+		static std::vector<std::string> InsertSortOptionPriority(RE::StaticFunctionTag*, std::vector<std::string> userList, std::string newElement, int elementPos);
 
 		static std::vector<std::string> GetSortingPresets(RE::StaticFunctionTag*);
-		static std::vector<std::string> GetSortingPreset(RE::StaticFunctionTag*, int32_t presetChoice);
+		static std::vector<std::string> GetSortingPreset(RE::StaticFunctionTag*, int presetChoice);
 		static std::vector<std::string> AddPresetsToArray(RE::StaticFunctionTag*, std::vector<std::string> userList, std::vector<std::string> presetList);
 
 	private:
-		static bool RegisterFunctions(RE::BSScript::IVirtualMachine* a_vm);
+		static bool RegisterFunctions(RE::BSScript::IVirtualMachine* vm);
 		static std::string ReplaceStr(const std::string& in, const std::string& from, const std::string& to)
 		{
 			return std::regex_replace(in, std::regex(from), to);
@@ -121,7 +137,7 @@ namespace QuickLoot::Config
 				return;
 			}
 
-			if constexpr (std::is_same_v<T, int32_t>) {
+			if constexpr (std::is_same_v<T, int>) {
 				variable = prop->GetSInt();
 				logger::trace("{}: {}", propertyName, variable);
 				return;
@@ -153,51 +169,51 @@ constexpr std::array SortingPresets = {
 };
 
 constexpr std::array SortingPresets_Default = {
-	"$qlie_sortOption_Gold",
-	"$qlie_sortOption_Gems",
-	"$qlie_sortOption_SoulGems",
-	"$qlie_sortOption_Lockpicks",
-	"$qlie_sortOption_Ingots",
-	"$qlie_sortOption_Ores",
-	"$qlie_sortOption_Potions",
-	"$qlie_sortOption_FoodDrinks",
-	"$qlie_sortOption_Books",
-	"$qlie_sortOption_Notes",
-	"$qlie_sortOption_Scrolls",
-	"$qlie_sortOption_ArrowsBolts",
-	"$qlie_sortOption_Jewelry",
-	"$qlie_sortOption_Weapons",
-	"$qlie_sortOption_Armors",
-	"$qlie_sortOption_Clothes",
-	"$qlie_sortOption_Weightless",
-	"$qlie_sortOption_ByWeight",
-	"$qlie_sortOption_ByValue",
-	"$qlie_sortOption_ByName",
-	"$qlie_sortOption_LOTDNeeded",
-	"$qlie_sortOption_CompletionistNeeded",
+	"$qlie_SortRule_Gold",
+	"$qlie_SortRule_Gems",
+	"$qlie_SortRule_SoulGems",
+	"$qlie_SortRule_Lockpicks",
+	"$qlie_SortRule_Ingots",
+	"$qlie_SortRule_Ores",
+	"$qlie_SortRule_Potions",
+	"$qlie_SortRule_FoodDrinks",
+	"$qlie_SortRule_Books",
+	"$qlie_SortRule_Notes",
+	"$qlie_SortRule_Scrolls",
+	"$qlie_SortRule_ArrowsBolts",
+	"$qlie_SortRule_Jewelry",
+	"$qlie_SortRule_Weapons",
+	"$qlie_SortRule_Armors",
+	"$qlie_SortRule_Clothes",
+	"$qlie_SortRule_Weightless",
+	"$qlie_SortRule_ByWeight",
+	"$qlie_SortRule_ByValue",
+	"$qlie_SortRule_ByName",
+	"$qlie_SortRule_LOTDNeeded",
+	"$qlie_SortRule_CompletionistNeeded",
 };
 
 constexpr std::array SortingPresets_Goblin = {
-	"$qlie_sortOption_Gold",
-	"$qlie_sortOption_Gems",
-	"$qlie_sortOption_SoulGems",
-	"$qlie_sortOption_Lockpicks",
-	"$qlie_sortOption_Ingots",
-	"$qlie_sortOption_Ores",
-	"$qlie_sortOption_Potions",
-	"$qlie_sortOption_FoodDrinks",
-	"$qlie_sortOption_Books",
-	"$qlie_sortOption_Notes",
-	"$qlie_sortOption_Scrolls",
-	"$qlie_sortOption_ArrowsBolts",
-	"$qlie_sortOption_Jewelry",
-	"$qlie_sortOption_Weapons",
-	"$qlie_sortOption_Armors",
-	"$qlie_sortOption_Clothes",
-	"$qlie_sortOption_Weightless",
-	"$qlie_sortOption_ByWeight",
-	"$qlie_sortOption_ByValue",
-	"$qlie_sortOption_ByName",
-	"$qlie_sortOption_LOTDNeeded",
-	"$qlie_sortOption_CompletionistNeeded",
+	"$qlie_SortRule_Gold",
+	"$qlie_SortRule_Gems",
+	"$qlie_SortRule_SoulGems",
+	"$qlie_SortRule_Lockpicks",
+	"$qlie_SortRule_Ingots",
+	"$qlie_SortRule_Ores",
+	"$qlie_SortRule_Potions",
+	"$qlie_SortRule_FoodDrinks",
+	"$qlie_SortRule_Books",
+	"$qlie_SortRule_Notes",
+	"$qlie_SortRule_Scrolls",
+	"$qlie_SortRule_ArrowsBolts",
+	"$qlie_SortRule_Jewelry",
+	"$qlie_SortRule_Weapons",
+	"$qlie_SortRule_Armors",
+	"$qlie_SortRule_Clothes",
+	"$qlie_SortRule_Weightless",
+	"$qlie_SortRule_ByWeight",
+	"$qlie_SortRule_ByValue",
+	"$qlie_SortRule_ByName",
+	"$qlie_SortRule_LOTDNeeded",
+	"$qlie_SortRule_CompletionistNeeded",
 };
