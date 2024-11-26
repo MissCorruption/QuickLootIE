@@ -13,6 +13,7 @@ dist/
 *.esp
 *.pex
 *.bat
+.release/
 
 ## Flash
 swf/artifacts/
