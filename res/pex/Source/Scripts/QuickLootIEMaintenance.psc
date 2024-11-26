@@ -48,8 +48,8 @@ string function CombineVersionString(int major, int minor, int patch, int tweak)
 endfunction
 
 function InitCurrentVersion()
-	CurrentVersionMajor = 2
-	CurrentVersionMinor = 1
+	CurrentVersionMajor = 3
+	CurrentVersionMinor = 0
 	CurrentVersionPatch = 0
 	CurrentVersionTweak = 0
 
