@@ -332,7 +332,7 @@ function BuildDisplayPage()
 	if InfoColumnPresetIndex < 0
 		AddMenuOptionST("state_InfoColumnPreset",		"$qlie_InfoColumnPreset_text",			"$qlie_InfoColumnPreset_custom")
 	else
-		AddMenuOptionST("state_InfoColumnPreset",		"$qlie_InfoColumnString_text",			InfoColumnPresetNames[InfoColumnPresetIndex])
+		AddMenuOptionST("state_InfoColumnPreset",		"$qlie_InfoColumnPreset_text",			InfoColumnPresetNames[InfoColumnPresetIndex])
 	endif
 	AddInputOptionST("state_InfoColumnString",			"$qlie_InfoColumnString_text",			"$qlie_InfoColumnString_button")
 endfunction
@@ -1191,7 +1191,7 @@ function SaveControlPreset(string presetName)
 endfunction
 
 function LoadControlPreset(int index)
-	if index <= 0
+	if index < 0
 		return
 	endif
 
