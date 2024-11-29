@@ -1131,13 +1131,28 @@ state state_ControlPresetLoad
 	endevent
 endstate
 
-function ResetControls()
-	QLIE_KeybindingTake = 18
-	QLIE_KeybindingTakeModifier = 0
-	QLIE_KeybindingTakeAll = 19
-	QLIE_KeybindingTakeAllModifier = 0
-	QLIE_KeybindingTransfer = 16
-	QLIE_KeybindingTransferModifier = 0
+function ResetControls(int presetId = 0)
+	if presetId == 1
+		QLIE_KeybindingTake = 18				; E
+		QLIE_KeybindingTakeAll = 18				; E
+		QLIE_KeybindingTransfer = 19			; R
+		QLIE_KeybindingTakeModifier = 1			; None
+		QLIE_KeybindingTakeAllModifier = 2		; Shift
+		QLIE_KeybindingTransferModifier = 0		; Ignore
+		QLIE_KeybindingTakeGamepad = 276		; Gamepad A
+		QLIE_KeybindingTakeAllGamepad = 278		; Gamepad X
+		QLIE_KeybindingTransferGamepad = 273	; Gamepad Right Stick
+	else
+		QLIE_KeybindingTake = 18				; E
+		QLIE_KeybindingTakeAll = 19				; R
+		QLIE_KeybindingTransfer = 16			; Q
+		QLIE_KeybindingTakeModifier = 0			; Ignore
+		QLIE_KeybindingTakeAllModifier = 0		; Ignore
+		QLIE_KeybindingTransferModifier = 0		; Ignore
+		QLIE_KeybindingTakeGamepad = 276		; Gamepad A
+		QLIE_KeybindingTakeAllGamepad = 278		; Gamepad X
+		QLIE_KeybindingTransferGamepad = 271	; Gamepad Back
+	endif
 endfunction
 
 function SaveControlPreset(string presetName)
@@ -1178,27 +1193,7 @@ function LoadControlPreset(int index)
 	endif
 
 	if index < ControlPredefinedPresetCount
-		if index == 1
-			QLIE_KeybindingTake = 18				; E
-			QLIE_KeybindingTakeAll = 18				; E
-			QLIE_KeybindingTransfer = 19			; R
-			QLIE_KeybindingTakeModifier = 1			; None
-			QLIE_KeybindingTakeAllModifier = 2		; Shift
-			QLIE_KeybindingTransferModifier = 0		; Ignore
-			QLIE_KeybindingTakeGamepad = 276		; Gamepad A
-			QLIE_KeybindingTakeAllGamepad = 278		; Gamepad X
-			QLIE_KeybindingTransferGamepad = 273	; Gamepad Right Stick
-		else
-			QLIE_KeybindingTake = 18				; E
-			QLIE_KeybindingTakeAll = 19				; R
-			QLIE_KeybindingTransfer = 16			; Q
-			QLIE_KeybindingTakeModifier = 0			; Ignore
-			QLIE_KeybindingTakeAllModifier = 0		; Ignore
-			QLIE_KeybindingTransferModifier = 0		; Ignore
-			QLIE_KeybindingTakeGamepad = 276		; Gamepad A
-			QLIE_KeybindingTakeAllGamepad = 278		; Gamepad X
-			QLIE_KeybindingTransferGamepad = 271	; Gamepad Back
-		endif
+		ResetControls(index)
 	else
 		string path = ControlPresetPath + ControlPresetNames[index]
 		JsonUtil.Load(path)
