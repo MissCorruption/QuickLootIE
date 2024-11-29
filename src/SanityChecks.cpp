@@ -65,7 +65,7 @@ bool QuickLoot::SanityChecks::ValidateSWF()
 		return false;
 	}
 
-	switch (LootMenu::GetSwfVersion()) {
+	switch (const int version = LootMenu::GetSwfVersion()) {
 	case -2:
 		logger::error("Failed to load swf");
 
@@ -84,6 +84,9 @@ bool QuickLoot::SanityChecks::ValidateSWF()
 		return false;
 
 	default:
+		if (version < LootMenu::CURRENT_MENU_VERSION) {
+			logger::warn("LootMenuIE.swf reports version {}, but current loot menu version is {}", version, LootMenu::CURRENT_MENU_VERSION);
+		}
 		break;
 	}
 
