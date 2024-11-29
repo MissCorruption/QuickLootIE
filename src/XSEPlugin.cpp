@@ -80,7 +80,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface*, 
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* skse)
 {
-	InitializeLog();
+	InitializeLog(spdlog::level::trace);
 
 	logger::info("Loaded plugin {} {}", Plugin::NAME, Plugin::VERSION.string());
 
