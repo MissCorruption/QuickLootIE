@@ -7,10 +7,7 @@ VirtualMachineAdapter:
     Properties:
     - MutagenObjectType: ScriptStringProperty
       Name: ModName
-      Data: Quickloot IE
-    - MutagenObjectType: ScriptObjectProperty
-      Name: MaintenanceScript
-      Object: 000001:QuickLootIE.esp
+      Data: QuickLoot IE
   FileName: ''
   Aliases:
   - Property:
@@ -19,7 +16,7 @@ VirtualMachineAdapter:
       Alias: 0
     Scripts:
     - Name: SKI_PlayerLoadGameAlias
-    - Name: QuicklootIELoad
+    - Name: QuickLootIELoad
       Properties:
       - MutagenObjectType: ScriptObjectProperty
         Name: MaintenanceScript

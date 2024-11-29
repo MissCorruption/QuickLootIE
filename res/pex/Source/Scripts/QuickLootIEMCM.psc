@@ -10,7 +10,6 @@ import Debug
 ;-- Properties and Fields --------------------------
 ;---------------------------------------------------
 
-QuickLootIEMaintenance property MaintenanceScript auto
 bool AutoLoadedProfile = false
 
 string ConfigPath = "../QuickLootIE/DefaultConfig"
@@ -283,7 +282,7 @@ function BuildGeneralPage()
 	;AddTextOption("", "$qlie_Author1")
 	;AddTextOption("", "$qlie_Author2")
 	AddEmptyOption()
-	AddTextOption("", "$qlie_ModVersion{" + MaintenanceScript.CurrentVersionString + "}")
+	AddTextOption("", "$qlie_ModVersion{" + ((self as Quest) as QuickLootIEMaintenance).CurrentVersionString + "}")
 	AddTextOption("", "$qlie_DllVersion{" + QuickLootIENative.GetVersion() + "}")
 	AddEmptyOption()
 
