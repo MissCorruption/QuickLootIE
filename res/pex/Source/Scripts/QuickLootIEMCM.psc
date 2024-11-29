@@ -87,10 +87,14 @@ bool property QLIE_ShowIconCompletionistCollected = true auto hidden
 ;---------------------------------------------------
 
 event OnConfigInit()
+	LogWithPlugin("OnConfigInit")
+
 	AutoLoadConfig()
 endevent
 
 event OnConfigOpen()
+	LogWithPlugin("OnConfigOpen")
+
 	Initialize()
 
 	Pages = new string[5]
@@ -100,10 +104,12 @@ event OnConfigOpen()
 	Pages[3] = "$qlie_ControlsPage"
 	Pages[4] = "$qlie_CompatibilityPage"
 
-	SendModEvent("SKICP_pageSelected", "$qlie_GeneralPage", 0) ; Select Geleral page
+	SendModEvent("SKICP_pageSelected", "$qlie_GeneralPage", 0) ; Select General page
 endevent
 
 event OnPageReset(string page)
+	LogWithPlugin("OnPageReset " + page)
+
     if (page == "$qlie_GeneralPage")
 		BuildGeneralPage()
 		return
@@ -468,7 +474,7 @@ endstate
 state state_ProfileLoad
 	event OnSelectST()
 		SetTextOptionValueST("$qlie_ProfileLoad_inprogress")
-		LoadProfile()
+		LoadProfile(false)
 		SetTextOptionValueST("$qlie_ProfileLoad_text")
 	endevent
 endstate
@@ -837,7 +843,7 @@ state state_InfoColumnString
 	endevent
 endstate
 
-function SetInfoColumns(string infoColumnsString, int presetIndex) ; Pass presetIndex = -1 to validate and auto detect
+function SetInfoColumns(string infoColumnsString, int presetIndex, bool initialLoad = false) ; Pass presetIndex = -1 to validate and auto detect
 	string[] columns = StringSplit(infoColumnsString)
 
 	if GetLength(infoColumnsString) == 0
@@ -853,10 +859,12 @@ function SetInfoColumns(string infoColumnsString, int presetIndex) ; Pass preset
 	endif
 
 	InfoColumnPresetIndex = presetIndex
-	if presetIndex < 0
-		SetMenuOptionValueST("$qlie_InfoColumnPreset_custom", false, "state_InfoColumnPreset")
-	else
-		SetMenuOptionValueST(InfoColumnPresetNames[InfoColumnPresetIndex], false, "state_InfoColumnPreset")
+	if !initialLoad
+		if presetIndex < 0
+			SetMenuOptionValueST("$qlie_InfoColumnPreset_custom", false, "state_InfoColumnPreset")
+		else
+			SetMenuOptionValueST(InfoColumnPresetNames[InfoColumnPresetIndex], false, "state_InfoColumnPreset")
+		endif
 	endif
 
 	QLIE_InfoColumns = columns
@@ -1298,6 +1306,8 @@ endstate
 ;---------------------------------------------------
 
 function ResetSettings()
+	LogWithPlugin("ResetSettings")
+
 	; General > Behavior
 	QLIE_ShowInCombat = true
 	QLIE_ShowWhenEmpty = false
@@ -1326,13 +1336,13 @@ function ResetSettings()
 	QLIE_ShowIconEnchantedSpecial = true
 
 	; Display > Info Column Layout
-	SetInfoColumns(InfoColumnPresetStrings[0], 0)
+	SetInfoColumns(InfoColumnPresetStrings[0], 0, true)
 
 	; Sorting
-	LoadSortPreset(0)
+	QLIE_SortRulesActive = GetSortingPreset(0)
 
 	; Controls
-	LoadControlPreset(0)
+	ResetControls(0)
 
 	; Compatibility > LOTD Icons
 	QLIE_ShowIconLOTDNew = true
@@ -1349,6 +1359,8 @@ function ResetSettings()
 endfunction
 
 function SaveProfile()
+	LogWithPlugin("SaveProfile")
+
 	if PapyrusUtil.GetScriptVersion() <= 31
 		ShowMsg("$qlie_ProfileSave_failure")
 		return
@@ -1403,32 +1415,34 @@ function SaveProfile()
 	ShowMsg("$qlie_ProfileSave_success")
 endfunction
 
-function LoadProfile()
+function LoadProfile(bool initialLoad)
+	LogWithPlugin("LoadProfile")
+
 	if PapyrusUtil.GetScriptVersion() <= 31
-		if IsInMenuMode()
-			ShowMsg("$qlie_ProfileLoad_unsupported")
-		else
+		if initialLoad
 			Notification("$qlie_NotificationProfileUnsupported")
+		else
+			ShowMsg("$qlie_ProfileLoad_unsupported")
 		endif
 		return
 	endif
 
 	if !JsonUtil.JsonExists(ConfigPath)
-		if IsInMenuMode()
-			ShowMsg("$qlie_ProfileLoad_missing")
-		else
+		if initialLoad
 			Notification("$qlie_NotificationProfileMissing")
 			ResetSettings()
+		else
+			ShowMsg("$qlie_ProfileLoad_missing")
 		endif
 		return
 	endif
 
 	if !JsonUtil.IsGood(ConfigPath)
-		if IsInMenuMode()
-			ShowMsg("$qlie_ProfileLoad_corrupt{" + JsonUtil.GetErrors(ConfigPath) + "}")
-		else
+		if initialLoad
 			Notification("$qlie_NotificationProfileCorrupt");
 			ResetSettings()
+		else
+			ShowMsg("$qlie_ProfileLoad_corrupt{" + JsonUtil.GetErrors(ConfigPath) + "}")
 		endif
 		return
 	endif
@@ -1479,11 +1493,11 @@ function LoadProfile()
 
 	JsonUtil.Unload(ConfigPath, false)
 
-	if IsInMenuMode()
+	if initialLoad
+		Notification("$qlie_NotificationProfileImported")
+	else
 		ShowMsg("$qlie_ProfileLoad_success")
 		ForcePageReset()
-	else
-		Notification("$qlie_NotificationProfileImported")
 	endif
 endfunction
 
@@ -1493,6 +1507,6 @@ function AutoLoadConfig()
 	endif
 
 	Initialize()
-	LoadProfile()
+	LoadProfile(true)
 	AutoLoadedProfile = true
 endfunction
