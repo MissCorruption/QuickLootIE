@@ -166,8 +166,21 @@ namespace QuickLoot
 		RE::GFxValue infoColumns{};
 		uiMovie->CreateArray(&infoColumns);
 
+		// Skyrim's Papyrus string caching can cause the column names to arrive with
+		// incorrect capitalization, so we need to normalize.
+		constexpr std::array normalizedColumnNames = {
+			"value",
+			"weight",
+			"valuePerWeight"
+		};
+
 		for (const auto& column : Settings::GetInfoColumns()) {
-			infoColumns.PushBack(column.c_str());
+			for (const auto& normalized : normalizedColumnNames) {
+				if (_stricmp(column.c_str(), normalized) == 0) {
+					infoColumns.PushBack(normalized);
+					break;
+				}
+			}
 		}
 
 		settings.SetMember("infoColumns", infoColumns);
