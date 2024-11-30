@@ -989,7 +989,8 @@ function SaveSortPreset(string presetName)
 	JsonUtil.SetPathStringArray(SortPresetPath + presetName, ".SortRules", QLIE_SortRulesActive, false)
 	JsonUtil.Save(SortPresetPath + presetName, false)
 	ShowMsg("$qlie_SortPresetSave_success")
-	ForcePageReset()
+
+	InitSortPresetList()
 endfunction
 
 function LoadSortPreset(int index)
@@ -1193,7 +1194,8 @@ function SaveControlPreset(string presetName)
 
 	JsonUtil.Save(path, false)
 	ShowMsg("$qlie_ControlPresetSave_success")
-	ForcePageReset()
+
+	InitControlPresets()
 endfunction
 
 function LoadControlPreset(int index)
