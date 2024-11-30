@@ -36,20 +36,37 @@ on:
         required: false
 
 jobs:
-  check-changes:
-    name: Check for recent changes
+  get-date:
+    name: Set date and version
     runs-on: ubuntu-latest
     outputs:
+      date: ${{ steps.get-date.outputs.time }}
+      version: ${{ steps.get-version.outputs.VERSION }}
+    steps:
+      - name: Get Date
+        id: get-date
+        uses: Kaven-Universe/github-action-current-date-time@v1
+        with:
+          format: "YYYY-MM-DD"
+      - name: Get version
+        id: get-version
+        shell: bash
+        run: echo "VERSION=${{ inputs.version || format('nightly-{0}', steps.get-date.outputs.time) }}" >> "$GITHUB_OUTPUT"
+
+  check-changes:
+    name: Check for recent changes
+    if: ${{ github.event_name != 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    outputs: 
       should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Check for changes in the last 24 hours
+      - uses: actions/checkout@v4
+      - name: Check for changes last 24 hours
         id: should_run
+        shell: bash
         run: |
-          CHANGED_FILES=$(git log --since="1 days ago" --name-only --format=format: | grep -Ev '\.(md|txt)$' | wc -l)
-          echo "should_run=${CHANGED_FILES}" >> "$GITHUB_ENV"
+          git log --since="1 days ago" --name-only
+          echo "should_run=$(git log --since="1 days ago" --name-only | grep "" -c)" >> "$GITHUB_OUTPUT"
 
   build-plugin:
     name: Build ESP from Spriggit files
