@@ -149,6 +149,9 @@ namespace QuickLoot
 		// The client and server must agree on these signatures.
 		enum RequestType : uint32_t
 		{
+			kDisableLootMenu = 0x000,
+			kEnableLootMenu = 0x001,
+
 			kRegisterTakingItemHandler = 0x100,
 			kRegisterTakeItemHandler = 0x101,
 			kRegisterSelectItemHandler = 0x102,
@@ -167,6 +170,20 @@ namespace QuickLoot
 		static bool IsReady()
 		{
 			return _client.IsReady();
+		}
+
+		static void DisableLootMenu()
+		{
+			if (const auto error = _client.Query(kDisableLootMenu, nullptr, nullptr)) {
+				logger::error("Query failed for DisableLootMenu: {}", _client.GetErrorString(error));
+			}
+		}
+
+		static void EnableLootMenu()
+		{
+			if (const auto error = _client.Query(kEnableLootMenu, nullptr, nullptr)) {
+				logger::error("Query failed for EnableLootMenu: {}", _client.GetErrorString(error));
+			}
 		}
 
 		static bool RegisterTakingItemHandler(TakingItemHandler handler)

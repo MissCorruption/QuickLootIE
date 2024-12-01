@@ -1,5 +1,7 @@
 #include "APIServer.h"
 
+#include "MenuVisibilityManager.h"
+
 namespace QuickLoot::API
 {
 	template <typename TEvent, std::vector<EventHandler<TEvent>>& handlerList>
@@ -9,11 +11,27 @@ namespace QuickLoot::API
 		return *response = true;
 	}
 
+	bool DisableLootMenu(const char* sender, const std::monostate*, std::monostate*)
+	{
+		MenuVisibilityManager::DisableLootMenu(sender);
+		return true;
+	}
+
+	bool EnableLootMenu(const char* sender, const std::monostate*, std::monostate*)
+	{
+		MenuVisibilityManager::EnableLootMenu(sender);
+		return true;
+	}
+
 	void APIServer::Init(const SKSE::MessagingInterface* messenger)
 	{
 		_server.Init(QuickLootAPI::API_MAJOR_VERSION, QuickLootAPI::API_MINOR_VERSION);
 
 		using enum QuickLootAPI::RequestType;
+
+		_server.RegisterHandler(kDisableLootMenu, "kDisableLootMenu", DisableLootMenu);
+		_server.RegisterHandler(kEnableLootMenu, "kEnableLootMenu", EnableLootMenu);
+
 		_server.RegisterHandler(kRegisterTakingItemHandler, "kRegisterTakingItemHandler", RegisterHandler<TakingItemEvent, _takingItemHandlers>);
 		_server.RegisterHandler(kRegisterTakeItemHandler, "kRegisterTakeItemHandler", RegisterHandler<TakeItemEvent, _takeItemHandlers>);
 		_server.RegisterHandler(kRegisterSelectItemHandler, "kRegisterSelectItemHandler", RegisterHandler<SelectItemEvent, _selectItemHandlers>);
