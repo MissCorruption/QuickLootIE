@@ -22,13 +22,13 @@ namespace QuickLoot::Items
 		kAmmo,
 		kLockpick,
 
-		kIsDbmNew,
-		kIsDbmFound,
-		kIsDbmDisplayed,
+		kIsNewArtifact,
+		kIsFoundArtifact,
+		kIsDisplayedArtifact,
 
-		kIsCompNew,
-		kIsCompFound,
-		kIsCompTracked,
+		kIsCompletionistNew,
+		kIsCompletionistFound,
+		kIsCompletionistTracked,
 
 		kTotalFlags,
 
@@ -98,13 +98,13 @@ namespace QuickLoot::Items
 		[[nodiscard]] bool IsAmmo() const { return RetrieveFlag(kAmmo); }
 		[[nodiscard]] bool IsLockpick() const { return RetrieveFlag(kLockpick); }
 
-		[[nodiscard]] double IsDbmNew() const noexcept { return RetrieveFlag(kIsDbmNew); }
-		[[nodiscard]] double IsDbmFound() const noexcept { return RetrieveFlag(kIsDbmFound); }
-		[[nodiscard]] double IsDbmDisplayed() const noexcept { return RetrieveFlag(kIsDbmDisplayed); }
+		[[nodiscard]] double IsNewArtifact() const noexcept { return RetrieveFlag(kIsNewArtifact); }
+		[[nodiscard]] double IsFoundArtifact() const noexcept { return RetrieveFlag(kIsFoundArtifact); }
+		[[nodiscard]] double IsDisplayedArtifact() const noexcept { return RetrieveFlag(kIsDisplayedArtifact); }
 
-		[[nodiscard]] double IsCompNew() const noexcept { return RetrieveFlag(kIsCompNew); }
-		[[nodiscard]] double IsCompFound() const noexcept { return RetrieveFlag(kIsCompFound); }
-		[[nodiscard]] double IsCompTracked() const noexcept { return RetrieveFlag(kIsCompTracked); }
+		[[nodiscard]] double IsCompletionistNew() const noexcept { return RetrieveFlag(kIsCompletionistNew); }
+		[[nodiscard]] double IsCompletionistFound() const noexcept { return RetrieveFlag(kIsCompletionistFound); }
+		[[nodiscard]] double IsCompletionistTracked() const noexcept { return RetrieveFlag(kIsCompletionistTracked); }
 
 		[[nodiscard]] constexpr RE::FormID GetFormID() const noexcept { return _formID; }
 		[[nodiscard]] constexpr double GetWeight() const noexcept { return _weight; }
@@ -127,13 +127,13 @@ namespace QuickLoot::Items
 		bool SetAmmo(bool value) { return StoreFlag(kAmmo, value); }
 		bool SetLockpick(bool value) { return StoreFlag(kLockpick, value); }
 
-		bool SetDbmNew(bool value) { return StoreFlag(kIsDbmNew, value); }
-		bool SetDbmFound(bool value) { return StoreFlag(kIsDbmFound, value); }
-		bool SetDbmDisplayed(bool value) { return StoreFlag(kIsDbmDisplayed, value); }
+		bool SetNewArtifact(bool value) { return StoreFlag(kIsNewArtifact, value); }
+		bool SetFoundArtifact(bool value) { return StoreFlag(kIsFoundArtifact, value); }
+		bool SetDisplayedArtifact(bool value) { return StoreFlag(kIsDisplayedArtifact, value); }
 
-		bool SetCompNew(bool value) { return StoreFlag(kIsCompNew, value); }
-		bool SetCompFound(bool value) { return StoreFlag(kIsCompFound, value); }
-		bool SetCompTracked(bool value) { return StoreFlag(kIsCompTracked, value); }
+		bool SetCompletionistNew(bool value) { return StoreFlag(kIsCompletionistNew, value); }
+		bool SetCompletionistFound(bool value) { return StoreFlag(kIsCompletionistFound, value); }
+		bool SetCompletionistTracked(bool value) { return StoreFlag(kIsCompletionistTracked, value); }
 
 		RE::FormID SetFormID(RE::FormID value) { return StoreValue(kFormID, _formID, value); }
 		double SetWeight(double value) { return StoreValue(kWeight, _weight, value); }

@@ -44,9 +44,9 @@ namespace QuickLoot::Config
 	inline int QLIE_KeybindingTakeAllGamepad;
 	inline int QLIE_KeybindingTransferGamepad;
 
-	inline bool QLIE_ShowIconLOTDNew;
-	inline bool QLIE_ShowIconLOTDCarried;
-	inline bool QLIE_ShowIconLOTDDisplayed;
+	inline bool QLIE_ShowIconArtifactNew;
+	inline bool QLIE_ShowIconArtifactCarried;
+	inline bool QLIE_ShowIconArtifactDisplayed;
 
 	inline bool QLIE_ShowIconCompletionistNeeded;
 	inline bool QLIE_ShowIconCompletionistCollected;

@@ -92,9 +92,9 @@ namespace QuickLoot::Config
 		LoadSetting(QLIE_KeybindingTransferGamepad,			"QLIE_KeybindingTransferGamepad", 271);
 
 		// Compatibility > LOTD Icons
-		LoadSetting(QLIE_ShowIconLOTDNew,					"QLIE_ShowIconLOTDNew", false);
-		LoadSetting(QLIE_ShowIconLOTDCarried,				"QLIE_ShowIconLOTDCarried", false);
-		LoadSetting(QLIE_ShowIconLOTDDisplayed,				"QLIE_ShowIconLOTDDisplayed", false);
+		LoadSetting(QLIE_ShowIconArtifactNew,				"QLIE_ShowIconArtifactNew", false);
+		LoadSetting(QLIE_ShowIconArtifactCarried,			"QLIE_ShowIconArtifactCarried", false);
+		LoadSetting(QLIE_ShowIconArtifactDisplayed,			"QLIE_ShowIconArtifactDisplayed", false);
 
 		// Compatibility > Completionist Icons
 		LoadSetting(QLIE_ShowIconCompletionistNeeded,		"QLIE_ShowIconCompletionistNeeded", false);

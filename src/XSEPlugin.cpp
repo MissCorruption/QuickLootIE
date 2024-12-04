@@ -8,7 +8,7 @@
 #include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
 #include "Integrations/Completionist.h"
-#include "Integrations/LOTD.h"
+#include "Integrations/Artifacts.h"
 #include "LootMenu.h"
 #include "MenuVisibilityManager.h"
 #include "SanityChecks.h"
@@ -37,7 +37,7 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 		QuickLoot::Behaviors::ActivationPrompt::Install();
 		QuickLoot::Behaviors::LockpickActivation::Install();
 
-		QuickLoot::Integrations::LOTD::Init();
+		QuickLoot::Integrations::Artifacts::Init();
 		QuickLoot::Integrations::Completionist::Init();
 		break;
 	}

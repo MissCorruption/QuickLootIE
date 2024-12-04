@@ -59,11 +59,11 @@ namespace QuickLoot::Config
 		};
 	}
 
-	bool Settings::ShowDBMDisplayed() { return QLIE_ShowIconLOTDDisplayed; }
-	bool Settings::ShowDBMFound() { return QLIE_ShowIconLOTDCarried; }
-	bool Settings::ShowDBMNew() { return QLIE_ShowIconLOTDNew; }
-	bool Settings::ShowCompNeeded() { return QLIE_ShowIconCompletionistNeeded; }
-	bool Settings::ShowCompCollected() { return QLIE_ShowIconCompletionistCollected; }
+	bool Settings::ShowArtifactDisplayed() { return QLIE_ShowIconArtifactDisplayed; }
+	bool Settings::ShowArtifactFound() { return QLIE_ShowIconArtifactCarried; }
+	bool Settings::ShowArtifactNew() { return QLIE_ShowIconArtifactNew; }
+	bool Settings::ShowCompletionistNeeded() { return QLIE_ShowIconCompletionistNeeded; }
+	bool Settings::ShowCompletionistCollected() { return QLIE_ShowIconCompletionistCollected; }
 
 	Input::Keybinding Settings::GetKeybinding(int skseKey, int modifierType, Input::QuickLootAction action)
 	{

@@ -2,7 +2,7 @@
 
 #include "Config/Settings.h"
 #include "Integrations/Completionist.h"
-#include "Integrations/LOTD.h"
+#include "Integrations/Artifacts.h"
 
 using Settings = QuickLoot::Config::Settings;
 
@@ -752,49 +752,49 @@ namespace QuickLoot::Items
 		return _cache.SetStolen(result);
 	}
 
-	bool ItemListEntry::ItemIsDbmNew() const
+	bool ItemListEntry::ItemIsNewArtifact() const
 	{
-		if (_cache.IsCached(kIsDbmNew)) {
-			return _cache.IsDbmNew();
+		if (_cache.IsCached(kIsNewArtifact)) {
+			return _cache.IsNewArtifact();
 		}
 
-		return _cache.SetDbmNew(LOTD::IsItemNew(GetFormID()));
+		return _cache.SetNewArtifact(Artifacts::IsNewArtifact(GetFormID()));
 	}
 
-	bool ItemListEntry::ItemIsDbmFound() const
+	bool ItemListEntry::ItemIsFoundArtifact() const
 	{
-		if (_cache.IsCached(kIsDbmFound)) {
-			return _cache.IsDbmFound();
+		if (_cache.IsCached(kIsFoundArtifact)) {
+			return _cache.IsFoundArtifact();
 		}
 
-		return _cache.SetDbmFound(LOTD::IsItemFound(GetFormID()));
+		return _cache.SetFoundArtifact(Artifacts::IsFoundArtifact(GetFormID()));
 	}
 
-	bool ItemListEntry::ItemIsDbmDisplayed() const
+	bool ItemListEntry::ItemIsDisplayedArtifact() const
 	{
-		if (_cache.IsCached(kIsDbmDisplayed)) {
-			return _cache.IsDbmDisplayed();
+		if (_cache.IsCached(kIsDisplayedArtifact)) {
+			return _cache.IsDisplayedArtifact();
 		}
 
-		return _cache.SetDbmDisplayed(LOTD::IsItemDisplayed(GetFormID()));
+		return _cache.SetDisplayedArtifact(Artifacts::IsDisplayedArtifact(GetFormID()));
 	}
 
-	bool ItemListEntry::ItemIsCompNew() const
+	bool ItemListEntry::ItemIsCompletionistNew() const
 	{
-		if (_cache.IsCached(kIsCompNew)) {
-			return _cache.IsCompNew();
+		if (_cache.IsCached(kIsCompletionistNew)) {
+			return _cache.IsCompletionistNew();
 		}
 
-		return _cache.SetCompNew(Completionist::IsItemNeeded(GetFormID()));
+		return _cache.SetCompletionistNew(Completionist::IsItemNeeded(GetFormID()));
 	}
 
-	bool ItemListEntry::ItemIsCompFound() const
+	bool ItemListEntry::ItemIsCompletionistFound() const
 	{
-		if (_cache.IsCached(kIsCompFound)) {
-			return _cache.IsCompFound();
+		if (_cache.IsCached(kIsCompletionistFound)) {
+			return _cache.IsCompletionistFound();
 		}
 
-		return _cache.SetCompFound(Completionist::IsItemCollected(GetFormID()));
+		return _cache.SetCompletionistFound(Completionist::IsItemCollected(GetFormID()));
 	}
 	
 	static RE::GFxValue GetKeywords(RE::GFxMovieView& view, TESForm* form)
@@ -1063,18 +1063,19 @@ namespace QuickLoot::Items
 			value.SetMember("specialEnchanted", Settings::ShowIconEnchantedSpecial() && IsSpecialEnchanted());
 		}
 
-		if (LOTD::IsReady()) {
-			value.SetMember("dbmNew", Settings::ShowDBMNew() && ItemIsDbmNew());
-			value.SetMember("dbmFound", Settings::ShowDBMFound() && ItemIsDbmFound());
-			value.SetMember("dbmDisplayed", Settings::ShowDBMDisplayed() && ItemIsDbmDisplayed());
+		if (Artifacts::IsIntegrationEnabled()) {
+			value.SetMember("dbmNew", Settings::ShowArtifactNew() && ItemIsNewArtifact());
+			value.SetMember("dbmFound", Settings::ShowArtifactFound() && ItemIsFoundArtifact());
+			value.SetMember("dbmDisplayed", Settings::ShowArtifactDisplayed() && ItemIsDisplayedArtifact());
 		}
 
 		if (Completionist::IsIntegrationEnabled()) {
-			value.SetMember("compNew", Settings::ShowCompNeeded() && ItemIsCompNew());
-			value.SetMember("compFound", Settings::ShowCompCollected() && ItemIsCompFound());
+			value.SetMember("compNew", Settings::ShowCompletionistNeeded() && ItemIsCompletionistNew());
+			value.SetMember("compFound", Settings::ShowCompletionistCollected() && ItemIsCompletionistFound());
 
-			if (const auto colorInt = Completionist::GetItemDynamicTextColor(GetFormID()); colorInt != -1)
+			if (const auto colorInt = Completionist::GetItemDynamicTextColor(GetFormID()); colorInt != -1) {
 				value.SetMember("textColor", colorInt);
+			}
 		}
 
 		return value;

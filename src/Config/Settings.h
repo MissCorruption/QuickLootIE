@@ -58,11 +58,11 @@ namespace QuickLoot::Config
 
 		static std::vector<Input::Keybinding> GetKeybindings();
 
-		static bool ShowDBMDisplayed();
-		static bool ShowDBMFound();
-		static bool ShowDBMNew();
-		static bool ShowCompNeeded();
-		static bool ShowCompCollected();
+		static bool ShowArtifactDisplayed();
+		static bool ShowArtifactFound();
+		static bool ShowArtifactNew();
+		static bool ShowCompletionistNeeded();
+		static bool ShowCompletionistCollected();
 
 	private:
 		static Input::Keybinding GetKeybinding(int skseKey, int modifierType, Input::QuickLootAction action);

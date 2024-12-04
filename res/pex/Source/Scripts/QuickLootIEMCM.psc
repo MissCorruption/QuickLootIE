@@ -74,9 +74,9 @@ int ControlPredefinedPresetCount
 bool GamepadMode
 
 ; Compatibility > LOTD Icons
-bool property QLIE_ShowIconLOTDNew = true auto hidden
-bool property QLIE_ShowIconLOTDCarried = true auto hidden
-bool property QLIE_ShowIconLOTDDisplayed = true auto hidden
+bool property QLIE_ShowIconArtifactNew = true auto hidden
+bool property QLIE_ShowIconArtifactCarried = true auto hidden
+bool property QLIE_ShowIconArtifactDisplayed = true auto hidden
 
 ; Compatibility > Completionist Icons
 bool property QLIE_ShowIconCompletionistNeeded = true auto hidden
@@ -423,14 +423,14 @@ endfunction
 function BuildCompatibilityPage()
 	SetCursorFillMode(TOP_TO_BOTTOM)
 
-	bool hasLOTD = Game.GetModByName("DBM_RelicNotifications.esp") != 255
+	bool hasArtifacts = Game.GetModByName("DBM_RelicNotifications.esp") != 255 || Game.GetModByName("Artifact Tracker.esp") != 255
 	bool hasCompletionist = Game.GetModByName("Completionist.esp") != 255
 
 	SetCursorPosition(0)
-	AddHeaderOption("$qlie_LOTDIconsHeader")
-	AddTextOptionST("state_ShowIconLOTDNew",				"$qlie_ShowIconLOTDNew_text",					GetEnabledStatusText(QLIE_ShowIconLOTDNew, hasLOTD), (!hasLOTD) as int)
-	AddTextOptionST("state_ShowIconLOTDCarried",			"$qlie_ShowIconLOTDCarried_text",				GetEnabledStatusText(QLIE_ShowIconLOTDCarried, hasLOTD), (!hasLOTD) as int)
-	AddTextOptionST("state_ShowIconLOTDDisplayed",			"$qlie_ShowIconLOTDDisplayed_text",				GetEnabledStatusText(QLIE_ShowIconLOTDDisplayed, hasLOTD), (!hasLOTD) as int)
+	AddHeaderOption("$qlie_ArtifactIconsHeader")
+	AddTextOptionST("state_ShowIconArtifactNew",			"$qlie_ShowIconArtifactNew_text",				GetEnabledStatusText(QLIE_ShowIconArtifactNew, hasArtifacts), (!hasArtifacts) as int)
+	AddTextOptionST("state_ShowIconArtifactCarried",		"$qlie_ShowIconArtifactCarried_text",			GetEnabledStatusText(QLIE_ShowIconArtifactCarried, hasArtifacts), (!hasArtifacts) as int)
+	AddTextOptionST("state_ShowIconArtifactDisplayed",		"$qlie_ShowIconArtifactDisplayed_text",			GetEnabledStatusText(QLIE_ShowIconArtifactDisplayed, hasArtifacts), (!hasArtifacts) as int)
 
 	SetCursorPosition(1)
 	AddHeaderOption("$qlie_CompletionistIconsHeader")
@@ -1235,44 +1235,40 @@ endfunction
 ;-- Compatibility ----------------------------------
 ;---------------------------------------------------
 
-state state_ShowIconLOTDDisplayed
+state state_ShowIconArtifactDisplayed
 	event OnSelectST()
-		QLIE_ShowIconLOTDDisplayed = !QLIE_ShowIconLOTDDisplayed
-		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconLOTDDisplayed))
+		QLIE_ShowIconArtifactDisplayed = !QLIE_ShowIconArtifactDisplayed
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconArtifactDisplayed))
 	endevent
 
 	event OnDefaultST()
-		QLIE_ShowIconLOTDDisplayed = true
-		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconLOTDDisplayed))
+		QLIE_ShowIconArtifactDisplayed = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconArtifactDisplayed))
 	endevent
 endstate
 
-state state_ShowIconLOTDCarried
+state state_ShowIconArtifactCarried
 	event OnSelectST()
-		QLIE_ShowIconLOTDCarried = !QLIE_ShowIconLOTDCarried
-		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconLOTDCarried))
+		QLIE_ShowIconArtifactCarried = !QLIE_ShowIconArtifactCarried
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconArtifactCarried))
 	endevent
 
 	event OnDefaultST()
-		QLIE_ShowIconLOTDCarried = true
-		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconLOTDCarried))
+		QLIE_ShowIconArtifactCarried = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconArtifactCarried))
 	endevent
 endstate
 
-state state_ShowIconLOTDNew
+state state_ShowIconArtifactNew
 
 	event OnSelectST()
-		QLIE_ShowIconLOTDNew = !QLIE_ShowIconLOTDNew
-		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconLOTDNew))
+		QLIE_ShowIconArtifactNew = !QLIE_ShowIconArtifactNew
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconArtifactNew))
 	endevent
 
 	event OnDefaultST()
-		QLIE_ShowIconLOTDNew = true
-		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconLOTDNew))
-	endevent
-
-	event OnHighlightST()
-		SetInfoText("$qlie_ShowIconLOTDNew_info")
+		QLIE_ShowIconArtifactNew = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconArtifactNew))
 	endevent
 endstate
 
@@ -1287,10 +1283,6 @@ state state_ShowIconCompletionistNeeded
 		QLIE_ShowIconCompletionistNeeded = true
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconCompletionistNeeded))
 	endevent
-
-	event OnHighlightST()
-		SetInfoText("$qlie_ShowIconCompletionistNeeded_info")
-	endevent
 endstate
 
 state state_ShowIconCompletionistCollected
@@ -1303,10 +1295,6 @@ state state_ShowIconCompletionistCollected
 	event OnDefaultST()
 		QLIE_ShowIconCompletionistCollected = true
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconCompletionistCollected))
-	endevent
-
-	event OnHighlightST()
-		SetInfoText("$qlie_ShowIconCompletionistCollected_info")
 	endevent
 endstate
 
@@ -1354,9 +1342,9 @@ function ResetSettings()
 	ResetControls(0)
 
 	; Compatibility > LOTD Icons
-	QLIE_ShowIconLOTDNew = true
-	QLIE_ShowIconLOTDCarried = true
-	QLIE_ShowIconLOTDDisplayed = true
+	QLIE_ShowIconArtifactNew = true
+	QLIE_ShowIconArtifactCarried = true
+	QLIE_ShowIconArtifactDisplayed = true
 
 	; Compatibility > Completionist Icons
 	QLIE_ShowIconCompletionistNeeded = true
@@ -1413,9 +1401,9 @@ function SaveProfile()
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
 
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconLOTDNew", QLIE_ShowIconLOTDNew as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconLOTDCarried", QLIE_ShowIconLOTDCarried as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconLOTDDisplayed", QLIE_ShowIconLOTDDisplayed as int)
+	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconArtifactNew", QLIE_ShowIconArtifactNew as int)
+	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconArtifactCarried", QLIE_ShowIconArtifactCarried as int)
+	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconArtifactDisplayed", QLIE_ShowIconArtifactDisplayed as int)
 
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconCompletionistNeeded", QLIE_ShowIconCompletionistNeeded as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconCompletionistCollected", QLIE_ShowIconCompletionistCollected as int)
@@ -1493,9 +1481,9 @@ function LoadProfile(bool initialLoad)
 	QLIE_KeybindingTakeAllGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
 	QLIE_KeybindingTransferGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
 
-	QLIE_ShowIconLOTDDisplayed = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconLOTDDisplayed", QLIE_ShowIconLOTDDisplayed as int)
-	QLIE_ShowIconLOTDCarried = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconLOTDCarried", QLIE_ShowIconLOTDCarried as int)
-	QLIE_ShowIconLOTDNew = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconLOTDNew", QLIE_ShowIconLOTDNew as int)
+	QLIE_ShowIconArtifactDisplayed = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconArtifactDisplayed", QLIE_ShowIconArtifactDisplayed as int)
+	QLIE_ShowIconArtifactCarried = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconArtifactCarried", QLIE_ShowIconArtifactCarried as int)
+	QLIE_ShowIconArtifactNew = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconArtifactNew", QLIE_ShowIconArtifactNew as int)
 
 	QLIE_ShowIconCompletionistNeeded = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconCompletionistNeeded", QLIE_ShowIconCompletionistNeeded as int)
 	QLIE_ShowIconCompletionistCollected = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconCompletionistCollected", QLIE_ShowIconCompletionistCollected as int)
