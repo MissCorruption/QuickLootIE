@@ -62,12 +62,18 @@ int SortPredefinedPresetCount		; How many presets are defined in the dll
 int property QLIE_KeybindingTake = 18 auto hidden
 int property QLIE_KeybindingTakeAll = 19 auto hidden
 int property QLIE_KeybindingTransfer = 16 auto hidden
+int property QLIE_KeybindingDisable = -1 auto hidden
+int property QLIE_KeybindingEnable = -1 auto hidden
 int property QLIE_KeybindingTakeModifier = 0 auto hidden
 int property QLIE_KeybindingTakeAllModifier = 0 auto hidden
 int property QLIE_KeybindingTransferModifier = 0 auto hidden
+int property QLIE_KeybindingDisableModifier = 0 auto hidden
+int property QLIE_KeybindingEnableModifier = 0 auto hidden
 int property QLIE_KeybindingTakeGamepad = 276 auto hidden
 int property QLIE_KeybindingTakeAllGamepad = 278 auto hidden
 int property QLIE_KeybindingTransferGamepad = 271 auto hidden
+int property QLIE_KeybindingDisableGamepad = -1 auto hidden
+int property QLIE_KeybindingEnableGamepad = -1 auto hidden
 string[] KeyModifierOptions
 string[] ControlPresetNames
 int ControlPredefinedPresetCount
@@ -394,6 +400,10 @@ function BuildControlsPage()
 		AddEmptyOption()
 		AddKeyMapOptionST("state_ControlsTransfer",			"$qlie_ControlsTransfer_text", QLIE_KeybindingTransferGamepad, OPTION_FLAG_WITH_UNMAP)
 		AddEmptyOption()
+		AddKeyMapOptionST("state_ControlsDisable",			"$qlie_ControlsDisable_text", QLIE_KeybindingDisableGamepad, OPTION_FLAG_WITH_UNMAP)
+		AddEmptyOption()
+		AddKeyMapOptionST("state_ControlsEnable",			"$qlie_ControlsEnable_text", QLIE_KeybindingEnableGamepad, OPTION_FLAG_WITH_UNMAP)
+		AddEmptyOption()
 	else
 		AddKeyMapOptionST("state_ControlsTake",				"$qlie_ControlsTake_text", QLIE_KeybindingTake, OPTION_FLAG_WITH_UNMAP)
 		AddMenuOptionST("state_ControlsTakeModifier",		"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingTakeModifier])
@@ -401,6 +411,10 @@ function BuildControlsPage()
 		AddMenuOptionST("state_ControlsTakeAllModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingTakeAllModifier])
 		AddKeyMapOptionST("state_ControlsTransfer",			"$qlie_ControlsTransfer_text", QLIE_KeybindingTransfer, OPTION_FLAG_WITH_UNMAP)
 		AddMenuOptionST("state_ControlsTransferModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingTransferModifier])
+		AddKeyMapOptionST("state_ControlsDisable",			"$qlie_ControlsDisable_text", QLIE_KeybindingDisable, OPTION_FLAG_WITH_UNMAP)
+		AddMenuOptionST("state_ControlsDisableModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingDisableModifier])
+		AddKeyMapOptionST("state_ControlsEnable",			"$qlie_ControlsEnable_text", QLIE_KeybindingEnable, OPTION_FLAG_WITH_UNMAP)
+		AddMenuOptionST("state_ControlsEnableModifier",		"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingEnableModifier])
 	endif
 
 	SetCursorFillMode(TOP_TO_BOTTOM)
@@ -1068,6 +1082,42 @@ state state_ControlsTransfer
 	endevent
 endstate
 
+state state_ControlsDisable
+	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
+		SetKeyMapOptionValueST(keyCode)
+
+		bool isGamepad = keyCode >= 266
+		if isGamepad
+			QLIE_KeybindingDisableGamepad = keyCode
+		else
+			QLIE_KeybindingDisable = keyCode
+		endif
+
+		if isGamepad != GamepadMode
+			GamepadMode = isGamepad
+			ForcePageReset()
+		endif
+	endevent
+endstate
+
+state state_ControlsEnable
+	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
+		SetKeyMapOptionValueST(keyCode)
+
+		bool isGamepad = keyCode >= 266
+		if isGamepad
+			QLIE_KeybindingEnableGamepad = keyCode
+		else
+			QLIE_KeybindingEnable = keyCode
+		endif
+
+		if isGamepad != GamepadMode
+			GamepadMode = isGamepad
+			ForcePageReset()
+		endif
+	endevent
+endstate
+
 state state_ControlsTakeModifier
 	event OnMenuOpenST()
 		SetMenuDialogStartIndex(0)
@@ -1149,22 +1199,38 @@ function ResetControls(int presetId = 0)
 		QLIE_KeybindingTake = 18				; E
 		QLIE_KeybindingTakeAll = 18				; E
 		QLIE_KeybindingTransfer = 19			; R
+		QLIE_KeybindingDisable = -1				; Unmapped
+		QLIE_KeybindingEnable = -1				; Unmapped
+
 		QLIE_KeybindingTakeModifier = 1			; None
 		QLIE_KeybindingTakeAllModifier = 2		; Shift
 		QLIE_KeybindingTransferModifier = 0		; Ignore
+		QLIE_KeybindingDisableModifier = 0		; Ignore
+		QLIE_KeybindingEnableModifier = 0		; Ignore
+
 		QLIE_KeybindingTakeGamepad = 276		; Gamepad A
 		QLIE_KeybindingTakeAllGamepad = 278		; Gamepad X
 		QLIE_KeybindingTransferGamepad = 273	; Gamepad Right Stick
+		QLIE_KeybindingDisableGamepad = -1		; Unmapped
+		QLIE_KeybindingEnableGamepad = -1		; Unmapped
 	else
 		QLIE_KeybindingTake = 18				; E
 		QLIE_KeybindingTakeAll = 19				; R
 		QLIE_KeybindingTransfer = 16			; Q
+		QLIE_KeybindingDisable = -1				; Unmapped
+		QLIE_KeybindingEnable = -1				; Unmapped
+
 		QLIE_KeybindingTakeModifier = 0			; Ignore
 		QLIE_KeybindingTakeAllModifier = 0		; Ignore
 		QLIE_KeybindingTransferModifier = 0		; Ignore
+		QLIE_KeybindingDisableModifier = 0		; Ignore
+		QLIE_KeybindingEnableModifier = 0		; Ignore
+
 		QLIE_KeybindingTakeGamepad = 276		; Gamepad A
 		QLIE_KeybindingTakeAllGamepad = 278		; Gamepad X
 		QLIE_KeybindingTransferGamepad = 271	; Gamepad Back
+		QLIE_KeybindingDisableGamepad = -1		; Unmapped
+		QLIE_KeybindingEnableGamepad = -1		; Unmapped
 	endif
 endfunction
 
@@ -1183,12 +1249,20 @@ function SaveControlPreset(string presetName)
 	JsonUtil.SetPathIntValue(path, "KeybindingTake", QLIE_KeybindingTake)
 	JsonUtil.SetPathIntValue(path, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
 	JsonUtil.SetPathIntValue(path, "KeybindingTransfer", QLIE_KeybindingTransfer)
+	JsonUtil.SetPathIntValue(path, "KeybindingDisable", QLIE_KeybindingDisable)
+	JsonUtil.SetPathIntValue(path, "KeybindingEnable", QLIE_KeybindingEnable)
+
 	JsonUtil.SetPathIntValue(path, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
 	JsonUtil.SetPathIntValue(path, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
 	JsonUtil.SetPathIntValue(path, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingDisableModifier", QLIE_KeybindingDisableModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingEnableModifier", QLIE_KeybindingEnableModifier)
+
 	JsonUtil.SetPathIntValue(path, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
 	JsonUtil.SetPathIntValue(path, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
 	JsonUtil.SetPathIntValue(path, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
+	JsonUtil.SetPathIntValue(path, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
+	JsonUtil.SetPathIntValue(path, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
 
 	JsonUtil.Save(path, false)
 	ShowMsg("$qlie_ControlPresetSave_success")
@@ -1215,12 +1289,20 @@ function LoadControlPreset(int index)
 		QLIE_KeybindingTake = JsonUtil.GetPathIntValue(path, "KeybindingTake", QLIE_KeybindingTake)
 		QLIE_KeybindingTakeAll = JsonUtil.GetPathIntValue(path, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
 		QLIE_KeybindingTransfer = JsonUtil.GetPathIntValue(path, "KeybindingTransfer", QLIE_KeybindingTransfer)
+		QLIE_KeybindingDisable = JsonUtil.GetPathIntValue(path, "KeybindingDisable", QLIE_KeybindingDisable)
+		QLIE_KeybindingEnable = JsonUtil.GetPathIntValue(path, "KeybindingEnable", QLIE_KeybindingEnable)
+
 		QLIE_KeybindingTakeModifier = JsonUtil.GetPathIntValue(path, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
 		QLIE_KeybindingTakeAllModifier = JsonUtil.GetPathIntValue(path, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
 		QLIE_KeybindingTransferModifier = JsonUtil.GetPathIntValue(path, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
+		QLIE_KeybindingDisableModifier = JsonUtil.GetPathIntValue(path, "KeybindingDisableModifier", QLIE_KeybindingDisableModifier)
+		QLIE_KeybindingEnableModifier = JsonUtil.GetPathIntValue(path, "KeybindingEnableModifier", QLIE_KeybindingEnableModifier)
+
 		QLIE_KeybindingTakeGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
 		QLIE_KeybindingTakeAllGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
 		QLIE_KeybindingTransferGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
+		QLIE_KeybindingDisableGamepad = JsonUtil.GetPathIntValue(path, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
+		QLIE_KeybindingEnableGamepad = JsonUtil.GetPathIntValue(path, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
 
 		JsonUtil.Unload(path)
 	endif
@@ -1391,12 +1473,20 @@ function SaveProfile()
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTake", QLIE_KeybindingTake)
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTransfer", QLIE_KeybindingTransfer)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingDisable", QLIE_KeybindingDisable)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingEnable", QLIE_KeybindingEnable)
+
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingDisableModifier", QLIE_KeybindingDisableModifier)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingEnableModifier", QLIE_KeybindingEnableModifier)
+
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
 	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
+	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
 
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconArtifactNew", QLIE_ShowIconArtifactNew as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconArtifactCarried", QLIE_ShowIconArtifactCarried as int)
@@ -1471,12 +1561,20 @@ function LoadProfile(bool initialLoad)
 	QLIE_KeybindingTake = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTake", QLIE_KeybindingTake)
 	QLIE_KeybindingTakeAll = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
 	QLIE_KeybindingTransfer = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTransfer", QLIE_KeybindingTransfer)
+	QLIE_KeybindingDisable = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingDisable", QLIE_KeybindingDisable)
+	QLIE_KeybindingEnable = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingEnable", QLIE_KeybindingEnable)
+
 	QLIE_KeybindingTakeModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
 	QLIE_KeybindingTakeAllModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
 	QLIE_KeybindingTransferModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
+	QLIE_KeybindingDisableModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingDisableModifier", QLIE_KeybindingDisableModifier)
+	QLIE_KeybindingEnableModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingEnableModifier", QLIE_KeybindingEnableModifier)
+
 	QLIE_KeybindingTakeGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
 	QLIE_KeybindingTakeAllGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
 	QLIE_KeybindingTransferGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
+	QLIE_KeybindingDisableGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
+	QLIE_KeybindingEnableGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
 
 	QLIE_ShowIconArtifactDisplayed = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconArtifactDisplayed", QLIE_ShowIconArtifactDisplayed as int)
 	QLIE_ShowIconArtifactCarried = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconArtifactCarried", QLIE_ShowIconArtifactCarried as int)

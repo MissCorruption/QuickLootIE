@@ -5,6 +5,7 @@
 #include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
 #include "LootMenu.h"
+#include "MenuVisibilityManager.h"
 
 namespace QuickLoot
 {
@@ -63,9 +64,21 @@ namespace QuickLoot
 	{
 		logger::trace("Input action {}", static_cast<int>(action));
 
-		QueueLootMenuTask([=](LootMenu& menu) {
-			menu.OnInputAction(action);
-		});
+		switch (action) {
+		case Input::QuickLootAction::kDisable:
+			MenuVisibilityManager::DisableLootMenu(std::string(Plugin::NAME));
+			break;
+
+		case Input::QuickLootAction::kEnable:
+			MenuVisibilityManager::EnableLootMenu(std::string(Plugin::NAME));
+			break;
+
+		default:
+			QueueLootMenuTask([=](LootMenu& menu) {
+				menu.OnInputAction(action);
+			});
+			break;
+		}
 	}
 
 	void LootMenuManager::SaveLastSelectedIndex(const RE::ObjectRefHandle& container, int selectedIndex)

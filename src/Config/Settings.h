@@ -65,7 +65,7 @@ namespace QuickLoot::Config
 		static bool ShowCompletionistCollected();
 
 	private:
-		static Input::Keybinding GetKeybinding(int skseKey, int modifierType, Input::QuickLootAction action);
+		static Input::Keybinding BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseKey, int modifierType);
 		static Input::ModifierKeys ModifierTypeToModifierKeys(int modifierType);
 		static void SkseKeyToDeviceKey(int skseKey, Input::DeviceType& deviceType, uint16_t& keyCode);
 	};

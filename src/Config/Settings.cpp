@@ -50,12 +50,17 @@ namespace QuickLoot::Config
 	std::vector<Input::Keybinding> Settings::GetKeybindings()
 	{
 		std::vector keybindings{
-			GetKeybinding(QLIE_KeybindingTake, QLIE_KeybindingTakeModifier, Input::QuickLootAction::kTake),
-			GetKeybinding(QLIE_KeybindingTakeAll, QLIE_KeybindingTakeAllModifier, Input::QuickLootAction::kTakeAll),
-			GetKeybinding(QLIE_KeybindingTransfer, QLIE_KeybindingTransferModifier, Input::QuickLootAction::kTransfer),
-			GetKeybinding(QLIE_KeybindingTakeGamepad, 0, Input::QuickLootAction::kTake),
-			GetKeybinding(QLIE_KeybindingTakeAllGamepad, 0, Input::QuickLootAction::kTakeAll),
-			GetKeybinding(QLIE_KeybindingTransferGamepad, 0, Input::QuickLootAction::kTransfer),
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTake, QLIE_KeybindingTake, QLIE_KeybindingTakeModifier),
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTakeAll, QLIE_KeybindingTakeAll, QLIE_KeybindingTakeAllModifier),
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTransfer, QLIE_KeybindingTransfer, QLIE_KeybindingTransferModifier),
+			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kDisable, QLIE_KeybindingDisable, QLIE_KeybindingDisableModifier),
+			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kEnable, QLIE_KeybindingEnable, QLIE_KeybindingEnableModifier),
+
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTake, QLIE_KeybindingTakeGamepad, 0),
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTakeAll, QLIE_KeybindingTakeAllGamepad, 0),
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTransfer, QLIE_KeybindingTransferGamepad, 0),
+			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kDisable, QLIE_KeybindingDisableGamepad, 0),
+			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kEnable, QLIE_KeybindingEnableGamepad, 0),
 		};
 
 		// Remove unmapped keybindings.
@@ -70,14 +75,15 @@ namespace QuickLoot::Config
 	bool Settings::ShowCompletionistNeeded() { return QLIE_ShowIconCompletionistNeeded; }
 	bool Settings::ShowCompletionistCollected() { return QLIE_ShowIconCompletionistCollected; }
 
-	Input::Keybinding Settings::GetKeybinding(int skseKey, int modifierType, Input::QuickLootAction action)
+	Input::Keybinding Settings::BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseKey, int modifierType)
 	{
 		Input::ModifierKeys modifiers = ModifierTypeToModifierKeys(modifierType);
 		Input::DeviceType deviceType;
 		uint16_t keyCode;
 		SkseKeyToDeviceKey(skseKey, deviceType, keyCode);
+		bool global = group == Input::ControlGroup::kEnableState;
 
-		return Input::Keybinding{ Input::ControlGroup::kButtonBar, deviceType, keyCode, modifiers, action, false };
+		return Input::Keybinding{ group, deviceType, keyCode, modifiers, action, false, 0.0f, global };
 	}
 
 	Input::ModifierKeys Settings::ModifierTypeToModifierKeys(int modifierType)

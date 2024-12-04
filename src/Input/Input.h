@@ -32,6 +32,7 @@ namespace QuickLoot::Input
 		kButtonBar = 1,
 		kMouseWheel = 2,
 		kDpad = 3,
+		kEnableState = 4,
 
 		// disabled on conflict
 		kArrowKeys = 11 | kOptional,
@@ -41,9 +42,13 @@ namespace QuickLoot::Input
 
 	enum class QuickLootAction : uint8_t
 	{
+		kDisable,
+		kEnable,
+
 		kTake,
 		kTakeAll,
 		kTransfer,
+
 		kScrollUp,
 		kScrollDown,
 		kPrevPage,
