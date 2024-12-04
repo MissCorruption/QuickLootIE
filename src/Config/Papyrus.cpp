@@ -13,17 +13,21 @@ namespace QuickLoot::Config
 
 	bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm)
 	{
-		vm->RegisterFunction("GetDllVersion",				"QuickLootIENative", GetDllVersion);
-		vm->RegisterFunction("GetSwfVersion",				"QuickLootIENative", GetSwfVersion);
-		vm->RegisterFunction("SetFrameworkQuest",			"QuickLootIENative", SetFrameworkQuest);
-		vm->RegisterFunction("LogWithPlugin",				"QuickLootIENative", LogWithPlugin);
-		vm->RegisterFunction("UpdateVariables",				"QuickLootIENative", UpdateVariables);
-		vm->RegisterFunction("FormatSortOptionsList",		"QuickLootIENative", FormatSortOptionsList);
-		vm->RegisterFunction("RemoveSortOptionPriority",	"QuickLootIENative", RemoveSortOptionPriority);
-		vm->RegisterFunction("InsertSortOptionPriority",	"QuickLootIENative", InsertSortOptionPriority);
-		vm->RegisterFunction("GetSortingPreset",			"QuickLootIENative", GetSortingPreset);
-		vm->RegisterFunction("GetSortingPresets",			"QuickLootIENative", GetSortingPresets);
-		vm->RegisterFunction("AddPresetsToArray",			"QuickLootIENative", AddPresetsToArray);
+#define RegisterScriptFunction(name) vm->RegisterFunction(#name, "QuickLootIENative", name);
+
+		RegisterScriptFunction(GetDllVersion);
+		RegisterScriptFunction(GetSwfVersion);
+		RegisterScriptFunction(SetFrameworkQuest);
+		RegisterScriptFunction(LogWithPlugin);
+		RegisterScriptFunction(UpdateVariables);
+		RegisterScriptFunction(FormatSortOptionsList);
+		RegisterScriptFunction(RemoveSortOptionPriority);
+		RegisterScriptFunction(InsertSortOptionPriority);
+		RegisterScriptFunction(GetSortingPreset);
+		RegisterScriptFunction(GetSortingPresets);
+		RegisterScriptFunction(AddPresetsToArray);
+
+#undef RegisterScriptFunction
 		return true;
 	};
 
@@ -47,58 +51,62 @@ namespace QuickLoot::Config
 
 	void Papyrus::UpdateVariables(RE::StaticFunctionTag*)
 	{
+#define LoadSettingsVar(name, ...) LoadSetting(name, #name, __VA_ARGS__)
+
 		// General > Behavior Settings
-		LoadSetting(QLIE_ShowInCombat,						"QLIE_ShowInCombat", false);
-		LoadSetting(QLIE_ShowWhenEmpty,						"QLIE_ShowWhenEmpty", true);
-		LoadSetting(QLIE_ShowWhenUnlocked,					"QLIE_ShowWhenUnlocked", true);
-		LoadSetting(QLIE_ShowInThirdPerson,					"QLIE_ShowInThirdPerson", true);
-		LoadSetting(QLIE_ShowWhenMounted,					"QLIE_ShowWhenMounted", false);
-		LoadSetting(QLIE_EnableForAnimals,					"QLIE_EnableForAnimals", false);
-		LoadSetting(QLIE_EnableForDragons,					"QLIE_EnableForDragons", false);
-		LoadSetting(QLIE_BreakInvisibility,					"QLIE_BreakInvisibility", true);
+		LoadSettingsVar(QLIE_ShowInCombat, false);
+		LoadSettingsVar(QLIE_ShowWhenEmpty, true);
+		LoadSettingsVar(QLIE_ShowWhenUnlocked, true);
+		LoadSettingsVar(QLIE_ShowInThirdPerson, true);
+		LoadSettingsVar(QLIE_ShowWhenMounted, false);
+		LoadSettingsVar(QLIE_EnableForAnimals, false);
+		LoadSettingsVar(QLIE_EnableForDragons, false);
+		LoadSettingsVar(QLIE_BreakInvisibility, true);
 
 		// Display > Window Settings
-		LoadSetting(QLIE_WindowOffsetX,						"QLIE_WindowOffsetX", 100);
-		LoadSetting(QLIE_WindowOffsetY,						"QLIE_WindowOffsetY", -200);
-		LoadSetting(QLIE_WindowScale,						"QLIE_WindowScale", 1.0f);
-		LoadSetting(QLIE_WindowAnchor,						"QLIE_WindowAnchor", 0);
-		LoadSetting(QLIE_WindowMinLines,					"QLIE_WindowMinLines", 0);
-		LoadSetting(QLIE_WindowMaxLines,					"QLIE_WindowMaxLines", 7);
-		LoadSetting(QLIE_WindowOpacityNormal,				"QLIE_WindowOpacityNormal", 1.0f);
-		LoadSetting(QLIE_WindowOpacityEmpty,				"QLIE_WindowOpacityEmpty", 0.3f);
+		LoadSettingsVar(QLIE_WindowOffsetX, 100);
+		LoadSettingsVar(QLIE_WindowOffsetY, -200);
+		LoadSettingsVar(QLIE_WindowScale, 1.0f);
+		LoadSettingsVar(QLIE_WindowAnchor, 0);
+		LoadSettingsVar(QLIE_WindowMinLines, 0);
+		LoadSettingsVar(QLIE_WindowMaxLines, 7);
+		LoadSettingsVar(QLIE_WindowOpacityNormal, 1.0f);
+		LoadSettingsVar(QLIE_WindowOpacityEmpty, 0.3f);
 
 		// Display > Icon Settings
-		LoadSetting(QLIE_ShowIconRead,						"QLIE_ShowIconRead", true);
-		LoadSetting(QLIE_ShowIconStolen,					"QLIE_ShowIconStolen", true);
-		LoadSetting(QLIE_ShowIconEnchanted,					"QLIE_ShowIconEnchanted", true);
-		LoadSetting(QLIE_ShowIconEnchantedKnown,			"QLIE_ShowIconEnchantedKnown", true);
-		LoadSetting(QLIE_ShowIconEnchantedSpecial,			"QLIE_ShowIconEnchantedSpecial", true);
+		LoadSettingsVar(QLIE_ShowIconRead, true);
+		LoadSettingsVar(QLIE_ShowIconStolen, true);
+		LoadSettingsVar(QLIE_ShowIconEnchanted, true);
+		LoadSettingsVar(QLIE_ShowIconEnchantedKnown, true);
+		LoadSettingsVar(QLIE_ShowIconEnchantedSpecial, true);
 
 		// Display > Info Columns
-		LoadSetting(QLIE_InfoColumns,						"QLIE_InfoColumns", { "value", "weight", "valuePerWeight" });
+		LoadSettingsVar(QLIE_InfoColumns, { "value", "weight", "valuePerWeight" });
 
 		// Sorting
-		LoadSetting(QLIE_SortRulesActive,					"QLIE_SortRulesActive", {});
+		LoadSettingsVar(QLIE_SortRulesActive, {});
 
 		// Controls
-		LoadSetting(QLIE_KeybindingTake,					"QLIE_KeybindingTake", 18);
-		LoadSetting(QLIE_KeybindingTakeAll,					"QLIE_KeybindingTakeAll", 19);
-		LoadSetting(QLIE_KeybindingTransfer,				"QLIE_KeybindingTransfer", 16);
-		LoadSetting(QLIE_KeybindingTakeModifier,			"QLIE_KeybindingTakeModifier", 0);
-		LoadSetting(QLIE_KeybindingTakeAllModifier,			"QLIE_KeybindingTakeAllModifier", 0);
-		LoadSetting(QLIE_KeybindingTransferModifier,		"QLIE_KeybindingTransferModifier", 0);
-		LoadSetting(QLIE_KeybindingTakeGamepad,				"QLIE_KeybindingTakeGamepad", 276);
-		LoadSetting(QLIE_KeybindingTakeAllGamepad,			"QLIE_KeybindingTakeAllGamepad", 278);
-		LoadSetting(QLIE_KeybindingTransferGamepad,			"QLIE_KeybindingTransferGamepad", 271);
+		LoadSettingsVar(QLIE_KeybindingTake, 18);
+		LoadSettingsVar(QLIE_KeybindingTakeAll, 19);
+		LoadSettingsVar(QLIE_KeybindingTransfer, 16);
+		LoadSettingsVar(QLIE_KeybindingTakeModifier, 0);
+		LoadSettingsVar(QLIE_KeybindingTakeAllModifier, 0);
+		LoadSettingsVar(QLIE_KeybindingTransferModifier, 0);
+		LoadSettingsVar(QLIE_KeybindingTakeGamepad, 276);
+		LoadSettingsVar(QLIE_KeybindingTakeAllGamepad, 278);
+		LoadSettingsVar(QLIE_KeybindingTransferGamepad, 271);
 
 		// Compatibility > LOTD Icons
-		LoadSetting(QLIE_ShowIconArtifactNew,				"QLIE_ShowIconArtifactNew", false);
-		LoadSetting(QLIE_ShowIconArtifactCarried,			"QLIE_ShowIconArtifactCarried", false);
-		LoadSetting(QLIE_ShowIconArtifactDisplayed,			"QLIE_ShowIconArtifactDisplayed", false);
+		LoadSettingsVar(QLIE_ShowIconArtifactNew, false);
+		LoadSettingsVar(QLIE_ShowIconArtifactCarried, false);
+		LoadSettingsVar(QLIE_ShowIconArtifactDisplayed, false);
 
 		// Compatibility > Completionist Icons
-		LoadSetting(QLIE_ShowIconCompletionistNeeded,		"QLIE_ShowIconCompletionistNeeded", false);
-		LoadSetting(QLIE_ShowIconCompletionistCollected,	"QLIE_ShowIconCompletionistCollected", false);
+		LoadSettingsVar(QLIE_ShowIconCompletionistNeeded, false);
+		LoadSettingsVar(QLIE_ShowIconCompletionistCollected, false);
+
+#undef LoadSettingsVar
 	}
 
 	void Papyrus::LogWithPlugin(RE::StaticFunctionTag*, std::string message)
