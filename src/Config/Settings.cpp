@@ -49,7 +49,7 @@ namespace QuickLoot::Config
 
 	std::vector<Input::Keybinding> Settings::GetKeybindings()
 	{
-		return {
+		std::vector keybindings{
 			GetKeybinding(QLIE_KeybindingTake, QLIE_KeybindingTakeModifier, Input::QuickLootAction::kTake),
 			GetKeybinding(QLIE_KeybindingTakeAll, QLIE_KeybindingTakeAllModifier, Input::QuickLootAction::kTakeAll),
 			GetKeybinding(QLIE_KeybindingTransfer, QLIE_KeybindingTransferModifier, Input::QuickLootAction::kTransfer),
@@ -57,6 +57,11 @@ namespace QuickLoot::Config
 			GetKeybinding(QLIE_KeybindingTakeAllGamepad, 0, Input::QuickLootAction::kTakeAll),
 			GetKeybinding(QLIE_KeybindingTransferGamepad, 0, Input::QuickLootAction::kTransfer),
 		};
+
+		// Remove unmapped keybindings.
+		std::erase_if(keybindings, [](const auto& keybinding) { return keybinding.inputKey == static_cast<uint16_t>(-1); });
+
+		return keybindings;
 	}
 
 	bool Settings::ShowArtifactDisplayed() { return QLIE_ShowIconArtifactDisplayed; }
