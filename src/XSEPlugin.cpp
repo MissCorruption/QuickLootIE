@@ -6,9 +6,10 @@
 #include "Behaviors/LockpickActivation.h"
 #include "Config/Papyrus.h"
 #include "Input/InputManager.h"
+#include "Input/InputObserver.h"
 #include "Integrations/APIServer.h"
-#include "Integrations/Completionist.h"
 #include "Integrations/Artifacts.h"
+#include "Integrations/Completionist.h"
 #include "LootMenu.h"
 #include "MenuVisibilityManager.h"
 #include "SanityChecks.h"
@@ -39,6 +40,8 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 
 		QuickLoot::Integrations::Artifacts::Init();
 		QuickLoot::Integrations::Completionist::Init();
+
+		QuickLoot::Input::InputObserver::StartListening();
 		break;
 	}
 }
@@ -82,7 +85,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* sks
 {
 	InitializeLog(spdlog::level::trace);
 
-	logger::info("Loaded plugin {} {}", Plugin::NAME, Plugin::VERSION.string());
+	logger::info("Loaded plugin {} {}", Plugin::NAME, Plugin::VERSION.string("."));
 
 	SKSE::Init(skse);
 	SKSE::AllocTrampoline(1 << 8);

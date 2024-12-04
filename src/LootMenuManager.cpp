@@ -3,7 +3,6 @@
 #include "Behaviors/ActivationPrompt.h"
 #include "Behaviors/ContainerAnimator.h"
 #include "Input/InputManager.h"
-#include "Input/InputObserver.h"
 #include "Integrations/APIServer.h"
 #include "LootMenu.h"
 
@@ -11,7 +10,7 @@ namespace QuickLoot
 {
 	bool LootMenuManager::IsOpen()
 	{
-		return static_cast<bool>(GetMenu());
+		return static_cast<bool>(_currentContainer);
 	}
 
 	void LootMenuManager::RequestOpen(const RE::ObjectRefHandle& container)
@@ -21,7 +20,7 @@ namespace QuickLoot
 		}
 
 		if (API::APIServer::DispatchOpeningLootMenuEvent(container.get()) != HandleResult::kContinue) {
-			logger::info("Opening was cancelled by API subscriber");
+			logger::info("Opening was canceled by API subscriber");
 			RequestClose();
 			return;
 		}
@@ -30,7 +29,6 @@ namespace QuickLoot
 			RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
 
 			Input::InputManager::BlockConflictingInputs();
-			Input::InputObserver::StartListening();
 			Behaviors::ActivationPrompt::Block();
 		}
 
@@ -49,7 +47,6 @@ namespace QuickLoot
 
 		Behaviors::ActivationPrompt::Unblock();
 		Input::InputManager::UnblockConflictingInputs();
-		Input::InputObserver::StopListening();
 
 		Behaviors::ContainerAnimator::CloseContainer(_currentContainer);
 		_currentContainer.reset();
@@ -100,9 +97,4 @@ namespace QuickLoot
 
 		_taskQueue.push_back(std::move(task));
 	}
-
-	RE::GPtr<LootMenu> LootMenuManager::GetMenu()
-	{
-		return RE::UI::GetSingleton()->GetMenu<LootMenu>(LootMenu::MENU_NAME);
-	}
-};
+}

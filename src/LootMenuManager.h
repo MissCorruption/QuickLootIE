@@ -37,6 +37,5 @@ namespace QuickLoot
 		static inline int _lastSelectedIndex = 0;
 
 		static void QueueLootMenuTask(LootMenuTask task);
-		static [[nodiscard]] RE::GPtr<LootMenu> GetMenu();
 	};
 }

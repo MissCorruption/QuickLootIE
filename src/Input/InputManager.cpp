@@ -172,8 +172,9 @@ namespace QuickLoot::Input
 
 		std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
 			return keybinding.group == ControlGroup::kButtonBar &&
-			       isGamepad == (keybinding.deviceType == DeviceType::kGamepad) &&
-			       (keybinding.modifiers == ModifierKeys::kIgnore || keybinding.modifiers == (_currentModifiers & _usedModifiers));
+			       (keybinding.deviceType == DeviceType::kGamepad) == isGamepad &&
+			       (keybinding.modifiers == ModifierKeys::kIgnore ||
+					   keybinding.modifiers == (_currentModifiers & _usedModifiers));
 		});
 
 		return filtered;
@@ -220,7 +221,9 @@ namespace QuickLoot::Input
 	Keybinding* InputManager::FindConflictingKeybinding(const UserEventMapping& mapping, DeviceType deviceType)
 	{
 		const auto it = std::ranges::find_if(_keybindings, [&](const Keybinding& keybinding) {
-			return keybinding.deviceType == deviceType && keybinding.inputKey == mapping.inputKey;
+			return keybinding.deviceType == deviceType &&
+			       keybinding.inputKey == mapping.inputKey &&
+			       !keybinding.global;
 		});
 
 		return it != _keybindings.end() ? &*it : nullptr;
@@ -237,7 +240,11 @@ namespace QuickLoot::Input
 		}
 
 		const auto it = std::ranges::find_if(_keybindings, [&](const Keybinding& keybinding) {
-			return keybinding.deviceType == deviceType && keybinding.inputKey == inputKey && (keybinding.modifiers == ModifierKeys::kIgnore || keybinding.modifiers == (_currentModifiers & _usedModifiers));
+			return keybinding.deviceType == deviceType &&
+			       keybinding.inputKey == inputKey &&
+			       (keybinding.modifiers == ModifierKeys::kIgnore ||
+					   keybinding.modifiers == (_currentModifiers & _usedModifiers)) &&
+			       (keybinding.global || LootMenuManager::IsOpen());
 		});
 
 		return it != _keybindings.end() ? &*it : nullptr;

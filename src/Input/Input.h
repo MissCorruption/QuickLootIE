@@ -62,5 +62,7 @@ namespace QuickLoot::Input
 		// Whether the action should be periodically re-triggered when the button is held.
 		bool retrigger;
 		float nextRetriggerTime = 0.0f;
+		// Whether the keybinding should be active while the loot menu is closed.
+		bool global = false;
 	};
 }
