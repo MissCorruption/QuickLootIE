@@ -293,9 +293,10 @@ function BuildGeneralPage()
 	AddTextOption("", "$qlie_ModName")
 	;AddTextOption("", "$qlie_Author1")
 	;AddTextOption("", "$qlie_Author2")
-	AddEmptyOption()
+
 	AddTextOption("", "$qlie_ModVersion{" + ((self as Quest) as QuickLootIEMaintenance).CurrentVersionString + "}")
-	AddTextOption("", "$qlie_DllVersion{" + QuickLootIENative.GetVersion() + "}")
+	AddTextOption("", "$qlie_DllVersion{" + QuickLootIENative.GetDllVersion() + "}")
+	AddTextOption("", "$qlie_SwfVersion{" + QuickLootIENative.GetSwfVersion() + "}")
 	AddEmptyOption()
 
 	if PapyrusUtil.GetScriptVersion() > 31

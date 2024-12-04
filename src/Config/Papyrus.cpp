@@ -1,5 +1,6 @@
 #include "Papyrus.h"
 
+#include "LootMenu.h"
 #include "Settings.h"
 #include "Util/ScriptObject.h"
 
@@ -12,7 +13,8 @@ namespace QuickLoot::Config
 
 	bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm)
 	{
-		vm->RegisterFunction("GetVersion",					"QuickLootIENative", GetVersion);
+		vm->RegisterFunction("GetDllVersion",				"QuickLootIENative", GetDllVersion);
+		vm->RegisterFunction("GetSwfVersion",				"QuickLootIENative", GetSwfVersion);
 		vm->RegisterFunction("SetFrameworkQuest",			"QuickLootIENative", SetFrameworkQuest);
 		vm->RegisterFunction("LogWithPlugin",				"QuickLootIENative", LogWithPlugin);
 		vm->RegisterFunction("UpdateVariables",				"QuickLootIENative", UpdateVariables);
@@ -104,9 +106,14 @@ namespace QuickLoot::Config
 		logger::info("! {}", message);
 	}
 
-	std::string Papyrus::GetVersion(RE::StaticFunctionTag*)
+	std::string Papyrus::GetDllVersion(RE::StaticFunctionTag*)
 	{
-		return std::string(ReplaceStr(Plugin::VERSION.string(), "-", "."));
+		return Plugin::VERSION.string(".");
+	}
+
+	std::string Papyrus::GetSwfVersion(RE::StaticFunctionTag*)
+	{
+		return std::to_string(LootMenu::GetSwfVersion());
 	}
 
 	std::vector<std::string> Papyrus::FormatSortOptionsList(RE::StaticFunctionTag*, std::vector<std::string> options, std::vector<std::string> userList)

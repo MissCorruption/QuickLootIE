@@ -1,7 +1,10 @@
 scriptname QuickLootIENative hidden native
 
 ; Gets the current plugin version as a full string e.g "1.0.1.2"
-string function GetVersion() global native
+string function GetDllVersion() global native
+
+; Gets the reported version of LootMenuIE.swf
+string function GetSwfVersion() global native
 
 ; Sets the quest property in the dll so it can read script properties.
 function SetFrameworkQuest(Quest quest) global native

@@ -65,7 +65,9 @@ namespace QuickLoot::Config
 		static void SetFrameworkQuest(RE::StaticFunctionTag*, RE::TESQuest* quest);
 		static void LogWithPlugin(RE::StaticFunctionTag*, std::string message);
 		static void UpdateVariables(RE::StaticFunctionTag* = nullptr);
-		static std::string GetVersion(RE::StaticFunctionTag*);
+
+		static std::string GetDllVersion(RE::StaticFunctionTag*);
+		static std::string GetSwfVersion(RE::StaticFunctionTag*);
 
 		static std::vector<std::string> FormatSortOptionsList(RE::StaticFunctionTag*, std::vector<std::string> options, std::vector<std::string> userList);
 		static std::vector<std::string> RemoveSortOptionPriority(RE::StaticFunctionTag*, std::vector<std::string> userList, int elementPos);
@@ -77,10 +79,6 @@ namespace QuickLoot::Config
 
 	private:
 		static bool RegisterFunctions(RE::BSScript::IVirtualMachine* vm);
-		static std::string ReplaceStr(const std::string& in, const std::string& from, const std::string& to)
-		{
-			return std::regex_replace(in, std::regex(from), to);
-		}
 
 		static std::vector<std::string> ConvertScriptArrayToVector(ScriptArrayPtr scriptArrayPtr)
 		{
