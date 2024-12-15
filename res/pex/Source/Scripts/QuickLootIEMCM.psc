@@ -115,12 +115,18 @@ event OnConfigOpen()
 	Pages[1] = "$qlie_DisplayPage"
 	Pages[2] = "$qlie_ControlsPage"
 	Pages[3] = "$qlie_CompatibilityPage"
-
-	SendModEvent("SKICP_pageSelected", "$qlie_GeneralPage", 0) ; Select General page
 endevent
 
 event OnPageReset(string page)
 	LogWithPlugin("OnPageReset " + page)
+
+	; Credits page
+    if (page == "")
+		LoadCustomContent("QuickLootIE_splash.swf")
+		return
+	endif
+
+	UnloadCustomContent()
 
     if (page == "$qlie_GeneralPage")
 		BuildGeneralPage()
