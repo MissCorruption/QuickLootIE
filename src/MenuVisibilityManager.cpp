@@ -198,21 +198,27 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::OnCameraStateChanged(RE::CameraState state)
 	{
-		logger::trace("OnCameraStateChanged: {}", std::to_underlying(state));
+		if (LOG_EVENTS) {
+			logger::trace("OnCameraStateChanged: {}", std::to_underlying(state));
+		}
 
 		RefreshOpenState();
 	}
 
 	void MenuVisibilityManager::OnCombatStateChanged(RE::ACTOR_COMBAT_STATE state)
 	{
-		logger::trace("OnCombatStateChanged: {}", std::to_underlying(state));
+		if (LOG_EVENTS) {
+			logger::trace("OnCombatStateChanged: {}", std::to_underlying(state));
+		}
 
 		RefreshOpenState();
 	}
 
 	void MenuVisibilityManager::OnContainerChanged(RE::FormID container)
 	{
-		logger::trace("OnContainerChanged: {:08X}", container);
+		if (LOG_EVENTS) {
+			logger::trace("OnContainerChanged: {:08X}", container);
+		}
 
 		if (_currentContainer.get() && container == _currentContainer.get()->GetFormID()) {
 			RefreshInventory();
@@ -221,7 +227,9 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::OnCrosshairRefChanged(const RE::ObjectRefHandle& ref)
 	{
-		logger::trace("OnCrosshairRefChanged: {:08X}", ref.get() ? ref.get()->GetFormID() : 0);
+		if (LOG_EVENTS) {
+			logger::trace("OnCrosshairRefChanged: {:08X}", ref.get() ? ref.get()->GetFormID() : 0);
+		}
 
 		if (ref != _focusedRef) {
 			_focusedRef = ref;
@@ -231,7 +239,9 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::OnLifeStateChanged(RE::Actor& actor)
 	{
-		logger::trace("OnLifeStateChanged: {:08X}", actor.GetFormID());
+		if (LOG_EVENTS) {
+			logger::trace("OnLifeStateChanged: {:08X}", actor.GetFormID());
+		}
 
 		if (actor.GetHandle() == _focusedRef) {
 			RefreshOpenState();
@@ -240,7 +250,9 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::OnLockChanged(RE::TESObjectREFR& container)
 	{
-		logger::trace("OnLockChanged: {:08X}", container.GetFormID());
+		if (LOG_EVENTS) {
+			logger::trace("OnLockChanged: {:08X}", container.GetFormID());
+		}
 
 		if (Settings::ShowWhenUnlocked() && container.GetHandle() == _focusedRef) {
 			RefreshOpenState();
@@ -249,7 +261,9 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName)
 	{
-		logger::trace("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", menuName);
+		if (LOG_EVENTS) {
+			logger::trace("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", menuName);
+		}
 
 		// Always ignore events related to the loot menu to avoid feedback loops
 		if (menuName == LootMenu::MENU_NAME) {
