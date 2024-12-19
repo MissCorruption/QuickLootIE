@@ -1,6 +1,7 @@
 {
 	"logLevel": "trace",
 	"logFlush": "trace",
+	"skipOldSwfCheck": false,
 	"menuWhitelist": [
 		"AchievementWidget",
 		"BestiaryWidget",

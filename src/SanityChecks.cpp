@@ -1,6 +1,7 @@
 #include "SanityChecks.h"
 
 #include "LootMenu.h"
+#include "Config/SystemSettings.h"
 #include "Util/FormUtil.h"
 
 void ShowFatalError(const char* message)
@@ -38,7 +39,7 @@ bool QuickLoot::SanityChecks::ValidateSWF()
 {
 	logger::info("Checking SWF files...");
 
-	if (std::filesystem::exists(LEGACY_SWF)) {
+	if (!Config::SystemSettings::SkipOldSwfCheck() && std::filesystem::exists(LEGACY_SWF)) {
 		logger::error("LootMenu.swf present");
 
 		ShowFatalError(
@@ -46,7 +47,8 @@ bool QuickLoot::SanityChecks::ValidateSWF()
 			"This file is no longer used by QuickLoot IE and was "
 			"most likely provided by an incompatible UI patch. "
 			"It will be ignored."
-			"\n\nExit Game now? (Recommend yes)");
+			"\n\nSet skipOldSwfCheck to true in QuickLootIE.json to disable this message."
+			"\n\nExit Game now? (Recommend no)");
 
 		// The presence of LootMenu.swf does not prevent QuickLoot from working,
 		// so it shouldn't fail the sanity check.
@@ -63,6 +65,7 @@ bool QuickLoot::SanityChecks::ValidateSWF()
 				"This file is required by QuickLoot IE. "
 				"Please make sure the mod is installed correctly."
 				"\n\nExit Game now? (Recommend yes)");
+
 			return false;
 		}
 
@@ -81,6 +84,7 @@ bool QuickLoot::SanityChecks::ValidateSWF()
 		ShowFatalError(
 			"The installed version of LootMenuIE.swf is not compatible with QuickLoot IE."
 			"\n\nExit Game now? (Recommend yes)");
+
 		return false;
 
 	default:

@@ -21,6 +21,8 @@ namespace QuickLoot::Config
 			return;
 		}
 
+		_skipOldSwfCheck = config.value("skipOldSwfCheck", false);
+
 		UpdateLogLevel(config);
 		UpdateMenuWhitelist(config);
 	}
