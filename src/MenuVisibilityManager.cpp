@@ -1,5 +1,6 @@
 #include "MenuVisibilityManager.h"
 
+#include "Config/SystemSettings.h"
 #include "Config/UserSettings.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
@@ -54,22 +55,48 @@ namespace QuickLoot
 		}
 	}
 
-	bool MenuVisibilityManager::IsBlockingMenuOpen()
+	const char* MenuVisibilityManager::GetMenuNameSafe(const RE::IMenu* menu)
 	{
 		const auto ui = RE::UI::GetSingleton();
-		const auto lootMenu = ui->GetMenu(LootMenu::MENU_NAME);
+
+		for (auto [name, entry] : ui->menuMap) {
+			if (menu == entry.menu.get()) {
+				return name.c_str();
+			}
+		}
+
+		return "Unknown";
+	}
+
+	const char* MenuVisibilityManager::FindBlockingMenu()
+	{
+		const auto ui = RE::UI::GetSingleton();
+		std::set<RE::IMenu*> whitelistedMenus{};
+
+		if (const auto lootMenu = ui->GetMenu(LootMenu::MENU_NAME)) {
+			whitelistedMenus.emplace(lootMenu.get());
+		}
+
+		for (auto name : Config::SystemSettings::GetMenuWhitelist()) {
+			if (const auto whitelistedMenu = ui->GetMenu(name)) {
+				whitelistedMenus.emplace(whitelistedMenu.get());
+			}
+		}
 
 		for (auto menu : ui->menuStack) {
 			if (menu->menuFlags & RE::UI_MENU_FLAGS::kAlwaysOpen)
 				continue;
 
-			if (menu == lootMenu)
+			// IMenu::menuName is unreliable and can even crash the game when read, so instead of
+			// checking whether a menu's name is on the whitelist we need to actually compare with
+			// the instances of all whitelisted menus.
+			if (whitelistedMenus.contains(menu.get()))
 				continue;
 
-			return true;
+			return GetMenuNameSafe(menu.get());
 		}
 
-		return false;
+		return nullptr;
 	}
 
 	bool MenuVisibilityManager::CanOpen(const RE::TESObjectREFRPtr& container)
@@ -121,8 +148,8 @@ namespace QuickLoot
 			return false;
 		}
 
-		if (IsBlockingMenuOpen()) {
-			logger::debug("LootMenu disabled because a blocking menu is open");
+		if (const char* blocking = FindBlockingMenu()) {
+			logger::debug("LootMenu disabled because a blocking menu is open ({})", blocking);
 			return false;
 		}
 
