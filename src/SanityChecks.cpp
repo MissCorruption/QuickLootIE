@@ -34,7 +34,6 @@ bool QuickLoot::SanityChecks::ValidatePlugins()
 	return true;
 }
 
-
 bool QuickLoot::SanityChecks::ValidateSWF()
 {
 	logger::info("Checking SWF files...");
@@ -54,25 +53,26 @@ bool QuickLoot::SanityChecks::ValidateSWF()
 		//return false;
 	}
 
-	if (!std::filesystem::exists(CURRENT_SWF)) {
-		logger::error("LootMenuIE.swf missing");
-
-		ShowFatalError(
-			"LootMenuIE.swf is missing. "
-			"This file is required by QuickLoot IE. "
-			"Please make sure the mod is installed correctly."
-			"\n\nExit Game now? (Recommend yes)");
-		return false;
-	}
-
 	switch (const int version = LootMenu::GetSwfVersion()) {
 	case -2:
+		if (!std::filesystem::exists(CURRENT_SWF)) {
+			logger::error("LootMenuIE.swf missing");
+
+			ShowFatalError(
+				"LootMenuIE.swf is missing. "
+				"This file is required by QuickLoot IE. "
+				"Please make sure the mod is installed correctly."
+				"\n\nExit Game now? (Recommend yes)");
+			return false;
+		}
+
 		logger::error("Failed to load swf");
 
 		ShowFatalError(
 			"LootMenuIE.swf exists but failed to load. "
 			"If you are using a reskin, make sure all of its dependencies are installed."
 			"\n\nExit Game now? (Recommend yes)");
+
 		return false;
 
 	case -1:
