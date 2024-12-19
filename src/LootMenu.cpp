@@ -55,6 +55,7 @@ namespace QuickLoot
 	LootMenu::LootMenu()
 	{
 		depthPriority = 3;
+		menuName = MENU_NAME;
 		menuFlags.set(Flag::kAllowSaving, Flag::kHasButtonBar);
 
 		RE::BSScaleformManager::GetSingleton()->LoadMovie(this, uiMovie, FILE_NAME.data());
