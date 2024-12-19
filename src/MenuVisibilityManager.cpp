@@ -1,6 +1,6 @@
 #include "MenuVisibilityManager.h"
 
-#include "Config/Settings.h"
+#include "Config/UserSettings.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
 #include "Observers/CameraStateObserver.h"
@@ -11,7 +11,7 @@
 #include "Observers/LockChangedObserver.h"
 #include "Observers/MenuObserver.h"
 
-using Settings = QuickLoot::Config::Settings;
+using Settings = QuickLoot::Config::UserSettings;
 
 namespace QuickLoot
 {

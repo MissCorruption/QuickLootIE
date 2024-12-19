@@ -1,10 +1,10 @@
 #include "ItemListEntry.h"
 
-#include "Config/Settings.h"
+#include "Config/UserSettings.h"
 #include "Integrations/Completionist.h"
 #include "Integrations/Artifacts.h"
 
-using Settings = QuickLoot::Config::Settings;
+using Settings = QuickLoot::Config::UserSettings;
 
 #undef GetModuleHandle
 

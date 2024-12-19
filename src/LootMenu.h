@@ -5,11 +5,11 @@
 #include "CLIK/GFx/Controls/ButtonBar.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
-#include "Config/Settings.h"
+#include "Config/UserSettings.h"
 #include "Input/Input.h"
 #include "Items/OldItem.h"
 
-using Settings = QuickLoot::Config::Settings;
+using Settings = QuickLoot::Config::UserSettings;
 
 namespace QuickLoot
 {

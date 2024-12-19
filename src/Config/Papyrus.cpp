@@ -1,7 +1,7 @@
 #include "Papyrus.h"
 
 #include "LootMenu.h"
-#include "Settings.h"
+#include "UserSettings.h"
 #include "Util/ScriptObject.h"
 
 namespace QuickLoot::Config
@@ -46,7 +46,7 @@ namespace QuickLoot::Config
 
 		logger::info("MCM pointer set successfully");
 
-		Settings::Update();
+		UserSettings::Update();
 	};
 
 	void Papyrus::UpdateVariables(RE::StaticFunctionTag*)
