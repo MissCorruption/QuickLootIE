@@ -12,6 +12,8 @@ namespace QuickLoot::Util
 		FormUtil& operator=(FormUtil&) = delete;
 		FormUtil& operator=(FormUtil&&) = delete;
 
+		static RE::FormID ParseFormID(const std::string& identifier);
+
 		static RE::TESForm* GetFormFromIdentifier(const std::string& identifier);
 
 		static std::string GetIdentifierFromForm(RE::TESForm* form);

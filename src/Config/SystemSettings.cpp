@@ -1,5 +1,7 @@
 #include "SystemSettings.h"
 
+#include "Util/FormUtil.h"
+
 namespace QuickLoot::Config
 {
 	void SystemSettings::Update()
@@ -25,6 +27,7 @@ namespace QuickLoot::Config
 
 		UpdateLogLevel(config);
 		UpdateMenuWhitelist(config);
+		UpdateContainerBlacklist(config);
 	}
 
 	void SystemSettings::UpdateLogLevel(const json& config)
@@ -59,6 +62,32 @@ namespace QuickLoot::Config
 			const auto menu = menuJson.get<std::string>();
 			_menuWhitelist.push_back(menu);
 			logger::trace("Whitelisted menu: {}", menu);
+		}
+	}
+
+	void SystemSettings::UpdateContainerBlacklist(const json& config)
+	{
+		_containerBlacklist.clear();
+
+		if (!config.contains("containerBlacklist")) {
+			return;
+		}
+
+		const auto blacklistJson = config.at("containerBlacklist");
+		if (!blacklistJson.is_array()) {
+			logger::warn("Container blacklist wasn't an array");
+			return;
+		}
+
+		for (auto& formJson : blacklistJson) {
+			if (!formJson.is_string()) {
+				logger::warn("Container blacklist contained non-string value ({})", formJson.type_name());
+				continue;
+			}
+
+			const auto identifier = formJson.get<std::string>();
+			_containerBlacklist.insert(Util::FormUtil::ParseFormID(identifier));
+			logger::trace("Blacklisted container: {}", identifier);
 		}
 	}
 }

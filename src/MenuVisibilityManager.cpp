@@ -99,6 +99,21 @@ namespace QuickLoot
 		return nullptr;
 	}
 
+	bool MenuVisibilityManager::IsContainerBlacklisted(const RE::TESObjectREFRPtr& container)
+	{
+		const auto& blacklist = Config::SystemSettings::GetContainerBlacklist();
+
+		if (blacklist.contains(container->formID)) {
+			return true;
+		}
+
+		if (const auto baseObj = container->GetBaseObject()) {
+			return blacklist.contains(baseObj->formID);
+		}
+
+		return false;
+	}
+
 	bool MenuVisibilityManager::CanOpen(const RE::TESObjectREFRPtr& container)
 	{
 		const auto player = RE::PlayerCharacter::GetSingleton();
@@ -145,6 +160,11 @@ namespace QuickLoot
 
 		if (RE::UI::GetSingleton()->GameIsPaused()) {
 			logger::debug("LootMenu disabled because the game is paused");
+			return false;
+		}
+
+		if (IsContainerBlacklisted(container)) {
+			logger::debug("LootMenu disabled because the container is blacklisted ({:08X})", container->formID);
 			return false;
 		}
 

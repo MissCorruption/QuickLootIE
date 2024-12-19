@@ -6,5 +6,8 @@
 		"AchievementWidget",
 		"BestiaryWidget",
 		"Durability Menu"
+	],
+	"containerBlacklist": [
+		"Skyrim.esm|000000"
 	]
 }

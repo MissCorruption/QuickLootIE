@@ -36,6 +36,7 @@ namespace QuickLoot
 		static bool IsValidCameraState(RE::CameraState state);
 		static const char* GetMenuNameSafe(const RE::IMenu* menu);
 		static const char* FindBlockingMenu();
+		static bool IsContainerBlacklisted(const RE::TESObjectREFRPtr& container);
 		static bool CanOpen(const RE::TESObjectREFRPtr& container);
 		static void RefreshOpenState();
 		static void RefreshInventory();

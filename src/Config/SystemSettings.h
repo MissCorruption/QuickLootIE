@@ -15,14 +15,17 @@ namespace QuickLoot::Config
 		static void Update();
 		static void UpdateLogLevel(const json& config);
 		static void UpdateMenuWhitelist(const json& config);
+		static void UpdateContainerBlacklist(const json& config);
 
 		static bool SkipOldSwfCheck() { return _skipOldSwfCheck; };
 		static const std::vector<std::string>& GetMenuWhitelist() { return _menuWhitelist; }
+		static const std::set<RE::FormID>& GetContainerBlacklist() { return _containerBlacklist; }
 
 	private:
 		static constexpr auto CONFIG_PATH = "Data\\SKSE\\Plugins\\QuickLootIE.json";
 
 		static inline bool _skipOldSwfCheck = false;
 		static inline std::vector<std::string> _menuWhitelist{};
+		static inline std::set<RE::FormID> _containerBlacklist{};
 	};
 }
