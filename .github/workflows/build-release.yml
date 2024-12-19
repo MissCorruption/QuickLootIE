@@ -273,6 +273,7 @@ jobs:
           cp -a "res/pex/Source/Scripts/." "${{ github.workspace }}/to-pack/Source/Scripts"
           cp -a "res/txt/Interface/." "${{ github.workspace }}/to-pack/Interface"
           cp -a "res/swf/Interface/." "${{ github.workspace }}/to-pack/Interface"
+          cp -a "res/QuickLootIE.json" "${{ github.workspace }}/to-pack/SKSE/Plugins/QuickLootIE.json"
 
       - name: Zip Release Files
         uses: vimtor/action-zip@v1.2
