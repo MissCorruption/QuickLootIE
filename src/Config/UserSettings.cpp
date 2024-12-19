@@ -1,12 +1,13 @@
-#include "Settings.h"
+#include "UserSettings.h"
 
+#include "LootMenu.h"
 #include "Behaviors/LockpickActivation.h"
 #include "Config/Papyrus.h"
 #include "Input/InputManager.h"
 
 namespace QuickLoot::Config
 {
-	void Settings::Update()
+	void UserSettings::Update()
 	{
 		Papyrus::UpdateVariables();
 
@@ -19,35 +20,35 @@ namespace QuickLoot::Config
 		Input::InputManager::UpdateMappings();
 	}
 
-	bool Settings::ShowInCombat() { return QLIE_ShowInCombat; }
-	bool Settings::ShowWhenEmpty() { return QLIE_ShowWhenEmpty; }
-	bool Settings::ShowWhenUnlocked() { return QLIE_ShowWhenUnlocked; }
-	bool Settings::ShowInThirdPersonView() { return QLIE_ShowInThirdPerson; }
-	bool Settings::ShowWhenMounted() { return QLIE_ShowWhenMounted; }
-	bool Settings::EnableForAnimals() { return QLIE_EnableForAnimals; }
-	bool Settings::EnableForDragons() { return QLIE_EnableForDragons; }
-	bool Settings::DispelInvisibility() { return QLIE_BreakInvisibility; }
+	bool UserSettings::ShowInCombat() { return QLIE_ShowInCombat; }
+	bool UserSettings::ShowWhenEmpty() { return QLIE_ShowWhenEmpty; }
+	bool UserSettings::ShowWhenUnlocked() { return QLIE_ShowWhenUnlocked; }
+	bool UserSettings::ShowInThirdPersonView() { return QLIE_ShowInThirdPerson; }
+	bool UserSettings::ShowWhenMounted() { return QLIE_ShowWhenMounted; }
+	bool UserSettings::EnableForAnimals() { return QLIE_EnableForAnimals; }
+	bool UserSettings::EnableForDragons() { return QLIE_EnableForDragons; }
+	bool UserSettings::DispelInvisibility() { return QLIE_BreakInvisibility; }
 
-	int Settings::GetWindowX() { return QLIE_WindowOffsetX; }
-	int Settings::GetWindowY() { return QLIE_WindowOffsetY; }
-	float Settings::GetWindowScale() { return QLIE_WindowScale; }
-	AnchorPoint Settings::GetWindowAnchor() { return static_cast<AnchorPoint>(QLIE_WindowAnchor); }
-	int Settings::GetWindowMinLines() { return QLIE_WindowMinLines; }
-	int Settings::GetWindowMaxLines() { return QLIE_WindowMaxLines; }
-	float Settings::GetWindowOpacityNormal() { return QLIE_WindowOpacityNormal; }
-	float Settings::GetWindowOpacityEmpty() { return QLIE_WindowOpacityEmpty; }
+	int UserSettings::GetWindowX() { return QLIE_WindowOffsetX; }
+	int UserSettings::GetWindowY() { return QLIE_WindowOffsetY; }
+	float UserSettings::GetWindowScale() { return QLIE_WindowScale; }
+	AnchorPoint UserSettings::GetWindowAnchor() { return static_cast<AnchorPoint>(QLIE_WindowAnchor); }
+	int UserSettings::GetWindowMinLines() { return QLIE_WindowMinLines; }
+	int UserSettings::GetWindowMaxLines() { return QLIE_WindowMaxLines; }
+	float UserSettings::GetWindowOpacityNormal() { return QLIE_WindowOpacityNormal; }
+	float UserSettings::GetWindowOpacityEmpty() { return QLIE_WindowOpacityEmpty; }
 
-	bool Settings::ShowIconRead() { return QLIE_ShowIconRead; }
-	bool Settings::ShowIconStolen() { return QLIE_ShowIconStolen; }
-	bool Settings::ShowIconEnchanted() { return QLIE_ShowIconEnchanted; }
-	bool Settings::ShowIconEnchantedKnown() { return QLIE_ShowIconEnchantedKnown; }
-	bool Settings::ShowIconEnchantedSpecial() { return QLIE_ShowIconEnchantedSpecial; }
+	bool UserSettings::ShowIconRead() { return QLIE_ShowIconRead; }
+	bool UserSettings::ShowIconStolen() { return QLIE_ShowIconStolen; }
+	bool UserSettings::ShowIconEnchanted() { return QLIE_ShowIconEnchanted; }
+	bool UserSettings::ShowIconEnchantedKnown() { return QLIE_ShowIconEnchantedKnown; }
+	bool UserSettings::ShowIconEnchantedSpecial() { return QLIE_ShowIconEnchantedSpecial; }
 
-	std::vector<std::string> Settings::GetInfoColumns() { return QLIE_InfoColumns; }
+	std::vector<std::string> UserSettings::GetInfoColumns() { return QLIE_InfoColumns; }
 
-	const std::vector<std::string>& Settings::GetUserDefinedSortPriority() { return QLIE_SortRulesActive; }
+	const std::vector<std::string>& UserSettings::GetUserDefinedSortPriority() { return QLIE_SortRulesActive; }
 
-	std::vector<Input::Keybinding> Settings::GetKeybindings()
+	std::vector<Input::Keybinding> UserSettings::GetKeybindings()
 	{
 		std::vector keybindings{
 			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTake, QLIE_KeybindingTake, QLIE_KeybindingTakeModifier),
@@ -69,13 +70,13 @@ namespace QuickLoot::Config
 		return keybindings;
 	}
 
-	bool Settings::ShowArtifactDisplayed() { return QLIE_ShowIconArtifactDisplayed; }
-	bool Settings::ShowArtifactFound() { return QLIE_ShowIconArtifactCarried; }
-	bool Settings::ShowArtifactNew() { return QLIE_ShowIconArtifactNew; }
-	bool Settings::ShowCompletionistNeeded() { return QLIE_ShowIconCompletionistNeeded; }
-	bool Settings::ShowCompletionistCollected() { return QLIE_ShowIconCompletionistCollected; }
+	bool UserSettings::ShowArtifactDisplayed() { return QLIE_ShowIconArtifactDisplayed; }
+	bool UserSettings::ShowArtifactFound() { return QLIE_ShowIconArtifactCarried; }
+	bool UserSettings::ShowArtifactNew() { return QLIE_ShowIconArtifactNew; }
+	bool UserSettings::ShowCompletionistNeeded() { return QLIE_ShowIconCompletionistNeeded; }
+	bool UserSettings::ShowCompletionistCollected() { return QLIE_ShowIconCompletionistCollected; }
 
-	Input::Keybinding Settings::BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseKey, int modifierType)
+	Input::Keybinding UserSettings::BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseKey, int modifierType)
 	{
 		Input::ModifierKeys modifiers = ModifierTypeToModifierKeys(modifierType);
 		Input::DeviceType deviceType;
@@ -86,7 +87,7 @@ namespace QuickLoot::Config
 		return Input::Keybinding{ group, deviceType, keyCode, modifiers, action, false, 0.0f, global };
 	}
 
-	Input::ModifierKeys Settings::ModifierTypeToModifierKeys(int modifierType)
+	Input::ModifierKeys UserSettings::ModifierTypeToModifierKeys(int modifierType)
 	{
 		switch (modifierType) {
 		case 1:
@@ -102,7 +103,7 @@ namespace QuickLoot::Config
 		}
 	}
 
-	void Settings::SkseKeyToDeviceKey(int skseKey, Input::DeviceType& deviceType, uint16_t& keyCode)
+	void UserSettings::SkseKeyToDeviceKey(int skseKey, Input::DeviceType& deviceType, uint16_t& keyCode)
 	{
 		if (skseKey >= 266) {
 			deviceType = Input::DeviceType::kGamepad;

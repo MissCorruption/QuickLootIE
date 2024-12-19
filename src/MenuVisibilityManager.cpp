@@ -1,6 +1,7 @@
 #include "MenuVisibilityManager.h"
 
-#include "Config/Settings.h"
+#include "Config/SystemSettings.h"
+#include "Config/UserSettings.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
 #include "Observers/CameraStateObserver.h"
@@ -11,7 +12,7 @@
 #include "Observers/LockChangedObserver.h"
 #include "Observers/MenuObserver.h"
 
-using Settings = QuickLoot::Config::Settings;
+using Settings = QuickLoot::Config::UserSettings;
 
 namespace QuickLoot
 {
@@ -54,19 +55,60 @@ namespace QuickLoot
 		}
 	}
 
-	bool MenuVisibilityManager::IsBlockingMenuOpen()
+	const char* MenuVisibilityManager::GetMenuNameSafe(const RE::IMenu* menu)
 	{
 		const auto ui = RE::UI::GetSingleton();
-		const auto lootMenu = ui->GetMenu(LootMenu::MENU_NAME);
+
+		for (auto [name, entry] : ui->menuMap) {
+			if (menu == entry.menu.get()) {
+				return name.c_str();
+			}
+		}
+
+		return "Unknown";
+	}
+
+	const char* MenuVisibilityManager::FindBlockingMenu()
+	{
+		const auto ui = RE::UI::GetSingleton();
+		std::set<RE::IMenu*> whitelistedMenus{};
+
+		if (const auto lootMenu = ui->GetMenu(LootMenu::MENU_NAME)) {
+			whitelistedMenus.emplace(lootMenu.get());
+		}
+
+		for (auto name : Config::SystemSettings::GetMenuWhitelist()) {
+			if (const auto whitelistedMenu = ui->GetMenu(name)) {
+				whitelistedMenus.emplace(whitelistedMenu.get());
+			}
+		}
 
 		for (auto menu : ui->menuStack) {
 			if (menu->menuFlags & RE::UI_MENU_FLAGS::kAlwaysOpen)
 				continue;
 
-			if (menu == lootMenu)
+			// IMenu::menuName is unreliable and can even crash the game when read, so instead of
+			// checking whether a menu's name is on the whitelist we need to actually compare with
+			// the instances of all whitelisted menus.
+			if (whitelistedMenus.contains(menu.get()))
 				continue;
 
+			return GetMenuNameSafe(menu.get());
+		}
+
+		return nullptr;
+	}
+
+	bool MenuVisibilityManager::IsContainerBlacklisted(const RE::TESObjectREFRPtr& container)
+	{
+		const auto& blacklist = Config::SystemSettings::GetContainerBlacklist();
+
+		if (blacklist.contains(container->formID)) {
 			return true;
+		}
+
+		if (const auto baseObj = container->GetBaseObject()) {
+			return blacklist.contains(baseObj->formID);
 		}
 
 		return false;
@@ -121,8 +163,13 @@ namespace QuickLoot
 			return false;
 		}
 
-		if (IsBlockingMenuOpen()) {
-			logger::debug("LootMenu disabled because a blocking menu is open");
+		if (IsContainerBlacklisted(container)) {
+			logger::debug("LootMenu disabled because the container is blacklisted ({:08X})", container->formID);
+			return false;
+		}
+
+		if (const char* blocking = FindBlockingMenu()) {
+			logger::debug("LootMenu disabled because a blocking menu is open ({})", blocking);
 			return false;
 		}
 
@@ -184,13 +231,13 @@ namespace QuickLoot
 		Observers::MenuObserver::Install();
 	}
 
-	void MenuVisibilityManager::EnableLootMenu(const std::string& modName)
+	void MenuVisibilityManager::DisableLootMenu(const std::string& modName)
 	{
 		_disablingMods.insert(modName);
 		RefreshOpenState();
 	}
 
-	void MenuVisibilityManager::DisableLootMenu(const std::string& modName)
+	void MenuVisibilityManager::EnableLootMenu(const std::string& modName)
 	{
 		_disablingMods.erase(modName);
 		RefreshOpenState();
@@ -198,21 +245,27 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::OnCameraStateChanged(RE::CameraState state)
 	{
-		logger::trace("OnCameraStateChanged: {}", std::to_underlying(state));
+		if (LOG_EVENTS) {
+			logger::trace("OnCameraStateChanged: {}", std::to_underlying(state));
+		}
 
 		RefreshOpenState();
 	}
 
 	void MenuVisibilityManager::OnCombatStateChanged(RE::ACTOR_COMBAT_STATE state)
 	{
-		logger::trace("OnCombatStateChanged: {}", std::to_underlying(state));
+		if (LOG_EVENTS) {
+			logger::trace("OnCombatStateChanged: {}", std::to_underlying(state));
+		}
 
 		RefreshOpenState();
 	}
 
 	void MenuVisibilityManager::OnContainerChanged(RE::FormID container)
 	{
-		logger::trace("OnContainerChanged: {:08X}", container);
+		if (LOG_EVENTS) {
+			logger::trace("OnContainerChanged: {:08X}", container);
+		}
 
 		if (_currentContainer.get() && container == _currentContainer.get()->GetFormID()) {
 			RefreshInventory();
@@ -221,7 +274,9 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::OnCrosshairRefChanged(const RE::ObjectRefHandle& ref)
 	{
-		logger::trace("OnCrosshairRefChanged: {:08X}", ref.get() ? ref.get()->GetFormID() : 0);
+		if (LOG_EVENTS) {
+			logger::trace("OnCrosshairRefChanged: {:08X}", ref.get() ? ref.get()->GetFormID() : 0);
+		}
 
 		if (ref != _focusedRef) {
 			_focusedRef = ref;
@@ -231,7 +286,9 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::OnLifeStateChanged(RE::Actor& actor)
 	{
-		logger::trace("OnLifeStateChanged: {:08X}", actor.GetFormID());
+		if (LOG_EVENTS) {
+			logger::trace("OnLifeStateChanged: {:08X}", actor.GetFormID());
+		}
 
 		if (actor.GetHandle() == _focusedRef) {
 			RefreshOpenState();
@@ -240,7 +297,9 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::OnLockChanged(RE::TESObjectREFR& container)
 	{
-		logger::trace("OnLockChanged: {:08X}", container.GetFormID());
+		if (LOG_EVENTS) {
+			logger::trace("OnLockChanged: {:08X}", container.GetFormID());
+		}
 
 		if (Settings::ShowWhenUnlocked() && container.GetHandle() == _focusedRef) {
 			RefreshOpenState();
@@ -249,7 +308,9 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName)
 	{
-		logger::trace("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", menuName);
+		if (LOG_EVENTS) {
+			logger::trace("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", menuName);
+		}
 
 		// Always ignore events related to the loot menu to avoid feedback loops
 		if (menuName == LootMenu::MENU_NAME) {

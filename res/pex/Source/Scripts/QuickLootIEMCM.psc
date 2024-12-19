@@ -1175,6 +1175,40 @@ state state_ControlsTransferModifier
 	endevent
 endstate
 
+state state_ControlsDisableModifier
+	event OnMenuOpenST()
+		SetMenuDialogStartIndex(0)
+		SetMenuDialogDefaultIndex(0)
+		SetMenuDialogOptions(KeyModifierOptions)
+	endevent
+
+	event OnMenuAcceptST(int index)
+		QLIE_KeybindingDisableModifier = index
+		SetMenuOptionValueST(KeyModifierOptions[QLIE_KeybindingDisableModifier])
+	endevent
+
+	event OnHighlightST()
+		SetInfoText("$qlie_ControlsModifier_info")
+	endevent
+endstate
+
+state state_ControlsEnableModifier
+	event OnMenuOpenST()
+		SetMenuDialogStartIndex(0)
+		SetMenuDialogDefaultIndex(0)
+		SetMenuDialogOptions(KeyModifierOptions)
+	endevent
+
+	event OnMenuAcceptST(int index)
+		QLIE_KeybindingEnableModifier = index
+		SetMenuOptionValueST(KeyModifierOptions[QLIE_KeybindingEnableModifier])
+	endevent
+
+	event OnHighlightST()
+		SetInfoText("$qlie_ControlsModifier_info")
+	endevent
+endstate
+
 state state_ControlReset
 	event OnSelectST()
 		ResetControls()

@@ -1,0 +1,13 @@
+{
+	"logLevel": "trace",
+	"logFlush": "trace",
+	"skipOldSwfCheck": false,
+	"menuWhitelist": [
+		"AchievementWidget",
+		"BestiaryWidget",
+		"Durability Menu"
+	],
+	"containerBlacklist": [
+		"Skyrim.esm|000000"
+	]
+}

@@ -2,17 +2,23 @@
 
 namespace QuickLoot::Util
 {
-	RE::TESForm* FormUtil::GetFormFromIdentifier(const std::string& identifier)
+	RE::FormID FormUtil::ParseFormID(const std::string& identifier)
 	{
 		std::istringstream ss{ identifier };
 		std::string plugin, id;
 
 		std::getline(ss, plugin, '|');
 		std::getline(ss, id);
-		RE::FormID relativeID;
-		std::istringstream{ id } >> std::hex >> relativeID;
-		const auto dataHandler = RE::TESDataHandler::GetSingleton();
-		return dataHandler ? dataHandler->LookupForm(relativeID, plugin) : nullptr;
+
+		RE::FormID localFormID;
+		std::istringstream{ id } >> std::hex >> localFormID;
+
+		return RE::TESDataHandler::GetSingleton()->LookupFormID(localFormID, plugin);
+	}
+
+	RE::TESForm* FormUtil::GetFormFromIdentifier(const std::string& identifier)
+	{
+		return RE::TESForm::LookupByID(ParseFormID(identifier));
 	}
 
 	std::string FormUtil::GetIdentifierFromForm(RE::TESForm* form)

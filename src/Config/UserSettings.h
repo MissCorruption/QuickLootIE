@@ -16,15 +16,15 @@ namespace QuickLoot::Config
 		kBottomRight,
 	};
 
-	class Settings
+	class UserSettings
 	{
 	public:
-		Settings() = delete;
-		~Settings() = delete;
-		Settings(Settings const&) = delete;
-		Settings(Settings const&&) = delete;
-		Settings operator=(Settings&) = delete;
-		Settings operator=(Settings&&) = delete;
+		UserSettings() = delete;
+		~UserSettings() = delete;
+		UserSettings(UserSettings const&) = delete;
+		UserSettings(UserSettings const&&) = delete;
+		UserSettings operator=(UserSettings&) = delete;
+		UserSettings operator=(UserSettings&&) = delete;
 
 		static void Update();
 

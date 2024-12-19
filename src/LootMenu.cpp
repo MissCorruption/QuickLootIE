@@ -5,7 +5,7 @@
 #include "CLIK/GFx/Controls/ButtonBar.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
-#include "Config/Settings.h"
+#include "Config/UserSettings.h"
 #include "Input/ButtonArt.h"
 #include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
@@ -55,6 +55,7 @@ namespace QuickLoot
 	LootMenu::LootMenu()
 	{
 		depthPriority = 3;
+		menuName = MENU_NAME;
 		menuFlags.set(Flag::kAllowSaving, Flag::kHasButtonBar);
 
 		RE::BSScaleformManager::GetSingleton()->LoadMovie(this, uiMovie, FILE_NAME.data());
