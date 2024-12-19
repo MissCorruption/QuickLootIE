@@ -13,6 +13,7 @@
 #include "LootMenu.h"
 #include "MenuVisibilityManager.h"
 #include "SanityChecks.h"
+#include "Config/SystemSettings.h"
 
 void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 {
@@ -22,6 +23,8 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 		break;
 
 	case SKSE::MessagingInterface::kDataLoaded:
+		QuickLoot::Config::SystemSettings::Update();
+
 		if (!QuickLoot::SanityChecks::PerformChecks()) {
 			logger::error("Sanity checks failed. Disabling QuickLootIE.");
 			return;
@@ -29,7 +32,6 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 
 		QuickLoot::Config::Papyrus::Init();
 
-		// Do this after settings are loaded
 		QuickLoot::Input::InputManager::Install();
 
 		QuickLoot::LootMenu::Register();
@@ -83,7 +85,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface*, 
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* skse)
 {
-	InitializeLog(spdlog::level::trace);
+	InitializeLog();
 
 	logger::info("Loaded plugin {} {}", Plugin::NAME, Plugin::VERSION.string("."));
 

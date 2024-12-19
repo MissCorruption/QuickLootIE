@@ -1,0 +1,9 @@
+{
+	"logLevel": "trace",
+	"logFlush": "trace",
+	"menuWhitelist": [
+		"AchievementWidget",
+		"BestiaryWidget",
+		"Durability Menu"
+	]
+}
