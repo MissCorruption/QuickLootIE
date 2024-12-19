@@ -14,8 +14,8 @@ namespace QuickLoot
 
 		static void InstallHooks();
 
-		static void EnableLootMenu(const std::string& modName);
 		static void DisableLootMenu(const std::string& modName);
+		static void EnableLootMenu(const std::string& modName);
 
 		static void OnCameraStateChanged(RE::CameraState state);
 		static void OnCombatStateChanged(RE::ACTOR_COMBAT_STATE state);
@@ -26,13 +26,17 @@ namespace QuickLoot
 		static void OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName);
 
 	private:
+		static constexpr bool LOG_EVENTS = false;
+
 		static inline RE::ObjectRefHandle _focusedRef{};
 		static inline RE::ObjectRefHandle _currentContainer{};
 		static inline std::set<std::string> _disablingMods{};
 
 		static RE::TESObjectREFRPtr GetContainerObject(RE::ObjectRefHandle ref);
 		static bool IsValidCameraState(RE::CameraState state);
-		static bool IsBlockingMenuOpen();
+		static const char* GetMenuNameSafe(const RE::IMenu* menu);
+		static const char* FindBlockingMenu();
+		static bool IsContainerBlacklisted(const RE::TESObjectREFRPtr& container);
 		static bool CanOpen(const RE::TESObjectREFRPtr& container);
 		static void RefreshOpenState();
 		static void RefreshInventory();
