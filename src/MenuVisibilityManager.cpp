@@ -184,13 +184,13 @@ namespace QuickLoot
 		Observers::MenuObserver::Install();
 	}
 
-	void MenuVisibilityManager::EnableLootMenu(const std::string& modName)
+	void MenuVisibilityManager::DisableLootMenu(const std::string& modName)
 	{
 		_disablingMods.insert(modName);
 		RefreshOpenState();
 	}
 
-	void MenuVisibilityManager::DisableLootMenu(const std::string& modName)
+	void MenuVisibilityManager::EnableLootMenu(const std::string& modName)
 	{
 		_disablingMods.erase(modName);
 		RefreshOpenState();
