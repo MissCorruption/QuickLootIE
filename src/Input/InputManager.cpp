@@ -381,9 +381,9 @@ namespace QuickLoot::Input
 			return;
 		}
 
-		int contextCount = RE::UserEvents::INPUT_CONTEXT_ID::kTotal;
+		int contextCount = RE::UserEvents::INPUT_CONTEXT_ID::kAETotal;
 		if (REL::Module::get().version().compare(SKSE::RUNTIME_SSE_1_6_1130) == std::strong_ordering::less) {
-			contextCount = 17;  // Hardcoded for Skyrim 1.6.640 and lower
+			contextCount = 17;
 		}
 
 		if (!allContexts) {
