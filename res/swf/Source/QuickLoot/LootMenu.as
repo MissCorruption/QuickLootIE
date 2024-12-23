@@ -59,8 +59,9 @@
 		Feature levels:
 		1: supports getVersion()
 		2: supports configurable info columns
+		3: supports showItemIcons (+bugfix)
 		*/
-		return 2;
+		return 3;
 	}
 	
 	public function init(settings: Object)
