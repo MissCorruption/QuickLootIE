@@ -22,11 +22,13 @@
 	private var _totalIconWidth: Number = 0;
 	private var _totalColumnWidth: Number = 0;
 	private var _isTextTrimmed: Boolean = false;
+	
+	private var _hasData: Boolean = false;
 
 	/* STAGE ELEMENTS */
 
-	public var textField: TextField;
 	public var itemIcon: MovieClip;
+	public var itemName: TextField;
 	
 	public var stolenIcon: MovieClip;
 	public var readIcon: MovieClip;
@@ -61,7 +63,10 @@
 	
 	public function reset()
 	{
+		_hasData = false;
+		
 		itemIcon._visible = false;
+		itemName._visible = false;
 		
 		stolenIcon._visible = false;
 		readIcon._visible = false;
@@ -85,14 +90,23 @@
 	public function setData(data: Object): Void
 	{
 		if (!data) return;
+		
+		_hasData = true;
 
 		// Call i4 if it is installed
 		skse.plugins.InventoryInjector.ProcessEntry(data);
 		
-		// Do this first, so the icon source can load
-		// in the background while we initialize the rest.
-		setItemIcon(data.iconSource, data.iconLabel, data.iconColor);
-		itemIcon._visible = true;
+		if(_lootMenu.showItemIcons) {
+			// Do this first, so the icon source can load
+			// in the background while we initialize the rest.
+			setItemIcon(data.iconSource, data.iconLabel, data.iconColor);
+			itemIcon._visible = true;
+			itemName._x = itemIcon._x + itemIcon._width + ICON_SPACING;
+		}
+		else {
+			itemIcon._visible = false;
+			itemName._x = itemIcon._x;
+		}
 		
 		// Data
 		
@@ -147,11 +161,12 @@
 		if(!color) color = stealing ? STEALING_TEXT_COLOR : DEFAULT_TEXT_COLOR;
 		if(!count) count = 1;
 		
-		var textWidth = this._width - _totalColumnWidth - _totalIconWidth - textField._x;
-		label = trimItemName(displayName, count, textField.getTextFormat(), textWidth);
-		textField.autoSize = "left";
-		textField.wordWrap = false;
-		textField.textColor = color;
+		var textWidth = this._width - _totalColumnWidth - _totalIconWidth - itemName._x;
+		itemName.text = trimItemName(displayName, count, itemName.getTextFormat(), textWidth);
+		itemName.autoSize = "left";
+		itemName.wordWrap = false;
+		itemName.textColor = color;
+		itemName._visible = true;
 	}
 	
 	private function trimItemName(name: String, count: Number, format: TextFormat, maxWidth: Number)
@@ -222,7 +237,7 @@
 	{
 		var x = _isTextTrimmed
 			? this._width - _totalColumnWidth - _totalIconWidth
-			: textField._x + textField._width;
+			: itemName._x + itemName._width;
 		
 		// Using a for in loop here iterates in reverse index order for some reason.
 		for(var i = 0; i < _selectedIcons.length; i++) {
@@ -264,6 +279,10 @@
 	{
 		icon.gotoAndStop(_iconLabel);
 		icon._width = itemIcon._height = ICON_SIZE;
+		
+		if(!_hasData || !_lootMenu.showItemIcons) {
+			icon._visible = false;
+		}
 		
 		var colorTransform = new flash.geom.ColorTransform();
 		if(typeof(_iconColor) == "number") {

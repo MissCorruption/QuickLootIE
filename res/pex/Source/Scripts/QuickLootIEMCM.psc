@@ -38,6 +38,7 @@ float property QLIE_WindowOpacityEmpty = 0.3 auto hidden
 string[] WindowAnchorNames
 
 ; Display > Icon Settings
+bool property QLIE_ShowIconItem = true auto hidden
 bool property QLIE_ShowIconRead = true auto hidden
 bool property QLIE_ShowIconStolen = true auto hidden
 bool property QLIE_ShowIconEnchanted = true auto hidden
@@ -340,6 +341,7 @@ function BuildDisplayPage()
 
 	SetCursorPosition(1)
 	AddHeaderOption("$qlie_IconSettingsHeader")
+	AddTextOptionST("state_ShowIconItem",				"$qlie_ShowIconItem_text",				GetEnabledStatusText(QLIE_ShowIconItem))
 	AddTextOptionST("state_ShowIconRead",				"$qlie_ShowIconRead_text",				GetEnabledStatusText(QLIE_ShowIconRead))
 	AddTextOptionST("state_ShowIconStolen",				"$qlie_ShowIconStolen_text",			GetEnabledStatusText(QLIE_ShowIconStolen))
 	AddTextOptionST("state_ShowIconEnchanted",			"$qlie_ShowIconEnchanted_text",			GetEnabledStatusText(QLIE_ShowIconEnchanted))
@@ -772,6 +774,18 @@ endstate
 ;---------------------------------------------------
 ;-- Display > Icon Settings ------------------------
 ;---------------------------------------------------
+
+state state_ShowIconItem
+	event OnSelectST()
+		QLIE_ShowIconItem = !QLIE_ShowIconItem
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconItem))
+	endevent
+
+	event OnDefaultST()
+		QLIE_ShowIconItem = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconItem))
+	endevent
+endstate
 
 state state_ShowIconRead
 	event OnSelectST()
@@ -1445,6 +1459,7 @@ function ResetSettings()
 	QLIE_WindowOpacityEmpty = 0.3
 
 	; Display > Icon Settings
+	QLIE_ShowIconItem = true
 	QLIE_ShowIconRead = true
 	QLIE_ShowIconStolen = true
 	QLIE_ShowIconEnchanted = true
@@ -1500,6 +1515,7 @@ function SaveProfile()
 	JsonUtil.SetPathFloatValue(ConfigPath, ".WindowOpacityNormal", QLIE_WindowOpacityNormal)
 	JsonUtil.SetPathFloatValue(ConfigPath, ".WindowOpacityEmpty", QLIE_WindowOpacityEmpty)
 
+	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconItem", QLIE_ShowIconItem as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconRead", QLIE_ShowIconRead as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconStolen", QLIE_ShowIconStolen as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconEnchanted", QLIE_ShowIconEnchanted as int)
@@ -1588,6 +1604,7 @@ function LoadProfile(bool initialLoad)
 	QLIE_WindowOpacityNormal = JsonUtil.GetPathFloatValue(ConfigPath, ".WindowOpacityNormal", QLIE_WindowOpacityNormal)
 	QLIE_WindowOpacityEmpty = JsonUtil.GetPathFloatValue(ConfigPath, ".WindowOpacityEmpty", QLIE_WindowOpacityEmpty)
 
+	QLIE_ShowIconItem = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconItem", QLIE_ShowIconItem as int)
 	QLIE_ShowIconRead = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconRead", QLIE_ShowIconRead as int)
 	QLIE_ShowIconStolen = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconStolen", QLIE_ShowIconStolen as int)
 	QLIE_ShowIconEnchanted = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconEnchanted", QLIE_ShowIconEnchanted as int)

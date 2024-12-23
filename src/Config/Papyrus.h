@@ -24,6 +24,7 @@ namespace QuickLoot::Config
 	inline float QLIE_WindowOpacityNormal;
 	inline float QLIE_WindowOpacityEmpty;
 
+	inline bool QLIE_ShowIconItem;
 	inline bool QLIE_ShowIconRead;
 	inline bool QLIE_ShowIconStolen;
 	inline bool QLIE_ShowIconEnchanted;

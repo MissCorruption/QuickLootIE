@@ -186,6 +186,8 @@ namespace QuickLoot
 
 		settings.SetMember("infoColumns", infoColumns);
 
+		settings.SetMember("showItemIcons", Settings::ShowIconItem());
+
 		return settings;
 	}
 

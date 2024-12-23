@@ -48,5 +48,7 @@ namespace logger = SKSE::log;
 
 #include <SimpleMath.h>
 
+#include <fmt/chrono.h>
+
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
