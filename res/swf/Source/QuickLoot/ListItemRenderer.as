@@ -25,8 +25,8 @@
 
 	/* STAGE ELEMENTS */
 
-	public var textField: TextField;
 	public var itemIcon: MovieClip;
+	public var itemName: TextField;
 	
 	public var stolenIcon: MovieClip;
 	public var readIcon: MovieClip;
@@ -62,6 +62,7 @@
 	public function reset()
 	{
 		itemIcon._visible = false;
+		itemName._visible = false;
 		
 		stolenIcon._visible = false;
 		readIcon._visible = false;
@@ -147,11 +148,12 @@
 		if(!color) color = stealing ? STEALING_TEXT_COLOR : DEFAULT_TEXT_COLOR;
 		if(!count) count = 1;
 		
-		var textWidth = this._width - _totalColumnWidth - _totalIconWidth - textField._x;
-		label = trimItemName(displayName, count, textField.getTextFormat(), textWidth);
-		textField.autoSize = "left";
-		textField.wordWrap = false;
-		textField.textColor = color;
+		var textWidth = this._width - _totalColumnWidth - _totalIconWidth - itemName._x;
+		itemName.text = trimItemName(displayName, count, itemName.getTextFormat(), textWidth);
+		itemName.autoSize = "left";
+		itemName.wordWrap = false;
+		itemName.textColor = color;
+		itemName._visible = true;
 	}
 	
 	private function trimItemName(name: String, count: Number, format: TextFormat, maxWidth: Number)
@@ -222,7 +224,7 @@
 	{
 		var x = _isTextTrimmed
 			? this._width - _totalColumnWidth - _totalIconWidth
-			: textField._x + textField._width;
+			: itemName._x + itemName._width;
 		
 		// Using a for in loop here iterates in reverse index order for some reason.
 		for(var i = 0; i < _selectedIcons.length; i++) {
