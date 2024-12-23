@@ -50,6 +50,8 @@
 	
 	public var infoColumns = ["value", "weight", "valuePerWeight"];
 	
+	public var showItemIcons = true;
+	
 	// public functions
 	
 	public function getVersion() {
@@ -79,6 +81,8 @@
 		loadSetting(settings, "anchorFractionY", "number");
 		
 		loadSetting(settings, "infoColumns", "object");
+		
+		loadSetting(settings, "showItemIcons", "boolean");
 		
 		if(scale == 0) scale = 1;
 		

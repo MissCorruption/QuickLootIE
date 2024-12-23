@@ -22,6 +22,8 @@
 	private var _totalIconWidth: Number = 0;
 	private var _totalColumnWidth: Number = 0;
 	private var _isTextTrimmed: Boolean = false;
+	
+	private var _hasData: Boolean = false;
 
 	/* STAGE ELEMENTS */
 
@@ -61,6 +63,8 @@
 	
 	public function reset()
 	{
+		_hasData = false;
+		
 		itemIcon._visible = false;
 		itemName._visible = false;
 		
@@ -86,14 +90,23 @@
 	public function setData(data: Object): Void
 	{
 		if (!data) return;
+		
+		_hasData = true;
 
 		// Call i4 if it is installed
 		skse.plugins.InventoryInjector.ProcessEntry(data);
 		
-		// Do this first, so the icon source can load
-		// in the background while we initialize the rest.
-		setItemIcon(data.iconSource, data.iconLabel, data.iconColor);
-		itemIcon._visible = true;
+		if(_lootMenu.showItemIcons) {
+			// Do this first, so the icon source can load
+			// in the background while we initialize the rest.
+			setItemIcon(data.iconSource, data.iconLabel, data.iconColor);
+			itemIcon._visible = true;
+			itemName._x = itemIcon._x + itemIcon._width + ICON_SPACING;
+		}
+		else {
+			itemIcon._visible = false;
+			itemName._x = itemIcon._x;
+		}
 		
 		// Data
 		
@@ -266,6 +279,10 @@
 	{
 		icon.gotoAndStop(_iconLabel);
 		icon._width = itemIcon._height = ICON_SIZE;
+		
+		if(!_hasData || !_lootMenu.showItemIcons) {
+			icon._visible = false;
+		}
 		
 		var colorTransform = new flash.geom.ColorTransform();
 		if(typeof(_iconColor) == "number") {
