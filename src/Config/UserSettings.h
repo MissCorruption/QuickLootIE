@@ -46,6 +46,7 @@ namespace QuickLoot::Config
 		static float GetWindowOpacityNormal();
 		static float GetWindowOpacityEmpty();
 
+		static bool ShowIconItem();
 		static bool ShowIconRead();
 		static bool ShowIconStolen();
 		static bool ShowIconEnchanted();
