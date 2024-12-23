@@ -16,6 +16,8 @@ namespace PluginRequests
 		const SKSE::MessagingInterface* _messenger = nullptr;
 		bool _isReady = false;
 
+		static constexpr bool debug = false;
+
 		bool TryConnect()
 		{
 			VersionMessage message{};
@@ -84,8 +86,11 @@ namespace PluginRequests
 			}
 
 			CallbackInfo callbackInfo{
-				.callback = [responseCallback](size_t count, const void* data) {
-					SKSE::log::trace("Invoking unwrapped callback");
+				.callback = [responseCallback, this](size_t count, const void* data) {
+					if (debug) {
+						SKSE::log::trace("Invoking unwrapped callback");
+					}
+
 					responseCallback(count, static_cast<const TResponse*>(data));
 				},
 				.wasInvoked = false,
@@ -106,10 +111,12 @@ namespace PluginRequests
 				.responseCallbackUserPtr = &callbackInfo,
 			};
 
-			SKSE::log::trace("Dispatching request type {}, request data [{}:{}], response data [{}:{}]",
-				requestType,
-				sizeof(TRequest), typeid(TRequest).name(),
-				sizeof(TResponse), typeid(TResponse).name());
+			if (debug) {
+				SKSE::log::trace("Dispatching request type {}, request data [{}:{}], response data [{}:{}]",
+				   requestType,
+				   sizeof(TRequest), typeid(TRequest).name(),
+				   sizeof(TResponse), typeid(TResponse).name());
+			}
 
 			const bool isArrayQuery = responseCallback != nullptr;
 			const bool success = _messenger->Dispatch(isArrayQuery ? kQueryArray : kQuery, &message, sizeof(message), _serverPluginName.c_str());
@@ -134,7 +141,9 @@ namespace PluginRequests
 				return;
 			}
 
-			SKSE::log::trace("Client-side callback translation");
+			if (debug) {
+				SKSE::log::trace("Client-side callback translation");
+			}
 
 			const auto callbackInfo = static_cast<CallbackInfo*>(userPtr);
 			const auto& callback = callbackInfo->callback;
