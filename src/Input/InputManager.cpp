@@ -1,28 +1,10 @@
 #include "Input/InputManager.h"
 
 #include "LootMenuManager.h"
+#include "Util/HookUtil.h"
 
 namespace QuickLoot::Input
 {
-	template <typename TPatch>
-	void WritePatch()
-	{
-		static_assert(std::is_base_of_v<Xbyak::CodeGenerator, TPatch>);
-
-		constexpr uint64_t startOffset = TPatch::patchStart - TPatch::functionStart;
-		constexpr uint64_t endOffset = TPatch::patchEnd - TPatch::functionStart;
-		constexpr uint64_t size = endOffset - startOffset;
-		static_assert(size >= 6);
-
-		const REL::Relocation location{ REL::ID(TPatch::functionId), startOffset };
-		REL::safe_fill(location.address(), REL::INT3, size);
-
-		TPatch patch{};
-
-		auto& trampoline = SKSE::GetTrampoline();
-		trampoline.write_branch<6>(location.address(), trampoline.allocate(patch));
-	}
-
 	struct PatchSE : Xbyak::CodeGenerator
 	{
 		static constexpr uint64_t functionId = 67254;
@@ -72,9 +54,9 @@ namespace QuickLoot::Input
 		// ControlMap::RefreshLinkedMappings in order to perform our own post-processing logic.
 
 		if (REL::Module::IsAE()) {
-			WritePatch<PatchAE>();
+			Util::HookUtil::WritePatch<PatchAE>();
 		} else {
-			WritePatch<PatchSE>();
+			Util::HookUtil::WritePatch<PatchSE>();
 		}
 
 		UpdateMappings();

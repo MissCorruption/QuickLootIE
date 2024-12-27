@@ -1,90 +1,64 @@
 #include "LifeStateObserver.h"
 
 #include "MenuVisibilityManager.h"
+#include "Util/HookUtil.h"
 
 namespace QuickLoot::Observers
 {
-	void OnLifeStateChanged(RE::Actor& actor)
+	struct PatchSE : Xbyak::CodeGenerator
 	{
-		MenuVisibilityManager::OnLifeStateChanged(actor);
-	}
+		static constexpr uint64_t functionId = 36604;
+		static constexpr uint64_t functionStart = 0x5EDEF0;
+		static constexpr uint64_t patchStart = 0x5EE3F3;
+		static constexpr uint64_t patchEnd = 0x5EE3FE;
 
-	void InstallSE()
-	{
-		struct Patch : Xbyak::CodeGenerator
+		explicit PatchSE()
 		{
-			explicit Patch(std::uintptr_t a_target)
-			{
-				mov(rcx, rsi);  // rsi == Actor* this
+			mov(rcx, rsi);  // rsi == Actor* this
 
-				pop(r15);
-				pop(r14);
-				pop(r12);
-				pop(rdi);
-				pop(rsi);
-				pop(rbx);
-				pop(rbp);
+			pop(r15);
+			pop(r14);
+			pop(r12);
+			pop(rdi);
+			pop(rsi);
+			pop(rbx);
+			pop(rbp);
 
-				mov(rax, a_target);
-				jmp(rax);
-			}
-		};
+			mov(rax, reinterpret_cast<uintptr_t>(MenuVisibilityManager::OnLifeStateChanged));
+			jmp(rax);
+		}
+	};
 
-		constexpr std::size_t begin = 0x503;
-		constexpr std::size_t end = 0x50D;
-		constexpr std::size_t size = end - begin;
-		static_assert(size >= 6);
-
-		const REL::Relocation target{ REL::ID(36604), begin };  // Actor::SetLifeState
-		REL::safe_fill(target.address(), REL::INT3, size);
-
-		Patch patch{ reinterpret_cast<std::uintptr_t>(OnLifeStateChanged) };
-
-		auto& trampoline = SKSE::GetTrampoline();
-		trampoline.write_branch<6>(target.address(), trampoline.allocate(patch));
-	}
-
-	void InstallAE()
+	struct PatchAE : Xbyak::CodeGenerator
 	{
-		struct Patch : Xbyak::CodeGenerator
+		static constexpr uint64_t functionId = 37612;
+		static constexpr uint64_t functionStart = 0x680740;
+		static constexpr uint64_t patchStart = 0x680BD4;
+		static constexpr uint64_t patchEnd = 0x680BDC;
+
+		explicit PatchAE()
 		{
-			explicit Patch(std::uintptr_t a_target)
-			{
-				mov(rcx, rdi);  // rdi == Actor* this
+			mov(rcx, rdi);  // rdi == Actor* this
 
-				pop(r15);
-				pop(r14);
-				pop(rdi);
-				pop(rsi);
-				pop(rbp);
+			pop(r15);
+			pop(r14);
+			pop(rdi);
+			pop(rsi);
+			pop(rbp);
 
-				mov(rax, a_target);
-				jmp(rax);
-			}
-		};
-
-		constexpr std::size_t begin = 0x494;
-		constexpr std::size_t end = 0x49B;
-		constexpr std::size_t size = end - begin;
-		static_assert(size >= 6);
-
-		const REL::Relocation target{ REL::ID(37612), begin };  // Actor::SetLifeState
-		REL::safe_fill(target.address(), REL::INT3, size);
-
-		Patch patch{ reinterpret_cast<std::uintptr_t>(OnLifeStateChanged) };
-
-		auto& trampoline = SKSE::GetTrampoline();
-		trampoline.write_branch<6>(target.address(), trampoline.allocate(patch));
-	}
+			mov(rax, reinterpret_cast<uintptr_t>(MenuVisibilityManager::OnLifeStateChanged));
+			jmp(rax);
+		}
+	};
 
 	void LifeStateObserver::Install()
 	{
 		// Add OnLifeStateChanged as a tail call in Actor::SetLifeState
 
 		if (REL::Module::IsAE()) {
-			InstallAE();
+			Util::HookUtil::WritePatch<PatchAE>();
 		} else {
-			InstallSE();
+			Util::HookUtil::WritePatch<PatchSE>();
 		}
 
 		logger::info("Installed");
