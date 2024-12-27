@@ -48,15 +48,50 @@ namespace QuickLoot::Input
 		}
 	};
 
+	struct PatchVR : Xbyak::CodeGenerator
+	{
+		static constexpr uint64_t functionId = 67254;
+		static constexpr uint64_t functionStart = 0xC4EA50;
+		static constexpr uint64_t patchStart = 0xC4ED2A;
+		static constexpr uint64_t patchEnd = 0xC4ED37;
+
+		explicit PatchVR()
+		{
+			pop(r15);
+			pop(r14);
+			pop(r13);
+			pop(r12);
+			pop(rdi);
+			pop(rsi);
+			pop(rbx);
+			pop(rbp);
+
+			mov(rax, reinterpret_cast<uintptr_t>(InputManager::UpdateMappings));
+			jmp(rax);
+		}
+	};
+
 	void InputManager::Install()
 	{
 		// We patch a tail call to InputManager::UpdateMappings into
 		// ControlMap::RefreshLinkedMappings in order to perform our own post-processing logic.
 
-		if (REL::Module::IsAE()) {
+		switch (REL::Module::GetRuntime()) {
+		case REL::Module::Runtime::AE:
 			Util::HookUtil::WritePatch<PatchAE>();
-		} else {
+			break;
+
+		case REL::Module::Runtime::SE:
 			Util::HookUtil::WritePatch<PatchSE>();
+			break;
+
+		case REL::Module::Runtime::VR:
+			Util::HookUtil::WritePatch<PatchVR>();
+			break;
+
+		default:
+			logger::error("Invalid runtime");
+			break;
 		}
 
 		UpdateMappings();
@@ -260,6 +295,10 @@ namespace QuickLoot::Input
 
 	void InputManager::UpdateModifierKeys()
 	{
+		if (REL::Module::IsVR()) {
+			return;
+		}
+
 		const auto oldModifiers = _currentModifiers;
 		_currentModifiers = ModifierKeys::kNone;
 
