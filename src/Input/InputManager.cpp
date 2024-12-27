@@ -25,7 +25,7 @@ namespace QuickLoot::Input
 
 	struct PatchSE : Xbyak::CodeGenerator
 	{
-		static constexpr uint64_t functionId = 67253;
+		static constexpr uint64_t functionId = 67254;
 		static constexpr uint64_t functionStart = 0xC120B0;
 		static constexpr uint64_t patchStart = 0xC1238A;
 		static constexpr uint64_t patchEnd = 0xC12397;
