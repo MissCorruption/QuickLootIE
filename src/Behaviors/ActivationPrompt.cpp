@@ -23,7 +23,7 @@ namespace QuickLoot::Behaviors
 		// This is the same way Simple Activate and Which Key do it.
 		// Copied from https://github.com/powerof3/SimpleActivateSKSE/blob/master/src/Manager.cpp
 
-		REL::Relocation loc{ RELOCATION_ID(39535, 40621), REL::VariantOffset(0x289, 0x280, 0) };
+		REL::Relocation loc{ RELOCATION_ID(39535, 40621), REL::VariantOffset(0x289, 0x280, 0x22E) };
 		AddMessageHook::func = SKSE::GetTrampoline().write_call<5>(loc.address(), AddMessageHook::thunk);
 
 		logger::info("Installed {}", typeid(ActivationPrompt).name());
