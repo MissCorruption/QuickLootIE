@@ -51,14 +51,50 @@ namespace QuickLoot::Observers
 		}
 	};
 
+	struct PatchVR : Xbyak::CodeGenerator
+	{
+		static constexpr uint64_t functionId = 36604;
+		static constexpr uint64_t functionStart = 0x5F6600;
+		static constexpr uint64_t patchStart = 0x5F6B03;
+		static constexpr uint64_t patchEnd = 0x5F6B0E;
+
+		explicit PatchVR()
+		{
+			mov(rcx, rsi);  // rdi == Actor* this
+
+			pop(r15);
+			pop(r14);
+			pop(r12);
+			pop(rdi);
+			pop(rsi);
+			pop(rbx);
+			pop(rbp);
+
+			mov(rax, reinterpret_cast<uintptr_t>(MenuVisibilityManager::OnLifeStateChanged));
+			jmp(rax);
+		}
+	};
+
 	void LifeStateObserver::Install()
 	{
 		// Add OnLifeStateChanged as a tail call in Actor::SetLifeState
 
-		if (REL::Module::IsAE()) {
+		switch (REL::Module::GetRuntime()) {
+		case REL::Module::Runtime::AE:
 			Util::HookUtil::WritePatch<PatchAE>();
-		} else {
+			break;
+
+		case REL::Module::Runtime::SE:
 			Util::HookUtil::WritePatch<PatchSE>();
+			break;
+
+		case REL::Module::Runtime::VR:
+			Util::HookUtil::WritePatch<PatchVR>();
+			break;
+
+		default:
+			logger::error("Invalid runtime");
+			break;
 		}
 
 		logger::info("Installed");
