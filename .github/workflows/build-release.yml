@@ -11,7 +11,7 @@ on:
       - '*.txt'
       - '*.md'
   pull_request:
-    branches: 
+    branches:
       - "master"
     paths-ignore:
       - '*.yaml'
@@ -57,7 +57,7 @@ jobs:
     name: Check for recent changes
     if: ${{ github.event_name != 'workflow_dispatch' }}
     runs-on: ubuntu-latest
-    outputs: 
+    outputs:
       should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
       - uses: actions/checkout@v4
@@ -195,7 +195,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: 'recursive'
           fetch-depth: 0
 
       - name: Cache CMake build
@@ -219,7 +219,7 @@ jobs:
         with:
           cmakeVersion: "~3.24.0"
           ninjaVersion: "~1.11.1"
-      
+
       - name: Compile SKSE plugin
         run: |
           cmake --preset ALL
