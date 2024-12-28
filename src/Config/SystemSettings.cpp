@@ -17,7 +17,7 @@ namespace QuickLoot::Config
 				return;
 			}
 
-			ifs >> config;
+			config = json::parse(ifs, nullptr, true, true);
 		} catch (nlohmann::json::parse_error& error) {
 			logger::error("Failed to parse system settings file: {}", error.what());
 			return;

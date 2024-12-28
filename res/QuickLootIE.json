@@ -2,12 +2,21 @@
 	"logLevel": "trace",
 	"logFlush": "trace",
 	"skipOldSwfCheck": false,
+	// Use this to whitelist menus so they won't block
+	// the loot menu from opening. The list must contain
+	// the internal menu names as they apeear in the log,
+	// not the name of the swf file.
 	"menuWhitelist": [
 		"AchievementWidget",
 		"BestiaryWidget",
 		"Durability Menu"
 	],
+	// Use this to exclude certain containers from being
+	// searchable by QuickLoot IE. Both BaseIDs and RefIDs
+	// can be used.
 	"containerBlacklist": [
-		"Skyrim.esm|000000"
+		// Gunjar (must be interacted with directly to
+		// progress the intro quest)
+		"Skyrim.esm|09B0AD"
 	]
 }
