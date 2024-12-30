@@ -421,7 +421,7 @@ namespace QuickLoot
 	{
 		QueueRefresh(flags);
 
-		if (!uiMovie) {
+		if (!uiMovie || !_refreshFlags) {
 			return;
 		}
 
