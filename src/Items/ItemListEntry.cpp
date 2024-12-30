@@ -824,6 +824,8 @@ namespace QuickLoot::Items
 
 	RE::GFxValue ItemListEntry::GFxValue(RE::GFxMovieView& a_view) const
 	{
+		PROFILE_SCOPE;
+
 		RE::GFxValue value;
 		a_view.CreateObject(std::addressof(value));
 		auto obj = GetObject();

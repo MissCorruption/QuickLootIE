@@ -14,38 +14,46 @@
 #include "LootMenu.h"
 #include "MenuVisibilityManager.h"
 #include "SanityChecks.h"
-#include "Config/SystemSettings.h"
+#include "Util/Profiler.h"
 
 void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 {
 	switch (msg->type) {
 	case SKSE::MessagingInterface::kPostLoad:
-		QuickLoot::API::APIServer::Init(SKSE::GetMessagingInterface());
-		break;
+		{
+			PROFILE_SCOPE_NAMED("SKSE Message (kPostLoad)");
 
-	case SKSE::MessagingInterface::kDataLoaded:
-		QuickLoot::Config::SystemSettings::Update();
-
-		if (!QuickLoot::SanityChecks::PerformChecks()) {
-			logger::error("Sanity checks failed. Disabling QuickLootIE.");
-			return;
+			QuickLoot::API::APIServer::Init(SKSE::GetMessagingInterface());
+			break;
 		}
 
-		QuickLoot::Config::Papyrus::Init();
+	case SKSE::MessagingInterface::kDataLoaded:
+		{
+			PROFILE_SCOPE_NAMED("SKSE Message (kDataLoaded)");
 
-		QuickLoot::Input::InputManager::Install();
+			QuickLoot::Config::SystemSettings::Update();
 
-		QuickLoot::LootMenu::Register();
-		QuickLoot::MenuVisibilityManager::InstallHooks();
+			if (!QuickLoot::SanityChecks::PerformChecks()) {
+				logger::error("Sanity checks failed. Disabling QuickLootIE.");
+				return;
+			}
 
-		QuickLoot::Behaviors::ActivationPrompt::Install();
-		QuickLoot::Behaviors::LockpickActivation::Install();
+			QuickLoot::Config::Papyrus::Init();
 
-		QuickLoot::Integrations::Artifacts::Init();
-		QuickLoot::Integrations::Completionist::Init();
+			QuickLoot::Input::InputManager::Install();
 
-		QuickLoot::Input::InputObserver::StartListening();
-		break;
+			QuickLoot::LootMenu::Register();
+			QuickLoot::MenuVisibilityManager::InstallHooks();
+
+			QuickLoot::Behaviors::ActivationPrompt::Install();
+			QuickLoot::Behaviors::LockpickActivation::Install();
+
+			QuickLoot::Integrations::Artifacts::Init();
+			QuickLoot::Integrations::Completionist::Init();
+
+			QuickLoot::Input::InputObserver::StartListening();
+			break;
+		}
 	}
 }
 
@@ -92,6 +100,8 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* sks
 
 	QuickLoot::Config::SystemSettings::Update(true);
 	QuickLoot::Util::Profiler::Init();
+
+	PROFILE_SCOPE_NAMED("Plugin Startup");
 
 	SKSE::Init(skse);
 	SKSE::AllocTrampoline(1 << 8);

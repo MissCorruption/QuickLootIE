@@ -1,6 +1,5 @@
 #include "UserSettings.h"
 
-#include "LootMenu.h"
 #include "Behaviors/LockpickActivation.h"
 #include "Config/Papyrus.h"
 #include "Input/InputManager.h"

@@ -205,6 +205,8 @@ namespace QuickLoot
 
 	void MenuVisibilityManager::RefreshOpenState()
 	{
+		PROFILE_SCOPE;
+
 		const auto container = GetContainerObject(_focusedRef);
 		if (CanOpen(container)) {
 			_currentContainer = container->GetHandle();
