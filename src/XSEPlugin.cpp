@@ -5,6 +5,7 @@
 #include "Behaviors/ActivationPrompt.h"
 #include "Behaviors/LockpickActivation.h"
 #include "Config/Papyrus.h"
+#include "Config/SystemSettings.h"
 #include "Input/InputManager.h"
 #include "Input/InputObserver.h"
 #include "Integrations/APIServer.h"
@@ -63,7 +64,7 @@ void InitializeLog(spdlog::level::level_enum level = spdlog::level::info)
 	log->flush_on(level);
 
 	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%t] [%s:%#] %v");
+	spdlog::set_pattern("[%H:%M:%S.%e] [%t] [%l] [%s:%#] %v");
 }
 
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() noexcept {
@@ -88,6 +89,9 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* sks
 	InitializeLog();
 
 	logger::info("Loaded plugin {} {}", Plugin::NAME, Plugin::VERSION.string("."));
+
+	QuickLoot::Config::SystemSettings::Update(true);
+	QuickLoot::Util::Profiler::Init();
 
 	SKSE::Init(skse);
 	SKSE::AllocTrampoline(1 << 8);
