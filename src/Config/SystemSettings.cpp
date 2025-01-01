@@ -4,6 +4,34 @@
 
 namespace QuickLoot::Config
 {
+	std::vector<std::string> LoadStringArray(const json& config, const char* key)
+	{
+		std::vector<std::string> vec{};
+
+		if (!config.contains(key)) {
+			logger::warn("Config key {} does not exist", key);
+			return vec;
+		}
+
+		const auto array = config.at(key);
+
+		if (!array.is_array()) {
+			logger::warn("Config key {} is not an array", key);
+			return vec;
+		}
+
+		for (auto& element : array) {
+			if (!element.is_string()) {
+				logger::warn("Config key {} contains non-string elements", key);
+				continue;
+			}
+
+			vec.push_back(element.get<std::string>());
+		}
+
+		return vec;
+	}
+
 	void SystemSettings::Update(bool minimal)
 	{
 		json config{};
@@ -48,53 +76,16 @@ namespace QuickLoot::Config
 
 	void SystemSettings::UpdateMenuWhitelist(const json& config)
 	{
-		_menuWhitelist.clear();
-
-		if (!config.contains("menuWhitelist")) {
-			return;
-		}
-
-		const auto whitelistJson = config.at("menuWhitelist");
-		if (!whitelistJson.is_array()) {
-			logger::warn("Menu whitelist wasn't an array");
-			return;
-		}
-
-		for (auto& menuJson : whitelistJson) {
-			if (!menuJson.is_string()) {
-				logger::warn("Menu whitelist contained non-string value ({})", menuJson.type_name());
-				continue;
-			}
-
-			const auto menu = menuJson.get<std::string>();
-			_menuWhitelist.push_back(menu);
-			logger::trace("Whitelisted menu: {}", menu);
-		}
+		_menuWhitelist = LoadStringArray(config, "menuWhitelist");
 	}
 
 	void SystemSettings::UpdateContainerBlacklist(const json& config)
 	{
-		_containerBlacklist.clear();
+		const auto blacklist = LoadStringArray(config, "containerBlacklist");
 
-		if (!config.contains("containerBlacklist")) {
-			return;
-		}
-
-		const auto blacklistJson = config.at("containerBlacklist");
-		if (!blacklistJson.is_array()) {
-			logger::warn("Container blacklist wasn't an array");
-			return;
-		}
-
-		for (auto& formJson : blacklistJson) {
-			if (!formJson.is_string()) {
-				logger::warn("Container blacklist contained non-string value ({})", formJson.type_name());
-				continue;
-			}
-
-			const auto identifier = formJson.get<std::string>();
-			_containerBlacklist.insert(Util::FormUtil::ParseFormID(identifier));
-			logger::trace("Blacklisted container: {}", identifier);
+		for (auto identifier : blacklist) {
+			const auto formId = Util::FormUtil::ParseFormID(identifier);
+			_containerBlacklist.insert(formId);
 		}
 	}
 }
