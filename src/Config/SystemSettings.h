@@ -12,12 +12,14 @@ namespace QuickLoot::Config
 		SystemSettings operator=(SystemSettings&) = delete;
 		SystemSettings operator=(SystemSettings&&) = delete;
 
-		static void Update();
+		static void Update(bool minimal = false);
 		static void UpdateLogLevel(const json& config);
 		static void UpdateMenuWhitelist(const json& config);
 		static void UpdateContainerBlacklist(const json& config);
 
-		static bool SkipOldSwfCheck() { return _skipOldSwfCheck; };
+		static bool SkipOldSwfCheck() { return _skipOldSwfCheck; }
+		static bool EnableProfiler() { return _enableProfiler; }
+		static int ProfilerFlushInterval() { return _profilerFlushInterval; }
 		static const std::vector<std::string>& GetMenuWhitelist() { return _menuWhitelist; }
 		static const std::set<RE::FormID>& GetContainerBlacklist() { return _containerBlacklist; }
 
@@ -25,6 +27,8 @@ namespace QuickLoot::Config
 		static constexpr auto CONFIG_PATH = "Data\\SKSE\\Plugins\\QuickLootIE.json";
 
 		static inline bool _skipOldSwfCheck = false;
+		static inline bool _enableProfiler = false;
+		static inline int _profilerFlushInterval = false;
 		static inline std::vector<std::string> _menuWhitelist{};
 		static inline std::set<RE::FormID> _containerBlacklist{};
 	};

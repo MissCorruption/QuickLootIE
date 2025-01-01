@@ -4,7 +4,7 @@
 
 namespace QuickLoot::Config
 {
-	void SystemSettings::Update()
+	void SystemSettings::Update(bool minimal)
 	{
 		json config{};
 
@@ -24,6 +24,13 @@ namespace QuickLoot::Config
 		}
 
 		_skipOldSwfCheck = config.value("skipOldSwfCheck", false);
+
+		_enableProfiler = config.value("enableProfiler", false);
+		_profilerFlushInterval = config.value("profilerFlushInterval", 1000);
+
+		if (minimal) {
+			return;
+		}
 
 		UpdateLogLevel(config);
 		UpdateMenuWhitelist(config);

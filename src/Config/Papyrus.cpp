@@ -51,6 +51,8 @@ namespace QuickLoot::Config
 
 	void Papyrus::UpdateVariables(RE::StaticFunctionTag*)
 	{
+		PROFILE_SCOPE;
+
 #define LoadSettingsVar(name, ...) LoadSetting(name, #name, __VA_ARGS__)
 
 		// General > Behavior Settings

@@ -52,3 +52,5 @@ namespace logger = SKSE::log;
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
+
+#include "Util/Profiler.h"

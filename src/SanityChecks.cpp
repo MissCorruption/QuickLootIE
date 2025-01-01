@@ -1,7 +1,7 @@
 #include "SanityChecks.h"
 
-#include "LootMenu.h"
 #include "Config/SystemSettings.h"
+#include "LootMenu.h"
 #include "Util/FormUtil.h"
 
 void ShowFatalError(const char* message)

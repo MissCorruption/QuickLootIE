@@ -387,7 +387,7 @@ function BuildSortingPage()
 		AddTextOptionST("state_SortRemove",		"", "$qlie_SortRemove_text", OPTION_FLAG_DISABLED)
 	endif
 
-	SetCursorPosition(13)
+	AddEmptyOption()
 	AddHeaderOption("$qlie_SortPresetsHeader")
 	AddTextOptionST("state_SortReset",			"", "$qlie_SortReset_text")
 	AddInputOptionST("state_SortPresetSave", 	"", "$qlie_SortPresetSave_text")
@@ -426,7 +426,7 @@ function BuildControlsPage()
 	endif
 
 	SetCursorFillMode(TOP_TO_BOTTOM)
-	SetCursorPosition(13)
+	SetCursorPosition(15)
 	AddHeaderOption("$qlie_ControlPresetsHeader")
 	AddTextOptionST("state_ControlReset",				"", "$qlie_ControlReset_text")
 

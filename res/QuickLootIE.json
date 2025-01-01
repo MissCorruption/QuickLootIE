@@ -2,6 +2,8 @@
 	"logLevel": "trace",
 	"logFlush": "trace",
 	"skipOldSwfCheck": false,
+	"enableProfiler": false,
+	"profilerFlushInterval": 1000,
 	// Use this to whitelist menus so they won't block
 	// the loot menu from opening. The list must contain
 	// the internal menu names as they apeear in the log,

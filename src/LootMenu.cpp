@@ -54,11 +54,17 @@ namespace QuickLoot
 
 	LootMenu::LootMenu()
 	{
+		PROFILE_SCOPE_NAMED("LootMenu Constructor");
+
 		depthPriority = 3;
 		menuName = MENU_NAME;
 		menuFlags.set(Flag::kAllowSaving, Flag::kHasButtonBar);
 
-		RE::BSScaleformManager::GetSingleton()->LoadMovie(this, uiMovie, FILE_NAME.data());
+		{
+			PROFILE_SCOPE_NAMED("SWF Loading");
+
+			RE::BSScaleformManager::GetSingleton()->LoadMovie(this, uiMovie, FILE_NAME.data());
+		}
 
 		if (!uiMovie) {
 			logger::error("Failed to load {}.swf", FILE_NAME);
@@ -93,8 +99,11 @@ namespace QuickLoot
 		uiMovie->CreateArray(std::addressof(_buttonBarProvider));
 		_buttonBar.DataProvider(CLIK::Array{ _buttonBarProvider });
 
-		// This is where SetContainer is called.
-		LootMenuManager::ProcessPendingTasks(*this);
+		{
+			PROFILE_SCOPE_NAMED("Initial Task Processing");
+			// This is where SetContainer is called.
+			LootMenuManager::ProcessPendingTasks(*this);
+		}
 	}
 
 	void LootMenu::InjectUtilsClass()
@@ -143,6 +152,8 @@ namespace QuickLoot
 
 	RE::GFxValue LootMenu::BuildSettingsObject() const
 	{
+		PROFILE_SCOPE;
+
 		RE::GFxValue settings{};
 
 		uiMovie->CreateObject(&settings);
@@ -421,9 +432,11 @@ namespace QuickLoot
 	{
 		QueueRefresh(flags);
 
-		if (!uiMovie) {
+		if (!uiMovie || !_refreshFlags) {
 			return;
 		}
+
+		PROFILE_SCOPE
 
 		if (_refreshFlags & RefreshFlags::kInventory) {
 			// Inventory refresh invalidates other components, so it needs to run first.
@@ -451,6 +464,8 @@ namespace QuickLoot
 
 	void LootMenu::RefreshInventory()
 	{
+		PROFILE_SCOPE;
+
 		_itemListImpl.clear();
 		auto src = _container.get();
 		if (!src) {
@@ -482,19 +497,22 @@ namespace QuickLoot
 			return;
 		}
 
-		std::ranges::stable_sort(_itemListImpl,
-			[&](auto&& a_lhs, auto&& a_rhs) {
-				uintptr_t lhs_addr = reinterpret_cast<std::uintptr_t>(a_lhs.get());
-				uintptr_t rhs_addr = reinterpret_cast<std::uintptr_t>(a_rhs.get());
+		{
+			PROFILE_SCOPE_NAMED("Sorting");
+			std::ranges::stable_sort(_itemListImpl,
+				[&](auto&& a_lhs, auto&& a_rhs) {
+					uintptr_t lhs_addr = reinterpret_cast<std::uintptr_t>(a_lhs.get());
+					uintptr_t rhs_addr = reinterpret_cast<std::uintptr_t>(a_rhs.get());
 
-				if (lhs_addr == 0 || lhs_addr > 0xFFFFFFFFFFFF ||
-					rhs_addr == 0 || rhs_addr > 0xFFFFFFFFFFFF) {
-					logger::warn("Error: Invalid pointer address detected."sv);
-					return false;
-				}
+					if (lhs_addr == 0 || lhs_addr > 0xFFFFFFFFFFFF ||
+						rhs_addr == 0 || rhs_addr > 0xFFFFFFFFFFFF) {
+						logger::warn("Error: Invalid pointer address detected."sv);
+						return false;
+					}
 
-				return *a_lhs < *a_rhs;
-			});
+					return *a_lhs < *a_rhs;
+				});
+		}
 
 		std::vector<Element> elements;
 		_itemListProvider.ClearElements();
@@ -520,6 +538,8 @@ namespace QuickLoot
 			return;
 		}
 
+		PROFILE_SCOPE;
+
 		const auto keybindings = Input::InputManager::GetButtonBarKeybindings();
 		const bool stealing = WouldBeStealing();
 
@@ -544,6 +564,8 @@ namespace QuickLoot
 
 	void LootMenu::RefreshInfoBar()
 	{
+		PROFILE_SCOPE;
+
 		_infoBarProvider.ClearElements();
 		const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
 		if (0 <= idx && idx < std::ssize(_itemListImpl)) {
@@ -575,6 +597,8 @@ namespace QuickLoot
 
 	void LootMenu::RefreshWeight()
 	{
+		PROFILE_SCOPE;
+
 		const auto player = RE::PlayerCharacter::GetSingleton();
 		const auto currentWeight = static_cast<int64_t>(player->GetWeightInContainer());
 		const auto carryWeightLimit = static_cast<int64_t>(player->AsActorValueOwner()->GetActorValue(RE::ActorValue::kCarryWeight));
@@ -585,6 +609,8 @@ namespace QuickLoot
 
 	void LootMenu::RefreshTitle()
 	{
+		PROFILE_SCOPE;
+
 		if (const auto container = _container.get()) {
 			const auto name = container->GetDisplayFullName();
 			_title.HTMLText(name ? name : "");
