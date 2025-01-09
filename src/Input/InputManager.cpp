@@ -308,31 +308,34 @@ namespace QuickLoot::Input
 		}
 
 		if (event->IsDown()) {
-			_isHoldingActivate = true;
+			_triggerOnActivateRelease = LootMenuManager::IsOpen();
 			return true;
 		}
 
 		// For the activate key, the up event is used to trigger the action.
-		if (event->IsUp()) {
+		if (!event->IsPressed() && _triggerOnActivateRelease) {
 			TriggerKeybinding(keybinding);
-			_isHoldingActivate = false;
+			_triggerOnActivateRelease = false;
 			return true;
 		}
 
-		if (event->IsHeld() && event->HeldDuration() >= _grabDelaySetting->GetFloat()) {
-			TryGrab();
-			_isHoldingActivate = false;
+		if (!event->IsHeld() || event->HeldDuration() < _grabDelaySetting->GetFloat()) {
+			return true;
+		}
+
+		if (TryGrab()) {
+			_triggerOnActivateRelease = false;
 		}
 
 		return true;
 	}
 
-	void InputManager::TryGrab()
+	bool InputManager::TryGrab()
 	{
 		const auto player = RE::PlayerCharacter::GetSingleton();
 		player->StartGrabObject();
 		if (!player->IsGrabbing()) {
-			return;
+			return false;
 		}
 
 		if (auto activateHandler = RE::PlayerControls::GetSingleton()->GetActivateHandler()) {
@@ -340,6 +343,7 @@ namespace QuickLoot::Input
 		}
 
 		LootMenuManager::RequestClose();
+		return true;
 	}
 
 	void InputManager::TriggerKeybinding(const Keybinding* keybinding)
