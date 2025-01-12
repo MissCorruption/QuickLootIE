@@ -56,6 +56,8 @@ namespace QuickLoot::Config
 		_enableProfiler = config.value("enableProfiler", false);
 		_profilerFlushInterval = config.value("profilerFlushInterval", 1000);
 
+		_enableMenuCaching = config.value("enableMenuCaching", true);
+
 		if (minimal) {
 			return;
 		}
