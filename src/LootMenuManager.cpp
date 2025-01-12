@@ -18,19 +18,12 @@ namespace QuickLoot
 		}
 	}
 
-	bool LootMenuManager::IsOpen()
+	bool LootMenuManager::IsShowing()
 	{
 		return static_cast<bool>(_currentContainer);
 	}
 
-	void LootMenuManager::EnsureOpen()
-	{
-		if (!RE::UI::GetSingleton()->IsMenuOpen(LootMenu::MENU_NAME)) {
-			RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
-		}
-	}
-
-	void LootMenuManager::RequestOpen(const RE::ObjectRefHandle& container)
+	void LootMenuManager::RequestShow(const RE::ObjectRefHandle& container)
 	{
 		if (!container || container == _currentContainer) {
 			return;
@@ -38,7 +31,7 @@ namespace QuickLoot
 
 		if (API::APIServer::DispatchOpeningLootMenuEvent(container.get()) != HandleResult::kContinue) {
 			logger::info("Opening was canceled by API subscriber");
-			RequestClose();
+			RequestHide();
 			return;
 		}
 
@@ -56,7 +49,7 @@ namespace QuickLoot
 		});
 	}
 
-	void LootMenuManager::RequestClose()
+	void LootMenuManager::RequestHide()
 	{
 		Input::InputManager::UnblockConflictingInputs();
 		Behaviors::ActivationPrompt::Unblock();
@@ -98,6 +91,13 @@ namespace QuickLoot
 				menu.OnInputAction(action);
 			});
 			break;
+		}
+	}
+
+	void LootMenuManager::EnsureOpen()
+	{
+		if (!RE::UI::GetSingleton()->IsMenuOpen(LootMenu::MENU_NAME)) {
+			RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
 		}
 	}
 

@@ -244,7 +244,7 @@ namespace QuickLoot::Input
 			       keybinding.inputKey == inputKey &&
 			       (keybinding.modifiers == ModifierKeys::kIgnore ||
 					   keybinding.modifiers == (_currentModifiers & _usedModifiers)) &&
-			       (keybinding.global || LootMenuManager::IsOpen());
+			       (keybinding.global || LootMenuManager::IsShowing());
 		});
 
 		return it != _keybindings.end() ? &*it : nullptr;
@@ -308,7 +308,7 @@ namespace QuickLoot::Input
 		}
 
 		if (event->IsDown()) {
-			_triggerOnActivateRelease = LootMenuManager::IsOpen();
+			_triggerOnActivateRelease = LootMenuManager::IsShowing();
 			return true;
 		}
 
@@ -342,7 +342,7 @@ namespace QuickLoot::Input
 			activateHandler->SetHeldButtonActionSuccess(true);
 		}
 
-		LootMenuManager::RequestClose();
+		LootMenuManager::RequestHide();
 		return true;
 	}
 

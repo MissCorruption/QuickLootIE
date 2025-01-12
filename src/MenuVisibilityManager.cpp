@@ -210,10 +210,10 @@ namespace QuickLoot
 		const auto container = GetContainerObject(_focusedRef);
 		if (CanOpen(container)) {
 			_currentContainer = container->GetHandle();
-			LootMenuManager::RequestOpen(_currentContainer);
+			LootMenuManager::RequestShow(_currentContainer);
 		} else {
 			_currentContainer.reset();
-			LootMenuManager::RequestClose();
+			LootMenuManager::RequestHide();
 		}
 	}
 

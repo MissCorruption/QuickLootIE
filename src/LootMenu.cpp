@@ -68,7 +68,7 @@ namespace QuickLoot
 
 		if (!uiMovie) {
 			logger::error("Failed to load {}.swf", FILE_NAME);
-			LootMenuManager::RequestClose();
+			LootMenuManager::RequestHide();
 			return;
 		}
 
@@ -502,7 +502,7 @@ namespace QuickLoot
 		}
 
 		if (!Settings::ShowWhenEmpty() && _itemListImpl.empty()) {
-			LootMenuManager::RequestClose();
+			LootMenuManager::RequestHide();
 			return;
 		}
 

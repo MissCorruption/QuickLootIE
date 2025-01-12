@@ -18,11 +18,9 @@ namespace QuickLoot
 
 		static void Init();
 
-		static bool IsOpen();
-		static void EnsureOpen();
-
-		static void RequestOpen(const RE::ObjectRefHandle& container);
-		static void RequestClose();
+		static bool IsShowing();
+		static void RequestShow(const RE::ObjectRefHandle& container);
+		static void RequestHide();
 		static void RequestRefresh(RefreshFlags flags);
 
 		static void OnInputAction(Input::QuickLootAction action);
@@ -40,6 +38,7 @@ namespace QuickLoot
 		static inline RE::ObjectRefHandle _lastContainer{};
 		static inline int _lastSelectedIndex = 0;
 
+		static void EnsureOpen();
 		static void QueueLootMenuTask(LootMenuTask task);
 	};
 }
