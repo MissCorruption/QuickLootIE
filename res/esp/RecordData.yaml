@@ -1,6 +1,6 @@
 SpriggitSource:
-  PackageName: Spriggit.Yaml.Skyrim
-  Version: 0.35.1
+  PackageName: 0.36.13
+  Version: ''
 ModKey: QuickLootIE.esp
 GameRelease: SkyrimSE
 ModHeader:
