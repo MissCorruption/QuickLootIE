@@ -60,8 +60,24 @@
 		1: supports getVersion()
 		2: supports configurable info columns
 		3: supports showItemIcons (+bugfix)
+		4: supports reinitialization
 		*/
-		return 3;
+		return 4;
+	}
+	
+	public function LootMenu() {
+		// The CoreList constructor sets a scale9Grid, which causes very odd
+		// behavior when changing the list size after it's created.
+		itemList["container"].scale9Grid = null;
+		itemList.rowCount = maxLines;
+		var self = this;
+		itemList.addEventListener("scrollPositionChanged", function() { self.updateScrollArrows(); });
+		
+		columnHeaders = [valueHeader, weightHeader, valuePerWeightHeader];
+		movingElements = [weight, infoBar, buttonBar, arrowDown];
+		nonTransparentElements = [buttonBar];
+		
+		saveInitialElementBounds();
 	}
 	
 	public function init(settings: Object)
@@ -87,18 +103,6 @@
 		
 		if(scale == 0) scale = 1;
 		
-		// The CoreList constructor sets a scale9Grid, which causes very odd
-		// behavior when changing the list size after it's created.
-		itemList["container"].scale9Grid = null;
-		itemList.rowCount = maxLines;
-		var self = this;
-		itemList.addEventListener("scrollPositionChanged", function() { self.updateScrollArrows(); });
-		
-		columnHeaders = [valueHeader, weightHeader, valuePerWeightHeader];
-		movingElements = [weight, infoBar, buttonBar, arrowDown];
-		nonTransparentElements = [buttonBar];
-		
-		saveInitialElementBounds();
 		initColumnHeaders()
 		refresh();
 	}
