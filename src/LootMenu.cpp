@@ -58,7 +58,7 @@ namespace QuickLoot
 
 		depthPriority = 3;
 		menuName = MENU_NAME;
-		menuFlags.set(Flag::kAllowSaving, Flag::kHasButtonBar);
+		menuFlags.set(Flag::kAllowSaving, Flag::kHasButtonBar, Flag::kAlwaysOpen);
 
 		{
 			PROFILE_SCOPE_NAMED("SWF Loading");
@@ -84,11 +84,10 @@ namespace QuickLoot
 		LoadSwfObject(_infoBar, "_root.lootMenu.infoBar"sv);
 		LoadSwfObject(_buttonBar, "_root.lootMenu.buttonBar"sv);
 
+		_lootMenu.Visible(false);
+
 		_title.AutoSize(CLIK::Object{ "left" });
 		_weight.AutoSize(CLIK::Object{ "left" });
-
-		const RE::GFxValue settings = BuildSettingsObject();
-		_lootMenu.GetInstance().Invoke("init", nullptr, &settings, 1);
 
 		uiMovie->CreateArray(std::addressof(_itemListProvider));
 		_itemList.DataProvider(CLIK::Array{ _itemListProvider });
@@ -101,7 +100,7 @@ namespace QuickLoot
 
 		{
 			PROFILE_SCOPE_NAMED("Initial Task Processing");
-			// This is where SetContainer is called.
+			// This is where Show is called.
 			LootMenuManager::ProcessPendingTasks(*this);
 		}
 	}
@@ -246,7 +245,7 @@ namespace QuickLoot
 		}
 	}
 
-	void LootMenu::SetContainer(const RE::ObjectRefHandle& container, int selectedIndex)
+	void LootMenu::Show(const RE::ObjectRefHandle& container, int selectedIndex)
 	{
 		if (!uiMovie) {
 			return;
@@ -260,11 +259,21 @@ namespace QuickLoot
 		_container = container;
 
 		if (_container) {
+			const RE::GFxValue settings = BuildSettingsObject();
+			_lootMenu.GetInstance().Invoke("init", nullptr, &settings, 1);
+
 			API::APIServer::DispatchOpenLootMenuEvent(_container);
 		}
 
+		_lootMenu.Visible(container.get() != nullptr);
+
 		Refresh(RefreshFlags::kAll);
 		SetSelectedIndex(selectedIndex);
+	}
+
+	void LootMenu::Hide()
+	{
+		Show({}, -1);
 	}
 
 #pragma endregion
@@ -716,7 +725,7 @@ namespace QuickLoot
 	RE::UI_MESSAGE_RESULTS LootMenu::ProcessMessage(RE::UIMessage& message)
 	{
 		if (message.type == RE::UI_MESSAGE_TYPE::kHide) {
-			SetContainer({}, -1);
+			Show({}, -1);
 
 			return RE::UI_MESSAGE_RESULTS::kHandled;
 		}

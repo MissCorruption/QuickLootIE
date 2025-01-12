@@ -40,7 +40,9 @@ namespace QuickLoot
 		LootMenu(nullptr_t) {}
 		LootMenu();
 
-		void SetContainer(const RE::ObjectRefHandle& container, int selectedIndex);
+		void Show(const RE::ObjectRefHandle& container, int selectedIndex);
+		void Hide();
+
 		void OnInputAction(Input::QuickLootAction action);
 		void QueueRefresh(RefreshFlags flags);
 

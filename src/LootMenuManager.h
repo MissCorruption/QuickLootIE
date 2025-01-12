@@ -16,7 +16,11 @@ namespace QuickLoot
 		LootMenuManager& operator=(LootMenuManager&&) = delete;
 		LootMenuManager& operator=(const LootMenuManager&) = delete;
 
+		static void Init();
+
 		static bool IsOpen();
+		static void EnsureOpen();
+
 		static void RequestOpen(const RE::ObjectRefHandle& container);
 		static void RequestClose();
 		static void RequestRefresh(RefreshFlags flags);
