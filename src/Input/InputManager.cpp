@@ -168,7 +168,8 @@ namespace QuickLoot::Input
 	{
 		std::vector<Keybinding> filtered{};
 
-		bool isGamepad = RE::BSInputDeviceManager::GetSingleton()->IsGamepadEnabled();
+		bool isGamepad = RE::BSInputDeviceManager::GetSingleton()->IsGamepadConnected() &&
+		                 RE::BSInputDeviceManager::GetSingleton()->IsGamepadEnabled();
 
 		std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
 			return keybinding.group == ControlGroup::kButtonBar &&
