@@ -13,6 +13,7 @@
 #include "Items/OldInventoryItem.h"
 #include "Items/OldItem.h"
 #include "LootMenuManager.h"
+#include "Config/SystemSettings.h"
 
 namespace QuickLoot
 {
@@ -58,12 +59,20 @@ namespace QuickLoot
 
 		depthPriority = 3;
 		menuName = MENU_NAME;
-		menuFlags.set(Flag::kAllowSaving, Flag::kHasButtonBar, Flag::kAlwaysOpen);
+		menuFlags.set(Flag::kAllowSaving, Flag::kHasButtonBar);
 
-		{
+		if (_cachedView) {
+			logger::debug("Using cached swf");
+			uiMovie = _cachedView;
+		} else {
+			logger::debug("Loading swf");
 			PROFILE_SCOPE_NAMED("SWF Loading");
 
 			RE::BSScaleformManager::GetSingleton()->LoadMovie(this, uiMovie, FILE_NAME.data());
+
+			if (Config::SystemSettings::EnableMenuCaching()) {
+				_cachedView = uiMovie;
+			}
 		}
 
 		if (!uiMovie) {
@@ -83,6 +92,13 @@ namespace QuickLoot
 		LoadSwfObject(_itemList, "_root.lootMenu.itemList"sv);
 		LoadSwfObject(_infoBar, "_root.lootMenu.infoBar"sv);
 		LoadSwfObject(_buttonBar, "_root.lootMenu.buttonBar"sv);
+
+		RE::GFxValue version;
+		_lootMenu.GetInstance().Invoke("getVersion", &version);
+		if (version.GetSInt() < 4) {
+			// swf reinitialization is only supported at feature level 4 or above
+			_cachedView.reset();
+		}
 
 		_lootMenu.Visible(false);
 

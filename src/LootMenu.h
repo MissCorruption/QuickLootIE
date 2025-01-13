@@ -47,6 +47,8 @@ namespace QuickLoot
 		void QueueRefresh(RefreshFlags flags);
 
 	private:
+		static inline RE::GPtr<RE::GFxMovieView> _cachedView{};
+
 		RE::ObjectRefHandle _container{};
 		int _selectedIndex = -1;
 		RE::stl::enumeration<RefreshFlags> _refreshFlags = RefreshFlags::kAll;

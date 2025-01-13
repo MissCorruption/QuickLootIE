@@ -2,7 +2,6 @@
 
 #include "Behaviors/ActivationPrompt.h"
 #include "Behaviors/ContainerAnimator.h"
-#include "Config/SystemSettings.h"
 #include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
 #include "LootMenu.h"
@@ -10,14 +9,6 @@
 
 namespace QuickLoot
 {
-	void LootMenuManager::Init()
-	{
-		if (Config::SystemSettings::EnableMenuCaching()) {
-			logger::info("Preloading menu");
-			EnsureOpen();
-		}
-	}
-
 	bool LootMenuManager::IsShowing()
 	{
 		return static_cast<bool>(_currentContainer);
@@ -61,9 +52,7 @@ namespace QuickLoot
 			menu.Hide();
 		});
 
-		if (!Config::SystemSettings::EnableMenuCaching()) {
-			RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-		}
+		RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 	}
 
 	void LootMenuManager::RequestRefresh(RefreshFlags flags)

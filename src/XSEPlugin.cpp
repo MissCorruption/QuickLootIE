@@ -12,7 +12,6 @@
 #include "Integrations/Artifacts.h"
 #include "Integrations/Completionist.h"
 #include "LootMenu.h"
-#include "LootMenuManager.h"
 #include "MenuVisibilityManager.h"
 #include "SanityChecks.h"
 #include "Util/Profiler.h"
@@ -44,7 +43,6 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 			QuickLoot::Input::InputManager::Install();
 
 			QuickLoot::LootMenu::Register();
-			QuickLoot::LootMenuManager::Init();
 			QuickLoot::MenuVisibilityManager::InstallHooks();
 
 			QuickLoot::Behaviors::ActivationPrompt::Install();
