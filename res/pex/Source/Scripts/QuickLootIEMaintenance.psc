@@ -49,7 +49,7 @@ endfunction
 
 function InitCurrentVersion()
 	CurrentVersionMajor = 3
-	CurrentVersionMinor = 2
+	CurrentVersionMinor = 3
 	CurrentVersionPatch = 0
 	CurrentVersionTweak = 0
 
