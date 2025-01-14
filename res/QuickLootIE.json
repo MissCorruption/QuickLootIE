@@ -12,7 +12,8 @@
 	"menuWhitelist": [
 		"AchievementWidget",
 		"BestiaryWidget",
-		"Durability Menu"
+		"Durability Menu",
+		"WidgetMenu"
 	],
 	// Use this to exclude certain containers from being
 	// searchable by QuickLoot IE. Both BaseIDs and RefIDs
