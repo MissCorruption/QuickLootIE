@@ -64,6 +64,7 @@ namespace QuickLoot::Config
 		LoadSettingsVar(QLIE_EnableForAnimals, false);
 		LoadSettingsVar(QLIE_EnableForDragons, false);
 		LoadSettingsVar(QLIE_BreakInvisibility, true);
+		LoadSettingsVar(QLIE_PlayScrollSound, true);
 
 		// Display > Window Settings
 		LoadSettingsVar(QLIE_WindowOffsetX, 100);

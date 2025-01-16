@@ -25,6 +25,7 @@ bool property QLIE_ShowWhenMounted = false auto hidden
 bool property QLIE_EnableForAnimals = true auto hidden
 bool property QLIE_EnableForDragons = true auto hidden
 bool property QLIE_BreakInvisibility = true auto hidden
+bool property QLIE_PlayScrollSound = true auto hidden
 
 ; Display > Window Settings
 int property QLIE_WindowOffsetX = 100 auto hidden
@@ -300,6 +301,7 @@ function BuildGeneralPage()
 	AddTextOptionST("state_EnableForAnimals",		"$qlie_EnableForAnimals_text",		GetEnabledStatusText(QLIE_EnableForAnimals))
 	AddTextOptionST("state_EnableForDragons",		"$qlie_EnableForDragons_text",		GetEnabledStatusText(QLIE_EnableForDragons))
 	AddTextOptionST("state_BreakInvisibility",		"$qlie_BreakInvisibility_text",		GetEnabledStatusText(QLIE_BreakInvisibility))
+	AddTextOptionST("state_PlayScrollSound",		"$qlie_PlayScrollSound_text",		GetEnabledStatusText(QLIE_PlayScrollSound))
 
 	SetCursorPosition(1)
 	AddHeaderOption("$qlie_ModInformationHeader")
@@ -603,6 +605,18 @@ state state_BreakInvisibility
 	event OnDefaultST()
 		QLIE_BreakInvisibility = true
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_BreakInvisibility))
+	endevent
+endstate
+
+state state_PlayScrollSound
+	event OnSelectST()
+		QLIE_PlayScrollSound = !QLIE_PlayScrollSound
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_PlayScrollSound))
+	endevent
+
+	event OnDefaultST()
+		QLIE_PlayScrollSound = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_PlayScrollSound))
 	endevent
 endstate
 
@@ -1447,6 +1461,7 @@ function ResetSettings()
 	QLIE_EnableForAnimals = true
 	QLIE_EnableForDragons = true
 	QLIE_BreakInvisibility = true
+	QLIE_PlayScrollSound = true
 
 	; Display > Window Settings
 	QLIE_WindowOffsetX = 100
@@ -1505,6 +1520,7 @@ function SaveProfile()
 	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForAnimals", QLIE_EnableForAnimals as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForDragons", QLIE_EnableForDragons as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".BreakInvisibility", QLIE_BreakInvisibility as int)
+	JsonUtil.SetPathIntValue(ConfigPath, ".PlayScrollSound", QLIE_PlayScrollSound as int)
 
 	JsonUtil.SetPathIntValue(ConfigPath, ".WindowOffsetX", QLIE_WindowOffsetX)
 	JsonUtil.SetPathIntValue(ConfigPath, ".WindowOffsetY", QLIE_WindowOffsetY)
@@ -1597,6 +1613,7 @@ function LoadProfile(bool initialLoad)
 	QLIE_EnableForAnimals = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForAnimals", QLIE_EnableForAnimals as int)
 	QLIE_EnableForDragons = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForDragons", QLIE_EnableForDragons as int)
 	QLIE_BreakInvisibility = JsonUtil.GetPathIntValue(ConfigPath, ".BreakInvisibility", QLIE_BreakInvisibility as int)
+	QLIE_PlayScrollSound = JsonUtil.GetPathIntValue(ConfigPath, ".PlayScrollSound", QLIE_PlayScrollSound as int)
 
 	QLIE_WindowOffsetX = JsonUtil.GetPathIntValue(ConfigPath, ".WindowOffsetX", QLIE_WindowOffsetX)
 	QLIE_WindowOffsetY = JsonUtil.GetPathIntValue(ConfigPath, ".WindowOffsetY", QLIE_WindowOffsetY)

@@ -27,6 +27,7 @@ namespace QuickLoot::Config
 	bool UserSettings::EnableForAnimals() { return QLIE_EnableForAnimals; }
 	bool UserSettings::EnableForDragons() { return QLIE_EnableForDragons; }
 	bool UserSettings::DispelInvisibility() { return QLIE_BreakInvisibility; }
+	bool UserSettings::PlayScrollSound() { return QLIE_PlayScrollSound; }
 
 	int UserSettings::GetWindowX() { return QLIE_WindowOffsetX; }
 	int UserSettings::GetWindowY() { return QLIE_WindowOffsetY; }

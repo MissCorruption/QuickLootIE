@@ -5,6 +5,7 @@
 #include "CLIK/GFx/Controls/ButtonBar.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
+#include "Config/SystemSettings.h"
 #include "Config/UserSettings.h"
 #include "Input/ButtonArt.h"
 #include "Input/InputManager.h"
@@ -13,7 +14,8 @@
 #include "Items/OldInventoryItem.h"
 #include "Items/OldItem.h"
 #include "LootMenuManager.h"
-#include "Config/SystemSettings.h"
+
+#undef PlaySound
 
 namespace QuickLoot
 {
@@ -284,7 +286,7 @@ namespace QuickLoot
 		_lootMenu.Visible(container.get() != nullptr);
 
 		Refresh(RefreshFlags::kAll);
-		SetSelectedIndex(selectedIndex);
+		SetSelectedIndex(selectedIndex, false);
 	}
 
 	void LootMenu::Hide()
@@ -346,19 +348,23 @@ namespace QuickLoot
 		}
 	}
 
-	void LootMenu::SetSelectedIndex(int newIndex)
+	void LootMenu::SetSelectedIndex(int newIndex, bool playSound)
 	{
 		if (newIndex < 0) {
 			newIndex = 0;
 		}
 
-		// This sets the index to -1 of the container is empty.
+		// This sets the index to -1 if the container is empty.
 		if (newIndex >= _itemListImpl.size()) {
 			newIndex = static_cast<int>(_itemListImpl.size() - 1);
 		}
 
 		if (newIndex == _selectedIndex) {
 			return;
+		}
+
+		if (playSound && Config::UserSettings::PlayScrollSound()) {
+			RE::PlaySound("UIMenuFocus");
 		}
 
 		_selectedIndex = newIndex;
@@ -368,12 +374,12 @@ namespace QuickLoot
 
 	void LootMenu::ScrollUp()
 	{
-		SetSelectedIndex(std::max(_selectedIndex - 1, 0));
+		SetSelectedIndex(std::max(_selectedIndex - 1, 0), true);
 	}
 
 	void LootMenu::ScrollDown()
 	{
-		SetSelectedIndex(std::min(_selectedIndex + 1, static_cast<int>(_itemListImpl.size()) - 1));
+		SetSelectedIndex(std::min(_selectedIndex + 1, static_cast<int>(_itemListImpl.size()) - 1), true);
 	}
 
 	void LootMenu::ScrollPrevPage()
@@ -551,7 +557,7 @@ namespace QuickLoot
 		_lootMenu.Visible(true);
 
 		API::APIServer::DispatchInvalidateLootMenuEvent(elements, _container);
-		SetSelectedIndex(_selectedIndex);
+		SetSelectedIndex(_selectedIndex, false);
 
 		QueueRefresh(RefreshFlags::kWeight);
 		QueueRefresh(RefreshFlags::kInfoBar);

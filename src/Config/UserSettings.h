@@ -36,6 +36,7 @@ namespace QuickLoot::Config
 		static bool EnableForAnimals();
 		static bool EnableForDragons();
 		static bool DispelInvisibility();
+		static bool PlayScrollSound();
 
 		static int GetWindowX();
 		static int GetWindowY();

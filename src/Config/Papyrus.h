@@ -14,6 +14,7 @@ namespace QuickLoot::Config
 	inline bool QLIE_EnableForAnimals;
 	inline bool QLIE_EnableForDragons;
 	inline bool QLIE_BreakInvisibility;
+	inline bool QLIE_PlayScrollSound;
 
 	inline int QLIE_WindowOffsetX;
 	inline int QLIE_WindowOffsetY;
