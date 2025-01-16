@@ -22,14 +22,17 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 	case SKSE::MessagingInterface::kPostLoad:
 		{
 			PROFILE_SCOPE_NAMED("SKSE Message (kPostLoad)");
+			logger::info("--------------------------------[ kPostLoad start ]--------------------------------");
 
 			QuickLoot::API::APIServer::Init(SKSE::GetMessagingInterface());
+			logger::info("--------------------------------[ kPostLoad end ]--------------------------------");
 			break;
 		}
 
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
 			PROFILE_SCOPE_NAMED("SKSE Message (kDataLoaded)");
+			logger::info("--------------------------------[ kDataLoaded start ]--------------------------------");
 
 			QuickLoot::Config::SystemSettings::Update();
 
@@ -52,6 +55,7 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 			QuickLoot::Integrations::Completionist::Init();
 
 			QuickLoot::Input::InputObserver::StartListening();
+			logger::info("--------------------------------[ kDataLoaded end ]--------------------------------");
 			break;
 		}
 	}
