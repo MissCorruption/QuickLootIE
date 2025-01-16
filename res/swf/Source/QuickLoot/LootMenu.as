@@ -66,10 +66,6 @@
 	}
 	
 	public function LootMenu() {
-		// The CoreList constructor sets a scale9Grid, which causes very odd
-		// behavior when changing the list size after it's created.
-		itemList["container"].scale9Grid = null;
-		itemList.rowCount = maxLines;
 		var self = this;
 		itemList.addEventListener("scrollPositionChanged", function() { self.updateScrollArrows(); });
 		
@@ -102,6 +98,11 @@
 		loadSetting(settings, "showItemIcons", "boolean");
 		
 		if(scale == 0) scale = 1;
+		
+		// The CoreList constructor sets a scale9Grid, which causes very odd
+		// behavior when changing the list size after it's created.
+		itemList["container"].scale9Grid = null;
+		itemList.rowCount = maxLines;
 		
 		initColumnHeaders()
 		refresh();
