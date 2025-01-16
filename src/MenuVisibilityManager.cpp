@@ -154,7 +154,7 @@ namespace QuickLoot
 		}
 
 		if (cameraState && !IsValidCameraState(cameraState->id)) {
-			logger::debug("LootMenu disabled because of camera state");
+			logger::debug("LootMenu disabled because of camera state ({})", cameraState ? static_cast<int>(cameraState->id) : -1);
 			return false;
 		}
 
