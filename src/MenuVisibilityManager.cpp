@@ -168,6 +168,11 @@ namespace QuickLoot
 			return false;
 		}
 
+		if (container->HasKeywordByEditorID("QuickLootIE_Exclude")) {
+			logger::debug("LootMenu disabled because the container is marked with QuickLootIE_Exclude ({:08X})", container->formID);
+			return false;
+		}
+
 		if (const char* blocking = FindBlockingMenu()) {
 			logger::debug("LootMenu disabled because a blocking menu is open ({})", blocking);
 			return false;
