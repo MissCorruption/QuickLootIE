@@ -33,6 +33,7 @@ namespace QuickLoot::Config
 		static bool ShowWhenUnlocked();
 		static bool ShowInThirdPersonView();
 		static bool ShowWhenMounted();
+		static bool EnableForCorpses();
 		static bool EnableForAnimals();
 		static bool EnableForDragons();
 		static bool DispelInvisibility();

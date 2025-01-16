@@ -24,6 +24,7 @@ namespace QuickLoot::Config
 	bool UserSettings::ShowWhenUnlocked() { return QLIE_ShowWhenUnlocked; }
 	bool UserSettings::ShowInThirdPersonView() { return QLIE_ShowInThirdPerson; }
 	bool UserSettings::ShowWhenMounted() { return QLIE_ShowWhenMounted; }
+	bool UserSettings::EnableForCorpses() { return QLIE_EnableForCorpses; }
 	bool UserSettings::EnableForAnimals() { return QLIE_EnableForAnimals; }
 	bool UserSettings::EnableForDragons() { return QLIE_EnableForDragons; }
 	bool UserSettings::DispelInvisibility() { return QLIE_BreakInvisibility; }

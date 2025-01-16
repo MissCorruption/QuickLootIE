@@ -22,6 +22,7 @@ bool property QLIE_ShowWhenEmpty = false auto hidden
 bool property QLIE_ShowWhenUnlocked = true auto hidden
 bool property QLIE_ShowInThirdPerson = true auto hidden
 bool property QLIE_ShowWhenMounted = false auto hidden
+bool property QLIE_EnableForCorpses = true auto hidden
 bool property QLIE_EnableForAnimals = true auto hidden
 bool property QLIE_EnableForDragons = true auto hidden
 bool property QLIE_BreakInvisibility = true auto hidden
@@ -298,6 +299,7 @@ function BuildGeneralPage()
 	AddTextOptionST("state_ShowWhenUnlocked",		"$qlie_ShowWhenUnlocked_text",		GetEnabledStatusText(QLIE_ShowWhenUnlocked))
 	AddTextOptionST("state_ShowInThirdPerson",		"$qlie_ShowInThirdPerson_text",		GetEnabledStatusText(QLIE_ShowInThirdPerson))
 	AddTextOptionST("state_ShowWhenMounted",		"$qlie_ShowWhenMounted_text",		GetEnabledStatusText(QLIE_ShowWhenMounted))
+	AddTextOptionST("state_EnableForCorpses",		"$qlie_EnableForCorpses_text",		GetEnabledStatusText(QLIE_EnableForCorpses))
 	AddTextOptionST("state_EnableForAnimals",		"$qlie_EnableForAnimals_text",		GetEnabledStatusText(QLIE_EnableForAnimals))
 	AddTextOptionST("state_EnableForDragons",		"$qlie_EnableForDragons_text",		GetEnabledStatusText(QLIE_EnableForDragons))
 	AddTextOptionST("state_BreakInvisibility",		"$qlie_BreakInvisibility_text",		GetEnabledStatusText(QLIE_BreakInvisibility))
@@ -569,6 +571,18 @@ state state_ShowWhenMounted
 	event OnDefaultST()
 		QLIE_ShowWhenMounted = false
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowWhenMounted))
+	endevent
+endstate
+
+state state_EnableForCorpses
+	event OnSelectST()
+		QLIE_EnableForCorpses = !QLIE_EnableForCorpses
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_EnableForCorpses))
+	endevent
+
+	event OnDefaultST()
+		QLIE_EnableForCorpses = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_EnableForCorpses))
 	endevent
 endstate
 
@@ -1458,6 +1472,7 @@ function ResetSettings()
 	QLIE_ShowWhenUnlocked = true
 	QLIE_ShowInThirdPerson = true
 	QLIE_ShowWhenMounted = false
+	QLIE_EnableForCorpses = true
 	QLIE_EnableForAnimals = true
 	QLIE_EnableForDragons = true
 	QLIE_BreakInvisibility = true
@@ -1517,6 +1532,7 @@ function SaveProfile()
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowWhenUnlocked", QLIE_ShowWhenUnlocked as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowInThirdPerson", QLIE_ShowInThirdPerson as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowWhenMounted", QLIE_ShowWhenMounted as int)
+	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForCorpses", QLIE_EnableForCorpses as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForAnimals", QLIE_EnableForAnimals as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForDragons", QLIE_EnableForDragons as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".BreakInvisibility", QLIE_BreakInvisibility as int)
@@ -1610,6 +1626,7 @@ function LoadProfile(bool initialLoad)
 	QLIE_ShowWhenUnlocked = JsonUtil.GetPathIntValue(ConfigPath, ".ShowWhenUnlocked", QLIE_ShowWhenUnlocked as int)
 	QLIE_ShowInThirdPerson = JsonUtil.GetPathIntValue(ConfigPath, ".ShowInThirdPerson", QLIE_ShowInThirdPerson as int)
 	QLIE_ShowWhenMounted = JsonUtil.GetPathIntValue(ConfigPath, ".ShowWhenMounted", QLIE_ShowWhenMounted as int)
+	QLIE_EnableForCorpses = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForCorpses", QLIE_EnableForCorpses as int)
 	QLIE_EnableForAnimals = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForAnimals", QLIE_EnableForAnimals as int)
 	QLIE_EnableForDragons = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForDragons", QLIE_EnableForDragons as int)
 	QLIE_BreakInvisibility = JsonUtil.GetPathIntValue(ConfigPath, ".BreakInvisibility", QLIE_BreakInvisibility as int)

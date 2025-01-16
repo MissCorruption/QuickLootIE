@@ -189,6 +189,11 @@ namespace QuickLoot
 				return false;
 			}
 
+			if (!Settings::EnableForCorpses()) {
+				logger::debug("LootMenu disabled for corpses");
+				return false;
+			}
+
 			if (!Settings::EnableForAnimals() && actor->HasKeywordString("ActorTypeAnimal")) {
 				logger::debug("LootMenu disabled for animals");
 				return false;
