@@ -32,6 +32,9 @@ namespace QuickLoot::Input
 				if (auto buttonEvent = current->AsButtonEvent()) {
 					InputManager::HandleButtonEvent(buttonEvent);
 				}
+				if (auto thumbStickEvent = current->AsThumbstickEvent()) {
+					InputManager::HandleThumbstickEvent(thumbStickEvent);
+				}
 			}
 		}
 

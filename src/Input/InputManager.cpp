@@ -151,11 +151,23 @@ namespace QuickLoot::Input
 	void InputManager::BlockConflictingInputs()
 	{
 		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, false);
+
+		if (REL::Module::IsVR()) {
+			const auto playerControls = RE::PlayerControls::GetSingleton();
+			playerControls->sneakHandler->SetInputEventHandlingEnabled(false);
+			playerControls->jumpHandler->SetInputEventHandlingEnabled(false);
+		}
 	}
 
 	void InputManager::UnblockConflictingInputs()
 	{
 		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, true);
+
+		if (REL::Module::IsVR()) {
+			const auto playerControls = RE::PlayerControls::GetSingleton();
+			playerControls->sneakHandler->SetInputEventHandlingEnabled(true);
+			playerControls->jumpHandler->SetInputEventHandlingEnabled(true);
+		}
 	}
 
 	void InputManager::HandleButtonEvent(const RE::ButtonEvent* event)
@@ -179,6 +191,58 @@ namespace QuickLoot::Input
 		}
 
 		HandleRetrigger(event, keybinding);
+	}
+
+	void InputManager::HandleThumbstickEvent(const RE::ThumbstickEvent* event)
+	{
+		if (!REL::Module::IsVR()) {
+			return;
+		}
+
+		if (!event->IsMainHand()) {
+			return;
+		}
+
+		//logger::debug("Thumbstick event: {}/{}, {}", event->xValue, event->yValue, event->IsMainHand());
+
+		static float lastYValue = 0;
+		static float startTime = 0;
+
+		constexpr float pressThreshold = 0.5f;
+		constexpr float releaseThreshold = 0.2f;
+
+		bool wasUpPressed = startTime != 0 && lastYValue > 0;
+		bool wasDownPressed = startTime != 0 && lastYValue < 0;
+
+		bool isUpPressed = event->yValue > (wasUpPressed ? releaseThreshold : pressThreshold);
+		bool isDownPressed = event->yValue < -(wasUpPressed ? releaseThreshold : pressThreshold);
+
+		float now = static_cast<float>(GetTickCount()) * 0.001f;
+		lastYValue = event->yValue;
+
+		if (isUpPressed) {
+			if (wasUpPressed) {
+				SendFakeButtonEvent(event->device.get(), VRInput::kMainThumbStickUp, 1.0f, now - startTime);
+			} else {
+				startTime = now;
+				SendFakeButtonEvent(event->device.get(), VRInput::kMainThumbStickUp, 1.0f, 0.0f);
+			}
+		} else if (wasUpPressed) {
+			SendFakeButtonEvent(event->device.get(), VRInput::kMainThumbStickUp, 0.0f, now - startTime);
+			startTime = 0;
+		}
+
+		if (isDownPressed) {
+			if (wasDownPressed) {
+				SendFakeButtonEvent(event->device.get(), VRInput::kMainThumbStickDown, 1.0f, now - startTime);
+			} else {
+				startTime = now;
+				SendFakeButtonEvent(event->device.get(), VRInput::kMainThumbStickDown, 1.0f, 0.0f);
+			}
+		} else if (wasDownPressed) {
+			SendFakeButtonEvent(event->device.get(), VRInput::kMainThumbStickDown, 0.0f, now - startTime);
+			startTime = 0;
+		}
 	}
 
 	std::vector<Keybinding> InputManager::GetButtonBarKeybindings()
@@ -225,6 +289,13 @@ namespace QuickLoot::Input
 		_keybindings.emplace_back(ControlGroup::kDpad, DeviceType::kGamepad, GamepadInput::kLeft, ModifierKeys::kIgnore, QuickLootAction::kPrevPage, false);
 		_keybindings.emplace_back(ControlGroup::kDpad, DeviceType::kGamepad, GamepadInput::kRight, ModifierKeys::kIgnore, QuickLootAction::kNextPage, false);
 
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kOculusPrimary, VRInput::kMainThumbStickUp, ModifierKeys::kIgnore, QuickLootAction::kScrollUp, true);
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kOculusPrimary, VRInput::kMainThumbStickDown, ModifierKeys::kIgnore, QuickLootAction::kScrollDown, true);
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kVivePrimary, VRInput::kMainThumbStickUp, ModifierKeys::kIgnore, QuickLootAction::kScrollUp, true);
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kVivePrimary, VRInput::kMainThumbStickDown, ModifierKeys::kIgnore, QuickLootAction::kScrollDown, true);
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kWMRPrimary, VRInput::kMainThumbStickUp, ModifierKeys::kIgnore, QuickLootAction::kScrollUp, true);
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kWMRPrimary, VRInput::kMainThumbStickDown, ModifierKeys::kIgnore, QuickLootAction::kScrollDown, true);
+
 		_keybindings.append_range(Settings::GetKeybindings());
 
 		_usedModifiers = ModifierKeys::kNone;
@@ -266,6 +337,22 @@ namespace QuickLoot::Input
 		});
 
 		return it != _keybindings.end() ? &*it : nullptr;
+	}
+
+	void InputManager::SendFakeButtonEvent(DeviceType device, int idCode, float value, float heldDownSecs)
+	{
+		logger::debug("Fake button event: device {}, key {} {} for {}s", static_cast<uint32_t>(device), idCode, value > 0 ? "down" : "up", heldDownSecs);
+
+		static auto fakeEvent = RE::ButtonEvent::Create(RE::INPUT_DEVICE::kNone, "", 0, 0, 0);
+
+		fakeEvent->eventType = RE::INPUT_EVENT_TYPE::kButton;
+		fakeEvent->device = device;
+		fakeEvent->idCode = idCode;
+		fakeEvent->userEvent = "";
+		fakeEvent->GetRuntimeData().value = value;
+		fakeEvent->GetRuntimeData().heldDownSecs = heldDownSecs;
+
+		HandleButtonEvent(fakeEvent);
 	}
 
 	void InputManager::UpdateModifierKeys(const RE::ButtonEvent* event)

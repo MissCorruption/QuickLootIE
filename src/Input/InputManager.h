@@ -23,6 +23,7 @@ namespace QuickLoot::Input
 		static void UpdateModifierKeys();
 
 		static void HandleButtonEvent(const RE::ButtonEvent* event);
+		static void HandleThumbstickEvent(const RE::ThumbstickEvent* event);
 		static std::vector<Keybinding> GetButtonBarKeybindings();
 
 	private:
@@ -35,6 +36,8 @@ namespace QuickLoot::Input
 		static void ReloadKeybindings();
 		static Keybinding* FindConflictingKeybinding(const UserEventMapping&, DeviceType);
 		static Keybinding* FindMatchingKeybinding(const RE::ButtonEvent* event);
+
+		static void SendFakeButtonEvent(DeviceType device, int idCode, float value, float heldDownSecs);
 
 		static void UpdateModifierKeys(const RE::ButtonEvent* event);
 		static bool HandleGrab(const RE::ButtonEvent* event, const Keybinding* keybinding);
