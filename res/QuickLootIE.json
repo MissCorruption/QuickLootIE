@@ -13,7 +13,8 @@
 		"AchievementWidget",
 		"BestiaryWidget",
 		"Durability Menu",
-		"WidgetMenu"
+		"WidgetMenu",
+		"CombatAlertOverlayMenu"
 	],
 	// Use this to exclude certain containers from being
 	// searchable by QuickLoot IE. Both BaseIDs and RefIDs
