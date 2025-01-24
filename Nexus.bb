@@ -48,6 +48,16 @@ Many aspects of QuickLoot IE's behavior can be configured via the included MCM:
 [*] Which info columns to show and in what order
 [*] Key bindings for all QuickLoot actions (+ save/load presets)
 [/list][/list]
+[color=#6aa84f][size=5][b]Reskins[/b][/size][/color]
+If you are using a UI overhaul and want the loot menu to match its design, check out these fantastic reskins provided by members of the modding community:
+
+[list]
+[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/137059]QuickLoot IE - Dear Diary Dark Mode Reskin[/url] by AtomCrafty
+[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/123475]Untarnished UI - QuickLoot IE Patch[/url] by Wuerfelhusten
+[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/123469]NORDIC UI - QuickLoot IE Patch[/url] by Wuerfelhusten
+[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/127118]Edge UI - QuickLoot IE Reskin[/url] by EugeneUI
+[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/136012]QuickLoot IE Vanilla Skin[/url] by TigerCowZ
+[/list]
 [color=#6aa84f][size=5][b]Frequently Asked Questions[/b][/size][/color]
 
 [list]
