@@ -354,14 +354,14 @@ namespace QuickLoot::Items
 		auto result = std::numeric_limits<std::ptrdiff_t>::min();
 		switch (_src.index()) {
 		case kInventory:
-			result = std::get<kInventory>(_src)->GetValue() * _count;
+			result = std::get<kInventory>(_src)->GetValue();
 			break;
 		case kGround:
 			for (const auto& handle : std::get<kGround>(_src)) {
 				const auto item = handle.get();
 				const auto obj = item ? item->GetObjectReference() : nullptr;
 				if (obj) {
-					result = obj->GetGoldValue() * _count;
+					result = obj->GetGoldValue();
 					break;
 				}
 			}
@@ -383,14 +383,14 @@ namespace QuickLoot::Items
 		double result = 0.0;
 		switch (_src.index()) {
 		case kInventory:
-			result = std::get<kInventory>(_src)->GetWeight() * _count;
+			result = std::get<kInventory>(_src)->GetWeight();
 			break;
 		case kGround:
 			for (const auto& handle : std::get<kGround>(_src)) {
 				const auto item = handle.get();
 				const auto obj = item ? item->GetObjectReference() : nullptr;
 				if (obj) {
-					result = obj->GetWeight() * _count;
+					result = obj->GetWeight();
 					break;
 				}
 			}

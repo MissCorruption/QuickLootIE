@@ -19,8 +19,9 @@ namespace QuickLoot::Observers
 		CrosshairRefObserver& operator=(CrosshairRefObserver&&) = delete;
 		CrosshairRefObserver& operator=(const CrosshairRefObserver&) = delete;
 
+		static void StartVRTargetPollThread();
 		static void Install();
 
-        RE::BSEventNotifyControl ProcessEvent(const SKSE::CrosshairRefEvent* a_event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override;
+        RE::BSEventNotifyControl ProcessEvent(const SKSE::CrosshairRefEvent* event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override;
     };
 }

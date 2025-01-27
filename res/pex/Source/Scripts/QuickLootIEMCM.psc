@@ -22,9 +22,11 @@ bool property QLIE_ShowWhenEmpty = false auto hidden
 bool property QLIE_ShowWhenUnlocked = true auto hidden
 bool property QLIE_ShowInThirdPerson = true auto hidden
 bool property QLIE_ShowWhenMounted = false auto hidden
+bool property QLIE_EnableForCorpses = true auto hidden
 bool property QLIE_EnableForAnimals = true auto hidden
 bool property QLIE_EnableForDragons = true auto hidden
 bool property QLIE_BreakInvisibility = true auto hidden
+bool property QLIE_PlayScrollSound = true auto hidden
 
 ; Display > Window Settings
 int property QLIE_WindowOffsetX = 100 auto hidden
@@ -297,9 +299,11 @@ function BuildGeneralPage()
 	AddTextOptionST("state_ShowWhenUnlocked",		"$qlie_ShowWhenUnlocked_text",		GetEnabledStatusText(QLIE_ShowWhenUnlocked))
 	AddTextOptionST("state_ShowInThirdPerson",		"$qlie_ShowInThirdPerson_text",		GetEnabledStatusText(QLIE_ShowInThirdPerson))
 	AddTextOptionST("state_ShowWhenMounted",		"$qlie_ShowWhenMounted_text",		GetEnabledStatusText(QLIE_ShowWhenMounted))
+	AddTextOptionST("state_EnableForCorpses",		"$qlie_EnableForCorpses_text",		GetEnabledStatusText(QLIE_EnableForCorpses))
 	AddTextOptionST("state_EnableForAnimals",		"$qlie_EnableForAnimals_text",		GetEnabledStatusText(QLIE_EnableForAnimals))
 	AddTextOptionST("state_EnableForDragons",		"$qlie_EnableForDragons_text",		GetEnabledStatusText(QLIE_EnableForDragons))
 	AddTextOptionST("state_BreakInvisibility",		"$qlie_BreakInvisibility_text",		GetEnabledStatusText(QLIE_BreakInvisibility))
+	AddTextOptionST("state_PlayScrollSound",		"$qlie_PlayScrollSound_text",		GetEnabledStatusText(QLIE_PlayScrollSound))
 
 	SetCursorPosition(1)
 	AddHeaderOption("$qlie_ModInformationHeader")
@@ -570,6 +574,18 @@ state state_ShowWhenMounted
 	endevent
 endstate
 
+state state_EnableForCorpses
+	event OnSelectST()
+		QLIE_EnableForCorpses = !QLIE_EnableForCorpses
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_EnableForCorpses))
+	endevent
+
+	event OnDefaultST()
+		QLIE_EnableForCorpses = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_EnableForCorpses))
+	endevent
+endstate
+
 state state_EnableForAnimals
 	event OnSelectST()
 		QLIE_EnableForAnimals = !QLIE_EnableForAnimals
@@ -603,6 +619,18 @@ state state_BreakInvisibility
 	event OnDefaultST()
 		QLIE_BreakInvisibility = true
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_BreakInvisibility))
+	endevent
+endstate
+
+state state_PlayScrollSound
+	event OnSelectST()
+		QLIE_PlayScrollSound = !QLIE_PlayScrollSound
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_PlayScrollSound))
+	endevent
+
+	event OnDefaultST()
+		QLIE_PlayScrollSound = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_PlayScrollSound))
 	endevent
 endstate
 
@@ -1444,9 +1472,11 @@ function ResetSettings()
 	QLIE_ShowWhenUnlocked = true
 	QLIE_ShowInThirdPerson = true
 	QLIE_ShowWhenMounted = false
+	QLIE_EnableForCorpses = true
 	QLIE_EnableForAnimals = true
 	QLIE_EnableForDragons = true
 	QLIE_BreakInvisibility = true
+	QLIE_PlayScrollSound = true
 
 	; Display > Window Settings
 	QLIE_WindowOffsetX = 100
@@ -1502,9 +1532,11 @@ function SaveProfile()
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowWhenUnlocked", QLIE_ShowWhenUnlocked as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowInThirdPerson", QLIE_ShowInThirdPerson as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".ShowWhenMounted", QLIE_ShowWhenMounted as int)
+	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForCorpses", QLIE_EnableForCorpses as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForAnimals", QLIE_EnableForAnimals as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForDragons", QLIE_EnableForDragons as int)
 	JsonUtil.SetPathIntValue(ConfigPath, ".BreakInvisibility", QLIE_BreakInvisibility as int)
+	JsonUtil.SetPathIntValue(ConfigPath, ".PlayScrollSound", QLIE_PlayScrollSound as int)
 
 	JsonUtil.SetPathIntValue(ConfigPath, ".WindowOffsetX", QLIE_WindowOffsetX)
 	JsonUtil.SetPathIntValue(ConfigPath, ".WindowOffsetY", QLIE_WindowOffsetY)
@@ -1591,9 +1623,14 @@ function LoadProfile(bool initialLoad)
 
 	QLIE_ShowInCombat = JsonUtil.GetPathIntValue(ConfigPath, ".ShowInCombat", QLIE_ShowInCombat as int)
 	QLIE_ShowWhenEmpty = JsonUtil.GetPathIntValue(ConfigPath, ".ShowWhenEmpty", QLIE_ShowWhenEmpty as int)
-	QLIE_BreakInvisibility = JsonUtil.GetPathIntValue(ConfigPath, ".BreakInvisibility", QLIE_BreakInvisibility as int)
 	QLIE_ShowWhenUnlocked = JsonUtil.GetPathIntValue(ConfigPath, ".ShowWhenUnlocked", QLIE_ShowWhenUnlocked as int)
+	QLIE_ShowInThirdPerson = JsonUtil.GetPathIntValue(ConfigPath, ".ShowInThirdPerson", QLIE_ShowInThirdPerson as int)
+	QLIE_ShowWhenMounted = JsonUtil.GetPathIntValue(ConfigPath, ".ShowWhenMounted", QLIE_ShowWhenMounted as int)
+	QLIE_EnableForCorpses = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForCorpses", QLIE_EnableForCorpses as int)
 	QLIE_EnableForAnimals = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForAnimals", QLIE_EnableForAnimals as int)
+	QLIE_EnableForDragons = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForDragons", QLIE_EnableForDragons as int)
+	QLIE_BreakInvisibility = JsonUtil.GetPathIntValue(ConfigPath, ".BreakInvisibility", QLIE_BreakInvisibility as int)
+	QLIE_PlayScrollSound = JsonUtil.GetPathIntValue(ConfigPath, ".PlayScrollSound", QLIE_PlayScrollSound as int)
 
 	QLIE_WindowOffsetX = JsonUtil.GetPathIntValue(ConfigPath, ".WindowOffsetX", QLIE_WindowOffsetX)
 	QLIE_WindowOffsetY = JsonUtil.GetPathIntValue(ConfigPath, ".WindowOffsetY", QLIE_WindowOffsetY)

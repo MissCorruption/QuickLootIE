@@ -154,7 +154,7 @@ namespace QuickLoot
 		}
 
 		if (cameraState && !IsValidCameraState(cameraState->id)) {
-			logger::debug("LootMenu disabled because of camera state");
+			logger::debug("LootMenu disabled because of camera state ({})", cameraState ? static_cast<int>(cameraState->id) : -1);
 			return false;
 		}
 
@@ -165,6 +165,11 @@ namespace QuickLoot
 
 		if (IsContainerBlacklisted(container)) {
 			logger::debug("LootMenu disabled because the container is blacklisted ({:08X})", container->formID);
+			return false;
+		}
+
+		if (container->HasKeywordByEditorID("QuickLootIE_Exclude")) {
+			logger::debug("LootMenu disabled because the container is marked with QuickLootIE_Exclude ({:08X})", container->formID);
 			return false;
 		}
 
@@ -189,6 +194,11 @@ namespace QuickLoot
 				return false;
 			}
 
+			if (!Settings::EnableForCorpses()) {
+				logger::debug("LootMenu disabled for corpses");
+				return false;
+			}
+
 			if (!Settings::EnableForAnimals() && actor->HasKeywordString("ActorTypeAnimal")) {
 				logger::debug("LootMenu disabled for animals");
 				return false;
@@ -210,10 +220,10 @@ namespace QuickLoot
 		const auto container = GetContainerObject(_focusedRef);
 		if (CanOpen(container)) {
 			_currentContainer = container->GetHandle();
-			LootMenuManager::RequestOpen(_currentContainer);
+			LootMenuManager::RequestShow(_currentContainer);
 		} else {
 			_currentContainer.reset();
-			LootMenuManager::RequestClose();
+			LootMenuManager::RequestHide();
 		}
 	}
 

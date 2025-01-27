@@ -4,6 +4,7 @@
 	"skipOldSwfCheck": false,
 	"enableProfiler": false,
 	"profilerFlushInterval": 1000,
+	"enableMenuCaching": true,
 	// Use this to whitelist menus so they won't block
 	// the loot menu from opening. The list must contain
 	// the internal menu names as they apeear in the log,
@@ -11,7 +12,9 @@
 	"menuWhitelist": [
 		"AchievementWidget",
 		"BestiaryWidget",
-		"Durability Menu"
+		"Durability Menu",
+		"WidgetMenu",
+		"CombatAlertOverlayMenu"
 	],
 	// Use this to exclude certain containers from being
 	// searchable by QuickLoot IE. Both BaseIDs and RefIDs

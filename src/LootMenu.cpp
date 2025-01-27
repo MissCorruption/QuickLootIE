@@ -5,6 +5,7 @@
 #include "CLIK/GFx/Controls/ButtonBar.h"
 #include "CLIK/GFx/Controls/ScrollingList.h"
 #include "CLIK/TextField.h"
+#include "Config/SystemSettings.h"
 #include "Config/UserSettings.h"
 #include "Input/ButtonArt.h"
 #include "Input/InputManager.h"
@@ -13,6 +14,8 @@
 #include "Items/OldInventoryItem.h"
 #include "Items/OldItem.h"
 #include "LootMenuManager.h"
+
+#undef PlaySound
 
 namespace QuickLoot
 {
@@ -60,15 +63,23 @@ namespace QuickLoot
 		menuName = MENU_NAME;
 		menuFlags.set(Flag::kAllowSaving, Flag::kHasButtonBar);
 
-		{
+		if (_cachedView) {
+			logger::debug("Using cached swf");
+			uiMovie = _cachedView;
+		} else {
+			logger::debug("Loading swf");
 			PROFILE_SCOPE_NAMED("SWF Loading");
 
 			RE::BSScaleformManager::GetSingleton()->LoadMovie(this, uiMovie, FILE_NAME.data());
+
+			if (Config::SystemSettings::EnableMenuCaching()) {
+				_cachedView = uiMovie;
+			}
 		}
 
 		if (!uiMovie) {
 			logger::error("Failed to load {}.swf", FILE_NAME);
-			LootMenuManager::RequestClose();
+			LootMenuManager::RequestHide();
 			return;
 		}
 
@@ -84,11 +95,17 @@ namespace QuickLoot
 		LoadSwfObject(_infoBar, "_root.lootMenu.infoBar"sv);
 		LoadSwfObject(_buttonBar, "_root.lootMenu.buttonBar"sv);
 
+		RE::GFxValue version;
+		_lootMenu.GetInstance().Invoke("getVersion", &version);
+		if (version.GetSInt() < 4) {
+			// swf reinitialization is only supported at feature level 4 or above
+			_cachedView.reset();
+		}
+
+		_lootMenu.Visible(false);
+
 		_title.AutoSize(CLIK::Object{ "left" });
 		_weight.AutoSize(CLIK::Object{ "left" });
-
-		const RE::GFxValue settings = BuildSettingsObject();
-		_lootMenu.GetInstance().Invoke("init", nullptr, &settings, 1);
 
 		uiMovie->CreateArray(std::addressof(_itemListProvider));
 		_itemList.DataProvider(CLIK::Array{ _itemListProvider });
@@ -101,7 +118,7 @@ namespace QuickLoot
 
 		{
 			PROFILE_SCOPE_NAMED("Initial Task Processing");
-			// This is where SetContainer is called.
+			// This is where Show is called.
 			LootMenuManager::ProcessPendingTasks(*this);
 		}
 	}
@@ -246,7 +263,7 @@ namespace QuickLoot
 		}
 	}
 
-	void LootMenu::SetContainer(const RE::ObjectRefHandle& container, int selectedIndex)
+	void LootMenu::Show(const RE::ObjectRefHandle& container, int selectedIndex)
 	{
 		if (!uiMovie) {
 			return;
@@ -260,11 +277,21 @@ namespace QuickLoot
 		_container = container;
 
 		if (_container) {
+			const RE::GFxValue settings = BuildSettingsObject();
+			_lootMenu.GetInstance().Invoke("init", nullptr, &settings, 1);
+
 			API::APIServer::DispatchOpenLootMenuEvent(_container);
 		}
 
+		_lootMenu.Visible(container.get() != nullptr);
+
 		Refresh(RefreshFlags::kAll);
-		SetSelectedIndex(selectedIndex);
+		SetSelectedIndex(selectedIndex, false);
+	}
+
+	void LootMenu::Hide()
+	{
+		Show({}, -1);
 	}
 
 #pragma endregion
@@ -321,19 +348,23 @@ namespace QuickLoot
 		}
 	}
 
-	void LootMenu::SetSelectedIndex(int newIndex)
+	void LootMenu::SetSelectedIndex(int newIndex, bool playSound)
 	{
 		if (newIndex < 0) {
 			newIndex = 0;
 		}
 
-		// This sets the index to -1 of the container is empty.
+		// This sets the index to -1 if the container is empty.
 		if (newIndex >= _itemListImpl.size()) {
 			newIndex = static_cast<int>(_itemListImpl.size() - 1);
 		}
 
 		if (newIndex == _selectedIndex) {
 			return;
+		}
+
+		if (playSound && Config::UserSettings::PlayScrollSound()) {
+			RE::PlaySound("UIMenuFocus");
 		}
 
 		_selectedIndex = newIndex;
@@ -343,12 +374,12 @@ namespace QuickLoot
 
 	void LootMenu::ScrollUp()
 	{
-		SetSelectedIndex(std::max(_selectedIndex - 1, 0));
+		SetSelectedIndex(std::max(_selectedIndex - 1, 0), true);
 	}
 
 	void LootMenu::ScrollDown()
 	{
-		SetSelectedIndex(std::min(_selectedIndex + 1, static_cast<int>(_itemListImpl.size()) - 1));
+		SetSelectedIndex(std::min(_selectedIndex + 1, static_cast<int>(_itemListImpl.size()) - 1), true);
 	}
 
 	void LootMenu::ScrollPrevPage()
@@ -493,7 +524,7 @@ namespace QuickLoot
 		}
 
 		if (!Settings::ShowWhenEmpty() && _itemListImpl.empty()) {
-			LootMenuManager::RequestClose();
+			LootMenuManager::RequestHide();
 			return;
 		}
 
@@ -526,7 +557,7 @@ namespace QuickLoot
 		_lootMenu.Visible(true);
 
 		API::APIServer::DispatchInvalidateLootMenuEvent(elements, _container);
-		SetSelectedIndex(_selectedIndex);
+		SetSelectedIndex(_selectedIndex, false);
 
 		QueueRefresh(RefreshFlags::kWeight);
 		QueueRefresh(RefreshFlags::kInfoBar);
@@ -716,7 +747,7 @@ namespace QuickLoot
 	RE::UI_MESSAGE_RESULTS LootMenu::ProcessMessage(RE::UIMessage& message)
 	{
 		if (message.type == RE::UI_MESSAGE_TYPE::kHide) {
-			SetContainer({}, -1);
+			Show({}, -1);
 
 			return RE::UI_MESSAGE_RESULTS::kHandled;
 		}

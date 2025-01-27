@@ -7,7 +7,8 @@
 	
 	public function canScrollDown(): Boolean
 	{
-		return scrollPosition < _dataProvider.length - totalRenderers;
+		//QuickLoot.Utils.log("scroll: " + scrollPosition + ", count: " + _dataProvider.length + ", height: " + height + ", row height: " + _rowHeight);
+		return scrollPosition < _dataProvider.length - height / _rowHeight;
 	}
 	
 	private function scrollToIndex(value: Number): Void

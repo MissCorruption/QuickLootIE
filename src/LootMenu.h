@@ -40,11 +40,15 @@ namespace QuickLoot
 		LootMenu(nullptr_t) {}
 		LootMenu();
 
-		void SetContainer(const RE::ObjectRefHandle& container, int selectedIndex);
+		void Show(const RE::ObjectRefHandle& container, int selectedIndex);
+		void Hide();
+
 		void OnInputAction(Input::QuickLootAction action);
 		void QueueRefresh(RefreshFlags flags);
 
 	private:
+		static inline RE::GPtr<RE::GFxMovieView> _cachedView{};
+
 		RE::ObjectRefHandle _container{};
 		int _selectedIndex = -1;
 		RE::stl::enumeration<RefreshFlags> _refreshFlags = RefreshFlags::kAll;
@@ -69,7 +73,7 @@ namespace QuickLoot
 		static void ResolveAnchorPoint(Config::AnchorPoint anchor, double& fractionX, double& fractionY);
 
 		void OnSelectedIndexChanged(int newIndex);
-		void SetSelectedIndex(int newIndex);
+		void SetSelectedIndex(int newIndex, bool playSound);
 		void ScrollUp();
 		void ScrollDown();
 		void ScrollPrevPage();

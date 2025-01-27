@@ -9,12 +9,12 @@
 
 namespace QuickLoot
 {
-	bool LootMenuManager::IsOpen()
+	bool LootMenuManager::IsShowing()
 	{
 		return static_cast<bool>(_currentContainer);
 	}
 
-	void LootMenuManager::RequestOpen(const RE::ObjectRefHandle& container)
+	void LootMenuManager::RequestShow(const RE::ObjectRefHandle& container)
 	{
 		if (!container || container == _currentContainer) {
 			return;
@@ -22,35 +22,37 @@ namespace QuickLoot
 
 		if (API::APIServer::DispatchOpeningLootMenuEvent(container.get()) != HandleResult::kContinue) {
 			logger::info("Opening was canceled by API subscriber");
-			RequestClose();
+			RequestHide();
 			return;
 		}
 
-		if (!IsOpen()) {
-			RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
-
-			Input::InputManager::BlockConflictingInputs();
-			Behaviors::ActivationPrompt::Block();
-		}
-
+		Input::InputManager::BlockConflictingInputs();
+		Behaviors::ActivationPrompt::Block();
 		Behaviors::ContainerAnimator::CloseContainer(_currentContainer);
+
 		_currentContainer = container;
 		const auto index = container == _lastContainer ? _lastSelectedIndex : 0;
 
+		EnsureOpen();
+
 		QueueLootMenuTask([=](LootMenu& menu) {
-			menu.SetContainer(container, index);
+			menu.Show(container, index);
 		});
 	}
 
-	void LootMenuManager::RequestClose()
+	void LootMenuManager::RequestHide()
 	{
-		RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-
-		Behaviors::ActivationPrompt::Unblock();
 		Input::InputManager::UnblockConflictingInputs();
-
+		Behaviors::ActivationPrompt::Unblock();
 		Behaviors::ContainerAnimator::CloseContainer(_currentContainer);
+
 		_currentContainer.reset();
+
+		QueueLootMenuTask([=](LootMenu& menu) {
+			menu.Hide();
+		});
+
+		RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 	}
 
 	void LootMenuManager::RequestRefresh(RefreshFlags flags)
@@ -78,6 +80,13 @@ namespace QuickLoot
 				menu.OnInputAction(action);
 			});
 			break;
+		}
+	}
+
+	void LootMenuManager::EnsureOpen()
+	{
+		if (!RE::UI::GetSingleton()->IsMenuOpen(LootMenu::MENU_NAME)) {
+			RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kShow, nullptr);
 		}
 	}
 

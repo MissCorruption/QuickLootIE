@@ -61,9 +61,11 @@ namespace QuickLoot::Config
 		LoadSettingsVar(QLIE_ShowWhenUnlocked, true);
 		LoadSettingsVar(QLIE_ShowInThirdPerson, true);
 		LoadSettingsVar(QLIE_ShowWhenMounted, false);
+		LoadSettingsVar(QLIE_EnableForCorpses, false);
 		LoadSettingsVar(QLIE_EnableForAnimals, false);
 		LoadSettingsVar(QLIE_EnableForDragons, false);
 		LoadSettingsVar(QLIE_BreakInvisibility, true);
+		LoadSettingsVar(QLIE_PlayScrollSound, true);
 
 		// Display > Window Settings
 		LoadSettingsVar(QLIE_WindowOffsetX, 100);

@@ -6,9 +6,26 @@ namespace QuickLoot::Input
 	using UEFlag = RE::UserEvents::USER_EVENT_FLAG;
 	using UserEventMapping = RE::ControlMap::UserEventMapping;
 
+	struct VRInputEnum
+	{
+		enum Keys
+		{
+			kBY = RE::BSOpenVRControllerDevice::Key::kBY,
+			kGrip = RE::BSOpenVRControllerDevice::Key::kGrip,
+			kXA = RE::BSOpenVRControllerDevice::Key::kXA,
+			kJoystickTrigger = RE::BSOpenVRControllerDevice::Key::kJoystickTrigger,
+			kTrigger = RE::BSOpenVRControllerDevice::Key::kTrigger,
+
+			// fake button ids to handle thumb stick events
+			kMainThumbStickUp = 1001,
+			kMainThumbStickDown = 1002,
+		};
+	};
+
 	using KeyboardKey = RE::BSWin32KeyboardDevice::Key;
 	using MouseButton = RE::BSWin32MouseDevice::Key;
 	using GamepadInput = RE::BSWin32GamepadDevice::Key;
+	using VRInput = VRInputEnum::Keys;
 
 	constexpr UEFlag QUICKLOOT_EVENT_GROUP_FLAG = static_cast<UEFlag>(1 << 12);
 
@@ -32,7 +49,8 @@ namespace QuickLoot::Input
 		kButtonBar = 1,
 		kMouseWheel = 2,
 		kDpad = 3,
-		kEnableState = 4,
+		kVrScroll = 4,
+		kEnableState = 5,
 
 		// disabled on conflict
 		kArrowKeys = 11 | kOptional,

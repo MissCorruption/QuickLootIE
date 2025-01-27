@@ -36,8 +36,8 @@ namespace QuickLoot::Behaviors
 		// Inspired by https://github.com/Umgak/Skyrim-No-Lockpick-Activate/blob/master/src/main.cpp
 		// No Lockpick Activate uses ID(17922)+0x2E4 rather than ID(17887)+0x164, but that seems to be the wrong function.
 
-		REL::Relocation loc1{ RELOCATION_ID(17485, 17887), REL::VariantOffset(0x164, 0x164, 0) };
-		REL::Relocation loc2{ RELOCATION_ID(51088, 51968), REL::VariantOffset(0x1BE, 0x1C0, 0) };
+		REL::Relocation loc1{ RELOCATION_ID(17485, 17887), REL::VariantOffset(0x164, 0x164, 0x164) };
+		REL::Relocation loc2{ RELOCATION_ID(51088, 51968), REL::VariantOffset(0x1BE, 0x1C0, 0x1BE) };
 
 		// Only install hooks if the calls are still intact. No Lockpick Activate overwrites them with NOP slides,
 		// so without this check we'd attempt to call a function with relative offset 0x90909090.
