@@ -29,7 +29,7 @@ Tested with the following
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/116713]Kome's Inventory Tweaks[/url]
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/106432]I4 Weapon Icons Overhaul[/url][/list]
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/46358]Completionist[/url] - Full support for item color, text prefixes and icons.
-[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/26790]No Lockpick Activate[/url] - No longer needed as this is not a setting.
+[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/26790]No Lockpick Activate[/url] - No longer needed as this is now a setting.
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/38529]The Curator's Companion[/url] - Icons for needed, found and displayed items.
 [*] [url=https://mod.pub/skyrim-se/36-artifact-tracker]Artifact Tracker[/url] - Acts as a drop-in replacement for TCC.
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/52743]Oblivion Interaction Icons[/url] - Icons now show up in the loot menu button bar.
