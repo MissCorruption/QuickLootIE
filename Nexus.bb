@@ -62,19 +62,19 @@ If you are using a UI overhaul and want the loot menu to match its design, check
 
 [list]
 [*][color=#f6b26b][b]I get a popup talking about "LootMenu.swf"[/b][/color]
-This means that you installed a loot menu reskin created for an older version of QuickLoot, which is incompatible with QuickLoot IE.
-Check which mod provides [b]Interface/LootMenu.swf[/b] and remove the file.
+This means that you installed a loot menu reskin created for an older version of QuickLoot, which is incompatible with QuickLoot IE. 
+Check which mod provides [b]Interface/LootMenu.swf[/b] and remove the file. 
 If for some reason you are unable to do so, you can disable the check in [b]QuickLootIE.json[/b].
 [/list]
 [list]
 [*][color=#f6b26b][b]I get a popup talking about the MCM quest[/b][/color]
-Make sure QuickLootIE.esp exists and is enabled in your load order.
+Make sure QuickLootIE.esp exists and is enabled in your load order. 
 If it is and you still get the popup, you're probably on a version before [b]1.6.1130[/b] and did not install [url=https://www.nexusmods.com/skyrimspecialedition/mods/106441]BEES[/url].
 [/list]
 [list]
 [*][color=#f6b26b][b]The loot menu doesn't show up when I look at a container[/b][/color]
-This is most likely caused by another mod adding an overlay menu that isn't properly flagged as such.
-Check your QuickLoot IE log ([b]Documents/My Games/Skyrim Special Edition/SKSE/QuickLootIE.log[/b]) for a line saying "LootMenu disabled because a blocking menu is open."
+This is most likely caused by another mod adding an overlay menu that isn't properly flagged as such. 
+Check your QuickLoot IE log ([b]Documents/My Games/Skyrim Special Edition/SKSE/QuickLootIE.log[/b]) for a line saying "LootMenu disabled because a blocking menu is open." 
 At the end of the line it will state the name of the menu. Add this to the menu whitelist in [b]QuickLootIE.json[/b].
 [/list]
 [list]
@@ -87,14 +87,14 @@ There are two config files that can be used to modify the behavior of QuickLoot 
 
 [list]
 [*][b]SKSE/Plugins/QuickLootIE/DefaultConfig.json[/b]
-This file contains the same settings as the in-game configuration menu. These settings are loaded automatically when starting a fresh save.
-You can also manually load and overwrite this file using the [b]Load Profile[/b] and [b]Save Profile[/b] buttons in the MCM.
-Although the file does not exist by default, it can be provided by mod list authors to pre-configure the mod.
+This file contains the same settings as the in-game configuration menu. These settings are loaded automatically when starting a fresh save. 
+You can also manually load and overwrite this file using the [b]Load Profile[/b] and [b]Save Profile[/b] buttons in the MCM. 
+Although the file does not exist by default, it can be provided by mod list authors to pre-configure the mod. 
 For this functionality to be available, [url=https://www.nexusmods.com/skyrimspecialedition/mods/13048]PapyrusUtil[/url] must be installed.
 [/list]
 [list]
 [*][b]SKSE/Plugins/QuickLootIE.json[/b]
-This file contains some more niche technical settings that most players won't have to interact with.
+This file contains some more niche technical settings that most players won't have to interact with. 
 It allows you to control some debug features, whitelist improperly flagged menus and exclude containers from being searchable by QuickLoot IE.
 [/list]
 Beyond the json blacklist, containers can also be excluded from use with QuickLoot IE by assigning the keyword [b]QuickLootIE_Exclude[/b] (QuickLootIE.esp|0x002) to them. Should this not be flexible enough for your needs, QuickLoot IE provides an [url=https://github.com/MissCorruption/QuickLootIE/blob/master/include/QuickLootAPI.h]SKSE API[/url], which you can use in your own SKSE plugin.
@@ -103,7 +103,7 @@ Beyond the json blacklist, containers can also be excluded from use with QuickLo
 
 QuickLoot IE is a fork of [url=https://www.nexusmods.com/skyrimspecialedition/mods/69980]QuickLoot EE[/url] by Eloquence, which in turn is a fork of [url=https://www.nexusmods.com/skyrimspecialedition/mods/21085]QuickLoot RE[/url] by Ryan McKenzie.
 
-﻿[img]https://github.com/MissCorruption/QuickLootIE/blob/main/res/swf/Source/Credits.png?raw=true[/img]
+[img]https://github.com/MissCorruption/QuickLootIE/blob/main/res/swf/Source/Credits.png?raw=true[/img]
 
 [b][size=3]Support the Author[/size][/b]
 Support me on [url=https://ko-fi.com/misscorruption]Ko-Fi[/url] or check out the [url=https://github.com/MissCorruption/QuickLootIE]GitHub repository[/url] containing the source code!
