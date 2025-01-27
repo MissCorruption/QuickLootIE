@@ -110,7 +110,7 @@ jobs:
           shell: pwsh
 
         - name: Run Spriggit
-          run: .github/spriggit/Spriggit.CLI.exe deserialize --InputPath "res/esp" --OutputPath "res/esp/QuickLootIE.esp"
+          run: .github\spriggit\Spriggit.CLI.exe deserialize --InputPath "res/esp" --OutputPath "res/esp/QuickLootIE.esp"
           shell: cmd
 
         - name: Upload Plugin Artifact
