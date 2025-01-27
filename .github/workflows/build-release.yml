@@ -79,32 +79,32 @@ jobs:
           uses: actions/checkout@v4
 
         - name: Create Pack Folder
-          run: mkdir -p $env:GITHUB_WORKSPACE\to-pack
+          run: mkdir -p $env:GITHUB_WORKSPACE\\to-pack
 
         - name: Cache Spriggit
           id: cache-spriggit
           uses: actions/cache@v4
           with:
-            path: .github\spriggit
+            path: .github/spriggit
             key: ${{ runner.os }}-spriggit-${{ inputs.spriggit_tool_version }}
 
         - name: Fetch Spriggit
           if: steps.cache-spriggit.outputs.cache-hit != 'true'
           env:
-            GITHUB_TOKEN: ${{ github.token }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |
-            gh release download -O .github\spriggit.zip -p "SpriggitWindowsCLI.zip" -R Mutagen-Modding/Spriggit ${{ inputs.spriggit_tool_version }}
-            7z x .github\spriggit.zip -o.github\spriggit
-            chmod +x .github\spriggit\Spriggit.CLI.exe
+            gh release download -R Mutagen-Modding/Spriggit --pattern "SpriggitCLI.zip" --dir .github
+            7z x .github/SpriggitCLI.zip -o.github/spriggit
+            chmod +x .github/spriggit/Spriggit.CLI.exe
 
         - name: Run Spriggit
-          run: .github\spriggit\Spriggit.CLI.exe deserialize --InputPath "res\esp" --OutputPath "res\esp\QuickLootIE.esp"
+          run: .github/spriggit/Spriggit.CLI.exe deserialize --InputPath "res/esp" --OutputPath "res/esp/QuickLootIE.esp"
 
         - name: Upload Plugin Artifact
           uses: actions/upload-artifact@v4
           with:
             name: plugin
-            path: res\esp\QuickLootIE.esp
+            path: res/esp/QuickLootIE.esp
 
 
   compile-scripts:
