@@ -103,7 +103,7 @@ Beyond the json blacklist, containers can also be excluded from use with QuickLo
 
 QuickLoot IE is a fork of [url=https://www.nexusmods.com/skyrimspecialedition/mods/69980]QuickLoot EE[/url] by Eloquence, which in turn is a fork of [url=https://www.nexusmods.com/skyrimspecialedition/mods/21085]QuickLoot RE[/url] by Ryan McKenzie.
 
-<credits banner goes here>
+﻿[img]https://github.com/MissCorruption/QuickLootIE/blob/main/res/swf/Source/Credits.png?raw=true[/img]
 
 [b][size=3]Support the Author[/size][/b]
 Support me on [url=https://ko-fi.com/misscorruption]Ko-Fi[/url] or check out the [url=https://github.com/MissCorruption/QuickLootIE]GitHub repository[/url] containing the source code!
