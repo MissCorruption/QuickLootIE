@@ -80,6 +80,7 @@ jobs:
 
         - name: Create Pack Folder
           run: mkdir -p $env:GITHUB_WORKSPACE\\to-pack
+          shell: pwsh
 
         - name: Cache Spriggit
           id: cache-spriggit
@@ -93,18 +94,31 @@ jobs:
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |
+            # Download the SpriggitCLI.zip release asset
             gh release download -R Mutagen-Modding/Spriggit --pattern "SpriggitCLI.zip" --dir .github
-            7z x .github/SpriggitCLI.zip -o.github/spriggit
-            chmod +x .github/spriggit/Spriggit.CLI.exe
+
+            # Extract the zip file to the specified directory
+            7z x .github/SpriggitCLI.zip -o.github/spriggit/
+
+            # Verify that the executable exists after extraction
+            if (Test-Path ".github/spriggit/Spriggit.CLI.exe") {
+                Write-Host "Spriggit.CLI.exe found and ready."
+            } else {
+                Write-Error "Spriggit.CLI.exe not found! Exiting."
+                exit 1
+            }
+          shell: pwsh
 
         - name: Run Spriggit
           run: .github/spriggit/Spriggit.CLI.exe deserialize --InputPath "res/esp" --OutputPath "res/esp/QuickLootIE.esp"
+          shell: cmd
 
         - name: Upload Plugin Artifact
           uses: actions/upload-artifact@v4
           with:
             name: plugin
             path: res/esp/QuickLootIE.esp
+
 
 
   compile-scripts:
