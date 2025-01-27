@@ -1062,68 +1062,87 @@ namespace QuickLoot::Items
 		    // Default subType
 		    value.SetMember("subType", -1);
 
-		    // Check for special keywords for subType 9, 10, 11, 18, and 19
-			if (miscItem->HasKeywordByEditorID("VendorItemTool")) {
-				value.SetMember("subType", "Tool");
-			} else if (miscItem->HasKeywordByEditorID("BYOHAdoptionClothesKeyword")) {
+		    // Determine subType based on the same rules as SkyUI, in the same order:
+			// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/Common/skyui/defines/Item.as
+		    if (miscItem->HasKeywordByEditorID("BYOHAdoptionClothesKeyword")) {
 		        value.SetMember("subType", 9);
-		    } else if (miscItem->HasKeywordByEditorID("BYOHAdoptionToyKeyword")) {
-		        value.SetMember("subType", 10);
-		    } else if (miscItem->HasAnyKeywordByEditorID({
-		                   "BYOHHouseCraftingCategoryWeaponRacks",
-		                   "BYOHHouseCraftingCategoryShelf",
-		                   "BYOHHouseCraftingCategoryFurniture",
-		                   "BYOHHouseCraftingCategoryExterior",
-		                   "BYOHHouseCraftingCategoryContainers",
-		                   "BYOHHouseCraftingCategoryBuilding",
-		                   "BYOHHouseCraftingCategorySmithing"})) {
-		        value.SetMember("subType", 18);
-		    } else if (miscItem->HasKeywordByEditorID("VendorItemClutter")) {
-		        value.SetMember("subType", 19);
-		    } else if (miscItem->HasKeywordByEditorID("VendorItemFirewood")) {
-		        value.SetMember("subType", 11);
-		    } else {
-		        // Use GetItemType, which calls GetItemTypeMisc to determine the type
-		        ItemType itemType = GetItemType(miscItem);
-
-		        // Assign subType based on itemType
-				// subType definition can be found here:
-				// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/Common/skyui/defines/Item.as
-		        switch (itemType) {
-		            case ItemType::MiscGem:
-		                value.SetMember("subType", 0);
-		                break;
-		            case ItemType::MiscDragonClaw:
-		                value.SetMember("subType", 1);
-		                break;
-		            case ItemType::MiscArtifact:
-		                value.SetMember("subType", 2);
-		                break;
-		            case ItemType::MiscLeather:
-		                value.SetMember("subType", 3);
-		                break;
-		            case ItemType::MiscStrips:
-		                value.SetMember("subType", 4);
-		                break;
-		            case ItemType::MiscHide:
-		                value.SetMember("subType", 5);
-		                break;
-		            case ItemType::MiscRemains:
-		                value.SetMember("subType", 6);
-		                break;
-		            case ItemType::MiscIngot:
-		                value.SetMember("subType", 7);
-		                break;
-		            case ItemType::MiscLockPick:
-		                value.SetMember("subType", 20);
-		                break;
-		            case ItemType::MiscGold:
-		                value.SetMember("subType", 21);
-		                break;
-		            default:
-		                break;
-		        }
 		    }
+		    if (miscItem->HasKeywordByEditorID("BYOHAdoptionToyKeyword")) {
+		        value.SetMember("subType", 10);
+		    }
+		    if (miscItem->HasAnyKeywordByEditorID({
+		            "BYOHHouseCraftingCategoryWeaponRacks",
+		            "BYOHHouseCraftingCategoryShelf",
+		            "BYOHHouseCraftingCategoryFurniture",
+		            "BYOHHouseCraftingCategoryExterior",
+		            "BYOHHouseCraftingCategoryContainers",
+		            "BYOHHouseCraftingCategoryBuilding",
+		            "BYOHHouseCraftingCategorySmithing"})) {
+		        value.SetMember("subType", 18);
+		    }
+		    if (miscItem->HasKeywordByEditorID("VendorItemDaedricArtifact")) {
+		        value.SetMember("subType", 2);
+		    }
+		    if (miscItem->HasKeywordByEditorID("VendorItemGem")) {
+		        value.SetMember("subType", 0);
+		    }
+		    if (miscItem->HasKeywordByEditorID("VendorItemAnimalHide")) {
+		        value.SetMember("subType", 5);
+		    }
+		    if (miscItem->HasKeywordByEditorID("VendorItemTool")) {
+		        value.SetMember("subType", 8);
+		    }
+		    if (miscItem->HasKeywordByEditorID("VendorItemAnimalPart")) {
+		        value.SetMember("subType", 6);
+		    }
+		    if (miscItem->HasKeywordByEditorID("VendorItemOreIngot")) {
+		        value.SetMember("subType", 7);
+		    }
+		    if (miscItem->HasKeywordByEditorID("VendorItemClutter")) {
+		        value.SetMember("subType", 19);
+		    }
+		    if (miscItem->HasKeywordByEditorID("VendorItemFirewood")) {
+		        value.SetMember("subType", 11);
+		    }
+
+		    ItemType itemType = GetItemType(miscItem);
+
+		    // Assign subType based on itemType
+		    switch (itemType) {
+		        case ItemType::MiscGem:
+		            value.SetMember("subType", 0);
+		            break;
+		        case ItemType::MiscDragonClaw:
+		            value.SetMember("subType", 1);
+		            break;
+		        case ItemType::MiscArtifact:
+		            value.SetMember("subType", 2);
+		            break;
+		        case ItemType::MiscLeather:
+		            value.SetMember("subType", 3);
+		            break;
+		        case ItemType::MiscStrips:
+		            value.SetMember("subType", 4);
+		            break;
+		        case ItemType::MiscHide:
+		            value.SetMember("subType", 5);
+		            break;
+		        case ItemType::MiscRemains:
+		            value.SetMember("subType", 6);
+		            break;
+		        case ItemType::MiscIngot:
+		            value.SetMember("subType", 7);
+		            break;
+		        case ItemType::MiscLockPick:
+		            value.SetMember("subType", 20);
+		            break;
+		        case ItemType::MiscGold:
+		            value.SetMember("subType", 21);
+		            break;
+		        default:
+		            break;
+		    }
+
 		    break;
 		}
 
