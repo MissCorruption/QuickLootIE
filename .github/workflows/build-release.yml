@@ -69,42 +69,43 @@ jobs:
           echo "should_run=$(git log --since="1 days ago" --name-only | grep "" -c)" >> "$GITHUB_OUTPUT"
 
   build-plugin:
-    name: Build ESP from Spriggit files
-    needs: check-changes
-    if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
-    permissions: write-all
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      name: Build ESP from Spriggit files
+      needs: check-changes
+      if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
+      permissions: write-all
+      runs-on: windows-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
 
-      - name: Create Pack Folder
-        run: mkdir -p ${{ github.workspace }}/to-pack
+        - name: Create Pack Folder
+          run: mkdir -p $env:GITHUB_WORKSPACE\to-pack
 
-      - name: Cache Spriggit
-        id: cache-spriggit
-        uses: actions/cache@v4
-        with:
-          path: .github/spriggit
-          key: ${{ runner.os }}-spriggit-${{ inputs.spriggit_tool_version }}
+        - name: Cache Spriggit
+          id: cache-spriggit
+          uses: actions/cache@v4
+          with:
+            path: .github\spriggit
+            key: ${{ runner.os }}-spriggit-${{ inputs.spriggit_tool_version }}
 
-      - name: Fetch Spriggit
-        if: steps.cache-spriggit.outputs.cache-hit != 'true'
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          gh release download -O .github/spriggit.zip -p 'SpriggitLinuxCLI.zip' -R Mutagen-Modding/Spriggit ${{ inputs.spriggit_tool_version }}
-          7z x .github/spriggit.zip -o.github/spriggit
-          chmod +x .github/spriggit/Spriggit.CLI
+        - name: Fetch Spriggit
+          if: steps.cache-spriggit.outputs.cache-hit != 'true'
+          env:
+            GITHUB_TOKEN: ${{ github.token }}
+          run: |
+            gh release download -O .github\spriggit.zip -p "SpriggitWindowsCLI.zip" -R Mutagen-Modding/Spriggit ${{ inputs.spriggit_tool_version }}
+            7z x .github\spriggit.zip -o.github\spriggit
+            chmod +x .github\spriggit\Spriggit.CLI.exe
 
-      - name: Run Spriggit
-        run: .github/spriggit/Spriggit.CLI deserialize --InputPath "res/esp" --OutputPath "res/esp/QuickLootIE.esp"
+        - name: Run Spriggit
+          run: .github\spriggit\Spriggit.CLI.exe deserialize --InputPath "res\esp" --OutputPath "res\esp\QuickLootIE.esp"
 
-      - name: Upload Plugin Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: plugin
-          path: res/esp/QuickLootIE.esp
+        - name: Upload Plugin Artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: plugin
+            path: res\esp\QuickLootIE.esp
+
 
   compile-scripts:
     name: Compile Papyrus scripts
