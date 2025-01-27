@@ -98,7 +98,7 @@ jobs:
             gh release download -R Mutagen-Modding/Spriggit --pattern "SpriggitCLI.zip" --dir .github
 
             # Extract the zip file to the specified directory
-            7z x .github/SpriggitCLI.zip -o .github/spriggit/
+            7z x .github/SpriggitCLI.zip -o".github/spriggit/"
 
             # Verify that the executable exists after extraction
             if (Test-Path ".github/spriggit/Spriggit.CLI.exe") {
