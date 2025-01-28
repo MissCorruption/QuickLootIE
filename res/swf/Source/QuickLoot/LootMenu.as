@@ -66,9 +66,6 @@
 	}
 	
 	public function LootMenu() {
-		var self = this;
-		itemList.addEventListener("scrollPositionChanged", function() { self.updateScrollArrows(); });
-		
 		columnHeaders = [valueHeader, weightHeader, valuePerWeightHeader];
 		movingElements = [weight, infoBar, buttonBar, arrowDown];
 		nonTransparentElements = [buttonBar];
@@ -98,6 +95,9 @@
 		loadSetting(settings, "showItemIcons", "boolean");
 		
 		if(scale == 0) scale = 1;
+		
+		var self = this;
+		itemList.addEventListener("scrollPositionChanged", function() { self.updateScrollArrows(); });
 		
 		// The CoreList constructor sets a scale9Grid, which causes very odd
 		// behavior when changing the list size after it's created.

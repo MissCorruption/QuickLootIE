@@ -14,7 +14,7 @@
 	private function scrollToIndex(value: Number): Void
 	{
 		super.scrollToIndex(value);
-    	this.dispatchEvent({ type: "scrollPositionChanged", scrollPosition: scrollPosition }); 
+		this.dispatchEvent({ type: "scrollPositionChanged", scrollPosition: scrollPosition });
 	}
 	
 	private function populateData(data: Array): Void
