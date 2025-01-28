@@ -78,6 +78,15 @@ namespace QuickLoot::Config
 	bool UserSettings::ShowCompletionistNeeded() { return QLIE_ShowIconCompletionistNeeded; }
 	bool UserSettings::ShowCompletionistCollected() { return QLIE_ShowIconCompletionistCollected; }
 
+	// TODO
+	float UserSettings::VrOffsetX() { return -10; }
+	float UserSettings::VrOffsetY() { return 5; }
+	float UserSettings::VrOffsetZ() { return 0; }
+	float UserSettings::VrAngleX() { return 45; }
+	float UserSettings::VrAngleY() { return 0; }
+	float UserSettings::VrAngleZ() { return 0; }
+	float UserSettings::VrScale() { return 50; }
+
 	Input::Keybinding UserSettings::BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseKey, int modifierType)
 	{
 		Input::ModifierKeys modifiers = ModifierTypeToModifierKeys(modifierType);

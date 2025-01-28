@@ -67,6 +67,14 @@ namespace QuickLoot::Config
 		static bool ShowCompletionistNeeded();
 		static bool ShowCompletionistCollected();
 
+		static float VrOffsetX();
+		static float VrOffsetY();
+		static float VrOffsetZ();
+		static float VrAngleX();
+		static float VrAngleY();
+		static float VrAngleZ();
+		static float VrScale();
+
 	private:
 		static Input::Keybinding BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseKey, int modifierType);
 		static Input::ModifierKeys ModifierTypeToModifierKeys(int modifierType);
