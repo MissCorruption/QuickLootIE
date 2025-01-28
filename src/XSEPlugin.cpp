@@ -12,6 +12,7 @@
 #include "Integrations/Artifacts.h"
 #include "Integrations/Completionist.h"
 #include "LootMenu.h"
+#include "LootMenuVR.h"
 #include "MenuVisibilityManager.h"
 #include "SanityChecks.h"
 #include "Util/Profiler.h"
@@ -45,7 +46,12 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 
 			QuickLoot::Input::InputManager::Install();
 
-			QuickLoot::LootMenu::Register();
+			if (REL::Module::IsVR()) {
+				QuickLoot::LootMenuVR::Register();
+			} else {
+				QuickLoot::LootMenu::Register();
+			}
+
 			QuickLoot::MenuVisibilityManager::InstallHooks();
 
 			QuickLoot::Behaviors::ActivationPrompt::Install();

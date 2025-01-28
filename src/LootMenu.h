@@ -46,7 +46,7 @@ namespace QuickLoot
 		void OnInputAction(Input::QuickLootAction action);
 		void QueueRefresh(RefreshFlags flags);
 
-	private:
+	protected:
 		static inline RE::GPtr<RE::GFxMovieView> _cachedView{};
 		int _swfFeatureLevel = 0;
 		bool _wasInitialized = false;
