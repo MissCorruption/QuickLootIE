@@ -245,12 +245,18 @@ namespace QuickLoot::Input
 		}
 	}
 
+	bool QUsingGamepad(RE::BSInputDeviceManager* _this)
+	{
+		using func_t = decltype(&QUsingGamepad);
+		REL::Relocation<func_t> func{ RELOCATION_ID(67320, 443396) };
+		return func(_this);
+	}
+
 	std::vector<Keybinding> InputManager::GetButtonBarKeybindings()
 	{
 		std::vector<Keybinding> filtered{};
 
-		bool isGamepad = RE::BSInputDeviceManager::GetSingleton()->IsGamepadConnected() &&
-		                 RE::BSInputDeviceManager::GetSingleton()->IsGamepadEnabled();
+		bool isGamepad = QUsingGamepad(RE::BSInputDeviceManager::GetSingleton());
 
 		std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
 			return keybinding.group == ControlGroup::kButtonBar &&
