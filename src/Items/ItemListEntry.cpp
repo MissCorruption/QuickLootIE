@@ -802,9 +802,10 @@ namespace QuickLoot::Items
 		GFxValue keywords;
 		view.CreateObject(&keywords);
 
-		const auto keywordForm = form->As<BGSKeywordForm>();
+		auto keywordForm = skyrim_cast<BGSKeywordForm*>(form);
+
 		if (!keywordForm) {
-			return "";
+			return keywords;
 		}
 
 		for (uint32_t k = 0; k < keywordForm->GetNumKeywords(); k++) {
@@ -1565,8 +1566,8 @@ namespace QuickLoot::Items
 		}
 
 		RE::EnchantmentItem* enchantment = nullptr;
-		auto keyWordForm = item_form->As<RE::BGSKeywordForm>();
-		auto enchantable = item_form->As<RE::TESEnchantableForm>();
+		auto keywordForm = skyrim_cast<const BGSKeywordForm*>(item_form);
+		auto enchantable = skyrim_cast<const TESEnchantableForm*>(item_form);
 
 		bool wasExtra = false;
 		if (enchantable) {  // Check the item for a base enchantment
@@ -1611,7 +1612,7 @@ namespace QuickLoot::Items
 		} 
 		
 		if (enchantable) {
-			return MagicDisallowEnchanting(keyWordForm) ? EnchantmentType::CannotDisenchant : result;
+			return MagicDisallowEnchanting(keywordForm) ? EnchantmentType::CannotDisenchant : result;
 		}
 
 		return result;
