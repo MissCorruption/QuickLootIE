@@ -73,6 +73,8 @@ namespace QuickLoot::Input
 		kNextPage,
 	};
 
+	enum class ButtonArtIndex : uint16_t;
+
 	struct Keybinding
 	{
 		// If a keybinding is part of a group with the kOptional bit set and conflicts with a
@@ -87,5 +89,6 @@ namespace QuickLoot::Input
 		float nextRetriggerTime = 0.0f;
 		// Whether the keybinding should be active while the loot menu is closed.
 		bool global = false;
+		ButtonArtIndex buttonArtOverride = static_cast<ButtonArtIndex>(0);
 	};
 }

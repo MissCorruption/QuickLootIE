@@ -585,7 +585,7 @@ namespace QuickLoot
 
 		for (const auto& keybinding : keybindings) {
 			const auto label = GetActionDisplayName(keybinding.action, stealing);
-			const auto index = Input::ButtonArt::GetFrameIndexForDeviceKey(keybinding.deviceType, keybinding.inputKey);
+			const auto index = keybinding.buttonArtOverride != Input::ButtonArtIndex::kNone ? keybinding.buttonArtOverride : Input::ButtonArt::GetFrameIndexForDeviceKey(keybinding.deviceType, keybinding.inputKey);
 
 			RE::GFxValue obj;
 			uiMovie->CreateObject(&obj);
