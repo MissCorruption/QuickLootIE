@@ -1,5 +1,6 @@
 #include "Input/InputManager.h"
 
+#include "ButtonArtIndex.h"
 #include "LootMenuManager.h"
 #include "Util/HookUtil.h"
 
@@ -256,14 +257,19 @@ namespace QuickLoot::Input
 	{
 		std::vector<Keybinding> filtered{};
 
-		bool isGamepad = QUsingGamepad(RE::BSInputDeviceManager::GetSingleton());
+		if (REL::Module::IsVR()) {
+			filtered.push_back(Keybinding{ .action = QuickLootAction::kTake, .buttonArtOverride = ButtonArtIndex::kOculusA });
+			filtered.push_back(Keybinding{ .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kOculusAHold });
+		} else {
+			bool isGamepad = QUsingGamepad(RE::BSInputDeviceManager::GetSingleton());
 
-		std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
-			return keybinding.group == ControlGroup::kButtonBar &&
-			       (keybinding.deviceType == DeviceType::kGamepad) == isGamepad &&
-			       (keybinding.modifiers == ModifierKeys::kIgnore ||
-					   keybinding.modifiers == (_currentModifiers & _usedModifiers));
-		});
+			std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
+				return keybinding.group == ControlGroup::kButtonBar &&
+				       (keybinding.deviceType == DeviceType::kGamepad) == isGamepad &&
+				       (keybinding.modifiers == ModifierKeys::kIgnore ||
+						   keybinding.modifiers == (_currentModifiers & _usedModifiers));
+			});
+		}
 
 		return filtered;
 	}
@@ -347,7 +353,7 @@ namespace QuickLoot::Input
 
 	void InputManager::SendFakeButtonEvent(DeviceType device, int idCode, float value, float heldDownSecs)
 	{
-		logger::debug("Fake button event: device {}, key {} {} for {}s", static_cast<uint32_t>(device), idCode, value > 0 ? "down" : "up", heldDownSecs);
+		//logger::debug("Fake button event: device {}, key {} {} (held for {:.2f}s)", static_cast<uint32_t>(device), idCode, value > 0 ? "down" : "up", heldDownSecs);
 
 		static auto fakeEvent = RE::ButtonEvent::Create(RE::INPUT_DEVICE::kNone, "", 0, 0, 0);
 
