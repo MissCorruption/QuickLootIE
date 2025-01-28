@@ -64,7 +64,7 @@ namespace QuickLoot
 
 	void LootMenuManager::OnInputAction(Input::QuickLootAction action)
 	{
-		logger::trace("Input action {}", static_cast<int>(action));
+		//logger::trace("Input action {}", static_cast<int>(action));
 
 		switch (action) {
 		case Input::QuickLootAction::kDisable:
