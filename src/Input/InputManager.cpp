@@ -133,7 +133,9 @@ namespace QuickLoot::Input
 		// Add mappings to the quickloot user event group
 		WalkMappings([&](UserEventMapping& mapping, DeviceType deviceType) {
 			const auto* conflicting = FindConflictingKeybinding(mapping, deviceType);
-			if (!conflicting || disabledGroups.contains(conflicting->group.get())) {
+			const auto conflicts = conflicting && !disabledGroups.contains(conflicting->group.get());
+
+			if (!conflicts && mapping.eventID != "Activate") {
 				return;
 			}
 
@@ -177,11 +179,11 @@ namespace QuickLoot::Input
 
 		Keybinding* keybinding = FindMatchingKeybinding(event);
 
-		if (!keybinding) {
+		if (HandleGrab(event, keybinding)) {
 			return;
 		}
 
-		if (HandleGrab(event, keybinding)) {
+		if (!keybinding) {
 			return;
 		}
 
@@ -434,7 +436,7 @@ namespace QuickLoot::Input
 		}
 
 		// For the activate key, the up event is used to trigger the action.
-		if (!event->IsPressed() && _triggerOnActivateRelease) {
+		if (!event->IsPressed() && _triggerOnActivateRelease && keybinding) {
 			TriggerKeybinding(keybinding);
 			_triggerOnActivateRelease = false;
 			return true;
