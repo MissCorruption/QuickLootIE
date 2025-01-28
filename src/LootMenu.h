@@ -48,6 +48,8 @@ namespace QuickLoot
 
 	private:
 		static inline RE::GPtr<RE::GFxMovieView> _cachedView{};
+		int _swfFeatureLevel = 0;
+		bool _wasInitialized = false;
 
 		RE::ObjectRefHandle _container{};
 		int _selectedIndex = -1;

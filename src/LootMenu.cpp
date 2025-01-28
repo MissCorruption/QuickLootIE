@@ -96,8 +96,11 @@ namespace QuickLoot
 		LoadSwfObject(_buttonBar, "_root.lootMenu.buttonBar"sv);
 
 		RE::GFxValue version;
-		_lootMenu.GetInstance().Invoke("getVersion", &version);
-		if (version.GetSInt() < 4) {
+		if (_lootMenu.GetInstance().Invoke("getVersion", &version) && version.IsNumber()) {
+			_swfFeatureLevel = static_cast<int>(version.GetNumber());
+		}
+
+		if (_swfFeatureLevel < 4) {
 			// swf reinitialization is only supported at feature level 4 or above
 			_cachedView.reset();
 		}
@@ -277,8 +280,12 @@ namespace QuickLoot
 		_container = container;
 
 		if (_container) {
-			const RE::GFxValue settings = BuildSettingsObject();
-			_lootMenu.GetInstance().Invoke("init", nullptr, &settings, 1);
+			// swf reinitialization is only supported at feature level 4 or above
+			if (!_wasInitialized || _swfFeatureLevel >= 4) {
+				const RE::GFxValue settings = BuildSettingsObject();
+				_lootMenu.GetInstance().Invoke("init", nullptr, &settings, 1);
+				_wasInitialized = true;
+			}
 
 			API::APIServer::DispatchOpenLootMenuEvent(_container);
 		}
@@ -747,7 +754,7 @@ namespace QuickLoot
 	RE::UI_MESSAGE_RESULTS LootMenu::ProcessMessage(RE::UIMessage& message)
 	{
 		if (message.type == RE::UI_MESSAGE_TYPE::kHide) {
-			Show({}, -1);
+			Hide();
 
 			return RE::UI_MESSAGE_RESULTS::kHandled;
 		}
