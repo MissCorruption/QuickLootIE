@@ -14,6 +14,7 @@
 #include "Items/OldInventoryItem.h"
 #include "Items/OldItem.h"
 #include "LootMenuManager.h"
+#include <numbers>
 
 #undef PlaySound
 
@@ -33,7 +34,7 @@ namespace QuickLoot
 
 	int LootMenu::GetSwfVersion()
 	{
-		LootMenu dummy{ nullptr };
+		IMenu dummy{  };
 		RE::GPtr<RE::GFxMovieView> movieView{};
 		RE::BSScaleformManager::GetSingleton()->LoadMovie(&dummy, movieView, FILE_NAME.data());
 
@@ -55,7 +56,8 @@ namespace QuickLoot
 
 #pragma region Initialization
 
-	LootMenu::LootMenu()
+	LootMenu::LootMenu() :
+		UniversalMenu(false, false, false)
 	{
 		PROFILE_SCOPE_NAMED("LootMenu Constructor");
 
@@ -123,6 +125,10 @@ namespace QuickLoot
 			PROFILE_SCOPE_NAMED("Initial Task Processing");
 			// This is where Show is called.
 			LootMenuManager::ProcessPendingTasks(*this);
+		}
+
+		if (REL::Module::IsVR()) {
+			SetupMenuNode();
 		}
 	}
 
@@ -759,7 +765,7 @@ namespace QuickLoot
 			return RE::UI_MESSAGE_RESULTS::kHandled;
 		}
 
-		return IMenu::ProcessMessage(message);
+		return UniversalMenu::ProcessMessage(message);
 	}
 
 	void LootMenu::AdvanceMovie(float interval, std::uint32_t currentTime)
@@ -771,7 +777,7 @@ namespace QuickLoot
 		Refresh();
 
 		// Redraw visuals
-		IMenu::AdvanceMovie(interval, currentTime);
+		UniversalMenu::AdvanceMovie(interval, currentTime);
 	}
 
 	void LootMenu::RefreshPlatform()
@@ -780,4 +786,62 @@ namespace QuickLoot
 	}
 
 #pragma endregion
+
+#pragma region VR 
+
+	RE::NiPointer<RE::NiNode> LootMenu::GetAttachingNode()
+	{
+		auto& vrData = RE::PlayerCharacter::GetSingleton()->GetVRPlayerRuntimeData();
+		return vrData.isRightHandMainHand ? vrData.RightWandNode : vrData.LeftWandNode;
+	}
+
+	void LootMenu::DestroyMenuNode()
+	{
+		if (!menuNode) {
+			return;
+		}
+
+		GetAttachingNode()->DetachChild2(menuNode.get());
+		menuNode.reset();
+	}
+
+	void LootMenu::RefreshMenuNode()
+	{
+		DestroyMenuNode();
+		SetupMenuNode();
+		SetTransform();
+	}
+
+	void LootMenu::SetTransform()
+	{
+		const float dx = Settings::VrOffsetX();
+		const float dy = Settings::VrOffsetY();
+		const float dz = Settings::VrOffsetZ();
+
+		const float rx = static_cast<float>(Settings::VrAngleX() * std::numbers::pi / 180);
+		const float ry = static_cast<float>(Settings::VrAngleY() * std::numbers::pi / 180);
+		const float rz = static_cast<float>(Settings::VrAngleZ() * std::numbers::pi / 180);
+
+		const float scale = Settings::VrScale();
+
+		menuNode->local.translate = RE::NiPoint3(dx, dy, dz);
+		menuNode->local.rotate.EulerAnglesToAxesZXY(rx, ry, rz);
+		menuNode->local.scale = scale;
+
+		GetAttachingNode()->AttachChild(menuNode.get(), true);
+		RE::NiUpdateData data{};
+		menuNode->Update(data);
+	}
+
+	RE::NiNode* LootMenu::GetMenuParentNode()
+	{
+		return RE::PlayerCharacter::GetSingleton()->GetVRNodeData()->UprightHmdNode.get();
+	}
+
+	RE::BSEventNotifyControl LootMenu::ProcessEvent(const RE::HudModeChangeEvent*, RE::BSTEventSource<RE::HudModeChangeEvent>*)
+	{
+		return RE::BSEventNotifyControl::kContinue;
+	}
+
+#pragma endregion 
 }

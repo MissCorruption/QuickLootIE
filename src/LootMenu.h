@@ -8,6 +8,7 @@
 #include "Config/UserSettings.h"
 #include "Input/Input.h"
 #include "Items/OldItem.h"
+#include "UniversalMenu.h"
 
 using Settings = QuickLoot::Config::UserSettings;
 
@@ -25,7 +26,7 @@ namespace QuickLoot
 		kTitle = 1 << 4,
 	};
 
-	class LootMenu : public RE::IMenu
+	class LootMenu : public UniversalMenu
 	{
 	public:
 		static constexpr std::string_view FILE_NAME{ "LootMenuIE" };
@@ -36,8 +37,6 @@ namespace QuickLoot
 		static IMenu* CreateInstance();
 		static int GetSwfVersion();
 
-		// Dummy constructor that doesn't do any initialization.
-		LootMenu(nullptr_t) {}
 		LootMenu();
 
 		void Show(const RE::ObjectRefHandle& container, int selectedIndex);
@@ -98,9 +97,17 @@ namespace QuickLoot
 		[[nodiscard]] static bool CanDisplay(const RE::TESBoundObject& object);
 		[[nodiscard]] bool WouldBeStealing() const;
 
-		// IMenu implementation
+		// VR implementation
+		static RE::NiPointer<RE::NiNode> GetAttachingNode();
+		void DestroyMenuNode();
+		void RefreshMenuNode();
+
+		// UniversalMenu implementation
 		RE::UI_MESSAGE_RESULTS ProcessMessage(RE::UIMessage& message) override;
 		void AdvanceMovie(float interval, std::uint32_t currentTime) override;
 		void RefreshPlatform() override;
+		RE::NiNode* GetMenuParentNode() override;
+		void SetTransform() override;
+		RE::BSEventNotifyControl ProcessEvent(const RE::HudModeChangeEvent* a_event, RE::BSTEventSource<RE::HudModeChangeEvent>* a_eventSource) override;
 	};
 }
