@@ -128,7 +128,7 @@ namespace QuickLoot
 		}
 
 		if (REL::Module::IsVR()) {
-			SetupMenuNode();
+			UniversalMenu::SetupMenuNode();
 		}
 	}
 
@@ -344,6 +344,9 @@ namespace QuickLoot
 
 		case Input::QuickLootAction::kNextPage:
 			ScrollNextPage();
+			break;
+
+		default:
 			break;
 		}
 	}
@@ -793,23 +796,6 @@ namespace QuickLoot
 	{
 		auto& vrData = RE::PlayerCharacter::GetSingleton()->GetVRPlayerRuntimeData();
 		return vrData.isRightHandMainHand ? vrData.RightWandNode : vrData.LeftWandNode;
-	}
-
-	void LootMenu::DestroyMenuNode()
-	{
-		if (!menuNode) {
-			return;
-		}
-
-		GetAttachingNode()->DetachChild2(menuNode.get());
-		menuNode.reset();
-	}
-
-	void LootMenu::RefreshMenuNode()
-	{
-		DestroyMenuNode();
-		SetupMenuNode();
-		SetTransform();
 	}
 
 	void LootMenu::SetTransform()

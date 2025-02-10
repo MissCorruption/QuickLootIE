@@ -4,16 +4,17 @@
 #include "RE/I/IMenu.h"
 #include "RE/N/NiNode.h"
 
-/* Custom menu designed to support SE/AE and VR
-VR has specific virtual functions that must be implemented. VR-only vfuncs will only be executed when running in VR
-The menu by default will execute VR's WorldSpaceMenu logic in VR, and flatrim's IMenu logic in SE/AE
-*/
+/*
+ * Custom menu designed to support SE/AE and VR.
+ * VR has specific virtual functions that must be implemented. VR-only vfuncs will only be executed when running in VR.
+ * The menu by default will execute VR's WorldSpaceMenu logic in VR, and Flatrim's IMenu logic in SE/AE.
+ */
 class UniversalMenu :
 	public RE::IMenu,                            // 00
 	public RE::BSTEventSink<RE::HudModeChangeEvent>  // 40
 {
 public:
-	UniversalMenu(bool a_VRregisterHudModeChangeEvent, bool a_VRmatchAsTopMenu, bool a_VRqueueUpdateFixup);
+	UniversalMenu(bool a_vrRegisterForHudModeChangeEvent, bool a_vrMatchAsTopMenu, bool a_vrQueueUpdateFixup);
 
 	~UniversalMenu() override;  // 00
 
@@ -36,6 +37,6 @@ public:
 
 private:
 	void ConstructFlatrim();
-	void ConstructVR(bool a_registerHudModeChangeEvent, bool a_matchAsTopMenu, bool a_queueUpdateFixup);
+	void ConstructVR(bool a_registerForHudModeChangeEvent, bool a_matchAsTopMenu, bool a_queueUpdateFixup);
 };
 static_assert(sizeof(UniversalMenu) == 0x58);
