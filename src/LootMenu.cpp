@@ -10,10 +10,9 @@
 #include "Input/ButtonArt.h"
 #include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
-#include "Items/OldGroundItems.h"
-#include "Items/OldInventoryItem.h"
-#include "Items/OldItem.h"
+#include "Items/ItemStack.h"
 #include "LootMenuManager.h"
+
 #include <numbers>
 
 #undef PlaySound
@@ -34,7 +33,7 @@ namespace QuickLoot
 
 	int LootMenu::GetSwfVersion()
 	{
-		IMenu dummy{  };
+		IMenu dummy{};
 		RE::GPtr<RE::GFxMovieView> movieView{};
 		RE::BSScaleformManager::GetSingleton()->LoadMovie(&dummy, movieView, FILE_NAME.data());
 
@@ -355,12 +354,12 @@ namespace QuickLoot
 	{
 		QueueRefresh(RefreshFlags::kInfoBar);
 
-		if (newIndex < 0 || newIndex >= std::ssize(_itemListImpl)) {
+		if (newIndex < 0 || newIndex >= std::ssize(_inventory)) {
 			return;
 		}
 
-		if (const auto& item = _itemListImpl[static_cast<std::size_t>(newIndex)]) {
-			item->OnSelected(*RE::PlayerCharacter::GetSingleton());
+		if (const auto& item = _inventory[static_cast<size_t>(newIndex)]) {
+			item->OnSelected(RE::PlayerCharacter::GetSingleton());
 		}
 	}
 
@@ -371,8 +370,8 @@ namespace QuickLoot
 		}
 
 		// This sets the index to -1 if the container is empty.
-		if (newIndex >= _itemListImpl.size()) {
-			newIndex = static_cast<int>(_itemListImpl.size() - 1);
+		if (newIndex >= _inventory.size()) {
+			newIndex = static_cast<int>(_inventory.size() - 1);
 		}
 
 		if (newIndex == _selectedIndex) {
@@ -395,7 +394,7 @@ namespace QuickLoot
 
 	void LootMenu::ScrollDown()
 	{
-		SetSelectedIndex(std::min(_selectedIndex + 1, static_cast<int>(_itemListImpl.size()) - 1), true);
+		SetSelectedIndex(std::min(_selectedIndex + 1, static_cast<int>(_inventory.size()) - 1), true);
 	}
 
 	void LootMenu::ScrollPrevPage()
@@ -440,12 +439,12 @@ namespace QuickLoot
 	{
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
-		if (_selectedIndex < 0 || _selectedIndex >= _itemListImpl.size()) {
-			logger::warn("Failed to take stack at index {} ({} entries)", _selectedIndex, _itemListImpl.size());
+		if (_selectedIndex < 0 || _selectedIndex >= _inventory.size()) {
+			logger::warn("Failed to take stack at index {} ({} entries)", _selectedIndex, _inventory.size());
 			return;
 		}
 
-		_itemListImpl[_selectedIndex]->TakeAll(*player);
+		_inventory[_selectedIndex]->TakeStack(player);
 
 		OnTakeAction();
 	}
@@ -454,8 +453,8 @@ namespace QuickLoot
 	{
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
-		for (size_t i = 0; i < _itemListImpl.size(); ++i) {
-			_itemListImpl[i]->TakeAll(*player);
+		for (size_t i = 0; i < _inventory.size(); ++i) {
+			_inventory[i]->TakeStack(player);
 		}
 
 		OnTakeAction();
@@ -513,64 +512,37 @@ namespace QuickLoot
 	{
 		PROFILE_SCOPE;
 
-		_itemListImpl.clear();
-		auto src = _container.get();
-		if (!src) {
-			_itemListProvider.ClearElements();
+		_itemListProvider.ClearElements();
+
+		const auto container = _container.get();
+		if (!container) {
 			_itemList.Invalidate();
 			_itemList.SelectedIndex(-1.0);
 			return;
 		}
 
-		const auto stealing = WouldBeStealing();
-		auto inv = src->GetInventory(CanDisplay);
-		for (auto& [obj, data] : inv) {
-			auto& [count, entry] = data;
-			if (count > 0 && entry) {
-				_itemListImpl.push_back(std::make_unique<Items::OldInventoryItem>(count, stealing, std::move(entry), _container));
-			}
-		}
-
-		auto dropped = src->GetDroppedInventory(CanDisplay);
-		for (auto& [obj, data] : dropped) {
-			auto& [count, items] = data;
-			if (count > 0 && !items.empty()) {
-				_itemListImpl.push_back(std::make_unique<Items::OldGroundItems>(count, stealing, std::move(items)));
-			}
-		}
-
-		if (!Settings::ShowWhenEmpty() && _itemListImpl.empty()) {
+		_inventory = Items::ItemStack::LoadContainerInventory(uiMovie.get(), container.get(), CanDisplay);
+		if (_inventory.empty() && !Settings::ShowWhenEmpty()) {
 			LootMenuManager::RequestHide();
 			return;
 		}
 
 		{
 			PROFILE_SCOPE_NAMED("Sorting");
-			std::ranges::stable_sort(_itemListImpl,
-				[&](auto&& a_lhs, auto&& a_rhs) {
-					uintptr_t lhs_addr = reinterpret_cast<std::uintptr_t>(a_lhs.get());
-					uintptr_t rhs_addr = reinterpret_cast<std::uintptr_t>(a_rhs.get());
-
-					if (lhs_addr == 0 || lhs_addr > 0xFFFFFFFFFFFF ||
-						rhs_addr == 0 || rhs_addr > 0xFFFFFFFFFFFF) {
-						logger::warn("Error: Invalid pointer address detected."sv);
-						return false;
-					}
-
-					return *a_lhs < *a_rhs;
-				});
+			std::ranges::stable_sort(_inventory, [&](const auto&, const auto&) {
+				// TODO
+				return false;
+			});
 		}
 
 		std::vector<Element> elements;
-		_itemListProvider.ClearElements();
-		for (const auto& elem : _itemListImpl) {
-			_itemListProvider.PushBack(elem->GFxValue(*uiMovie));
-			elem->FillElementsVector(&elements);
+		for (const auto& item : _inventory) {
+			_itemListProvider.PushBack(item->GetData());
+			// TODO elem->FillElementsVector(&elements);
 		}
+
 		_itemList.InvalidateData();
 		_lootMenu.GetInstance().Invoke("refresh");
-
-		_lootMenu.Visible(true);
 
 		API::APIServer::DispatchInvalidateLootMenuEvent(elements, _container);
 		SetSelectedIndex(_selectedIndex, false);
@@ -613,16 +585,17 @@ namespace QuickLoot
 	{
 		PROFILE_SCOPE;
 
+		/* TODO
 		_infoBarProvider.ClearElements();
 		const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
-		if (0 <= idx && idx < std::ssize(_itemListImpl)) {
+		if (0 <= idx && idx < std::ssize(_inventory)) {
 			typedef std::function<std::string(const QuickLoot::Items::OldItem&)> functor;
 			const std::array functors{
 				functor{ [](const QuickLoot::Items::OldItem& a_val) { return fmt::format(FMT_STRING("{:.1f}"), a_val.Weight()); } },
 				functor{ [](const QuickLoot::Items::OldItem& a_val) { return fmt::format(FMT_STRING("{}"), a_val.Value()); } },
 			};
 
-			const auto& item = _itemListImpl[static_cast<std::size_t>(idx)];
+			const auto& item = _inventory[static_cast<size_t>(idx)];
 			std::string str;
 			RE::GFxValue obj;
 			for (const auto& functor : functors) {
@@ -640,6 +613,7 @@ namespace QuickLoot
 		}
 
 		_infoBar.InvalidateData();
+		*/
 	}
 
 	void LootMenu::RefreshWeight()
@@ -790,7 +764,7 @@ namespace QuickLoot
 
 #pragma endregion
 
-#pragma region VR 
+#pragma region VR
 
 	RE::NiPointer<RE::NiNode> LootMenu::GetAttachingNode()
 	{
@@ -829,5 +803,5 @@ namespace QuickLoot
 		return RE::BSEventNotifyControl::kContinue;
 	}
 
-#pragma endregion 
+#pragma endregion
 }
