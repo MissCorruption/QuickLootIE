@@ -39,7 +39,7 @@
 	
 	public var dbmNew: MovieClip;
 	public var dbmFound: MovieClip;
-	public var dbmDisp: MovieClip;
+	public var dbmDisplayed: MovieClip;
 	
 	public var compNew: MovieClip;
 	public var compFound: MovieClip;
@@ -78,7 +78,7 @@
 		
 		dbmNew._visible = false;
 		dbmFound._visible = false;
-		dbmDisp._visible = false;
+		dbmDisplayed._visible = false;
 		
 		compNew._visible = false;
 		compFound._visible = false;
@@ -218,7 +218,7 @@
 		|| selectIcon(enchantIcon, data.enchanted);
 		
 		selectIcon(dbmNew, data.dbmNew)
-		|| selectIcon(dbmDisp, data.dbmDisp)
+		|| selectIcon(dbmDisplayed, data.dbmDisplayed)
 		|| selectIcon(dbmFound, data.dbmFound);
 		
 		selectIcon(compNew, data.compNew)

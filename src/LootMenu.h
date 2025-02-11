@@ -97,12 +97,9 @@ namespace QuickLoot
 		[[nodiscard]] static bool CanDisplay(const RE::TESBoundObject& object);
 		[[nodiscard]] bool WouldBeStealing() const;
 
-		// VR implementation
-		static RE::NiPointer<RE::NiNode> GetAttachingNode();
-		void DestroyMenuNode();
-		void RefreshMenuNode();
-
 		// UniversalMenu implementation
+		static RE::NiPointer<RE::NiNode> GetAttachingNode();
+
 		RE::UI_MESSAGE_RESULTS ProcessMessage(RE::UIMessage& message) override;
 		void AdvanceMovie(float interval, std::uint32_t currentTime) override;
 		void RefreshPlatform() override;

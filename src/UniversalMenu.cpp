@@ -2,10 +2,10 @@
 
 UniversalMenu::~UniversalMenu()
 {
-	// TODO, unregister if registered on hudmodechangevent
-	if (menuNode.get()) {
-		if (menuNode.get()->parent) {
-			menuNode.get()->parent->DetachChild2(menuNode.get());
+	// TODO, unregister if registered for HudModeChangEvent
+	if (menuNode) {
+		if (menuNode->parent) {
+			menuNode->parent->DetachChild2(menuNode.get());
 		}
 		menuNode.reset();
 	}
@@ -15,30 +15,30 @@ UniversalMenu::~UniversalMenu()
 	uiMovie.reset();
 }
 
-UniversalMenu::UniversalMenu(bool a_VRregisterHudModeChangeEvent, bool a_VRmatchAsTopMenu, bool a_VRqueueUpdateFixup)
+UniversalMenu::UniversalMenu(bool a_vrRegisterForHudModeChangeEvent, bool a_vrMatchAsTopMenu, bool a_vrQueueUpdateFixup)
 {
 	if (REL::Module::IsVR()) {
-		ConstructVR(a_VRregisterHudModeChangeEvent, a_VRmatchAsTopMenu, a_VRqueueUpdateFixup);
+		ConstructVR(a_vrRegisterForHudModeChangeEvent, a_vrMatchAsTopMenu, a_vrQueueUpdateFixup);
 	} else {
 		ConstructFlatrim();
 	}
 }
 
 void UniversalMenu::ConstructFlatrim() {
-	this->depthPriority = (int8_t) 3;
+	this->depthPriority = static_cast<int8_t>(3);
 	auto version = REL::Module::get().version();
 	if (version.patch() >= 1130) {
-		this->inputContext.set((RE::IMenu::Context) 19);
+		this->inputContext.set(static_cast<Context>(19));
 	}
-	this->inputContext.set((RE::IMenu::Context) 18);
+	this->inputContext.set(static_cast<Context>(18));
 }
 
-void UniversalMenu::ConstructVR(bool a_registerHudModeChangeEvent, bool a_matchAsTopMenu, bool a_queueUpdateFixup)
+void UniversalMenu::ConstructVR(bool a_registerForHudModeChangeEvent, bool a_matchAsTopMenu, bool a_queueUpdateFixup)
 {
 	this->unk30 = RE::UI_MENU_Unk09::kNone;
-	this->inputContext.set((RE::IMenu::Context) 22);
+	this->inputContext.set(static_cast<Context>(22));
 
-	this->registerForHudModeChangeEvent = a_registerHudModeChangeEvent;
+	this->registerForHudModeChangeEvent = a_registerForHudModeChangeEvent;
 	this->matchAsTopMenu = a_matchAsTopMenu;
 	this->queueUpdateFixup = a_queueUpdateFixup;
 	this->Unk_09(RE::UI_MENU_Unk09::kNone);
@@ -46,8 +46,8 @@ void UniversalMenu::ConstructVR(bool a_registerHudModeChangeEvent, bool a_matchA
 		RE::UI_MENU_FLAGS::kRequiresUpdate,
 		RE::UI_MENU_FLAGS::kAllowSaving,
 		RE::UI_MENU_FLAGS::kAssignCursorToRenderer);
-	this->depthPriority = (int8_t) 2;
-	this->unk34 = (std::byte) 1;
+	this->depthPriority = static_cast<int8_t>(2);
+	this->unk34 = static_cast<std::byte>(1);
 	this->menuName = "N/A";
 	if (this->registerForHudModeChangeEvent) {
 		// TODO: Register the menu for the hud mode change event
@@ -62,7 +62,7 @@ void UniversalMenu::PostCreate()
 		REL::Relocation<func_t> func{ REL::Offset(0x53C140) };
 		return func(this);
 	}
-	// SE/AE is empt
+	// SE/AE is empty
 }
 
 RE::UI_MESSAGE_RESULTS UniversalMenu::ProcessMessage(RE::UIMessage& a_message)
