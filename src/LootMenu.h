@@ -7,7 +7,7 @@
 #include "CLIK/TextField.h"
 #include "Config/UserSettings.h"
 #include "Input/Input.h"
-#include "Items/OldItem.h"
+#include "Items/ItemStack.h"
 #include "UniversalMenu.h"
 
 using Settings = QuickLoot::Config::UserSettings;
@@ -62,11 +62,11 @@ namespace QuickLoot
 		CLIK::GFx::Controls::ButtonBar _infoBar;
 		CLIK::GFx::Controls::ButtonBar _buttonBar;
 
-		std::vector<std::unique_ptr<Items::OldItem>> _itemListImpl;
-
 		RE::GFxValue _itemListProvider;
 		RE::GFxValue _infoBarProvider;
 		RE::GFxValue _buttonBarProvider;
+
+		std::vector<std::unique_ptr<Items::ItemStack>> _inventory;
 
 		void InjectUtilsClass();
 		void LoadSwfObject(CLIK::Object& target, std::string_view path) const;
