@@ -83,8 +83,8 @@ namespace QuickLoot::Items
 
 		// Helpers
 
-		RE::GFxValue LoadItemCardInfo() const;
-		RE::GFxValue GetPickpocketChance() const;
+		ItemType GetItemType() const;
+		int GetPickpocketChance() const;
 		RE::GFxValue GetBasicFormInfo(RE::TESForm* form) const;
 		RE::GFxValue GetKeywords() const;
 
