@@ -1,9 +1,9 @@
 #include "ItemStack.h"
 #include "Config/UserSettings.h"
+#include "Integrations/APIServer.h"
 #include "Integrations/Artifacts.h"
 #include "Integrations/Completionist.h"
 #include "ItemDefines.h"
-#include "Integrations/APIServer.h"
 
 namespace QuickLoot::Items
 {
@@ -262,26 +262,41 @@ namespace QuickLoot::Items
 
 	// Helpers
 
-	RE::GFxValue ItemStack::LoadItemCardInfo() const
+	ItemType ItemStack::GetItemType() const
 	{
-		PROFILE_SCOPE;
+		switch (_object->formType.get()) {
+		case RE::FormType::Armor:
+			return ItemType::kArmor;
 
-		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/ItemcardDataExtender.as#L26
+		case RE::FormType::Weapon:
+		case RE::FormType::Ammo:
+			return ItemType::kWeapon;
 
-		RE::ItemCard itemCard{ {}, {}, {}, {}, {}, RE::GPtr(_view) };
-		_view->CreateObject(&itemCard.obj);
+		case RE::FormType::Book:
+			return dynamic_cast<RE::TESObjectBOOK*>(_object)->TeachesSpell() ? ItemType::kMagicItem : ItemType::kBook;
 
-		GetItemCardData(&itemCard, _entry, _container != RE::PlayerCharacter::GetSingleton()->GetHandle());
+		case RE::FormType::Ingredient:
+			return ItemType::kIngredient;
 
-		RE::GFxValue favorite;
-		_data.GetMember("favorite", &favorite);
-		itemCard.obj.SetMember("favorite", favorite);
-		itemCard.obj.SetMember("pickpocketChance", GetPickpocketChance());
+		case RE::FormType::Misc:
+		case RE::FormType::Light:
+			return ItemType::kMisc;
 
-		return itemCard.obj;
+		case RE::FormType::KeyMaster:
+			return ItemType::kKey;
+
+		case RE::FormType::AlchemyItem:
+			return dynamic_cast<RE::AlchemyItem*>(_object)->IsFood() ? ItemType::kFood : ItemType::kMagicItem;
+
+		case RE::FormType::SoulGem:
+			return ItemType::kSoulGem;
+
+		default:
+			return ItemType::kNone;
+		}
 	}
 
-	RE::GFxValue ItemStack::GetPickpocketChance() const
+	int ItemStack::GetPickpocketChance() const
 	{
 		const auto player = RE::PlayerCharacter::GetSingleton();
 		const auto victim = skyrim_cast<RE::Actor*>(_container.get().get());
@@ -361,6 +376,8 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/ahzaab/moreHUDSE/blob/0b6995a8628cec786f822d2e177eae46dcee0569/src/AHZTarget.cpp#L185
 
+		static const auto magicDisallowEnchanting = KnownForms::MagicDisallowEnchanting.LookupForm<RE::BGSKeyword>();
+
 		const auto enchantable = skyrim_cast<RE::TESEnchantableForm*>(_object);
 		auto enchantment = enchantable ? enchantable->formEnchanting : nullptr;
 
@@ -369,8 +386,6 @@ namespace QuickLoot::Items
 				enchantment = extraEnchantment->enchantment;
 			}
 		}
-
-		static const auto magicDisallowEnchanting = KnownForms::MagicDisallowEnchanting.LookupForm<RE::BGSKeyword>();
 
 		if (!enchantment) {
 			return EnchantmentType::kNone;

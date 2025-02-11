@@ -2,8 +2,27 @@
 
 namespace QuickLoot::Items
 {
+#pragma region General
+
 	const inline RE::GFxValue undefined{ RE::GFxValue::ValueType::kUndefined };
 	const inline RE::GFxValue null{ RE::GFxValue::ValueType::kNull };
+
+	enum class ItemType
+	{
+		kNone = 0,
+
+		kArmor = 1,
+		kWeapon = 2,
+		kMisc = 3,
+		kBook = 4,
+		kFood = 5,
+		kMagicItem = 6,
+		kIngredient = 8,
+		kKey = 9,
+		kSoulGem = 12,
+	};
+
+#pragma endregion
 
 #pragma region Known Forms
 

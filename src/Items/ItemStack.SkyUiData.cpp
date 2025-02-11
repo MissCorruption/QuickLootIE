@@ -9,18 +9,19 @@ namespace QuickLoot::Items
 
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryDataSetter.as#L24
 
-		const auto itemInfo = LoadItemCardInfo();
+		const auto player = RE::PlayerCharacter::GetSingleton();
+
 		{
 			PROFILE_SCOPE_NAMED("Info Data");
 
+			const auto value = _entry->GetValue();
+			const auto weight = std::max(0.0f, _object->GetWeight());
+
 			_data.SetMember("baseId", _object->formID & 0xFFFFFF);
-			_data.SetMember("type", GetMember(itemInfo, "type"));
+			_data.SetMember("type", GetItemType());
 
 			_data.SetMember("isEquipped", GetMember<int>(_data, "equipState", 0) > 0);
-			_data.SetMember("isStolen", GetMember(itemInfo, "stolen").GetBool());
-
-			const auto value = GetMember(itemInfo, "value").GetNumber();
-			const auto weight = GetMember(itemInfo, "weight").GetNumber();
+			_data.SetMember("isStolen", _container == player->GetHandle() && !_entry->IsOwnedBy(player, true));
 
 			_data.SetMember("infoValue", TruncatePrecision(value));
 			_data.SetMember("infoWeight", TruncatePrecision(weight));
@@ -36,8 +37,8 @@ namespace QuickLoot::Items
 			break;
 
 		case RE::FormType::Armor:
-			_data.SetMember("isEnchanted", strlen(GetMember(itemInfo, "effects").GetString()) > 0);
-			_data.SetMember("infoArmor", TruncatePrecision(GetMember(itemInfo, "armor").GetNumber()));
+			_data.SetMember("isEnchanted", _entry->IsEnchanted());
+			_data.SetMember("infoArmor", TruncatePrecision(player->GetArmorValue(_entry)));
 
 			SkyUiProcessArmorClass();
 			SkyUiProcessArmorPartMask();
@@ -64,9 +65,9 @@ namespace QuickLoot::Items
 			break;
 
 		case RE::FormType::Weapon:
-			_data.SetMember("isEnchanted", strlen(GetMember(itemInfo, "effects").GetString()) > 0);
-			_data.SetMember("isPoisoned", GetMember(itemInfo, "poisoned").GetBool());
-			_data.SetMember("infoDamage", TruncatePrecision(GetMember(itemInfo, "damage").GetNumber()));
+			_data.SetMember("isEnchanted", _entry->IsEnchanted());
+			_data.SetMember("isPoisoned", _entry->extraLists && !_entry->extraLists->empty() && !_entry->extraLists->front()->HasType(RE::ExtraDataType::kPoison));
+			_data.SetMember("infoDamage", TruncatePrecision(player->GetDamage(_entry)));
 
 			SkyUiProcessWeaponType();
 			SkyUiProcessMaterialKeywords();
@@ -74,8 +75,8 @@ namespace QuickLoot::Items
 			break;
 
 		case RE::FormType::Ammo:
-			_data.SetMember("isEnchanted", strlen(GetMember(itemInfo, "effects").GetString()) > 0);
-			_data.SetMember("infoDamage", TruncatePrecision(GetMember(itemInfo, "damage").GetNumber()));
+			_data.SetMember("isEnchanted", _entry->IsEnchanted());
+			_data.SetMember("infoDamage", TruncatePrecision(player->GetDamage(_entry)));
 
 			SkyUiProcessAmmoType();
 			SkyUiProcessMaterialKeywords();
