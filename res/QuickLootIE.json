@@ -7,11 +7,9 @@
 	"enableMenuCaching": true,
 	// Use this to whitelist menus so they won't block
 	// the loot menu from opening. The list must contain
-	// the internal menu names as they apeear in the log,
+	// the internal menu names as they appear in the log,
 	// not the name of the swf file.
 	"menuWhitelist": [
-		"AchievementWidget",
-		"BestiaryWidget",
 		"Durability Menu",
 		"WidgetMenu",
 		"CombatAlertOverlayMenu"
