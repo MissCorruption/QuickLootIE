@@ -10,6 +10,7 @@
 #include "Input/InputObserver.h"
 #include "Integrations/APIServer.h"
 #include "Integrations/Artifacts.h"
+#include "Integrations/BetterThirdPersonSelection.h"
 #include "Integrations/Completionist.h"
 #include "LootMenu.h"
 #include "MenuVisibilityManager.h"
@@ -53,6 +54,7 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 			QuickLoot::Behaviors::LockpickActivation::Install();
 
 			QuickLoot::Integrations::Artifacts::Init();
+			QuickLoot::Integrations::BetterThirdPersonSelection::Init();
 			QuickLoot::Integrations::Completionist::Init();
 
 			QuickLoot::Input::InputObserver::StartListening();
