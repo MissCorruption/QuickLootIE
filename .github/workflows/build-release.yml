@@ -217,13 +217,13 @@ jobs:
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: 'latest'
-          actions-cache-folder: ${{ env.XMAKE_GLOBALDIR }}/actions-cache-${{ steps.cache_key.outputs.key }}
+          actions-cache-folder: ${{ env.XMAKE_GLOBALDIR }}/actions-cache
           actions-cache-key: '.xmake-skse-cache'
           package-cache: true
-          package-cache-key: ${{ env.XMAKE_GLOBALDIR }}/package-cache-${{ steps.cache_key.outputs.key }}
+          package-cache-key: ${{ env.XMAKE_GLOBALDIR }}/package-cache
           project-path: 'quicklootie-packages'
           build-cache: true
-          build-cache-path: ${{ env.XMAKE_GLOBALDIR }}/build-cache-${{ steps.cache_key.outputs.key }}
+          build-cache-path: ${{ env.XMAKE_GLOBALDIR }}/build-cache
           build-cache-key: '.xmake-build-key'
 
       - name: Fetch xmake dependency hash
