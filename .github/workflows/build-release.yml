@@ -219,7 +219,6 @@ jobs:
         run: |
           xmake repo --update
           xmake require
-
       
       - name: Compile SKSE plugin
         run: |
