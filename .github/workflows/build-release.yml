@@ -217,8 +217,8 @@ jobs:
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: 'latest'
-          actions-cache-folder: ${{ env.XMAKE_GLOBALDIR }}/actions-cache
-          actions-cache-key: '.xmake-skse-cache'
+          actions-cache-folder: ${{ env.XMAKE_GLOBALDIR }}/.xmake-cache
+          actions-cache-key: '.xmake-actions-cache'
           package-cache: true
           package-cache-key: ${{ env.XMAKE_GLOBALDIR }}/package-cache
           project-path: 'quicklootie-packages'
