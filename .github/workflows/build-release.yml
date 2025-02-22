@@ -218,7 +218,7 @@ jobs:
       - name: Install deps
         run: |
           xmake repo --update
-          xmake require
+          xmake require -y
       
       - name: Compile SKSE plugin
         run: |
