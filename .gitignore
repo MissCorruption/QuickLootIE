@@ -4,6 +4,7 @@ vcpkg_installed/
 build/
 dist/
 .vs*/
+.xmake/
 
 ## Papyrus and friends
 .vscode

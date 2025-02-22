@@ -69,7 +69,9 @@ void InitializeLog(spdlog::level::level_enum level = spdlog::level::info)
 		SKSE::stl::report_and_fail("Failed to find standard logging directory"sv);
 	}
 
-	*path /= std::format("{}.log"sv, Plugin::NAME);
+	const auto plugin = SKSE::PluginDeclaration::GetSingleton();
+
+	*path /= std::format("{}.log"sv, plugin->GetName());
 	auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 	auto log = std::make_shared<spdlog::logger>("global log", std::move(sink));
 
@@ -80,28 +82,13 @@ void InitializeLog(spdlog::level::level_enum level = spdlog::level::info)
 	spdlog::set_pattern("[%H:%M:%S.%e] [%t] [%l] [%s:%#] %v");
 }
 
-extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() noexcept {
-	SKSE::PluginVersionData v;
-	v.PluginName(Plugin::NAME.data());
-	v.PluginVersion(Plugin::VERSION);
-	v.UsesAddressLibrary(true);
-	v.HasNoStructUse();
-	return v;
-}();
-
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface*, SKSE::PluginInfo* pluginInfo)
-{
-	pluginInfo->name = SKSEPlugin_Version.pluginName;
-	pluginInfo->version = SKSEPlugin_Version.pluginVersion;
-	pluginInfo->infoVersion = SKSE::PluginInfo::kVersion;
-	return true;
-}
-
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* skse)
 {
 	InitializeLog();
 
-	logger::info("Loaded plugin {} {}", Plugin::NAME, Plugin::VERSION.string("."));
+	const auto plugin = SKSE::PluginDeclaration::GetSingleton();
+
+	logger::info("Loaded plugin {} {}", plugin->GetName(), plugin->GetVersion().string("."));
 
 	QuickLoot::Config::SystemSettings::Update(true);
 	QuickLoot::Util::Profiler::Init();

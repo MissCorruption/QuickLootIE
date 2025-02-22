@@ -28,6 +28,9 @@ public:
 	virtual RE::NiNode* GetMenuParentNode() = 0;  // 0C - purecall, menuNode is attached to this in PostCreate()
 	virtual void SetTransform() = 0;              // 0D - purecall, set rotation,translation, etc. called in PostCreate()
 
+	SKSE::stl::enumeration<RE::UI_MENU_Unk09, std::uint32_t> unk30{ RE::UI_MENU_Unk09::kNone };
+	std::byte unk34{ 1 };
+	RE::BSFixedString menuName{ "N/A" };
 	RE::NiPointer<RE::NiNode> menuNode;  // 48 - Created automatically in SetupMenuNode()
 	bool registerForHudModeChangeEvent;  // 50 - Set/Used in UniversalMenu constructor
 	bool matchAsTopMenu{ false };        // 51 - Only used when calling MessageMatchesMenu so far

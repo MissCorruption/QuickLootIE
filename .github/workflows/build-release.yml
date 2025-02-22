@@ -3,16 +3,10 @@ name: Build Release
 on:
   schedule:
     - cron: '0 0 * * *'
+
   push:
     branches:
-      - "master"
-    paths-ignore:
-      - '*.yaml'
-      - '*.txt'
-      - '*.md'
-  pull_request:
-    branches:
-      - "master"
+      - "main"
     paths-ignore:
       - '*.yaml'
       - '*.txt'
@@ -213,40 +207,25 @@ jobs:
           submodules: 'recursive'
           fetch-depth: 0
 
-      - name: Cache CMake build
-        uses: actions/cache@v4
-        env:
-          cache-name: cmake-build-cache
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
         with:
-          path: |
-            ${{github.workspace}}/build
-          key: ${{ env.cache-name }}-${{ hashFiles('**/CMakeLists.txt', 'cmake/**') }}
-          restore-keys: |
-            ${{ env.cache-name }}-
-
-      - name: Setup VCPKG
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgJsonGlob: 'vcpkg.json'
-
-      - name: Setup CMake
-        uses: lukka/get-cmake@latest
-        with:
-          cmakeVersion: "~3.24.0"
-          ninjaVersion: "~1.11.1"
+          xmake-version: 'latest'
+          build-cache: true
+          actions-cache-folder: '.xmake-cache'
+          actions-cache-key: 'skse-cache'
 
       - name: Compile SKSE plugin
         run: |
-          cmake --preset ALL
-          cmake --build build --config RelWithDebInfo
+          xmake 
 
       - name: Upload SKSE Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
           name: skse-plugin
           path: |
-           ${{ github.workspace }}/build/RelWithDebInfo/QuickLootIE.dll
-           ${{ github.workspace }}/build/RelWithDebInfo/QuickLootIE.pdb
+           ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.dll
+           ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.pdb
 
   package-mod:
     name: Package all necessary files
