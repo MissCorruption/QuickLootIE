@@ -199,6 +199,7 @@ jobs:
     needs: check-changes
     if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
     runs-on: windows-latest
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -213,15 +214,21 @@ jobs:
       - name: Set xmake env
         run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
 
+      - name: Create xmake cache directories
+        run: |
+          mkdir -p ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
+          mkdir -p $${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+          mkdir -p ${{ env.XMAKE_GLOBALDIR }}/build-cache
+
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: 'latest'
-          actions-cache-folder: ${{ env.XMAKE_GLOBALDIR }}/.xmake-cache
+          actions-cache-folder: ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
           actions-cache-key: '.xmake-actions-cache'
           package-cache: true
-          package-cache-key: ${{ env.XMAKE_GLOBALDIR }}/package-cache
-          project-path: 'quicklootie-packages'
+          package-cache-key: .xmake.package-key
+          project-path: ${{ runner.workspace }}
           build-cache: true
           build-cache-path: ${{ env.XMAKE_GLOBALDIR }}/build-cache
           build-cache-key: '.xmake-build-key'
@@ -273,6 +280,7 @@ jobs:
           path: |
             ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.dll
             ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.pdb
+
 
 
   package-mod:
