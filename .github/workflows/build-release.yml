@@ -208,7 +208,7 @@ jobs:
 
       - name: Get current date as package key
         id: cache_key
-        run: echo "key=$(date /t)" >> $GITHUB_OUTPUT
+        run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
 
       - name: Set xmake env
         run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
