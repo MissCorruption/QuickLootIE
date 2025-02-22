@@ -217,7 +217,6 @@ jobs:
       - name: Create xmake cache directories
         run: |
           mkdir -p ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
-          mkdir -p $${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
           mkdir -p ${{ env.XMAKE_GLOBALDIR }}/build-cache
 
       - name: Setup xmake
@@ -226,9 +225,6 @@ jobs:
           xmake-version: 'latest'
           actions-cache-folder: ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
           actions-cache-key: '.xmake-actions-cache'
-          package-cache: true
-          package-cache-key: .xmake.package-key
-          project-path: ${{ runner.workspace }}
           build-cache: true
           build-cache-path: ${{ env.XMAKE_GLOBALDIR }}/build-cache
           build-cache-key: '.xmake-build-key'
