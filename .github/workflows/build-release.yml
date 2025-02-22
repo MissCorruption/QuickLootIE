@@ -207,10 +207,6 @@ jobs:
           submodules: 'recursive'
           fetch-depth: 0
 
-      - name: Get current date as package key
-        id: cache_key
-        run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
-
       - name: Set xmake env
         run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
 
@@ -218,6 +214,24 @@ jobs:
         run: |
           mkdir -p ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
           mkdir -p ${{ env.XMAKE_GLOBALDIR }}/build-cache
+
+      - name: Cache xmake dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.xmake/packages
+            ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
+          key: xmake-deps-${{ runner.os }}-${{ hashFiles('xmake-require.lock') }}
+          restore-keys: |
+            xmake-deps-${{ runner.os }}-
+
+      - name: Cache xmake build cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.XMAKE_GLOBALDIR }}/build-cache
+          key: xmake-build-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            xmake-build-${{ runner.os }}-
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
@@ -247,7 +261,6 @@ jobs:
           path: |
             ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.dll
             ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.pdb
-
 
 
   package-mod:
