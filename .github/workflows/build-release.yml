@@ -196,9 +196,8 @@ jobs:
           path: res/pex/Scripts
 
   compile-skse:
-    name: Build SKSE plugin
     needs: check-changes
-    if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
+    if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' }}
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -209,7 +208,7 @@ jobs:
 
       - name: Get current date as package key
         id: cache_key
-        run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
+        run: echo "key=$(date /t)" >> $GITHUB_OUTPUT
 
       - name: Set xmake env
         run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
@@ -218,47 +217,63 @@ jobs:
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: 'latest'
-          actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
+          actions-cache-folder: ${{ env.XMAKE_GLOBALDIR }}/actions-cache-${{ steps.cache_key.outputs.key }}
           actions-cache-key: '.xmake-skse-cache'
-
           package-cache: true
-          package-cache-key: .xmake-cache-W${{ steps.cache_key.outputs.key }}/.package-cache
+          package-cache-key: ${{ env.XMAKE_GLOBALDIR }}/package-cache-${{ steps.cache_key.outputs.key }}
           project-path: 'quicklootie-packages'
-
           build-cache: true
-          build-cache-path: '.xmake-cache-W${{ steps.cache_key.outputs.key }}/.build-cache'
+          build-cache-path: ${{ env.XMAKE_GLOBALDIR }}/build-cache-${{ steps.cache_key.outputs.key }}
           build-cache-key: '.xmake-build-key'
 
-      - name: Install deps
-        run: |
-          xmake repo --update
-          xmake require -y
+      - name: Fetch xmake dependency hash
+        id: dep_hash
+        run: echo "hash=$(xmake l utils.ci.packageskey)" >> $GITHUB_OUTPUT
 
       - name: Restore cached xmake dependencies
         id: restore-depcache
         uses: actions/cache/restore@v4
         with:
-          key: 'dep-cache'
-          path: .xmake-dep-cache
-      
+          path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+          key: windows-${{ steps.dep_hash.outputs.hash }}
+          restore-keys: |
+            windows-${{ steps.dep_hash.outputs.hash }}-
+            windows-
+
+      - name: Install dependencies
+        run: |
+          xmake repo --update
+          xmake require -y
+
+      - name: Check if dependency cache exists
+        run: |
+          if exist "${{ env.XMAKE_GLOBALDIR }}\.xmake\packages" (
+            echo "Dependency cache exists."
+          ) else (
+            echo "Dependency cache does NOT exist."
+          )
+
       - name: Save cached xmake dependencies
-        if: ${{ !steps.restore-depcache.outputs.cache-hit }}
+        if: ${{ steps.restore-depcache.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@v4
         with:
           path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-          key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
-      
+          key: windows-${{ steps.dep_hash.outputs.hash }}
+
       - name: Compile SKSE plugin
-        run: |
-          xmake 
+        run: xmake
+
+      - name: Verify output files
+        run: dir "${{ github.workspace }}/build/windows/x64/release"
 
       - name: Upload SKSE Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
           name: skse-plugin
           path: |
-           ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.dll
-           ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.pdb
+            ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.dll
+            ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.pdb
+
 
   package-mod:
     name: Package all necessary files
