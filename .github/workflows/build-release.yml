@@ -233,39 +233,10 @@ jobs:
           build-cache-path: ${{ env.XMAKE_GLOBALDIR }}/build-cache
           build-cache-key: '.xmake-build-key'
 
-      - name: Fetch xmake dependency hash
-        id: dep_hash
-        run: cmd /c "echo hash=$(xmake l utils.ci.packageskey) >> %GITHUB_OUTPUT%"
-
-      - name: Restore cached xmake dependencies
-        id: restore-depcache
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-          key: windows-${{ steps.dep_hash.outputs.hash }}
-          restore-keys: |
-            windows-${{ steps.dep_hash.outputs.hash }}-
-            windows-
-
       - name: Install dependencies
         run: |
           xmake repo --update
           xmake require -y
-
-      - name: Check if dependency cache exists
-        run: |
-          if exist "${{ env.XMAKE_GLOBALDIR }}\.xmake\packages" (
-            echo "Dependency cache exists."
-          ) else (
-            echo "Dependency cache does NOT exist."
-          )
-
-      - name: Save cached xmake dependencies
-        if: ${{ steps.restore-depcache.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-          key: windows-${{ steps.dep_hash.outputs.hash }}
 
       - name: Compile SKSE plugin
         run: xmake
