@@ -13,12 +13,14 @@ namespace QuickLoot::Util
 
 	void Profiler::Init()
 	{
+		const auto plugin = SKSE::PluginDeclaration::GetSingleton();
+		
 		auto path = logger::log_directory();
 		if (!path) {
 			SKSE::stl::report_and_fail("Failed to find standard logging directory"sv);
 		}
 
-		*path /= std::format("{}_Profiler.log"sv, Plugin::NAME);
+		*path /= std::format("{}_Profiler.log"sv, plugin->GetName());
 
 		_logger = std::make_unique<spdlog::logger>("profiler");
 

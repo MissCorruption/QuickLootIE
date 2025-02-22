@@ -321,7 +321,7 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName)
 	{
 		if (LOG_EVENTS) {
-			logger::trace("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", menuName);
+			logger::trace("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", std::string_view(menuName));
 		}
 
 		// Always ignore events related to the loot menu to avoid feedback loops

@@ -129,7 +129,8 @@ namespace QuickLoot::Config
 
 	std::string Papyrus::GetDllVersion(RE::StaticFunctionTag*)
 	{
-		return Plugin::VERSION.string(".");
+		const auto plugin = SKSE::PluginDeclaration::GetSingleton();
+		return plugin->GetVersion().string(".");
 	}
 
 	std::string Papyrus::GetSwfVersion(RE::StaticFunctionTag*)
