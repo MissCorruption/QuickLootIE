@@ -197,7 +197,7 @@ jobs:
 
   compile-skse:
     needs: check-changes
-    if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
     runs-on: windows-latest
     steps:
       - name: Checkout
