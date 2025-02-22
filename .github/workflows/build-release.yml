@@ -207,18 +207,46 @@ jobs:
           submodules: 'recursive'
           fetch-depth: 0
 
+      - name: Get current date as package key
+        id: cache_key
+        run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
+
+      - name: Set xmake env
+        run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
+
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: 'latest'
+          actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
+          actions-cache-key: '.xmake-skse-cache'
+
+          package-cache: true
+          package-cache-key: .xmake-cache-W${{ steps.cache_key.outputs.key }}/.package-cache
+          project-path: 'quicklootie-packages'
+
           build-cache: true
-          actions-cache-folder: '.xmake-cache'
-          actions-cache-key: 'skse-cache'
+          build-cache-path: '.xmake-cache-W${{ steps.cache_key.outputs.key }}/.build-cache'
+          build-cache-key: '.xmake-build-key'
 
       - name: Install deps
         run: |
           xmake repo --update
           xmake require -y
+
+      - name: Restore cached xmake dependencies
+        id: restore-depcache
+        uses: actions/cache/restore@v4
+        with:
+          key: 'dep-cache'
+          path: .xmake-dep-cache
+      
+      - name: Save cached xmake dependencies
+        if: ${{ !steps.restore-depcache.outputs.cache-hit }}
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+          key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
       
       - name: Compile SKSE plugin
         run: |
