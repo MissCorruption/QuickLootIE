@@ -457,6 +457,12 @@ namespace QuickLoot::Items
 		kFull = 2,
 	};
 
+#pragma endregion
+
+#pragma region Magic
+
+	using EffectFlags = RE::EffectSetting::EffectSettingData::Flag;
+
 	// https://github.com/ahzaab/moreHUDSE/blob/0b6995a8628cec786f822d2e177eae46dcee0569/include/AHZTarget.h#L3
 	enum class EnchantmentType
 	{
@@ -471,7 +477,7 @@ namespace QuickLoot::Items
 #pragma region Misc
 
 	// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/Common/skyui/defines/Item.as#L23
-	enum class MiscSubType
+	enum class MiscType
 	{
 		kNone = -1,
 
@@ -503,24 +509,24 @@ namespace QuickLoot::Items
 
 	struct MiscSubTypeTableEntry
 	{
-		MiscSubType subType;
+		MiscType subType;
 		const char* subTypeDisplay;
 		std::vector<std::string> keywords;
 	};
 
 	// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryDataSetter.as#L774
 	const inline auto MiscSubTypeTable = std::vector<MiscSubTypeTableEntry>{
-		{ MiscSubType::kChildrensClothes, "$Clothing", { "BYOHAdoptionClothesKeyword" } },
-		{ MiscSubType::kToy, "$Toy", { "BYOHAdoptionToyKeyword" } },
-		{ MiscSubType::kHousePart, "$House Part", { "BYOHHouseCraftingCategoryWeaponRacks", "BYOHHouseCraftingCategoryShelf", "BYOHHouseCraftingCategoryFurniture", "BYOHHouseCraftingCategoryExterior", "BYOHHouseCraftingCategoryContainers", "BYOHHouseCraftingCategoryBuilding", "BYOHHouseCraftingCategorySmithing" } },
-		{ MiscSubType::kArtifact, "$Artifact", { "VendorItemDaedricArtifact" } },
-		{ MiscSubType::kGem, "$Gem", { "VendorItemGem" } },
-		{ MiscSubType::kHide, "$Hide", { "VendorItemAnimalHide" } },
-		{ MiscSubType::kTool, "$Tool", { "VendorItemTool" } },
-		{ MiscSubType::kRemains, "$Remains", { "VendorItemAnimalPart" } },
-		{ MiscSubType::kIngot, "$Ingot", { "VendorItemOreIngot" } },
-		{ MiscSubType::kClutter, "$Clutter", { "VendorItemClutter" } },
-		{ MiscSubType::kFirewood, "$Firewood", { "VendorItemFirewood" } },
+		{ MiscType::kChildrensClothes, "$Clothing", { "BYOHAdoptionClothesKeyword" } },
+		{ MiscType::kToy, "$Toy", { "BYOHAdoptionToyKeyword" } },
+		{ MiscType::kHousePart, "$House Part", { "BYOHHouseCraftingCategoryWeaponRacks", "BYOHHouseCraftingCategoryShelf", "BYOHHouseCraftingCategoryFurniture", "BYOHHouseCraftingCategoryExterior", "BYOHHouseCraftingCategoryContainers", "BYOHHouseCraftingCategoryBuilding", "BYOHHouseCraftingCategorySmithing" } },
+		{ MiscType::kArtifact, "$Artifact", { "VendorItemDaedricArtifact" } },
+		{ MiscType::kGem, "$Gem", { "VendorItemGem" } },
+		{ MiscType::kHide, "$Hide", { "VendorItemAnimalHide" } },
+		{ MiscType::kTool, "$Tool", { "VendorItemTool" } },
+		{ MiscType::kRemains, "$Remains", { "VendorItemAnimalPart" } },
+		{ MiscType::kIngot, "$Ingot", { "VendorItemOreIngot" } },
+		{ MiscType::kClutter, "$Clutter", { "VendorItemClutter" } },
+		{ MiscType::kFirewood, "$Firewood", { "VendorItemFirewood" } },
 	};
 
 #pragma endregion

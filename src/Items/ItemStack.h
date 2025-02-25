@@ -2,6 +2,7 @@
 
 #include "RE/G/GFxValue.h"
 
+#include "ItemData.h"
 #include "ItemDefines.h"
 
 namespace QuickLoot::Items
@@ -14,31 +15,34 @@ namespace QuickLoot::Items
 		ItemStack& operator=(ItemStack&&) = delete;
 		ItemStack& operator=(const ItemStack&) = delete;
 
-		ItemStack(RE::GFxMovieView* view, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef = {});
+		ItemStack(RE::InventoryEntryData* entry, RE::ObjectRefHandle container, RE::ObjectRefHandle dropRef = {});
 		~ItemStack();
 
-		RE::GFxValue& GetData();
+		[[nodiscard]] RE::InventoryEntryData* GetEntry() const { return _entry; }
+		[[nodiscard]] RE::ObjectRefHandle GetContainer() const { return _container; }
+		[[nodiscard]] RE::ObjectRefHandle GetDropRef() const { return _dropRef; }
 
-		void OnSelected(RE::Actor* actor) const;
+		[[nodiscard]] ItemData& GetData();
+		[[nodiscard]] RE::GFxValue& BuildDataObject(RE::GFxMovieView* view);
+
 		void TakeStack(RE::Actor* actor) const;
 		void TakeOne(RE::Actor* actor) const;
 		void Take(RE::Actor* actor, int count) const;
 
-		static std::vector<std::unique_ptr<ItemStack>> LoadContainerInventory(
-			RE::GFxMovieView* view,
-			RE::TESObjectREFR* container,
+		static std::vector<std::unique_ptr<ItemStack>> LoadContainerInventory(RE::TESObjectREFR* container,
 			const std::function<bool(RE::TESBoundObject&)>& filter = RE::TESObjectREFR::DEFAULT_INVENTORY_FILTER);
 
 	private:
-		RE::GFxValue _data;
-		RE::GFxMovieView* _view;
-		RE::TESBoundObject* _object;
 		RE::InventoryEntryData* _entry;
+		RE::TESBoundObject* _object;
 		RE::ObjectRefHandle _container;
 		RE::ObjectRefHandle _dropRef;
 
+		ItemData _data{};
+		RE::GFxValue _dataObj{};
+		bool _dataInitialized = false;
+
 		void SetVanillaData();
-		void SetQuickLootData();
 
 		void SkseExtendItemData();
 		void SkseExtendCommonItemData();
@@ -85,46 +89,15 @@ namespace QuickLoot::Items
 
 		ItemType GetItemType() const;
 		int GetPickpocketChance() const;
-		RE::GFxValue GetBasicFormInfo(RE::TESForm* form) const;
-		RE::GFxValue GetKeywords() const;
 
-		static RE::GFxValue GetMember(const RE::GFxValue& obj, const char* name)
-		{
-			RE::GFxValue member;
-
-			obj.GetMember(name, &member);
-
-			return member;
-		}
-
-		template <typename T>
-		static T GetMember(const RE::GFxValue& obj, const char* name)
-		{
-			return GetMember(obj, name, T::kNone);
-		}
-
-		template <typename T>
-		static T GetMember(const RE::GFxValue& obj, const char* name, T fallback)
-		{
-			RE::GFxValue member;
-
-			obj.GetMember(name, &member);
-
-			if (member.IsNumber()) {
-				return static_cast<T>(member.GetNumber());
-			}
-
-			return fallback;
-		}
-
-		static double RoundValue(double value);
-		static RE::GFxValue TruncatePrecision(double value, bool allowNegative = false);
+		static float RoundValue(float value);
+		static float TruncatePrecision(float value);
 
 		EnchantmentType GetEnchantmentType() const;
 
 		// Native calls
 
-		static void GetItemCardData(RE::ItemCard* itemCard, RE::InventoryEntryData* entry, bool isContainerItem);
+		static void ShowItemInfo(RE::ItemCard* itemCard, RE::InventoryEntryData* entry, bool isContainerItem);
 		static bool IsPlayerAllowedToTakeItemWithValue(RE::PlayerCharacter* player, RE::TESForm* ownerNpcOrFaction, int value);
 		static void RefreshEnchantedWeapons(RE::Actor* actor, RE::InventoryChanges* changes);
 		static RE::InventoryEntryData* GetInventoryEntryAt(RE::InventoryChanges* changes, int index);

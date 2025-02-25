@@ -7,7 +7,7 @@
 #include "CLIK/TextField.h"
 #include "Config/UserSettings.h"
 #include "Input/Input.h"
-#include "Items/ItemStack.h"
+#include "Items/QuickLootItemStack.h"
 #include "UniversalMenu.h"
 
 using Settings = QuickLoot::Config::UserSettings;
@@ -54,6 +54,8 @@ namespace QuickLoot
 		int _selectedIndex = -1;
 		RE::stl::enumeration<RefreshFlags> _refreshFlags = RefreshFlags::kAll;
 
+		std::vector<Items::QuickLootItemStack> _inventory;
+
 		CLIK::MovieClip _lootMenu;
 		CLIK::TextField _title;
 		CLIK::TextField _weight;
@@ -65,8 +67,6 @@ namespace QuickLoot
 		RE::GFxValue _itemListProvider;
 		RE::GFxValue _infoBarProvider;
 		RE::GFxValue _buttonBarProvider;
-
-		std::vector<std::unique_ptr<Items::ItemStack>> _inventory;
 
 		void InjectUtilsClass();
 		void LoadSwfObject(CLIK::Object& target, std::string_view path) const;

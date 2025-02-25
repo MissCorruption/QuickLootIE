@@ -25,8 +25,8 @@ namespace QuickLoot::Items
 
 		// https://github.com/ianpatt/skse64/blob/9843a236aa12b12fa4c6530c29113adfb941da72/skse64/ScaleformExtendedData.cpp#L113
 
-		_data.SetMember("formType", _object->formType.underlying());
-		_data.SetMember("formId", _object->formID);
+		_data.formType = _object->formType;
+		_data.formId = _object->formID;
 	}
 
 	void ItemStack::SkseExtendItemInfoData()
@@ -35,9 +35,9 @@ namespace QuickLoot::Items
 
 		// https://github.com/ianpatt/skse64/blob/9843a236aa12b12fa4c6530c29113adfb941da72/skse64/ScaleformExtendedData.cpp#L782
 
-		_data.SetMember("value", _entry->GetValue());
-		_data.SetMember("weight", _object->GetWeight());
-		_data.SetMember("isStolen", !_entry->IsOwnedBy(RE::PlayerCharacter::GetSingleton(), true));
+		_data.value = _entry->GetValue();
+		_data.weight = _object->GetWeight();
+		//_data.isStolen = _entry->IsOwnedBy(RE::PlayerCharacter::GetSingleton(), true); // SkyUI overwrites this
 	}
 
 	void ItemStack::SkseExtendStandardItemData()
@@ -49,66 +49,65 @@ namespace QuickLoot::Items
 		switch (_object->formType.get()) {
 		case RE::FormType::Armor:
 			if (const auto armor = skyrim_cast<RE::TESObjectARMO*>(_object)) {
-				_data.SetMember("partMask", armor->bipedModelData.bipedObjectSlots.underlying());
-				_data.SetMember("weightClass", armor->bipedModelData.armorType.underlying());
+				_data.armor.partMask = armor->bipedModelData.bipedObjectSlots;
+				_data.armor.weightClass = static_cast<ArmorWeightClass>(armor->bipedModelData.armorType.get());
 			}
 			break;
 
 		case RE::FormType::Ammo:
 			if (const auto ammo = skyrim_cast<RE::TESAmmo*>(_object)) {
-				_data.SetMember("flags", ammo->GetRuntimeData().data.flags.underlying());
+				_data.ammo.flags = ammo->GetRuntimeData().data.flags;
 			}
 			break;
 
 		case RE::FormType::Weapon:
 			if (const auto weapon = skyrim_cast<RE::TESObjectWEAP*>(_object)) {
-				_data.SetMember("subType", weapon->weaponData.animationType.underlying());
-				_data.SetMember("weaponType", weapon->weaponData.animationType.underlying());
-				_data.SetMember("speed", weapon->weaponData.speed);
-				_data.SetMember("reach", weapon->weaponData.reach);
-				_data.SetMember("stagger", weapon->weaponData.staggerValue);
-				_data.SetMember("critDamage", weapon->criticalData.damage);
-				_data.SetMember("minRange", weapon->weaponData.minRange);
-				_data.SetMember("maxRange", weapon->weaponData.maxRange);
-				_data.SetMember("baseDamage", weapon->GetAttackDamage());
+				_data.weapon.weaponType = weapon->weaponData.animationType;
+				_data.weapon.speed = weapon->weaponData.speed;
+				_data.weapon.reach = weapon->weaponData.reach;
+				_data.weapon.stagger = weapon->weaponData.staggerValue;
+				_data.weapon.critDamage = weapon->criticalData.damage;
+				_data.weapon.minRange = weapon->weaponData.minRange;
+				_data.weapon.maxRange = weapon->weaponData.maxRange;
+				_data.weapon.baseDamage = weapon->GetAttackDamage();
 
 				if (const auto equipSlot = weapon->GetEquipSlot()) {
-					_data.SetMember("equipSlot", equipSlot->formID);
+					_data.weapon.equipSlot = equipSlot->formID;
 				}
 			}
 			break;
 
 		case RE::FormType::SoulGem:
 			if (const auto soulGem = skyrim_cast<RE::TESSoulGem*>(_object)) {
-				_data.SetMember("gemSize", soulGem->soulCapacity.underlying());
-				_data.SetMember("soulSize", _entry->GetSoulLevel());
+				_data.soulGem.gemSize = static_cast<SoulLevel>(soulGem->soulCapacity.get());
+				_data.soulGem.soulSize = static_cast<SoulLevel>(_entry->GetSoulLevel());
 			}
 			break;
 
 		case RE::FormType::AlchemyItem:
 			if (const auto alchemyItem = skyrim_cast<RE::AlchemyItem*>(_object)) {
-				_data.SetMember("flags", alchemyItem->data.flags.underlying());
+				_data.potion.flags = alchemyItem->data.flags;
 			}
 			break;
 
 		case RE::FormType::Book:
 			if (const auto book = skyrim_cast<RE::TESObjectBOOK*>(_object)) {
-				_data.SetMember("flags", book->data.flags.underlying());
-				_data.SetMember("bookType", book->data.type.underlying());
+				_data.book.flags = book->data.flags;
+				_data.book.bookType = book->data.type;
 
 				if (book->data.flags.all(BookFlags::kTeachesSpell)) {
-					_data.SetMember("teachesSpell", book->data.teaches.spell ? book->data.teaches.spell->formID : -1);
+					_data.book.teachesSpell = book->data.teaches.spell ? book->data.teaches.spell->formID : -1;
 				} else if (book->data.flags.all(BookFlags::kAdvancesActorValue)) {
-					_data.SetMember("teachesSkill", book->data.teaches.actorValueToAdvance);
+					_data.book.teachesSkill = book->data.teaches.actorValueToAdvance;
 				}
 
 				// We deviate from the SKSE implementation here to incorporate the fix by
 				// https://www.nexusmods.com/skyrimspecialedition/mods/32561. It's usually
 				// invoked as an SKSE Scaleform plugin, but we can't access it that way.
 
-				static auto notePattern = std::regex(R"(^.*(?:Note|FishMap)\d*[^\\\/]+$)", std::regex_constants::icase);
+				static auto notePattern = std::regex(R"(^.*(?:Note|FishMap)[^\\\/]+$)", std::regex_constants::icase);
 				if (book->inventoryModel && std::regex_match(book->inventoryModel->GetModel(), notePattern)) {
-					_data.SetMember("bookType", BookType::kNoteScroll);
+					_data.book.bookType = BookType::kNoteScroll;
 				}
 			}
 			break;
@@ -124,16 +123,23 @@ namespace QuickLoot::Items
 
 		// https://github.com/ianpatt/skse64/blob/9843a236aa12b12fa4c6530c29113adfb941da72/skse64/ScaleformExtendedData.cpp#L724
 
-		_data.SetMember("keywords", GetKeywords());
+		if (const auto keywordForm = skyrim_cast<RE::BGSKeywordForm*>(_object)) {
+			_data.keywords = keywordForm;
+		}
+
+		const auto player = RE::PlayerCharacter::GetSingleton();
 
 		switch (_object->formType.get()) {
 		case RE::FormType::Armor:
-			_data.SetMember("armor", RoundValue(RE::PlayerCharacter::GetSingleton()->GetArmorValue(_entry)));
+			_data.armor.armor = RoundValue(player->GetArmorValue(_entry));
 			break;
 
 		case RE::FormType::Weapon:
+			_data.weapon.damage = RoundValue(player->GetDamage(_entry));
+			break;
+
 		case RE::FormType::Ammo:
-			_data.SetMember("damage", RoundValue(RE::PlayerCharacter::GetSingleton()->GetDamage(_entry)));
+			_data.ammo.damage = RoundValue(player->GetDamage(_entry));
 			break;
 
 		default:
@@ -148,65 +154,59 @@ namespace QuickLoot::Items
 		// https://github.com/ianpatt/skse64/blob/9843a236aa12b12fa4c6530c29113adfb941da72/skse64/ScaleformExtendedData.cpp#L227
 
 		if (const auto magicItem = skyrim_cast<RE::MagicItem*>(_object)) {
-			_data.SetMember("spellName", magicItem->fullName.c_str());
+			_data.magic.spellName = magicItem->fullName.c_str();
 
 			const auto effect = magicItem->GetCostliestEffectItem(static_cast<RE::MagicSystem::Delivery>(5), false);
 			if (effect && effect->baseEffect) {
-				_data.SetMember("magnitude", effect->effectItem.magnitude);
-				_data.SetMember("duration", effect->effectItem.duration);
-				_data.SetMember("area", effect->effectItem.area);
+				_data.magic.magnitude = effect->effectItem.magnitude;
+				_data.magic.duration = effect->effectItem.duration;
+				_data.magic.area = effect->effectItem.area;
 
 				const auto baseEffect = effect->baseEffect;
-				_data.SetMember("effectName", baseEffect->fullName.c_str());
-				_data.SetMember("subType", baseEffect->data.associatedSkill);
-				_data.SetMember("effectFlags", baseEffect->data.flags.underlying());
-				_data.SetMember("school", baseEffect->data.associatedSkill);
-				_data.SetMember("skillLevel", baseEffect->data.minimumSkill);
-				_data.SetMember("archetype", baseEffect->data.archetype);
-				_data.SetMember("deliveryType", baseEffect->data.delivery);
-				_data.SetMember("castTime", baseEffect->data.spellmakingChargeTime);
-				_data.SetMember("delayTime", baseEffect->data.aiDelayTimer);
-				_data.SetMember("actorValue", baseEffect->data.primaryAV);
-				_data.SetMember("castType", baseEffect->data.castingType);
-				_data.SetMember("resistance", baseEffect->data.resistVariable);  // SkyUI renames this from magicType to resistance
+				_data.magic.effectName = baseEffect->fullName.c_str();
+				_data.magic.subType = baseEffect->data.associatedSkill;
+				_data.magic.effectFlags = baseEffect->data.flags;
+				_data.magic.school = baseEffect->data.associatedSkill;
+				_data.magic.skillLevel = baseEffect->data.minimumSkill;
+				_data.magic.archetype = baseEffect->data.archetype;
+				_data.magic.deliveryType = baseEffect->data.delivery;
+				_data.magic.castTime = baseEffect->data.spellmakingChargeTime;
+				_data.magic.delayTime = baseEffect->data.aiDelayTimer;
+				_data.magic.actorValue = baseEffect->data.primaryAV;
+				_data.magic.castType = baseEffect->data.castingType;
+				_data.magic.resistance = baseEffect->data.resistVariable;  // SkyUI renames this from magicType to resistance
 			}
 		}
 
 		if (const auto spellItem = skyrim_cast<RE::SpellItem*>(_object)) {
-			_data.SetMember("spellType", spellItem->data.spellType);
-			_data.SetMember("trueCost", spellItem->data.costOverride);
+			_data.spell.spellType = spellItem->data.spellType;
+			_data.spell.trueCost = spellItem->data.costOverride;
 
 			if (const auto equipSlot = spellItem->GetEquipSlot()) {
-				_data.SetMember("equipSlot", equipSlot->formID);
+				_data.spell.equipSlot = equipSlot->formID;
 			}
 		}
 
 		if (const auto alchemyItem = skyrim_cast<RE::AlchemyItem*>(_object)) {
 			if (const auto sound = alchemyItem->data.consumptionSound) {
-				_data.SetMember("useSound", GetBasicFormInfo(sound));
+				_data.potion.useSound = sound;
 			}
 		}
 
 		if (const auto enchantmentItem = skyrim_cast<RE::EnchantmentItem*>(_object)) {
-			_data.SetMember("flags", enchantmentItem->formFlags);
-			_data.SetMember("baseEnchant", GetBasicFormInfo(enchantmentItem->data.baseEnchantment));
-			_data.SetMember("restrictions", GetBasicFormInfo(enchantmentItem->data.wornRestrictions));
+			_data.enchantment.flags = enchantmentItem->formFlags;
+			_data.enchantment.baseEnchant = enchantmentItem->data.baseEnchantment;
+			_data.enchantment.restrictions = enchantmentItem->data.wornRestrictions;
 		}
 
 		if (const auto shout = skyrim_cast<RE::TESShout*>(_object)) {
-			_data.SetMember("fullName", shout->fullName.c_str());
+			_data.shout.fullName = shout->fullName.c_str();
 
-			RE::GFxValue words;
-			_view->CreateArray(&words);
-			_data.SetMember("words", words);
-
-			for (auto& shoutWord : shout->variations) {
-				RE::GFxValue word = GetBasicFormInfo(shoutWord.word);
-				words.PushBack(word);
-
-				word.SetMember("word", shoutWord.word->fullName.c_str());
-				word.SetMember("fullName", shoutWord.word->translation.c_str());
-				word.SetMember("recoveryTime", shoutWord.recoveryTime);
+			for (int i = 0; i < 3; ++i) {
+				const auto& shoutWord = shout->variations[i];
+				_data.shout.words[i].word = shoutWord.word->fullName.c_str();
+				_data.shout.words[i].fullName = shoutWord.word->translation.c_str();
+				_data.shout.words[i].recoveryTime = shoutWord.recoveryTime;
 			}
 		}
 	}

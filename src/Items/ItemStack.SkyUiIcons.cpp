@@ -11,7 +11,7 @@ namespace QuickLoot::Items
 
 		switch (_object->formType.get()) {
 		case RE::FormType::Scroll:
-			_data.SetMember("iconLabel", "default_scroll");
+			_data.iconLabel = "default_scroll";
 			SkyUiSelectScrollColor();
 			break;
 
@@ -24,11 +24,11 @@ namespace QuickLoot::Items
 			break;
 
 		case RE::FormType::Ingredient:
-			_data.SetMember("iconLabel", "default_ingredient");
+			_data.iconLabel = "default_ingredient";
 			break;
 
 		case RE::FormType::Light:
-			_data.SetMember("iconLabel", "misc_torch");
+			_data.iconLabel = "misc_torch";
 			break;
 
 		case RE::FormType::Misc:
@@ -44,7 +44,7 @@ namespace QuickLoot::Items
 			break;
 
 		case RE::FormType::KeyMaster:
-			_data.SetMember("iconLabel", "default_key");
+			_data.iconLabel = "default_key";
 			break;
 
 		case RE::FormType::AlchemyItem:
@@ -64,17 +64,17 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L93
 
-		switch (GetMember<RE::ActorValue>(_data, "resistance")) {
+		switch (_data.scroll.resistance) {
 		case RE::ActorValue::kResistFire:
-			_data.SetMember("iconColor", 0xC73636);
+			_data.iconColor = 0xC73636;
 			break;
 
 		case RE::ActorValue::kResistShock:
-			_data.SetMember("iconColor", 0xFFFF00);
+			_data.iconColor = 0xFFFF00;
 			break;
 
 		case RE::ActorValue::kResistFrost:
-			_data.SetMember("iconColor", 0x1FFBFF);
+			_data.iconColor = 0x1FFBFF;
 			break;
 
 		default:
@@ -86,10 +86,10 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L113
 
-		_data.SetMember("iconLabel", "default_armor");
-		_data.SetMember("iconColor", 0xEDDA87);
+		_data.iconLabel = "default_armor";
+		_data.iconColor = 0xEDDA87;
 
-		switch (GetMember<ArmorWeightClass>(_data, "weightClass")) {
+		switch (_data.armor.weightClass) {
 		case ArmorWeightClass::kLight:
 			SkyUiSelectLightArmorIcon();
 			break;
@@ -115,38 +115,38 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L138
 
-		_data.SetMember("iconColor", 0x756000);
+		_data.iconColor = 0x756000;
 
-		switch (GetMember<ArmorSubType>(_data, "subType")) {
+		switch (_data.armor.subType) {
 		case ArmorSubType::kHead:
 		case ArmorSubType::kHair:
 		case ArmorSubType::kLongHair:
-			_data.SetMember("iconLabel", "lightarmor_head");
+			_data.iconLabel = "lightarmor_head";
 			break;
 
 		case ArmorSubType::kBody:
 		case ArmorSubType::kTail:
-			_data.SetMember("iconLabel", "lightarmor_body");
+			_data.iconLabel = "lightarmor_body";
 			break;
 
 		case ArmorSubType::kHands:
-			_data.SetMember("iconLabel", "lightarmor_hands");
+			_data.iconLabel = "lightarmor_hands";
 			break;
 
 		case ArmorSubType::kForearms:
-			_data.SetMember("iconLabel", "lightarmor_forearms");
+			_data.iconLabel = "lightarmor_forearms";
 			break;
 
 		case ArmorSubType::kFeet:
-			_data.SetMember("iconLabel", "lightarmor_feet");
+			_data.iconLabel = "lightarmor_feet";
 			break;
 
 		case ArmorSubType::kCalves:
-			_data.SetMember("iconLabel", "lightarmor_calves");
+			_data.iconLabel = "lightarmor_calves";
 			break;
 
 		case ArmorSubType::kShield:
-			_data.SetMember("iconLabel", "lightarmor_shield");
+			_data.iconLabel = "lightarmor_shield";
 			break;
 
 		default:
@@ -159,38 +159,38 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L185
 
-		_data.SetMember("iconColor", 0x6B7585);
+		_data.iconColor = 0x6B7585;
 
-		switch (GetMember<ArmorSubType>(_data, "subType")) {
+		switch (_data.armor.subType) {
 		case ArmorSubType::kHead:
 		case ArmorSubType::kHair:
 		case ArmorSubType::kLongHair:
-			_data.SetMember("iconLabel", "armor_head");
+			_data.iconLabel = "armor_head";
 			break;
 
 		case ArmorSubType::kBody:
 		case ArmorSubType::kTail:
-			_data.SetMember("iconLabel", "armor_body");
+			_data.iconLabel = "armor_body";
 			break;
 
 		case ArmorSubType::kHands:
-			_data.SetMember("iconLabel", "armor_hands");
+			_data.iconLabel = "armor_hands";
 			break;
 
 		case ArmorSubType::kForearms:
-			_data.SetMember("iconLabel", "armor_forearms");
+			_data.iconLabel = "armor_forearms";
 			break;
 
 		case ArmorSubType::kFeet:
-			_data.SetMember("iconLabel", "armor_feet");
+			_data.iconLabel = "armor_feet";
 			break;
 
 		case ArmorSubType::kCalves:
-			_data.SetMember("iconLabel", "armor_calves");
+			_data.iconLabel = "armor_calves";
 			break;
 
 		case ArmorSubType::kShield:
-			_data.SetMember("iconLabel", "armor_shield");
+			_data.iconLabel = "armor_shield";
 			break;
 
 		default:
@@ -203,36 +203,36 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L251
 
-		switch (GetMember<ArmorSubType>(_data, "subType")) {
+		switch (_data.armor.subType) {
 		case ArmorSubType::kHead:
 		case ArmorSubType::kHair:
 		case ArmorSubType::kLongHair:
-			_data.SetMember("iconLabel", "clothing_head");
+			_data.iconLabel = "clothing_head";
 			break;
 
 		case ArmorSubType::kBody:
 		case ArmorSubType::kTail:
-			_data.SetMember("iconLabel", "clothing_body");
+			_data.iconLabel = "clothing_body";
 			break;
 
 		case ArmorSubType::kHands:
-			_data.SetMember("iconLabel", "clothing_hands");
+			_data.iconLabel = "clothing_hands";
 			break;
 
 		case ArmorSubType::kForearms:
-			_data.SetMember("iconLabel", "clothing_forearms");
+			_data.iconLabel = "clothing_forearms";
 			break;
 
 		case ArmorSubType::kFeet:
-			_data.SetMember("iconLabel", "clothing_feet");
+			_data.iconLabel = "clothing_feet";
 			break;
 
 		case ArmorSubType::kCalves:
-			_data.SetMember("iconLabel", "clothing_calves");
+			_data.iconLabel = "clothing_calves";
 			break;
 
 		case ArmorSubType::kShield:
-			_data.SetMember("iconLabel", "clothing_shield");
+			_data.iconLabel = "clothing_shield";
 			break;
 
 		default:
@@ -244,17 +244,17 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L231
 
-		switch (GetMember<ArmorSubType>(_data, "subType")) {
+		switch (_data.armor.subType) {
 		case ArmorSubType::kLongHair:
-			_data.SetMember("iconLabel", "armor_amulet");
+			_data.iconLabel = "armor_amulet";
 			break;
 
 		case ArmorSubType::kTail:
-			_data.SetMember("iconLabel", "armor_ring");
+			_data.iconLabel = "armor_ring";
 			break;
 
 		case ArmorSubType::kHands:
-			_data.SetMember("iconLabel", "armor_circlet");
+			_data.iconLabel = "armor_circlet";
 			break;
 
 		default:
@@ -266,18 +266,18 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L292
 
-		switch (GetMember<BookSubType>(_data, "subType")) {
+		switch (_data.book.subType) {
 		case BookSubType::kSpellTome:
-			_data.SetMember("iconLabel", "book_tome");
+			_data.iconLabel = "book_tome";
 			break;
 
 		case BookSubType::kNote:
 		case BookSubType::kRecipe:
-			_data.SetMember("iconLabel", "book_note");
+			_data.iconLabel = "book_note";
 			break;
 
 		default:
-			_data.SetMember("iconLabel", "default_book");
+			_data.iconLabel = "default_book";
 			break;
 		}
 	}
@@ -286,69 +286,69 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L514
 
-		switch (GetMember<MiscSubType>(_data, "subType")) {
-		case MiscSubType::kGem:
-			_data.SetMember("iconLabel", "misc_gem");
-			_data.SetMember("iconColor", 0xFFB0D1);
+		switch (_data.misc.subType) {
+		case MiscType::kGem:
+			_data.iconLabel = "misc_gem";
+			_data.iconColor = 0xFFB0D1;
 			break;
 
-		case MiscSubType::kDragonClaw:
-			_data.SetMember("iconLabel", "misc_dragonclaw");
+		case MiscType::kDragonClaw:
+			_data.iconLabel = "misc_dragonclaw";
 			break;
 
-		case MiscSubType::kArtifact:
-			_data.SetMember("iconLabel", "misc_artifact");
+		case MiscType::kArtifact:
+			_data.iconLabel = "misc_artifact";
 			break;
 
-		case MiscSubType::kLeather:
-			_data.SetMember("iconLabel", "misc_leather");
-			_data.SetMember("iconColor", 0xBA8D23);
+		case MiscType::kLeather:
+			_data.iconLabel = "misc_leather";
+			_data.iconColor = 0xBA8D23;
 			break;
 
-		case MiscSubType::kLeatherStrips:
-			_data.SetMember("iconLabel", "misc_strips");
-			_data.SetMember("iconColor", 0xBA8D23);
+		case MiscType::kLeatherStrips:
+			_data.iconLabel = "misc_strips";
+			_data.iconColor = 0xBA8D23;
 			break;
 
-		case MiscSubType::kHide:
-			_data.SetMember("iconLabel", "misc_hide");
-			_data.SetMember("iconColor", 0xDBB36E);
+		case MiscType::kHide:
+			_data.iconLabel = "misc_hide";
+			_data.iconColor = 0xDBB36E;
 			break;
 
-		case MiscSubType::kRemains:
-			_data.SetMember("iconLabel", "misc_remains");
+		case MiscType::kRemains:
+			_data.iconLabel = "misc_remains";
 			break;
 
-		case MiscSubType::kIngot:
-			_data.SetMember("iconLabel", "misc_ingot");
-			_data.SetMember("iconColor", 0x828282);
+		case MiscType::kIngot:
+			_data.iconLabel = "misc_ingot";
+			_data.iconColor = 0x828282;
 			break;
 
-		case MiscSubType::kChildrensClothes:
-			_data.SetMember("iconLabel", "clothing_body");
-			_data.SetMember("iconColor", 0xEDDA87);
+		case MiscType::kChildrensClothes:
+			_data.iconLabel = "clothing_body";
+			_data.iconColor = 0xEDDA87;
 			break;
 
-		case MiscSubType::kFirewood:
-			_data.SetMember("iconLabel", "misc_wood");
-			_data.SetMember("iconColor", 0xA89E8C);
+		case MiscType::kFirewood:
+			_data.iconLabel = "misc_wood";
+			_data.iconColor = 0xA89E8C;
 			break;
 
-		case MiscSubType::kClutter:
-			_data.SetMember("iconLabel", "misc_clutter");
+		case MiscType::kClutter:
+			_data.iconLabel = "misc_clutter";
 			break;
 
-		case MiscSubType::kLockpick:
-			_data.SetMember("iconLabel", "misc_lockpick");
+		case MiscType::kLockpick:
+			_data.iconLabel = "misc_lockpick";
 			break;
 
-		case MiscSubType::kGold:
-			_data.SetMember("iconLabel", "misc_gold");
-			_data.SetMember("iconColor", 0xCCCC33);
+		case MiscType::kGold:
+			_data.iconLabel = "misc_gold";
+			_data.iconColor = 0xCCCC33;
 			break;
 
 		default:
-			_data.SetMember("iconLabel", "default_misc");
+			_data.iconLabel = "default_misc";
 			break;
 		}
 	}
@@ -357,59 +357,59 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L309
 
-		_data.SetMember("iconColor", 0xA4A5BF);
+		_data.iconColor = 0xA4A5BF;
 
-		switch (GetMember<WeaponType>(_data, "subType")) {
+		switch (_data.weapon.subType) {
 		case WeaponType::kSword:
-			_data.SetMember("iconLabel", "weapon_sword");
+			_data.iconLabel = "weapon_sword";
 			break;
 
 		case WeaponType::kDagger:
-			_data.SetMember("iconLabel", "weapon_dagger");
+			_data.iconLabel = "weapon_dagger";
 			break;
 
 		case WeaponType::kWarAxe:
-			_data.SetMember("iconLabel", "weapon_waraxe");
+			_data.iconLabel = "weapon_waraxe";
 			break;
 
 		case WeaponType::kMace:
-			_data.SetMember("iconLabel", "weapon_mace");
+			_data.iconLabel = "weapon_mace";
 			break;
 
 		case WeaponType::kGreatsword:
-			_data.SetMember("iconLabel", "weapon_greatsword");
+			_data.iconLabel = "weapon_greatsword";
 			break;
 
 		case WeaponType::kBattleaxe:
-			_data.SetMember("iconLabel", "weapon_battleaxe");
+			_data.iconLabel = "weapon_battleaxe";
 			break;
 
 		case WeaponType::kWarhammer:
-			_data.SetMember("iconLabel", "weapon_hammer");
+			_data.iconLabel = "weapon_hammer";
 			break;
 
 		case WeaponType::kBow:
-			_data.SetMember("iconLabel", "weapon_bow");
+			_data.iconLabel = "weapon_bow";
 			break;
 
 		case WeaponType::kCrossbow:
-			_data.SetMember("iconLabel", "weapon_crossbow");
+			_data.iconLabel = "weapon_crossbow";
 			break;
 
 		case WeaponType::kStaff:
-			_data.SetMember("iconLabel", "weapon_staff");
+			_data.iconLabel = "weapon_staff";
 			break;
 
 		case WeaponType::kPickaxe:
-			_data.SetMember("iconLabel", "weapon_pickaxe");
+			_data.iconLabel = "weapon_pickaxe";
 			break;
 
 		case WeaponType::kWoodAxe:
-			_data.SetMember("iconLabel", "weapon_woodaxe");
+			_data.iconLabel = "weapon_woodaxe";
 			break;
 
 		default:
-			_data.SetMember("iconLabel", "default_weapon");
+			_data.iconLabel = "default_weapon";
 			break;
 		}
 	}
@@ -418,12 +418,12 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L372
 
-		_data.SetMember("iconColor", 0xA89E8C);
+		_data.iconColor = 0xA89E8C;
 
-		if (GetMember<AmmoType>(_data, "subType") == AmmoType::kBolt) {
-			_data.SetMember("iconLabel", "weapon_bolt");
+		if (_data.ammo.subType == AmmoType::kBolt) {
+			_data.iconLabel = "weapon_bolt";
 		} else {
-			_data.SetMember("iconLabel", "weapon_arrow");
+			_data.iconLabel = "weapon_arrow";
 		}
 	}
 
@@ -431,58 +431,58 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L387
 
-		switch (GetMember<PotionType>(_data, "subType")) {
+		switch (_data.potion.subType) {
 		case PotionType::kHealth:
 		case PotionType::kHealRate:
 		case PotionType::kHealRateMult:
-			_data.SetMember("iconLabel", "potion_health");
-			_data.SetMember("iconColor", 0xDB2E73);
+			_data.iconLabel = "potion_health";
+			_data.iconColor = 0xDB2E73;
 			break;
 
 		case PotionType::kMagicka:
 		case PotionType::kMagickaRate:
 		case PotionType::kMagickaRateMult:
-			_data.SetMember("iconLabel", "potion_magic");
-			_data.SetMember("iconColor", 0x2E9FDB);
+			_data.iconLabel = "potion_magic";
+			_data.iconColor = 0x2E9FDB;
 			break;
 
 		case PotionType::kStamina:
 		case PotionType::kStaminaRate:
 		case PotionType::kStaminaRateMult:
-			_data.SetMember("iconLabel", "potion_stam");
-			_data.SetMember("iconColor", 0x51DB2E);
+			_data.iconLabel = "potion_stam";
+			_data.iconColor = 0x51DB2E;
 			break;
 
 		case PotionType::kFireResist:
-			_data.SetMember("iconLabel", "potion_fire");
-			_data.SetMember("iconColor", 0xC73636);
+			_data.iconLabel = "potion_fire";
+			_data.iconColor = 0xC73636;
 			break;
 
 		case PotionType::kElectricResist:
-			_data.SetMember("iconLabel", "potion_shock");
-			_data.SetMember("iconColor", 0xEAAB00);
+			_data.iconLabel = "potion_shock";
+			_data.iconColor = 0xEAAB00;
 			break;
 
 		case PotionType::kFrostResist:
-			_data.SetMember("iconLabel", "potion_frost");
-			_data.SetMember("iconColor", 0x1FFBFF);
+			_data.iconLabel = "potion_frost";
+			_data.iconColor = 0x1FFBFF;
 			break;
 
 		case PotionType::kDrink:
-			_data.SetMember("iconLabel", "food_wine");
+			_data.iconLabel = "food_wine";
 			break;
 
 		case PotionType::kFood:
-			_data.SetMember("iconLabel", "default_food");
+			_data.iconLabel = "default_food";
 			break;
 
 		case PotionType::kPoison:
-			_data.SetMember("iconLabel", "potion_poison");
-			_data.SetMember("iconColor", 0xAD00B3);
+			_data.iconLabel = "potion_poison";
+			_data.iconColor = 0xAD00B3;
 			break;
 
 		default:
-			_data.SetMember("iconLabel", "default_potion");
+			_data.iconLabel = "default_potion";
 			break;
 		}
 	}
@@ -491,40 +491,40 @@ namespace QuickLoot::Items
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L444
 
-		switch (GetMember<SoulLevel>(_data, "subType")) {
+		switch (_data.soulGem.subType) {
 		case SoulLevel::kPetty:
 			SkyUiSelectSoulGemStatusIcon(false);
-			_data.SetMember("iconColor", 0xD7D4FF);
+			_data.iconColor = 0xD7D4FF;
 			break;
 
 		case SoulLevel::kLesser:
 			SkyUiSelectSoulGemStatusIcon(false);
-			_data.SetMember("iconColor", 0xC0BAFF);
+			_data.iconColor = 0xC0BAFF;
 			break;
 
 		case SoulLevel::kCommon:
 			SkyUiSelectSoulGemStatusIcon(false);
-			_data.SetMember("iconColor", 0xABA3FF);
+			_data.iconColor = 0xABA3FF;
 			break;
 
 		case SoulLevel::kGreater:
 			SkyUiSelectSoulGemStatusIcon(true);
-			_data.SetMember("iconColor", 0x948BFC);
+			_data.iconColor = 0x948BFC;
 			break;
 
 		case SoulLevel::kGrand:
 			SkyUiSelectSoulGemStatusIcon(true);
-			_data.SetMember("iconColor", 0x7569FF);
+			_data.iconColor = 0x7569FF;
 			break;
 
 		case SoulLevel::kAzura:
-			_data.SetMember("iconLabel", "soulgem_azura");
-			_data.SetMember("iconColor", 0x7569FF);
+			_data.iconLabel = "soulgem_azura";
+			_data.iconColor = 0x7569FF;
 			break;
 
 		default:
-			_data.SetMember("iconLabel", "misc_soulgem");
-			_data.SetMember("iconColor", 0xE3E0FF);
+			_data.iconLabel = "misc_soulgem";
+			_data.iconColor = 0xE3E0FF;
 			break;
 		}
 	}
@@ -534,21 +534,21 @@ namespace QuickLoot::Items
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L482
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L498
 
-		switch (GetMember<SoulGemStatus>(_data, "status")) {
+		switch (_data.soulGem.status) {
 		case SoulGemStatus::kEmpty:
-			_data.SetMember("iconLabel", grand ? "soulgem_grandempty" : "soulgem_empty");
+			_data.iconLabel = grand ? "soulgem_grandempty" : "soulgem_empty";
 			break;
 
 		case SoulGemStatus::kPartial:
-			_data.SetMember("iconLabel", grand ? "soulgem_grandpartial" : "soulgem_partial");
+			_data.iconLabel = grand ? "soulgem_grandpartial" : "soulgem_partial";
 			break;
 
 		case SoulGemStatus::kFull:
-			_data.SetMember("iconLabel", grand ? "soulgem_grandfull" : "soulgem_full");
+			_data.iconLabel = grand ? "soulgem_grandfull" : "soulgem_full";
 			break;
 
 		default:
-			_data.SetMember("iconLabel", "misc_soulgem");
+			_data.iconLabel = "misc_soulgem";
 			break;
 		}
 	}

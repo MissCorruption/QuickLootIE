@@ -279,7 +279,7 @@ namespace QuickLoot
 
 		if (_container) {
 			LootMenuManager::SaveLastSelectedIndex(_container, _selectedIndex);
-			API::APIServer::DispatchCloseLootMenuEvent(_container);
+			API::APIServer::DispatchCloseLootMenuEvent(_container.get().get());
 		}
 
 		_container = container;
@@ -292,7 +292,7 @@ namespace QuickLoot
 				_wasInitialized = true;
 			}
 
-			API::APIServer::DispatchOpenLootMenuEvent(_container);
+			API::APIServer::DispatchOpenLootMenuEvent(_container.get().get());
 		}
 
 		_lootMenu.Visible(container.get() != nullptr);
@@ -358,9 +358,7 @@ namespace QuickLoot
 			return;
 		}
 
-		if (const auto& item = _inventory[static_cast<size_t>(newIndex)]) {
-			item->OnSelected(RE::PlayerCharacter::GetSingleton());
-		}
+		_inventory[static_cast<size_t>(newIndex)].OnSelected(RE::PlayerCharacter::GetSingleton());
 	}
 
 	void LootMenu::SetSelectedIndex(int newIndex, bool playSound)
@@ -444,7 +442,7 @@ namespace QuickLoot
 			return;
 		}
 
-		_inventory[_selectedIndex]->TakeStack(player);
+		_inventory[_selectedIndex].TakeStack(player);
 
 		OnTakeAction();
 	}
@@ -454,7 +452,7 @@ namespace QuickLoot
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
 		for (size_t i = 0; i < _inventory.size(); ++i) {
-			_inventory[i]->TakeStack(player);
+			_inventory[i].TakeStack(player);
 		}
 
 		OnTakeAction();
@@ -521,7 +519,7 @@ namespace QuickLoot
 			return;
 		}
 
-		_inventory = Items::ItemStack::LoadContainerInventory(uiMovie.get(), container.get(), CanDisplay);
+		_inventory = Items::QuickLootItemStack::LoadContainerInventory(container.get(), CanDisplay);
 		if (_inventory.empty() && !Settings::ShowWhenEmpty()) {
 			LootMenuManager::RequestHide();
 			return;
@@ -535,16 +533,17 @@ namespace QuickLoot
 			});
 		}
 
-		std::vector<Element> elements;
-		for (const auto& item : _inventory) {
-			_itemListProvider.PushBack(item->GetData());
-			// TODO elem->FillElementsVector(&elements);
+		std::vector<API::ItemStack> apiInventory;
+		apiInventory.reserve(_inventory.size());
+		for (auto& item : _inventory) {
+			_itemListProvider.PushBack(item.BuildDataObject(uiMovie.get()));
+			apiInventory.emplace_back(item.GetEntry(), item.GetDropRef().get().get());
 		}
 
 		_itemList.InvalidateData();
 		_lootMenu.GetInstance().Invoke("refresh");
 
-		API::APIServer::DispatchInvalidateLootMenuEvent(elements, _container);
+		API::APIServer::DispatchInvalidateLootMenuEvent(_container.get().get(), apiInventory);
 		SetSelectedIndex(_selectedIndex, false);
 
 		QueueRefresh(RefreshFlags::kWeight);
