@@ -1,5 +1,3 @@
-#define DLLEXPORT __declspec(dllexport)
-
 #include <spdlog/sinks/basic_file_sink.h>
 
 #include "Behaviors/ActivationPrompt.h"
@@ -8,7 +6,6 @@
 #include "Config/SystemSettings.h"
 #include "Input/InputManager.h"
 #include "Input/InputObserver.h"
-#include "Integrations/APIServer.h"
 #include "Integrations/Artifacts.h"
 #include "Integrations/BetterThirdPersonSelection.h"
 #include "Integrations/Completionist.h"
@@ -17,19 +14,9 @@
 #include "SanityChecks.h"
 #include "Util/Profiler.h"
 
-void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
+static void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 {
 	switch (msg->type) {
-	case SKSE::MessagingInterface::kPostLoad:
-		{
-			PROFILE_SCOPE_NAMED("SKSE Message (kPostLoad)");
-			logger::info("--------------------------------[ kPostLoad start ]--------------------------------");
-
-			QuickLoot::API::APIServer::Init(SKSE::GetMessagingInterface());
-			logger::info("--------------------------------[ kPostLoad end ]--------------------------------");
-			break;
-		}
-
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
 			PROFILE_SCOPE_NAMED("SKSE Message (kDataLoaded)");
@@ -61,10 +48,13 @@ void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 			logger::info("--------------------------------[ kDataLoaded end ]--------------------------------");
 			break;
 		}
+
+	default:
+		break;
 	}
 }
 
-void InitializeLog(spdlog::level::level_enum level = spdlog::level::info)
+static void InitializeLog(spdlog::level::level_enum level = spdlog::level::info)
 {
 	auto path = logger::log_directory();
 	if (!path) {
@@ -84,7 +74,7 @@ void InitializeLog(spdlog::level::level_enum level = spdlog::level::info)
 	spdlog::set_pattern("[%H:%M:%S.%e] [%t] [%l] [%s:%#] %v");
 }
 
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* skse)
+extern "C" __declspec(dllexport) bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* skse)
 {
 	InitializeLog();
 
