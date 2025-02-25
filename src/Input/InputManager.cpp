@@ -220,7 +220,7 @@ namespace QuickLoot::Input
 		bool wasDownPressed = startTime != 0 && lastYValue < 0;
 
 		bool isUpPressed = event->yValue > (wasUpPressed ? releaseThreshold : pressThreshold);
-		bool isDownPressed = event->yValue < -(wasUpPressed ? releaseThreshold : pressThreshold);
+		bool isDownPressed = event->yValue < -(wasDownPressed ? releaseThreshold : pressThreshold);
 
 		float now = static_cast<float>(GetTickCount()) * 0.001f;
 		lastYValue = event->yValue;
