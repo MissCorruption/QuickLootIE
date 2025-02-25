@@ -133,13 +133,14 @@ namespace QuickLoot::Items
 		if (Completionist::IsReady()) {
 			PROFILE_SCOPE_NAMED("Completionist Data");
 
-			_data.compNew = Settings::ShowCompletionistNeeded() && Completionist::IsItemNeeded(object->formID);
-			_data.compFound = Settings::ShowCompletionistCollected() && Completionist::IsItemCollected(object->formID);
+			const auto data = Completionist::GetItemInfo(object);
 
-			_data.displayName = Completionist::DecorateItemDisplayName(object->formID, _data.displayName);
+			_data.compNew = Settings::ShowCompletionistNeeded() && data.isNeeded;
+			_data.compFound = Settings::ShowCompletionistCollected() && data.isCollected;
+			_data.displayName = data.decoratedName;
 
-			if (const auto textColor = Completionist::GetItemDynamicTextColor(object->formID); textColor != -1) {
-				_data.textColor = textColor;
+			if (data.textColor != -1) {
+				_data.textColor = data.textColor;
 			}
 		}
 	}

@@ -6,7 +6,7 @@ namespace QuickLoot::Items
 {
 	struct QuickLootItemData
 	{
-		MandatoryField<std::string> displayName;
+		MandatoryField<RE::BSString> displayName;
 		OptionalField<uint32_t> textColor;
 
 		OptionalField<bool> enchanted;

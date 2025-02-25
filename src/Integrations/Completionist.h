@@ -1,191 +1,180 @@
 #pragma once
 
-#include "PluginRequests/RequestClient.h"
+/*
+	Header File for Completionist integration.
+	Copy this file into your SKSE plugin's source tree.
+
+	Functionality is provided via static methods in the Completionist class.
+	Before calling any of those, invoke Completionist::Init.
+
+	For performance critical paths like retrieving item information for an entire inventory of items, it
+	is recommended to use the GetItemInfo function rather than querying the properties (needed, collected,
+	color, name) separately via their respective methods. GetItemInfo is optimized to minimize the number of
+	formId lookups. It also allows querying information for multiple items at the same time.
+
+	For each ItemInfo struct passed to GetItemInfo you are expected to initialize the object field yourself.
+	Completionist will then fill out the other fields of the struct based on the provided object.
+*/
 
 namespace QuickLoot::Integrations
 {
 	class Completionist
 	{
-	private:
-		Completionist() = default;
-		~Completionist() = default;
-
-		// For a client request to be processed, both of the following must be true:
-		//
-		// - client major ver == server major ver
-		// - client minor var <= server minor ver
-		//
-		// Minor version changes must be backwards compatible, so any breaking changes
-		// to the api must increase the major version. New handlers may be added by
-		// new minor versions.
-		static constexpr const char* SERVER_PLUGIN_NAME = "Completionist";
-		static constexpr uint16_t API_MAJOR_VERSION = 1;
-		static constexpr uint16_t API_MINOR_VERSION = 1;
-
-		static inline PluginRequests::RequestClient _client{};
-
-		// This is the list of request types.
-		// Each of them is associated with a signature.
-		// The client and server must agree on these signatures.
-		enum RequestType : uint32_t
-		{
-			// General configuration requests
-			kGetNeededItemTextColor = 0x11,
-			kGetFoundItemTextColor = 0x12,
-			kGetDynamicItemTextColor = 0x13,
-			kUseNeededItemTextColor = 0x14,
-			kUseFoundItemTextColor = 0x15,
-			kIsIntegrationEnabled = 0x16,
-
-			// Item specific requests
-			kIsItemNeeded = 0x21,
-			kIsItemTracked = 0x22,
-			kIsItemCollected = 0x23,
-			kGetItemDisplayName = 0x24,
-			kDecorateItemDisplayName = 0x25,
-		};
-		
 	public:
+		Completionist() = delete;
+		~Completionist() = delete;
 		Completionist(Completionist const&) = delete;
 		Completionist(Completionist const&&) = delete;
 		Completionist operator=(Completionist&) = delete;
 		Completionist operator=(Completionist&&) = delete;
 
-		// The client initialization must happen at (or after) kPostLoad
-		static void Init()
+		static constexpr const char* SERVER_PLUGIN_NAME = "Completionist";
+
+		static bool Init()
 		{
-			_client.Init(SERVER_PLUGIN_NAME, API_MAJOR_VERSION, API_MINOR_VERSION);
+			using GetInterfaceProc = InterfaceV20* (*)();
+
+			const auto dllHandle = GetModuleHandleA(SERVER_PLUGIN_NAME);
+			const auto getInterfaceProc = reinterpret_cast<GetInterfaceProc>(GetProcAddress(dllHandle, "GetCompletionistInterfaceV20"));
+
+			if (getInterfaceProc) {
+				_interface = getInterfaceProc();
+			}
+
+			return IsReady();
 		}
 
 		static bool IsReady()
 		{
-			return _client.IsReady();
+			return _interface;
 		}
 
 		static uint32_t GetNeededItemTextColor()
 		{
-			std::uint32_t response = 0;
-
-			if (const auto error = _client.Query(kGetNeededItemTextColor, nullptr, &response)) {
-				logger::error("Query failed for {}: {}", __func__, _client.GetErrorString(error));
-			}
-
-			return response;
+			return _interface ? _interface->GetNeededItemTextColor() : 0xffffff;
 		}
 
-		static uint32_t GetFoundItemTextColor()
+		static uint32_t GetCollectedItemTextColor()
 		{
-			std::uint32_t response = 0;
-
-			if (const auto error = _client.Query(kGetFoundItemTextColor, nullptr, &response)) {
-				logger::error("Query failed for {}: {}", __func__, _client.GetErrorString(error));
-			}
-
-			return response;
+			return _interface ? _interface->GetCollectedItemTextColor() : 0xffffff;
 		}
 
-		static uint32_t GetItemDynamicTextColor(RE::FormID formID)
+		static bool UseNeededItemTextColor()
 		{
-			std::uint32_t response = 0;
-
-			if (const auto error = _client.Query(kGetDynamicItemTextColor, &formID, &response)) {
-				logger::error("Query failed for {}: {}", __func__, _client.GetErrorString(error));
-			}
-
-			return response;
+			return _interface && _interface->UseNeededItemTextColor();
 		}
 
-		static bool IsIntegrationEnabled()
+		static bool UseCollectedItemTextColor()
 		{
-			if (!IsReady()) {
-				return false;
-			}
-
-			bool response = false;
-
-			if (const auto error = _client.Query(kIsIntegrationEnabled, nullptr, &response)) {
-				logger::error("Query failed for {}: {}", __func__, _client.GetErrorString(error));
-			}
-
-			return response;
+			return _interface && _interface->UseCollectedItemTextColor();
 		}
 
-		static bool IsItemNeeded(RE::FormID formID)
+		struct IconInfo
 		{
-			bool response = false;
+			// This needs to be provided by the callee.
+			RE::TESBoundObject* object;
 
-			if (const auto error = _client.Query(kIsItemNeeded, &formID, &response)) {
-				logger::error("Query failed for {}: {}", __func__, _client.GetErrorString(error));
-			}
-
-			return response;
-		}
-
-		static bool IsItemTracked(RE::FormID formID)
-		{
-			bool response = false;
-
-			if (const auto error = _client.Query(kIsItemTracked, &formID, &response)) {
-				logger::error("Query failed for {}: {}", __func__, _client.GetErrorString(error));
-			}
-
-			return response;
-		}
-
-		static bool IsItemCollected(RE::FormID formID)
-		{
-			bool response = false;
-
-			if (const auto error = _client.Query(kIsItemCollected, &formID, &response)) {
-				logger::error("Query failed for {}: {}", __func__, _client.GetErrorString(error));
-			}
-
-			return response;
-		}
-
-		enum DisplayNameMode : uint32_t
-		{
-			kLegacyDisplayName = 'LEG',
-			kNewDisplayName = 'NEW',
+			// This is populated by Completionist.
+			bool isCollected;
+			bool isNeeded;
 		};
 
-		struct GetItemDisplayName_Request
+		static IconInfo GetIconInfo(RE::TESBoundObject* object)
 		{
-			RE::FormID formID;
-			DisplayNameMode mode;
-		};
+			IconInfo info{};
+			info.object = object;
 
-		static std::string GetItemDisplayName(RE::FormID formID, DisplayNameMode mode)
-		{
-			const GetItemDisplayName_Request request{ formID, mode };
-			std::string response{};
-
-			if (const auto error = _client.QueryString(kGetItemDisplayName, &request, response)) {
-				logger::error("Query failed for {}: {}", __func__, _client.GetErrorString(error));
+			if (_interface) {
+				_interface->GetIconInfo(&info, 1);
 			}
 
-			return response;
+			return info;
 		}
 
-		struct DecorateItemDisplayName_Request
+		struct ItemInfo
 		{
-			RE::FormID formID;
-			const char* rawName;
+			// This needs to be provided by the callee.
+			RE::TESBoundObject* object;
+
+			// This is populated by Completionist.
+			RE::BSString decoratedName;
+			uint32_t textColor;
+			bool isNeeded;
+			bool isCollected;
 		};
 
-		static std::string DecorateItemDisplayName(RE::FormID formID, const std::string& rawName)
+		static ItemInfo GetItemInfo(RE::TESBoundObject* object)
 		{
-			const DecorateItemDisplayName_Request request{ formID, rawName.c_str() };
-			std::string response{};
+			ItemInfo info{};
+			info.object = object;
 
-			if (const auto error = _client.QueryString(kDecorateItemDisplayName, &request, response)) {
-				logger::error("Query failed for {}: {}", __func__, _client.GetErrorString(error));
+			if (_interface) {
+				_interface->GetItemInfo(&info, 1);
 			}
 
-			if (response.empty())
-				return rawName;
+			return info;
+		}
 
-			return response;
+		static void GetItemInfo(std::vector<ItemInfo>& info)
+		{
+			return GetItemInfo(info.data(), info.size());
+		}
+
+		static void GetItemInfo(ItemInfo* info, size_t infoCount)
+		{
+			if (_interface) {
+				_interface->GetItemInfo(info, infoCount);
+			}
+		}
+
+		static RE::BSString GetDecoratedItemName(RE::TESBoundObject* object)
+		{
+			if (_interface) {
+				return _interface->GetDecoratedItemName(object);
+			}
+
+			return object->GetName();
+		}
+
+		static uint32_t GetItemTextColor(RE::TESBoundObject* object)
+		{
+			return _interface ? _interface->GetItemTextColor(object) : 0xffffff;
+		}
+
+		static bool IsItemNeeded(RE::TESBoundObject* object)
+		{
+			return _interface && _interface->IsItemNeeded(object);
+		}
+
+		static bool IsItemCollected(RE::TESBoundObject* object)
+		{
+			return _interface && _interface->IsItemCollected(object);
+		}
+
+		static bool IsItemTracked(RE::TESBoundObject* object)
+		{
+			return _interface && _interface->IsItemTracked(object);
+		}
+
+	private:
+		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
+		struct InterfaceV20
+		{
+			virtual uint32_t GetNeededItemTextColor();
+			virtual uint32_t GetCollectedItemTextColor();
+			virtual bool UseNeededItemTextColor();
+			virtual bool UseCollectedItemTextColor();
+
+			virtual void GetItemInfo(ItemInfo* info, size_t count);
+			virtual void GetIconInfo(IconInfo* info, size_t count);
+
+			virtual RE::BSString GetDecoratedItemName(RE::TESBoundObject* object);
+			virtual uint32_t GetItemTextColor(RE::TESBoundObject* object);
+			virtual bool IsItemNeeded(RE::TESBoundObject* object);
+			virtual bool IsItemCollected(RE::TESBoundObject* object);
+			virtual bool IsItemTracked(RE::TESBoundObject* object);
 		};
+
+		static inline InterfaceV20* _interface;
 	};
 }
