@@ -57,7 +57,7 @@ namespace QuickLoot::Config
 
 		static std::vector<std::string> GetInfoColumns();
 
-		static const std::vector<std::string>& GetUserDefinedSortPriority();
+		static const std::vector<std::string>& GetActiveSortRules();
 
 		static std::vector<Input::Keybinding> GetKeybindings();
 

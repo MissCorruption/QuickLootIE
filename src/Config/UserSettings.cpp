@@ -48,7 +48,7 @@ namespace QuickLoot::Config
 
 	std::vector<std::string> UserSettings::GetInfoColumns() { return QLIE_InfoColumns; }
 
-	const std::vector<std::string>& UserSettings::GetUserDefinedSortPriority() { return QLIE_SortRulesActive; }
+	const std::vector<std::string>& UserSettings::GetActiveSortRules() { return QLIE_SortRulesActive; }
 
 	std::vector<Input::Keybinding> UserSettings::GetKeybindings()
 	{

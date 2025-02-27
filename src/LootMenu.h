@@ -87,6 +87,7 @@ namespace QuickLoot
 		void Transfer();
 
 		void Refresh(RefreshFlags flags = RefreshFlags::kNone);
+		void SortInventory();
 		void RefreshInventory();
 		void RefreshButtonBar();
 		void RefreshInfoBar();

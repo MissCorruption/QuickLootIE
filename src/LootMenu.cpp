@@ -506,6 +506,145 @@ namespace QuickLoot
 		_refreshFlags = RefreshFlags::kNone;
 	}
 
+	using SortFunction = std::function<int(const Items::QuickLootItemStack& a, const Items::QuickLootItemStack& b)>;
+
+	template <Items::ItemType type>
+	bool IsType(const Items::QuickLootItemStack& stack)
+	{
+		return stack.GetData().type == type;
+	}
+
+	template <Items::MiscType type>
+	bool IsMisc(const Items::QuickLootItemStack& stack)
+	{
+		const auto& data = stack.GetData();
+		return data.type == Items::ItemType::kMisc && data.misc.subType.valid && data.misc.subType == type;
+	}
+
+	template <typename T>
+	SortFunction OrderAsc(T(*func)(const Items::QuickLootItemStack&))
+	{
+		return [=](const Items::QuickLootItemStack& a, const Items::QuickLootItemStack& b) {
+			const auto diff = func(a) - func(b);
+			return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+		};
+	}
+
+	template <typename T>
+	SortFunction OrderDesc(T (*func)(const Items::QuickLootItemStack&))
+	{
+		return [=](const Items::QuickLootItemStack& a, const Items::QuickLootItemStack& b) {
+			const auto diff = func(b) - func(a);
+			return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+		};
+	}
+
+	void LootMenu::SortInventory()
+	{
+		PROFILE_SCOPE;
+
+		std::vector<SortFunction> selectedRules{};
+
+		static std::map<std::string, SortFunction> ruleTable = {
+			{ "$qlie_SortRule_Gold", OrderDesc(IsMisc<Items::MiscType::kGold>) },
+			{ "$qlie_SortRule_Gems", OrderDesc(IsMisc<Items::MiscType::kGem>) },
+			{ "$qlie_SortRule_SoulGems", OrderDesc(IsType<Items::ItemType::kSoulGem>) },
+			{ "$qlie_SortRule_Lockpicks", OrderDesc(IsMisc<Items::MiscType::kLockpick>) },
+			{ "$qlie_SortRule_OresIngots", OrderDesc(IsMisc<Items::MiscType::kIngot>) },
+			{ "$qlie_SortRule_Potions", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::AlchemyItem
+					&& data.potion.subType != Items::PotionType::kFood
+					&& data.potion.subType != Items::PotionType::kDrink;
+			}) },
+			{ "$qlie_SortRule_FoodDrinks", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::AlchemyItem
+					&& (data.potion.subType == Items::PotionType::kFood
+					|| data.potion.subType == Items::PotionType::kDrink);
+			}) },
+			{ "$qlie_SortRule_Books", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Book
+					&& (!data.book.subType.valid
+					|| data.book.subType != Items::BookSubType::kNote
+					&& data.book.subType != Items::BookSubType::kRecipe);
+			}) },
+			{ "$qlie_SortRule_Notes", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Book
+					&& data.book.subType.valid
+					&& (data.book.subType == Items::BookSubType::kNote
+					|| data.book.subType == Items::BookSubType::kRecipe);
+			}) },
+			{ "$qlie_SortRule_Scrolls", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+				return stack.GetData().formType == RE::FormType::Scroll;
+			}) },
+			{ "$qlie_SortRule_Weapons", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Weapon;
+			}) },
+			{ "$qlie_SortRule_ArrowsBolts", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+				return stack.GetData().formType == RE::FormType::Ammo;
+			}) },
+			{ "$qlie_SortRule_Armors", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Armor
+					&& data.armor.weightClass != Items::ArmorWeightClass::kClothing
+					&& data.armor.weightClass != Items::ArmorWeightClass::kJewelry;
+			}) },
+			{ "$qlie_SortRule_Clothes", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Armor
+					&& data.armor.weightClass == Items::ArmorWeightClass::kClothing;
+			}) },
+			{ "$qlie_SortRule_Jewelry", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Armor
+					&& data.armor.weightClass == Items::ArmorWeightClass::kJewelry;
+			}) },
+			{ "$qlie_SortRule_Weightless", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) { return stack.GetData().weight.value <= 0; }) },
+			{ "$qlie_SortRule_ByWeight", OrderAsc<float>([](const Items::QuickLootItemStack& stack) { return stack.GetData().weight.value; }) },
+			{ "$qlie_SortRule_ByValue", OrderDesc<int>([](const Items::QuickLootItemStack& stack) { return stack.GetData().value.value; }) },
+			{ "$qlie_SortRule_ByV/W", OrderDesc<float>([](const Items::QuickLootItemStack& stack) {
+				const auto data = stack.GetData();
+				if (data.weight <= 0)
+					return std::numeric_limits<float>::infinity();
+				if (data.value <= 0)
+					return 0.0f;
+				return data.infoValueWeight.value;
+			}) },
+			{ "$qlie_SortRule_ByName", [](const Items::QuickLootItemStack& a, const Items::QuickLootItemStack& b) {
+				 const auto& nameA = a.GetQuickLootData().displayName.value.c_str();
+				 const auto& nameB = b.GetQuickLootData().displayName.value.c_str();
+				 return strcmp(nameA, nameB) < 0;
+			 } },
+			{ "$qlie_SortRule_ArtifactNeeded", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().dbmNew.value; }) },
+			{ "$qlie_SortRule_CompletionistNeeded", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().compNew.value; }) },
+		};
+
+		for (auto& ruleName : Config::UserSettings::GetActiveSortRules()) {
+			const auto it = ruleTable.find(ruleName);
+			if (it != ruleTable.end()) {
+				selectedRules.push_back(it->second);
+			}
+		}
+
+		std::ranges::stable_sort(_inventory, [&](const Items::QuickLootItemStack& a, const Items::QuickLootItemStack& b) {
+			for (auto ruleFunction : selectedRules) {
+				const auto cmp = ruleFunction(a, b);
+				if (cmp < 0)
+					return true;
+				if (cmp > 0)
+					return false;
+			}
+
+			const auto& nameA = a.GetQuickLootData().displayName.value.c_str();
+			const auto& nameB = b.GetQuickLootData().displayName.value.c_str();
+			return strcmp(nameA, nameB) < 0;
+		});
+	}
+
 	void LootMenu::RefreshInventory()
 	{
 		PROFILE_SCOPE;
@@ -525,13 +664,7 @@ namespace QuickLoot
 			return;
 		}
 
-		{
-			PROFILE_SCOPE_NAMED("Sorting");
-			std::ranges::stable_sort(_inventory, [&](const auto&, const auto&) {
-				// TODO
-				return false;
-			});
-		}
+		SortInventory();
 
 		std::vector<API::ItemStack> apiInventory;
 		apiInventory.reserve(_inventory.size());
