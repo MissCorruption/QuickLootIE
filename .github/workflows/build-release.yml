@@ -218,7 +218,7 @@ jobs:
           actions-cache-key: '.xmake-actions-cache'
           build-cache: true
           build-cache-path: ${{ env.XMAKE_GLOBALDIR }}/build-cache
-          build-cache-key: '.xmake-build-key'
+          build-cache-key: xmake-build-${{ runner.os }}-${{ github.run_id }}
 
       - name: Install dependencies
         run: |
