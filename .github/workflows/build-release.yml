@@ -385,3 +385,4 @@ jobs:
           name: |
             QuickLootIE-${{ needs.prepare.outputs.version }}.zip
             QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}.zip
+          failOnError: false
