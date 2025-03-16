@@ -65,6 +65,9 @@ jobs:
     permissions: write-all
     runs-on: windows-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Create Pack Folder
         run: mkdir -p $env:GITHUB_WORKSPACE\\to-pack
         shell: pwsh
@@ -109,6 +112,9 @@ jobs:
     if: ${{ needs.prepare.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
     runs-on: windows-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Cache Script Sources
         id: cache-ss
         uses: actions/cache@v4
@@ -184,6 +190,11 @@ jobs:
     runs-on: windows-latest
     
     steps:
+      - name: Recursive Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
       - name: Set xmake env
         run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
 
@@ -245,6 +256,12 @@ jobs:
     needs: [build-plugin, compile-scripts, compile-skse, prepare]
     if: ${{ needs.prepare.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
     steps:
+
+      - name: Recursive Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
@@ -321,6 +338,9 @@ jobs:
     if: ${{ inputs.publish-release == true && (needs.prepare.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always()) }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download Release Artifact
         uses: actions/download-artifact@v4
         with:
@@ -345,7 +365,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           allowUpdates: true
-          name: ${{ needs.prepare.outputs.version }}
+          name: QuickLootIE-${{ needs.prepare.outputs.version }} @ ${{ needs.prepare.outputs.date }}
           draft: false
           body: ${{ inputs.release-body }}
           tag: ${{ needs.prepare.outputs.version }}
@@ -361,22 +381,6 @@ jobs:
       - name: Remove Temporary Artifacts
         uses: geekyeggo/delete-artifact@v2
         with:
-          name: QuickLootIE-${{ needs.prepare.outputs.version }}
-
-  nightly-release:
-    name: Nightly Release
-    needs: [share-release]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create Nightly Release
-        uses: andelf/nightly-release@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: nightly-${{ needs.prepare.outputs.date }}
-          release_name: Nightly Build ${{ needs.prepare.outputs.date }}
-          body: ${{ inputs.release-body }}
-          draft: false
-          prerelease: true
-          files: |
+          name: |
             QuickLootIE-${{ needs.prepare.outputs.version }}.zip
             QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}.zip
