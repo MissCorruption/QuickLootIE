@@ -296,6 +296,7 @@ jobs:
           cp -a "res/txt/Interface/." "${{ github.workspace }}/to-pack/Interface"
           cp -a "res/swf/Interface/." "${{ github.workspace }}/to-pack/Interface"
           cp -a "res/QuickLootIE.json" "${{ github.workspace }}/to-pack/SKSE/Plugins/QuickLootIE.json"
+          cp -a "LICENSE" "${{ github.workspace }}/pack-dev/QLIE-LICENSE.md"
           cp -a "res/swf/Interface/LootMenuIE.swf" "${{ github.workspace }}/pack-dev/Interface"
           cp -a "res/swf/Source/." "${{ github.workspace }}/pack-dev/LootMenuIE"
           cp -a "include/." "${{ github.workspace }}/pack-dev/include"
