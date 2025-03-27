@@ -754,7 +754,7 @@ namespace QuickLoot
 
 		const auto player = RE::PlayerCharacter::GetSingleton();
 		const auto currentWeight = static_cast<int64_t>(player->GetWeightInContainer());
-		const auto carryWeightLimit = static_cast<int64_t>(player->AsActorValueOwner()->GetActorValue(RE::ActorValue::kCarryWeight));
+		const auto carryWeightLimit = static_cast<int64_t>(player->GetTotalCarryWeight());
 		const auto text = fmt::format("{} / {}", currentWeight, carryWeightLimit);
 		_weight.HTMLText(text);
 		_weight.Visible(true);
