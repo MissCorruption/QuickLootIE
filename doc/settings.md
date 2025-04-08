@@ -1,34 +1,37 @@
-# Main Settings
+# General
 
-### General
+### Behavior
 
 | Name                            | Type   | Default |
 |---------------------------------|--------|---------|
-| Close when in combat            | `bool` | `false` |
-| Close when container is empty   | `bool` | `true`  |
+| Show in combat                  | `bool` | `true`  |
+| Show when container is empty    | `bool` | `false` |
+| Show when container is unlocked | `bool` | `true`  |
+| Show in third person            | `bool` | `true`  |
+| Show when mounted               | `bool` | `false` |
+| Enable for corpses              | `bool` | `true`  |
+| Enable for animals              | `bool` | `true`  |
+| Enable for dragons              | `bool` | `true`  |
 | Break invisibility when used    | `bool` | `true`  |
-| Open when container is unlocked | `bool` | `true`  |
+| Play scroll sounds              | `bool` | `true`  |
 
 # Display
 
-### Position
+### Window Settings
 
-| Name                            | Type                  | Default    |
-|---------------------------------|-----------------------|------------|
-| Anchor                          | `enum`                | `Top Left` |
-| X offset                        | `int` [`-960`; `960`] | `100`      |
-| Y offset                        | `int` [`-540`; `540`] | `-180`     |
+| Name                            | Type                    | Default    |
+|---------------------------------|-------------------------|------------|
+| Window anchor                   | `enum`                  | `Top Left` |
+| Window offset X                 | `int`   [`-960`; `960`] | `100`      |
+| Window offset Y                 | `int`   [`-540`; `540`] | `-200`     |
+| Window scale                    | `float` [`0.1`; `3.0`]  | `1.0`      |
+| Window opacity                  | `float` [`0.1`; `1.0`]  | `1.0`   |
+| Window opacity when empty       | `float` [`0.1`; `1.0`]  | `0.3`   |
+| Minimum number of lines to show | `int`   [`0`; `25`]     | `0`     |
+| Maximum number of lines to show | `int`   [`1`; `25`]     | `7`     |
 
 > [!Note]  
 > Valid values for `Anchor` are  `Top Left`, `Center Left`, `Bottom Left`, `Top Center`, `Center`, `Bottom Center`, `Top Right`, `Center Right` and `Bottom Right`.
-
-### Size
-
-| Name                            | Type                   | Default |
-|---------------------------------|------------------------|---------|
-| Scale                           | `float` [`0.1`; `3.0`] | `1.0`   |
-| Min lines                       | `int`   [`0`; `25`]    | `0`     |
-| Max lines                       | `int`   [`1`; `25`]    | `7`     |
 
 > [!Note]  
 > When setting Max Lines to a value smaller than Min Lines, Min Lines should be updated to take on the same value.  
@@ -38,24 +41,12 @@
 
 | Name                            | Type   | Default |
 |---------------------------------|--------|---------|
-| Show stealing icon              | `bool` | `true`  |
-| Show read icon                  | `bool` | `true`  |
-| Show enchanted icon             | `bool` | `true`  |
-| Show known enchanted icon       | `bool` | `true`  |
-| Show special enchanted icon     | `bool` | `true`  |
-
-### Transparency
-
-| Name                            | Type                   | Default |
-|---------------------------------|------------------------|---------|
-| Regular                         | `float` [`0.1`; `1.0`] | `1.0`   |
-| When empty                      | `float` [`0.1`; `1.0`] | `0.3`   |
-
-### Reset
-
-| Name                            | Type   | Default |
-|---------------------------------|--------|---------|
-| Restore defaults                | Button | -       |
+| Show the item icon              | `bool` | `true`  |
+| Show book read icon             | `bool` | `true`  |
+| Show stolen icon                | `bool` | `true`  |
+| Show item enchanted icon        | `bool` | `true`  |
+| Show known enchantment icon     | `bool` | `true`  |
+| Show special enchantment icon   | `bool` | `true`  |
 
 # Sorting
 
@@ -87,25 +78,31 @@
 - LOTD Needed
 - Completionist Needed
 
-# Compatibility
+# Controls
 
-### The Curator's Companion
+### Keybindings
 
 | Name                            | Type   | Default |
 |---------------------------------|--------|---------|
-| Show 'new' icon                 | `bool` | `true`  |
-| Show 'found' icon               | `bool` | `true`  |
-| Show 'displayed' icon           | `bool` | `true`  |
+| Take                            | `key`  | `E`     |
+| Take All                        | `key`  | `R`     |
+| Search                          | `key`  | `Q`     |
+| Disable loot menu               | `key`  | unbound |
+| Enable loot menu                | `key`  | unbound |
+
+# Compatibility
+
+### Artifact Icons
+
+| Name                            | Type   | Default |
+|---------------------------------|--------|---------|
+| Show new artifact icon          | `bool` | `true`  |
+| Show carried artifact icon      | `bool` | `true`  |
+| Show displayed artifact icon    | `bool` | `true`  |
 
 ### Completionist
 
 | Name                            | Type   | Default |
 |---------------------------------|--------|---------|
-| Show 'needed' icon              | `bool` | `true`  |
-| Show 'collected' icon           | `bool` | `true`  |
-
-### Miscellaneous
-
-| Name                            | Type   | Default |
-|---------------------------------|--------|---------|
-| Hide menu for animals           | `bool` | `false` |
+| Show needed item icon           | `bool` | `true`  |
+| Show collected item icon        | `bool` | `true`  |

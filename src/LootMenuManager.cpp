@@ -4,6 +4,7 @@
 #include "Behaviors/ContainerAnimator.h"
 #include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
+#include "Integrations/BetterThirdPersonSelection.h"
 #include "LootMenu.h"
 #include "MenuVisibilityManager.h"
 
@@ -27,8 +28,12 @@ namespace QuickLoot
 		}
 
 		Input::InputManager::BlockConflictingInputs();
-		Behaviors::ActivationPrompt::Block();
 		Behaviors::ContainerAnimator::CloseContainer(_currentContainer);
+
+		if (!RE::PlayerCamera::GetSingleton()->IsInThirdPerson() ||
+			!Integrations::BetterThirdPersonSelection::Is3DWidgetEnabled()) {
+			Behaviors::ActivationPrompt::Block();
+		}
 
 		_currentContainer = container;
 		const auto index = container == _lastContainer ? _lastSelectedIndex : 0;

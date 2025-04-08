@@ -1080,7 +1080,7 @@ state state_ControlsTake
 	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
 		SetKeyMapOptionValueST(keyCode)
 
-		bool isGamepad = keyCode >= 266
+		bool isGamepad = IsGamepadKey(keyCode)
 		if isGamepad
 			QLIE_KeybindingTakeGamepad = keyCode
 		else
@@ -1098,7 +1098,7 @@ state state_ControlsTakeAll
 	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
 		SetKeyMapOptionValueST(keyCode)
 
-		bool isGamepad = keyCode >= 266
+		bool isGamepad = IsGamepadKey(keyCode)
 		if isGamepad
 			QLIE_KeybindingTakeAllGamepad = keyCode
 		else
@@ -1116,7 +1116,7 @@ state state_ControlsTransfer
 	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
 		SetKeyMapOptionValueST(keyCode)
 
-		bool isGamepad = keyCode >= 266
+		bool isGamepad = IsGamepadKey(keyCode)
 		if isGamepad
 			QLIE_KeybindingTransferGamepad = keyCode
 		else
@@ -1134,7 +1134,7 @@ state state_ControlsDisable
 	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
 		SetKeyMapOptionValueST(keyCode)
 
-		bool isGamepad = keyCode >= 266
+		bool isGamepad = IsGamepadKey(keyCode)
 		if isGamepad
 			QLIE_KeybindingDisableGamepad = keyCode
 		else
@@ -1152,7 +1152,7 @@ state state_ControlsEnable
 	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
 		SetKeyMapOptionValueST(keyCode)
 
-		bool isGamepad = keyCode >= 266
+		bool isGamepad = IsGamepadKey(keyCode)
 		if isGamepad
 			QLIE_KeybindingEnableGamepad = keyCode
 		else
@@ -1275,6 +1275,14 @@ state state_ControlPresetLoad
 		LoadControlPreset(index)
 	endevent
 endstate
+
+bool function IsGamepadKey(int keyCode)
+	if keyCode < 0
+		return GamepadMode
+	endif
+
+	return keyCode >= 266
+endfunction
 
 function ResetControls(int presetId = 0)
 	if presetId == 1

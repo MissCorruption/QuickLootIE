@@ -11,6 +11,7 @@
 	// not the name of the swf file.
 	"menuWhitelist": [
 		"Durability Menu",
+		"UIHS_WidgetMenu",
 		"WidgetMenu",
 		"CombatAlertOverlayMenu"
 	],

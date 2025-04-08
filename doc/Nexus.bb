@@ -64,12 +64,13 @@ If you are using a UI overhaul and want the loot menu to match its design, check
 [*][color=#f6b26b][b]I get a popup talking about "LootMenu.swf"[/b][/color]
 This means that you installed a loot menu reskin created for an older version of QuickLoot, which is incompatible with QuickLoot IE. 
 Check which mod provides [b]Interface/LootMenu.swf[/b] and remove the file. 
-If for some reason you are unable to do so, you can disable the check in [b]QuickLootIE.json[/b].
+If for some reason you are unable to do so, you can disable the check in [b]QuickLootIE.json[/b] by setting [b]skipOldSwfCheck[/b] to [b]true[/b].
 [/list]
 [list]
 [*][color=#f6b26b][b]I get a popup talking about the MCM quest[/b][/color]
 Make sure QuickLootIE.esp exists and is enabled in your load order. 
-If it is and you still get the popup, you're probably on a version before [b]1.6.1130[/b] and did not install [url=https://www.nexusmods.com/skyrimspecialedition/mods/106441]BEES[/url].
+If it is and you still get the popup, you're probably on a version before [b]1.6.1130[/b] and did not install [url=https://www.nexusmods.com/skyrimspecialedition/mods/106441]BEES[/url]. 
+We've also gotten multiple reports that it was caused by an old version of [url=https://www.nexusmods.com/skyrimspecialedition/mods/17230]SSE Engine Fixes[url], so make sure to update that.
 [/list]
 [list]
 [*][color=#f6b26b][b]The loot menu doesn't show up when I look at a container[/b][/color]
@@ -89,8 +90,7 @@ There are two config files that can be used to modify the behavior of QuickLoot 
 [*][b]SKSE/Plugins/QuickLootIE/DefaultConfig.json[/b]
 This file contains the same settings as the in-game configuration menu. These settings are loaded automatically when starting a fresh save. 
 You can also manually load and overwrite this file using the [b]Load Profile[/b] and [b]Save Profile[/b] buttons in the MCM. 
-Although the file does not exist by default, it can be provided by mod list authors to pre-configure the mod. 
-For this functionality to be available, [url=https://www.nexusmods.com/skyrimspecialedition/mods/13048]PapyrusUtil[/url] must be installed.
+Although the file does not exist by default, it can be provided by mod list authors to pre-configure the mod.
 [/list]
 [list]
 [*][b]SKSE/Plugins/QuickLootIE.json[/b]
