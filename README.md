@@ -36,7 +36,7 @@ For more information about QuickLoot IE, please visit the [Nexus Page](https://w
 ## Building Instructions
 
 ### Using XMake
-```
+```bat
 # Cloning the repo with the --recursive flag to init the submodules
 git clone https://github.com/MissCorruption/QuickLootIE --recursive
 cd QuickLootIE
@@ -49,7 +49,7 @@ Path/To/Spriggit.CLI.exe deserialize --InputPath Source\ESP --OutputPath QuickLo
 ```
 
 ### Using CMake
-```
+```bat
 # Register Visual Studio as a Generator
 * Open `x64 Native Tools Command Prompt`
 * Run `cmake`
