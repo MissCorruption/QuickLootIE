@@ -889,8 +889,8 @@ namespace QuickLoot::Items
 			RE::TESAmmo* ammo = skyrim_cast<RE::TESAmmo*>(obj);
 			if (!ammo) break;
 
-			value.SetMember("flags", ammo->data.flags.underlying());
-			value.SetMember("damage", ammo->data.damage);
+			value.SetMember("flags", ammo->GetRuntimeData().data.flags.underlying());
+			value.SetMember("damage", ammo->GetRuntimeData().data.damage);
 			value.SetMember("subType", ammo->IsBolt() ? 1 : 0);
 
 			break;

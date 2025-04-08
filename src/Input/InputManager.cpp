@@ -145,7 +145,9 @@ namespace QuickLoot::Input
 
 			mapping.userEventGroupFlag.set(QUICKLOOT_EVENT_GROUP_FLAG);
 
-			logger::debug("Added mapping to the QuickLoot user event group: {} (device {}, key code {})", mapping.eventID, static_cast<int>(deviceType), mapping.inputKey);
+			logger::debug("Added mapping to the QuickLoot user event group: {} (device {}, key code {})", 
+			std::string_view(mapping.eventID), static_cast<int>(deviceType), mapping.inputKey);
+
 		});
 
 		LootMenuManager::RequestRefresh(RefreshFlags::kButtonBar);

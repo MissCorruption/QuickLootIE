@@ -66,13 +66,15 @@ namespace QuickLoot
 	{
 		//logger::trace("Input action {}", static_cast<int>(action));
 
+		const auto plugin = SKSE::PluginDeclaration::GetSingleton();
+
 		switch (action) {
 		case Input::QuickLootAction::kDisable:
-			MenuVisibilityManager::DisableLootMenu(std::string(Plugin::NAME));
+			MenuVisibilityManager::DisableLootMenu(std::string(plugin->GetName()));
 			break;
 
 		case Input::QuickLootAction::kEnable:
-			MenuVisibilityManager::EnableLootMenu(std::string(Plugin::NAME));
+			MenuVisibilityManager::EnableLootMenu(std::string(plugin->GetName()));
 			break;
 
 		default:

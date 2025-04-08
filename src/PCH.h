@@ -38,13 +38,12 @@ using namespace std::literals::string_view_literals;
 
 namespace logger = SKSE::log;
 
-#include "Plugin.h"
 
-#include <ClibUtil/distribution.hpp>
-#include <ClibUtil/editorID.hpp>
-#include <ClibUtil/numeric.hpp>
-#include <ClibUtil/rng.hpp>
-#include <ClibUtil/simpleINI.hpp>
+// #include <ClibUtil/distribution.hpp>
+// #include <ClibUtil/editorID.hpp>
+// #include <ClibUtil/numeric.hpp>
+// #include <ClibUtil/rng.hpp>
+// #include <ClibUtil/simpleINI.hpp>
 
 #include <SimpleMath.h>
 

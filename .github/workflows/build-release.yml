@@ -3,16 +3,10 @@ name: Build Release
 on:
   schedule:
     - cron: '0 0 * * *'
+
   push:
     branches:
-      - "master"
-    paths-ignore:
-      - '*.yaml'
-      - '*.txt'
-      - '*.md'
-  pull_request:
-    branches:
-      - "master"
+      - "main"
     paths-ignore:
       - '*.yaml'
       - '*.txt'
@@ -24,25 +18,30 @@ on:
         required: false
         default: 'Nightly'
       publish-release:
-        description: Publish Release?
+        description: 'Publish Release?'
         type: boolean
         default: true
       release-body:
-        description: Release body
+        description: 'Release body'
         required: false
         default: 'Latest nightly of QuickLootIE. These builds are untested and may contain bugs.'
       spriggit_tool_version:
-        description: Spriggit version (optional)
+        description: 'Spriggit version (optional)'
         required: false
 
 jobs:
-  get-date:
-    name: Set date and version
+  prepare:
+    name: Prepare and Check Changes
     runs-on: ubuntu-latest
     outputs:
       date: ${{ steps.get-date.outputs.time }}
       version: ${{ steps.get-version.outputs.VERSION }}
+      should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Get Date
         id: get-date
         uses: Kaven-Universe/github-action-current-date-time@v1
@@ -52,15 +51,6 @@ jobs:
         id: get-version
         shell: bash
         run: echo "VERSION=${{ inputs.version || format('nightly-{0}', steps.get-date.outputs.time) }}" >> "$GITHUB_OUTPUT"
-
-  check-changes:
-    name: Check for recent changes
-    if: ${{ github.event_name != 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
-    outputs:
-      should_run: ${{ steps.should_run.outputs.should_run }}
-    steps:
-      - uses: actions/checkout@v4
       - name: Check for changes last 24 hours
         id: should_run
         shell: bash
@@ -69,68 +59,61 @@ jobs:
           echo "should_run=$(git log --since="1 days ago" --name-only | grep "" -c)" >> "$GITHUB_OUTPUT"
 
   build-plugin:
-      name: Build ESP from Spriggit files
-      needs: check-changes
-      if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
-      permissions: write-all
-      runs-on: windows-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-
-        - name: Create Pack Folder
-          run: mkdir -p $env:GITHUB_WORKSPACE\\to-pack
-          shell: pwsh
-
-        - name: Cache Spriggit
-          id: cache-spriggit
-          uses: actions/cache@v4
-          with:
-            path: .github/spriggit
-            key: ${{ runner.os }}-spriggit-${{ inputs.spriggit_tool_version }}
-
-        - name: Fetch Spriggit
-          if: steps.cache-spriggit.outputs.cache-hit != 'true'
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          run: |
-            # Download the SpriggitCLI.zip release asset
-            gh release download -R Mutagen-Modding/Spriggit --pattern "SpriggitCLI.zip" --dir .github
-
-            # Extract the zip file to the specified directory
-            7z x .github/SpriggitCLI.zip -o".github/spriggit/"
-
-            # Verify that the executable exists after extraction
-            if (Test-Path ".github/spriggit/Spriggit.CLI.exe") {
-                Write-Host "Spriggit.CLI.exe found and ready."
-            } else {
-                Write-Error "Spriggit.CLI.exe not found! Exiting."
-                exit 1
-            }
-          shell: pwsh
-
-        - name: Run Spriggit
-          run: .github\spriggit\Spriggit.CLI.exe deserialize --InputPath "res/esp" --OutputPath "res/esp/QuickLootIE.esp"
-          shell: cmd
-
-        - name: Upload Plugin Artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: plugin
-            path: res/esp/QuickLootIE.esp
-
-
-
-  compile-scripts:
-    name: Compile Papyrus scripts
-    needs: check-changes
-    if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
+    name: Build ESP from Spriggit files
+    needs: prepare
+    if: ${{ needs.prepare.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
+    permissions: write-all
     runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Create Pack Folder
+        run: mkdir -p $env:GITHUB_WORKSPACE\\to-pack
+        shell: pwsh
+
+      - name: Cache Spriggit
+        id: cache-spriggit
+        uses: actions/cache@v4
         with:
-          sparse-checkout: res/pex/Source/Scripts
+          path: .github/spriggit
+          key: ${{ runner.os }}-spriggit-${{ inputs.spriggit_tool_version }}
+
+      - name: Fetch Spriggit
+        if: steps.cache-spriggit.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download -R Mutagen-Modding/Spriggit --pattern "SpriggitCLI.zip" --dir .github
+
+          7z x .github/SpriggitCLI.zip -o".github/spriggit/"
+
+          if (Test-Path ".github/spriggit/Spriggit.CLI.exe") {
+              Write-Host "Spriggit.CLI.exe found and ready."
+          } else {
+              Write-Error "Spriggit.CLI.exe not found! Exiting."
+              exit 1
+          }
+        shell: pwsh
+
+      - name: Run Spriggit
+        run: .github\spriggit\Spriggit.CLI.exe deserialize --InputPath "res/esp" --OutputPath "res/esp/QuickLootIE.esp"
+        shell: cmd
+
+      - name: Upload Plugin Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin
+          path: res/esp/QuickLootIE.esp
+
+  compile-scripts:
+    name: Compile Papyrus scripts
+    needs: prepare
+    if: ${{ needs.prepare.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Cache Script Sources
         id: cache-ss
@@ -202,85 +185,109 @@ jobs:
           path: res/pex/Scripts
 
   compile-skse:
-    name: Build SKSE plugin
-    needs: check-changes
-    if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
+    needs: prepare
+    if: ${{ needs.prepare.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
     runs-on: windows-latest
+    
     steps:
-      - name: Checkout
+      - name: Recursive Checkout
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
-          fetch-depth: 0
+          submodules: recursive
 
-      - name: Cache CMake build
+      - name: Set xmake env
+        run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
+
+      - name: Create xmake cache directories
+        run: |
+          mkdir -p ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
+          mkdir -p ${{ env.XMAKE_GLOBALDIR }}/build-cache
+
+      - name: Cache xmake dependencies
         uses: actions/cache@v4
-        env:
-          cache-name: cmake-build-cache
         with:
           path: |
-            ${{github.workspace}}/build
-          key: ${{ env.cache-name }}-${{ hashFiles('**/CMakeLists.txt', 'cmake/**') }}
+            ~/.xmake/packages
+            ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
+          key: xmake-deps-${{ runner.os }}-${{ hashFiles('xmake-require.lock') }}
           restore-keys: |
-            ${{ env.cache-name }}-
+            xmake-deps-${{ runner.os }}-
 
-      - name: Setup VCPKG
-        uses: lukka/run-vcpkg@v11
+      - name: Cache xmake build cache
+        uses: actions/cache@v4
         with:
-          vcpkgJsonGlob: 'vcpkg.json'
+          path: ${{ env.XMAKE_GLOBALDIR }}/build-cache
+          key: xmake-build-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            xmake-build-${{ runner.os }}-
 
-      - name: Setup CMake
-        uses: lukka/get-cmake@latest
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
         with:
-          cmakeVersion: "~3.24.0"
-          ninjaVersion: "~1.11.1"
+          xmake-version: 'latest'
+          actions-cache-folder: ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
+          actions-cache-key: '.xmake-actions-cache'
+          build-cache: true
+          build-cache-path: ${{ env.XMAKE_GLOBALDIR }}/build-cache
+          build-cache-key: xmake-build-${{ runner.os }}-${{ github.run_id }}
+
+      - name: Install dependencies
+        run: |
+          xmake repo --update
+          xmake require -y
 
       - name: Compile SKSE plugin
-        run: |
-          cmake --preset ALL
-          cmake --build build --config RelWithDebInfo
+        run: xmake
+
+      - name: Verify output files
+        run: dir "${{ github.workspace }}/build/windows/x64/release"
 
       - name: Upload SKSE Plugin Artifact
         uses: actions/upload-artifact@v4
         with:
           name: skse-plugin
           path: |
-           ${{ github.workspace }}/build/RelWithDebInfo/QuickLootIE.dll
-           ${{ github.workspace }}/build/RelWithDebInfo/QuickLootIE.pdb
+            ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.dll
+            ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.pdb
 
   package-mod:
     name: Package all necessary files
     runs-on: ubuntu-latest
-    needs: [build-plugin, compile-scripts, compile-skse, get-date]
-    if: ${{ needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
+    needs: [build-plugin, compile-scripts, compile-skse, prepare]
+    if: ${{ needs.prepare.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Download Plugin Artifact
+      - name: Recursive Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
           name: plugin
           path: res/esp
-
       - name: Download Compiled Scripts Artifact
         uses: actions/download-artifact@v4
         with:
           name: compiled-scripts
           path: res/pex/Scripts
-
       - name: Download SKSE Plugin Artifact
         uses: actions/download-artifact@v4
         with:
           name: skse-plugin
           path: res/dll/SKSE/Plugins
 
-      - name: Create Packing Structure
+      - name: Create Release and Dev SDK Folders
         run: |
           mkdir -p "${{ github.workspace }}/to-pack/Source/Scripts"
           mkdir -p "${{ github.workspace }}/to-pack/SKSE/Plugins"
           mkdir -p "${{ github.workspace }}/to-pack/Interface"
           mkdir -p "${{ github.workspace }}/to-pack/Scripts"
+          mkdir -p "${{ github.workspace }}/pack-dev/Interface"
+          mkdir -p "${{ github.workspace }}/pack-dev/LootMenuIE"
+          mkdir -p "${{ github.workspace }}/pack-dev/external"
+          mkdir -p "${{ github.workspace }}/pack-dev/include"
           cp -a "LICENSE" "${{ github.workspace }}/to-pack/QLIE-LICENSE.md"
           cp -a "res/dll/SKSE/Plugins/." "${{ github.workspace }}/to-pack/SKSE/Plugins"
           cp -a "res/esp/QuickLootIE.esp" "${{ github.workspace }}/to-pack/QuickLootIE.esp"
@@ -289,18 +296,34 @@ jobs:
           cp -a "res/txt/Interface/." "${{ github.workspace }}/to-pack/Interface"
           cp -a "res/swf/Interface/." "${{ github.workspace }}/to-pack/Interface"
           cp -a "res/QuickLootIE.json" "${{ github.workspace }}/to-pack/SKSE/Plugins/QuickLootIE.json"
+          cp -a "LICENSE" "${{ github.workspace }}/pack-dev/QLIE-LICENSE.md"
+          cp -a "res/swf/Interface/LootMenuIE.swf" "${{ github.workspace }}/pack-dev/Interface"
+          cp -a "res/swf/Source/." "${{ github.workspace }}/pack-dev/LootMenuIE"
+          cp -a "include/." "${{ github.workspace }}/pack-dev/include"
+          cp -a "extern/CommonLibSSE-NG/Flash/." "${{ github.workspace }}/pack-dev/external"
 
       - name: Zip Release Files
         uses: vimtor/action-zip@v1.2
         with:
           files: to-pack/.
-          dest: QuickLootIE-${{ needs.get-date.outputs.version }}.zip
+          dest: QuickLootIE-${{ needs.prepare.outputs.version }}.zip
 
-      - name: Upload Release Artifact
+      - name: Zip Dev SDK Files
+        uses: vimtor/action-zip@v1.2
+        with:
+          files: pack-dev/.
+          dest: QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}.zip
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: QuickLootIE-${{ needs.get-date.outputs.version }}
-          path: QuickLootIE-${{ needs.get-date.outputs.version }}.zip
+          name: QuickLootIE-${{ needs.prepare.outputs.version }}
+          path: QuickLootIE-${{ needs.prepare.outputs.version }}.zip
+      - name: Upload Dev SDK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}
+          path: QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}.zip
 
       - name: Remove Temporary Artifacts
         uses: geekyeggo/delete-artifact@v4
@@ -312,8 +335,8 @@ jobs:
 
   share-release:
     name: Share release
-    needs: [package-mod, get-date]
-    if: ${{ inputs.publish-release == true && (needs.check-changes.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always()) }}
+    needs: [package-mod, prepare]
+    if: ${{ inputs.publish-release == true && (needs.prepare.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always()) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -322,12 +345,17 @@ jobs:
       - name: Download Release Artifact
         uses: actions/download-artifact@v4
         with:
-          name: QuickLootIE-${{ needs.get-date.outputs.version }}
+          name: QuickLootIE-${{ needs.prepare.outputs.version }}
+
+      - name: Download Dev SDK Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}
 
       - name: Delete Existing Release
         uses: dev-drprasad/delete-tag-and-release@v1.0
         with:
-          tag_name: ${{ needs.get-date.outputs.version }}
+          tag_name: ${{ needs.prepare.outputs.version }}
           github_token: ${{ github.token }}
           delete_release: true
 
@@ -338,18 +366,23 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           allowUpdates: true
-          name: ${{ needs.get-date.outputs.version }}
+          name: QuickLootIE-${{ needs.prepare.outputs.version }} @ ${{ needs.prepare.outputs.date }}
           draft: false
           body: ${{ inputs.release-body }}
-          tag: ${{ needs.get-date.outputs.version }}
+          tag: ${{ needs.prepare.outputs.version }}
           prerelease: true
           makeLatest: false
           removeArtifacts: true
           replacesArtifacts: true
           artifactErrorsFailBuild: true
-          artifacts: QuickLootIE-${{ needs.get-date.outputs.version }}.zip
+          artifacts: |
+            QuickLootIE-${{ needs.prepare.outputs.version }}.zip
+            QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}.zip
 
       - name: Remove Temporary Artifacts
         uses: geekyeggo/delete-artifact@v2
         with:
-          name: QuickLootIE-${{ needs.get-date.outputs.version }}
+          name: |
+            QuickLootIE-${{ needs.prepare.outputs.version }}.zip
+            QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}.zip
+          failOnError: false
