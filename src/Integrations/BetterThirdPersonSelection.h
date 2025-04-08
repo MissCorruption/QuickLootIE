@@ -22,8 +22,10 @@ namespace QuickLoot::Integrations
 
 		static bool HideSelectionWidget()
 		{
+			const auto plugin = SKSE::PluginDeclaration::GetSingleton();
+
 			if (_api) {
-				_api->HideSelectionWidget(std::string(Plugin::NAME));
+				_api->HideSelectionWidget(std::string(plugin->GetName()));
 			}
 
 			return _api != nullptr;
@@ -31,8 +33,9 @@ namespace QuickLoot::Integrations
 
 		static bool ShowSelectionWidget()
 		{
+			const auto plugin = SKSE::PluginDeclaration::GetSingleton();
 			if (_api) {
-				_api->ShowSelectionWidget(std::string(Plugin::NAME));
+				_api->ShowSelectionWidget(std::string(plugin->GetName()));
 			}
 
 			return _api != nullptr;
