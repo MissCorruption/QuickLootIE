@@ -211,6 +211,7 @@ namespace QuickLoot::Items
 		}
 
 		if (skyrim_cast<RE::MagicItem*>(_object)) {
+			SetDataMember(_dataObj, "spellName", data.magic.spellName);
 			SetDataMember(_dataObj, "magnitude", data.magic.magnitude);
 			SetDataMember(_dataObj, "duration", data.magic.duration);
 			SetDataMember(_dataObj, "area", data.magic.area);
