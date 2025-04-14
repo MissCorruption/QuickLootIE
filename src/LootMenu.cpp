@@ -358,7 +358,7 @@ namespace QuickLoot
 			return;
 		}
 
-		_inventory[static_cast<size_t>(newIndex)].OnSelected(RE::PlayerCharacter::GetSingleton());
+		_inventory[static_cast<size_t>(newIndex)]->OnSelected(RE::PlayerCharacter::GetSingleton());
 	}
 
 	void LootMenu::SetSelectedIndex(int newIndex, bool playSound)
@@ -442,7 +442,7 @@ namespace QuickLoot
 			return;
 		}
 
-		_inventory[_selectedIndex].TakeStack(player);
+		_inventory[_selectedIndex]->TakeStack(player);
 
 		OnTakeAction();
 	}
@@ -452,7 +452,7 @@ namespace QuickLoot
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
 		for (size_t i = 0; i < _inventory.size(); ++i) {
-			_inventory[i].TakeStack(player);
+			_inventory[i]->TakeStack(player);
 		}
 
 		OnTakeAction();
@@ -506,34 +506,34 @@ namespace QuickLoot
 		_refreshFlags = RefreshFlags::kNone;
 	}
 
-	using SortFunction = std::function<int(const Items::QuickLootItemStack& a, const Items::QuickLootItemStack& b)>;
+	using SortFunction = std::function<int(Items::QuickLootItemStack& a, Items::QuickLootItemStack& b)>;
 
 	template <Items::ItemType type>
-	bool IsType(const Items::QuickLootItemStack& stack)
+	bool IsType(Items::QuickLootItemStack& stack)
 	{
 		return stack.GetData().type == type;
 	}
 
 	template <Items::MiscType type>
-	bool IsMisc(const Items::QuickLootItemStack& stack)
+	bool IsMisc(Items::QuickLootItemStack& stack)
 	{
 		const auto& data = stack.GetData();
 		return data.type == Items::ItemType::kMisc && data.misc.subType.valid && data.misc.subType == type;
 	}
 
 	template <typename T>
-	SortFunction OrderAsc(T(*func)(const Items::QuickLootItemStack&))
+	SortFunction OrderAsc(T(*func)(Items::QuickLootItemStack&))
 	{
-		return [=](const Items::QuickLootItemStack& a, const Items::QuickLootItemStack& b) {
+		return [=](Items::QuickLootItemStack& a, Items::QuickLootItemStack& b) {
 			const auto diff = func(a) - func(b);
 			return diff < 0 ? -1 : diff > 0 ? 1 : 0;
 		};
 	}
 
 	template <typename T>
-	SortFunction OrderDesc(T (*func)(const Items::QuickLootItemStack&))
+	SortFunction OrderDesc(T (*func)(Items::QuickLootItemStack&))
 	{
-		return [=](const Items::QuickLootItemStack& a, const Items::QuickLootItemStack& b) {
+		return [=](Items::QuickLootItemStack& a, Items::QuickLootItemStack& b) {
 			const auto diff = func(b) - func(a);
 			return diff < 0 ? -1 : diff > 0 ? 1 : 0;
 		};
@@ -551,76 +551,76 @@ namespace QuickLoot
 			{ "$qlie_SortRule_SoulGems", OrderDesc(IsType<Items::ItemType::kSoulGem>) },
 			{ "$qlie_SortRule_Lockpicks", OrderDesc(IsMisc<Items::MiscType::kLockpick>) },
 			{ "$qlie_SortRule_OresIngots", OrderDesc(IsMisc<Items::MiscType::kIngot>) },
-			{ "$qlie_SortRule_Potions", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_Potions", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
 				const auto& data = stack.GetData();
 				return data.formType == RE::FormType::AlchemyItem
 					&& data.potion.subType != Items::PotionType::kFood
 					&& data.potion.subType != Items::PotionType::kDrink;
 			}) },
-			{ "$qlie_SortRule_FoodDrinks", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_FoodDrinks", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
 				const auto& data = stack.GetData();
 				return data.formType == RE::FormType::AlchemyItem
 					&& (data.potion.subType == Items::PotionType::kFood
 					|| data.potion.subType == Items::PotionType::kDrink);
 			}) },
-			{ "$qlie_SortRule_Books", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_Books", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
 				const auto& data = stack.GetData();
 				return data.formType == RE::FormType::Book
 					&& (!data.book.subType.valid
 					|| data.book.subType != Items::BookSubType::kNote
 					&& data.book.subType != Items::BookSubType::kRecipe);
 			}) },
-			{ "$qlie_SortRule_Notes", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_Notes", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
 				const auto& data = stack.GetData();
 				return data.formType == RE::FormType::Book
 					&& data.book.subType.valid
 					&& (data.book.subType == Items::BookSubType::kNote
 					|| data.book.subType == Items::BookSubType::kRecipe);
 			}) },
-			{ "$qlie_SortRule_Scrolls", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_Scrolls", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
 				return stack.GetData().formType == RE::FormType::Scroll;
 			}) },
-			{ "$qlie_SortRule_Weapons", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_Weapons", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
 				const auto& data = stack.GetData();
 				return data.formType == RE::FormType::Weapon;
 			}) },
-			{ "$qlie_SortRule_ArrowsBolts", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_ArrowsBolts", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
 				return stack.GetData().formType == RE::FormType::Ammo;
 			}) },
-			{ "$qlie_SortRule_Armors", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_Armors", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
 				const auto& data = stack.GetData();
 				return data.formType == RE::FormType::Armor
 					&& data.armor.weightClass != Items::ArmorWeightClass::kClothing
 					&& data.armor.weightClass != Items::ArmorWeightClass::kJewelry;
 			}) },
-			{ "$qlie_SortRule_Clothes", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_Clothes", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
 				const auto& data = stack.GetData();
 				return data.formType == RE::FormType::Armor
 					&& data.armor.weightClass == Items::ArmorWeightClass::kClothing;
 			}) },
-			{ "$qlie_SortRule_Jewelry", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_Jewelry", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
 				const auto& data = stack.GetData();
 				return data.formType == RE::FormType::Armor
 					&& data.armor.weightClass == Items::ArmorWeightClass::kJewelry;
 			}) },
-			{ "$qlie_SortRule_Weightless", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) { return stack.GetData().weight.value <= 0; }) },
-			{ "$qlie_SortRule_ByWeight", OrderAsc<float>([](const Items::QuickLootItemStack& stack) { return stack.GetData().weight.value; }) },
-			{ "$qlie_SortRule_ByValue", OrderDesc<int>([](const Items::QuickLootItemStack& stack) { return stack.GetData().value.value; }) },
-			{ "$qlie_SortRule_ByV/W", OrderDesc<float>([](const Items::QuickLootItemStack& stack) {
+			{ "$qlie_SortRule_Weightless", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetData().weight.value <= 0; }) },
+			{ "$qlie_SortRule_ByWeight", OrderAsc<float>([](Items::QuickLootItemStack& stack) { return stack.GetData().weight.value; }) },
+			{ "$qlie_SortRule_ByValue", OrderDesc<int>([](Items::QuickLootItemStack& stack) { return stack.GetData().value.value; }) },
+			{ "$qlie_SortRule_ByV/W", OrderDesc<float>([](Items::QuickLootItemStack& stack) {
 				const auto data = stack.GetData();
 				if (data.weight <= 0)
 					return std::numeric_limits<float>::infinity();
 				if (data.value <= 0)
 					return 0.0f;
-				return data.infoValueWeight.value;
+				return data.value / data.weight;
 			}) },
-			{ "$qlie_SortRule_ByName", [](const Items::QuickLootItemStack& a, const Items::QuickLootItemStack& b) {
+			{ "$qlie_SortRule_ByName", [](Items::QuickLootItemStack& a, Items::QuickLootItemStack& b) {
 				 const auto& nameA = a.GetQuickLootData().displayName.value.c_str();
 				 const auto& nameB = b.GetQuickLootData().displayName.value.c_str();
-				 return strcmp(nameA, nameB) < 0;
+				 return strcmp(nameA, nameB);
 			 } },
-			{ "$qlie_SortRule_ArtifactNeeded", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().dbmNew.value; }) },
-			{ "$qlie_SortRule_CompletionistNeeded", OrderDesc<bool>([](const Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().compNew.value; }) },
+			{ "$qlie_SortRule_ArtifactNeeded", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().dbmNew.value; }) },
+			{ "$qlie_SortRule_CompletionistNeeded", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().compNew.value; }) },
 		};
 
 		for (auto& ruleName : Config::UserSettings::GetActiveSortRules()) {
@@ -630,17 +630,17 @@ namespace QuickLoot
 			}
 		}
 
-		std::ranges::stable_sort(_inventory, [&](const Items::QuickLootItemStack& a, const Items::QuickLootItemStack& b) {
+		std::ranges::stable_sort(_inventory, [&](const auto& a, const auto& b) {
 			for (auto ruleFunction : selectedRules) {
-				const auto cmp = ruleFunction(a, b);
+				const auto cmp = ruleFunction(*a, *b);
 				if (cmp < 0)
 					return true;
 				if (cmp > 0)
 					return false;
 			}
 
-			const auto& nameA = a.GetQuickLootData().displayName.value.c_str();
-			const auto& nameB = b.GetQuickLootData().displayName.value.c_str();
+			const auto& nameA = a->GetQuickLootData().displayName.value.c_str();
+			const auto& nameB = b->GetQuickLootData().displayName.value.c_str();
 			return strcmp(nameA, nameB) < 0;
 		});
 	}
@@ -658,7 +658,7 @@ namespace QuickLoot
 			return;
 		}
 
-		_inventory = Items::QuickLootItemStack::LoadContainerInventory(container.get(), CanDisplay);
+		_inventory = Items::ItemStack::LoadContainerInventory<Items::QuickLootItemStack>(container.get(), CanDisplay);
 		if (_inventory.empty() && !Settings::ShowWhenEmpty()) {
 			LootMenuManager::RequestHide();
 			return;
@@ -669,8 +669,8 @@ namespace QuickLoot
 		std::vector<API::ItemStack> apiInventory;
 		apiInventory.reserve(_inventory.size());
 		for (auto& item : _inventory) {
-			_itemListProvider.PushBack(item.BuildDataObject(uiMovie.get()));
-			apiInventory.emplace_back(item.GetEntry(), item.GetDropRef().get().get());
+			_itemListProvider.PushBack(item->BuildDataObject(uiMovie.get()));
+			apiInventory.emplace_back(item->GetEntry(), item->GetDropRef().get().get());
 		}
 
 		_itemList.InvalidateData();

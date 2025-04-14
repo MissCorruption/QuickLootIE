@@ -54,7 +54,7 @@ namespace QuickLoot
 		int _selectedIndex = -1;
 		RE::stl::enumeration<RefreshFlags> _refreshFlags = RefreshFlags::kAll;
 
-		std::vector<Items::QuickLootItemStack> _inventory;
+		std::vector<std::unique_ptr<Items::QuickLootItemStack>> _inventory;
 
 		CLIK::MovieClip _lootMenu;
 		CLIK::TextField _title;

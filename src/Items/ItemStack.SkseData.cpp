@@ -131,15 +131,15 @@ namespace QuickLoot::Items
 
 		switch (_object->formType.get()) {
 		case RE::FormType::Armor:
-			_data.armor.armor = RoundValue(player->GetArmorValue(_entry));
+			_data.armor.armor = RoundValue(player->GetArmorValue(_entry.get()));
 			break;
 
 		case RE::FormType::Weapon:
-			_data.weapon.damage = RoundValue(player->GetDamage(_entry));
+			_data.weapon.damage = RoundValue(player->GetDamage(_entry.get()));
 			break;
 
 		case RE::FormType::Ammo:
-			_data.ammo.damage = RoundValue(player->GetDamage(_entry));
+			_data.ammo.damage = RoundValue(player->GetDamage(_entry.get()));
 			break;
 
 		default:

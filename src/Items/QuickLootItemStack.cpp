@@ -7,15 +7,10 @@
 
 namespace QuickLoot::Items
 {
-	QuickLootItemStack::QuickLootItemStack(std::unique_ptr<ItemStack> stack) :
-		_stack(std::move(stack)) {}
+	QuickLootItemStack::QuickLootItemStack(RE::InventoryEntryData* entry, RE::ObjectRefHandle container, RE::ObjectRefHandle dropRef)
+		: ItemStack(entry, std::move(container), std::move(dropRef)) {}
 
-	ItemData& QuickLootItemStack::GetData() const
-	{
-		return _stack->GetData();
-	}
-
-	QuickLootItemData& QuickLootItemStack::GetQuickLootData() const
+	QuickLootItemData& QuickLootItemStack::GetQuickLootData()
 	{
 		if (_dataInitialized) {
 			return _data;
@@ -28,7 +23,7 @@ namespace QuickLoot::Items
 
 	RE::GFxValue& QuickLootItemStack::BuildDataObject(RE::GFxMovieView* view)
 	{
-		auto& obj = _stack->BuildDataObject(view);
+		auto& obj = ItemStack::BuildDataObject(view);
 
 		const auto& data = GetQuickLootData();
 
@@ -68,50 +63,27 @@ namespace QuickLoot::Items
 		API::APIServer::DispatchSelectItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get());
 	}
 
-	void QuickLootItemStack::TakeStack(RE::Actor* actor) const
-	{
-		Take(actor, _stack->GetEntry()->countDelta);
-	}
-
-	void QuickLootItemStack::TakeOne(RE::Actor* actor) const
-	{
-		return Take(actor, 1);
-	}
-
 	void QuickLootItemStack::Take(RE::Actor* actor, int count) const
 	{
 		if (API::APIServer::DispatchTakingItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get()) == API::HandleResult::kStop) {
 			return;
 		}
 
-		_stack->Take(actor, count);
+		ItemStack::Take(actor, count);
 
 		API::APIServer::DispatchTakeItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get());
 	}
 
-	std::vector<QuickLootItemStack> QuickLootItemStack::LoadContainerInventory(RE::TESObjectREFR* container, const std::function<bool(RE::TESBoundObject&)>& filter)
-	{
-		auto inventory = ItemStack::LoadContainerInventory(container, filter);
-		std::vector<QuickLootItemStack> stacks{};
-		stacks.reserve(inventory.size());
-
-		for (auto& stack : inventory) {
-			stacks.emplace_back(std::move(stack));
-		}
-
-		return stacks;
-	}
-
-	void QuickLootItemStack::SetQuickLootData() const
+	void QuickLootItemStack::SetQuickLootData()
 	{
 		PROFILE_SCOPE;
 
-		_data.displayName = _stack->GetEntry()->GetDisplayName();
+		_data.displayName = _entry->GetDisplayName();
 
 		using Settings = Config::UserSettings;
 		using namespace Integrations;
 
-		const auto object = _stack->GetEntry()->object;
+		const auto object = _entry->object;
 
 		if (Settings::ShowIconEnchanted()) {
 			PROFILE_SCOPE_NAMED("Enchantment Data");

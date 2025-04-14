@@ -39,7 +39,7 @@ namespace QuickLoot::Items
 
 		case RE::FormType::Armor:
 			_data.armor.isEnchanted = _entry->IsEnchanted();
-			_data.armor.infoArmor = TruncatePrecision(player->GetArmorValue(_entry));
+			_data.armor.infoArmor = TruncatePrecision(player->GetArmorValue(_entry.get()));
 
 			SkyUiProcessArmorClass();
 			SkyUiProcessArmorPartMask();
@@ -68,7 +68,7 @@ namespace QuickLoot::Items
 		case RE::FormType::Weapon:
 			_data.weapon.isEnchanted = _entry->IsEnchanted();
 			_data.weapon.isPoisoned = _entry->extraLists && !_entry->extraLists->empty() && !_entry->extraLists->front()->HasType(RE::ExtraDataType::kPoison);
-			_data.weapon.infoDamage = TruncatePrecision(player->GetDamage(_entry));
+			_data.weapon.infoDamage = TruncatePrecision(player->GetDamage(_entry.get()));
 
 			SkyUiProcessWeaponType();
 			SkyUiProcessMaterialKeywords();
@@ -77,7 +77,7 @@ namespace QuickLoot::Items
 
 		case RE::FormType::Ammo:
 			_data.ammo.isEnchanted = _entry->IsEnchanted();
-			_data.ammo.infoDamage = TruncatePrecision(player->GetDamage(_entry));
+			_data.ammo.infoDamage = TruncatePrecision(player->GetDamage(_entry.get()));
 
 			SkyUiProcessAmmoType();
 			SkyUiProcessMaterialKeywords();

@@ -11,11 +11,6 @@ namespace QuickLoot::Items
 	{
 	}
 
-	ItemStack::~ItemStack()
-	{
-		delete _entry;
-	}
-
 	ItemData& ItemStack::GetData()
 	{
 		if (_dataInitialized) {
@@ -88,7 +83,6 @@ namespace QuickLoot::Items
 
 	RE::GFxValue& ItemStack::BuildDataObject(RE::GFxMovieView* view)
 	{
-
 		if (_dataObj.IsObject()) {
 			return _dataObj;
 		}
@@ -256,7 +250,7 @@ namespace QuickLoot::Items
 		if (const auto container = _container.get()) {
 			const auto player = RE::PlayerCharacter::GetSingleton();
 			const auto containerActor = skyrim_cast<RE::Actor*>(container.get());
-			const auto extraList = GetInventoryEntryExtraListForRemoval(_entry, count, container.get() != player);
+			const auto extraList = GetInventoryEntryExtraListForRemoval(_entry.get(), count, container.get() != player);
 			const auto stealing = _data.isStealing;
 			const auto value = _data.value;
 			const auto reason = stealing ? RE::ITEM_REMOVE_REASON::kSteal : RE::ITEM_REMOVE_REASON::kStoreInContainer;
@@ -287,70 +281,6 @@ namespace QuickLoot::Items
 		}
 	}
 
-	std::vector<std::unique_ptr<ItemStack>> ItemStack::LoadContainerInventory(RE::TESObjectREFR* container, const std::function<bool(RE::TESBoundObject&)>& filter)
-	{
-		if (!container) {
-			return {};
-		}
-
-		const auto containerHandle = container->GetHandle();
-		const auto changes = container->GetInventoryChanges();
-
-		if (const auto actor = skyrim_cast<RE::Actor*>(container)) {
-			RefreshEnchantedWeapons(actor, changes);
-		}
-
-		std::vector<std::unique_ptr<ItemStack>> inventory{};
-
-		// Using GetInventoryEntryAt here instead of CLib's GetInventory because that's
-		// how the vanilla menu does it. We own the InventoryEntries, so we need to delete
-		// them in the ItemStack destructor.
-
-		for (int i = 0;; i++) {
-			const auto entry = GetInventoryEntryAt(changes, i);
-
-			if (!entry) {
-				break;
-			}
-
-			if (!filter(*entry->object)) {
-				delete entry;
-				continue;
-			}
-
-			inventory.emplace_back(std::make_unique<ItemStack>(entry, containerHandle));
-		}
-
-		// This does not deduplicate, so in the unlikely case that an NPC was dual wielding
-		// the same weapon twice it would show as two separate entries.
-
-		if (const auto extraDrops = container->extraList.GetByType<RE::ExtraDroppedItemList>()) {
-			for (const auto& handle : extraDrops->droppedItemList) {
-				const auto reference = handle.get();
-
-				if (!reference) {
-					continue;
-				}
-
-				const auto object = reference->GetObjectReference();
-
-				if (!object || !filter(*object)) {
-					continue;
-				}
-
-				const auto count = reference->extraList.GetCount();
-				const auto entry = new RE::InventoryEntryData(object, count);
-
-				// The game uses ExtraDataType::kItemDropper to attach an object reference to the entry,
-				// but we can just save the handle directly.
-
-				inventory.emplace_back(std::make_unique<ItemStack>(entry, containerHandle, handle));
-			}
-		}
-
-		return inventory;
-	}
-
 	void ItemStack::SetVanillaData()
 	{
 		PROFILE_SCOPE;
@@ -362,7 +292,7 @@ namespace QuickLoot::Items
 
 		auto itemData = reinterpret_cast<RE::StandardItemData*>(buffer);
 
-		itemData->objDesc = _entry;
+		itemData->objDesc = _entry.get();
 		itemData->owner = _container.native_handle();
 
 		// ItemList::Item constructor
@@ -443,7 +373,7 @@ namespace QuickLoot::Items
 		}
 
 		const auto count = _entry->countDelta;
-		const auto value = victim->GetStealValue(_entry, count, true);
+		const auto value = victim->GetStealValue(_entry.get(), count, true);
 		const auto weight = _object->GetWeight();
 		const auto detected = victim->RequestDetectionLevel(player) != 0;
 		const auto playerSkill = player->AsActorValueOwner()->GetClampedActorValue(RE::ActorValue::kPickpocket);

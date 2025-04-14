@@ -21,33 +21,21 @@ namespace QuickLoot::Items
 		OptionalField<bool> compFound;
 	};
 
-	class QuickLootItemStack
+	class QuickLootItemStack : public ItemStack
 	{
 	public:
-		explicit QuickLootItemStack(std::unique_ptr<ItemStack> stack);
+		QuickLootItemStack(RE::InventoryEntryData* entry, RE::ObjectRefHandle container, RE::ObjectRefHandle dropRef = {});
 
-		[[nodiscard]] RE::InventoryEntryData* GetEntry() const { return _stack->GetEntry(); }
-		[[nodiscard]] RE::ObjectRefHandle GetContainer() const { return _stack->GetContainer(); }
-		[[nodiscard]] RE::ObjectRefHandle GetDropRef() const { return _stack->GetDropRef(); }
-
-		[[nodiscard]] ItemData& GetData() const;
-		[[nodiscard]] QuickLootItemData& GetQuickLootData() const;
-		[[nodiscard]] RE::GFxValue& BuildDataObject(RE::GFxMovieView* view);
+		[[nodiscard]] QuickLootItemData& GetQuickLootData();
+		[[nodiscard]] RE::GFxValue& BuildDataObject(RE::GFxMovieView* view) override;
 
 		void OnSelected(RE::Actor* actor) const;
-		void TakeStack(RE::Actor* actor) const;
-		void TakeOne(RE::Actor* actor) const;
-		void Take(RE::Actor* actor, int count) const;
-
-		static std::vector<QuickLootItemStack> LoadContainerInventory(
-			RE::TESObjectREFR* container,
-			const std::function<bool(RE::TESBoundObject&)>& filter = RE::TESObjectREFR::DEFAULT_INVENTORY_FILTER);
+		void Take(RE::Actor* actor, int count) const override;
 
 	private:
-		std::unique_ptr<ItemStack> _stack;
 		mutable QuickLootItemData _data;
 		mutable bool _dataInitialized = false;
 
-		void SetQuickLootData() const;
+		void SetQuickLootData();
 	};
 }
