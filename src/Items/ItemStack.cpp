@@ -146,6 +146,7 @@ namespace QuickLoot::Items
 		case RE::FormType::Weapon:
 			SetDataMember(_dataObj, "material", data.weapon.material);
 			SetDataMember(_dataObj, "materialDisplay", data.weapon.materialDisplay);
+			SetDataMember(_dataObj, "weaponType", data.weapon.weaponType);
 			SetDataMember(_dataObj, "speed", data.weapon.speed);
 			SetDataMember(_dataObj, "reach", data.weapon.reach);
 			SetDataMember(_dataObj, "stagger", data.weapon.stagger);
