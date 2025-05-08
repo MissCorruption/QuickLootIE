@@ -458,6 +458,11 @@ namespace QuickLoot::Input
 	bool InputManager::TryGrab()
 	{
 		const auto player = RE::PlayerCharacter::GetSingleton();
+
+		if(!LootMenuManager::IsShowing()) {
+			return false;
+		}
+
 		player->StartGrabObject();
 		if (!player->IsGrabbing()) {
 			return false;
