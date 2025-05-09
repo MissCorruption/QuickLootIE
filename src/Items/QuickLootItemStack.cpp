@@ -105,7 +105,7 @@ namespace QuickLoot::Items
 		if (Completionist::IsReady()) {
 			PROFILE_SCOPE_NAMED("Completionist Data");
 
-			const auto data = Completionist::GetItemInfo(object);
+			const auto data = Completionist::GetItemInfo(_entry.get());
 
 			_data.compNew = Settings::ShowCompletionistNeeded() && data.isNeeded;
 			_data.compFound = Settings::ShowCompletionistCollected() && data.isCollected;
