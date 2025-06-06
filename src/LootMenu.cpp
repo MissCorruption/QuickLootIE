@@ -624,7 +624,7 @@ namespace QuickLoot
 				 return strcmp(nameA, nameB);
 			 } },
 			{ "$qlie_SortRule_ArtifactNeeded", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().dbmNew.value; }) },
-			{ "$qlie_SortRule_CompletionistNeeded", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().compNew.value; }) },
+			{ "$qlie_SortRule_CompletionistNeeded", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().compNeeded.value; }) },
 		};
 
 		for (auto& ruleName : Config::UserSettings::GetActiveSortRules()) {

@@ -61,6 +61,9 @@ namespace QuickLoot::Config
 
 	inline bool QLIE_ShowIconCompletionistNeeded;
 	inline bool QLIE_ShowIconCompletionistCollected;
+	inline bool QLIE_ShowIconCompletionistDisplayed;
+	inline bool QLIE_ShowIconCompletionistOccupied;
+	inline bool QLIE_ShowIconCompletionistDisplayable;
 
 	class Papyrus
 	{

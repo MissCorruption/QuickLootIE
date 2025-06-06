@@ -64,8 +64,12 @@ namespace QuickLoot::Config
 		static bool ShowArtifactDisplayed();
 		static bool ShowArtifactFound();
 		static bool ShowArtifactNew();
+
 		static bool ShowCompletionistNeeded();
 		static bool ShowCompletionistCollected();
+		static bool ShowCompletionistDisplayed();
+		static bool ShowCompletionistDisplayable();
+		static bool ShowCompletionistOccupied();
 
 		static float VrOffsetX();
 		static float VrOffsetY();

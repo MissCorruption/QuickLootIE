@@ -42,8 +42,11 @@ namespace QuickLoot::Items
 		SetDataMember(obj, "dbmFound", data.dbmFound);
 		SetDataMember(obj, "dbmDisplayed", data.dbmDisplayed);
 
-		SetDataMember(obj, "compNew", data.compNew);
-		SetDataMember(obj, "compFound", data.compFound);
+		SetDataMember(obj, "compNeeded", data.compNeeded);
+		SetDataMember(obj, "compCollected", data.compCollected);
+		SetDataMember(obj, "compDisplayable", data.compDisplayable);
+		SetDataMember(obj, "compDisplayed", data.compDisplayed);
+		SetDataMember(obj, "compOccupied", data.compOccupied);
 
 		// For backwards compatibility
 		const auto& baseData = GetData();
@@ -107,9 +110,13 @@ namespace QuickLoot::Items
 
 			const auto data = Completionist::GetItemInfo(_entry.get());
 
-			_data.compNew = Settings::ShowCompletionistNeeded() && data.isNeeded;
-			_data.compFound = Settings::ShowCompletionistCollected() && data.isCollected;
 			_data.displayName = data.decoratedName;
+
+			_data.compNeeded = Settings::ShowCompletionistNeeded() && data.isNeeded;
+			_data.compCollected = Settings::ShowCompletionistCollected() && data.isCollected;
+			_data.compDisplayable = Settings::ShowCompletionistDisplayable() && data.isDisplayable;
+			_data.compDisplayed = Settings::ShowCompletionistDisplayed() && data.isDisplayed;
+			_data.compOccupied = Settings::ShowCompletionistOccupied() && data.isOccupied;
 
 			if (data.textColor != -1) {
 				_data.textColor = data.textColor;

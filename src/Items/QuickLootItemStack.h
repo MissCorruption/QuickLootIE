@@ -17,8 +17,11 @@ namespace QuickLoot::Items
 		OptionalField<bool> dbmFound;
 		OptionalField<bool> dbmDisplayed;
 
-		OptionalField<bool> compNew;
-		OptionalField<bool> compFound;
+		OptionalField<bool> compNeeded;
+		OptionalField<bool> compCollected;
+		OptionalField<bool> compDisplayable;
+		OptionalField<bool> compDisplayed;
+		OptionalField<bool> compOccupied;
 	};
 
 	class QuickLootItemStack : public ItemStack
