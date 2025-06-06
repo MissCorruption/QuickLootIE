@@ -38,9 +38,9 @@ namespace QuickLoot::Items
 		SetDataMember(obj, "knownEnchanted", data.knownEnchanted);
 		SetDataMember(obj, "specialEnchanted", data.specialEnchanted);
 
-		SetDataMember(obj, "dbmNew", data.dbmNew);
-		SetDataMember(obj, "dbmFound", data.dbmFound);
-		SetDataMember(obj, "dbmDisplayed", data.dbmDisplayed);
+		SetDataMember(obj, "artifactNew", data.artifactNew);
+		SetDataMember(obj, "artifactFound", data.artifactFound);
+		SetDataMember(obj, "artifactDisplayed", data.artifactDisplayed);
 
 		SetDataMember(obj, "compNeeded", data.compNeeded);
 		SetDataMember(obj, "compCollected", data.compCollected);
@@ -100,9 +100,9 @@ namespace QuickLoot::Items
 		if (Artifacts::IsIntegrationEnabled()) {
 			PROFILE_SCOPE_NAMED("Artifact Data");
 
-			_data.dbmNew = Settings::ShowArtifactNew() && Artifacts::IsNewArtifact(object->formID);
-			_data.dbmFound = Settings::ShowArtifactFound() && Artifacts::IsFoundArtifact(object->formID);
-			_data.dbmDisplayed = Settings::ShowArtifactDisplayed() && Artifacts::IsDisplayedArtifact(object->formID);
+			_data.artifactNew = Settings::ShowArtifactNew() && Artifacts::IsNewArtifact(object->formID);
+			_data.artifactFound = Settings::ShowArtifactFound() && Artifacts::IsFoundArtifact(object->formID);
+			_data.artifactDisplayed = Settings::ShowArtifactDisplayed() && Artifacts::IsDisplayedArtifact(object->formID);
 		}
 
 		if (Completionist::IsReady()) {

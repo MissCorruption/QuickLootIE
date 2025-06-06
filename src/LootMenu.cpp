@@ -623,7 +623,7 @@ namespace QuickLoot
 				 const auto& nameB = b.GetQuickLootData().displayName.value.c_str();
 				 return strcmp(nameA, nameB);
 			 } },
-			{ "$qlie_SortRule_ArtifactNeeded", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().dbmNew.value; }) },
+			{ "$qlie_SortRule_ArtifactNeeded", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().artifactNew.value; }) },
 			{ "$qlie_SortRule_CompletionistNeeded", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().compNeeded.value; }) },
 		};
 

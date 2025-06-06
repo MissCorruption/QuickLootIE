@@ -13,9 +13,9 @@ namespace QuickLoot::Items
 		OptionalField<bool> knownEnchanted;
 		OptionalField<bool> specialEnchanted;
 
-		OptionalField<bool> dbmNew;
-		OptionalField<bool> dbmFound;
-		OptionalField<bool> dbmDisplayed;
+		OptionalField<bool> artifactNew;
+		OptionalField<bool> artifactFound;
+		OptionalField<bool> artifactDisplayed;
 
 		OptionalField<bool> compNeeded;
 		OptionalField<bool> compCollected;
