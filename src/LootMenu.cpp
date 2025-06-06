@@ -435,6 +435,8 @@ namespace QuickLoot
 
 	void LootMenu::TakeStack()
 	{
+		PROFILE_SCOPE
+
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
 		if (_selectedIndex < 0 || _selectedIndex >= _inventory.size()) {
@@ -449,6 +451,8 @@ namespace QuickLoot
 
 	void LootMenu::TakeAll()
 	{
+		PROFILE_SCOPE
+
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
 		for (size_t i = 0; i < _inventory.size(); ++i) {

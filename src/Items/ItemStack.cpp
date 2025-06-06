@@ -238,9 +238,12 @@ namespace QuickLoot::Items
 
 	void ItemStack::Take(RE::Actor* actor, int count) const
 	{
+		PROFILE_SCOPE
+
 		if (_dropRef) {
 			if (const auto reference = _dropRef.get()) {
 				actor->PlayPickUpSound(_object, true, false);
+				PROFILE_SCOPE_NAMED("RE::Actor::PickUpObject")
 				actor->PickUpObject(reference.get(), count);
 			}
 
@@ -264,18 +267,27 @@ namespace QuickLoot::Items
 					eventType = RE::PlayerCharacter::EventType::kDeadBody;
 				}
 
+				PROFILE_SCOPE_NAMED("RE::PlayerCharacter::PlayPickupEvent")
 				player->PlayPickupEvent(_object, owner, container.get(), eventType);
 			}
 
 			actor->PlayPickUpSound(_object, true, false);
-			container->RemoveItem(_object, count, reason, extraList, actor);
-			_object->HandleRemoveItemFromContainer(container.get());
+			{
+				PROFILE_SCOPE_NAMED("RE::TESObjectREFR::RemoveItem")
+				container->RemoveItem(_object, count, reason, extraList, actor);
+			}
+			{
+				PROFILE_SCOPE_NAMED("RE::TESBoundObject::HandleRemoveItemFromContainer")
+				_object->HandleRemoveItemFromContainer(container.get());
+			}
 
 			if (containerActor && _object->IsAmmo()) {
+				PROFILE_SCOPE_NAMED("RE::Actor::ClearExtraArrows")
 				containerActor->ClearExtraArrows();
 			}
 
 			if (stealing) {
+				PROFILE_SCOPE_NAMED("RE::Actor::StealAlarm")
 				actor->StealAlarm(container.get(), _object, count, value, owner, true);
 			}
 		}
@@ -286,7 +298,7 @@ namespace QuickLoot::Items
 		PROFILE_SCOPE;
 
 		// Some hacking is required to create a StandardItemData instance.
-		char buffer[sizeof RE::StandardItemData]{};
+		char buffer[sizeof(RE::StandardItemData)]{};
 		const auto vtable = RE::VTABLE_StandardItemData[0].address();
 		*reinterpret_cast<uintptr_t*>(buffer) = vtable;
 
