@@ -92,3 +92,28 @@ extern "C" __declspec(dllexport) bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadIn
 
 	return SKSE::GetMessagingInterface()->RegisterListener(OnSKSEMessage);
 }
+
+#ifdef IS_CMAKE_BUILD
+
+// xmake automatically generates this boilerplate code, but for cmake builds we need to include it manually.
+
+#	include "Plugin.h"
+
+extern "C" [[maybe_unused]] __declspec(dllexport) constinit auto SKSEPlugin_Version = []() noexcept {
+	SKSE::PluginVersionData v{};
+	v.PluginName(Plugin::NAME.data());
+	v.PluginVersion(Plugin::VERSION);
+	v.UsesAddressLibrary();
+	v.UsesNoStructs();
+	return v;
+}();
+
+extern "C" [[maybe_unused]] __declspec(dllexport) bool SKSEPlugin_Query(SKSE::QueryInterface*, SKSE::PluginInfo* pluginInfo)
+{
+	pluginInfo->infoVersion = SKSE::PluginInfo::kVersion;
+	pluginInfo->name = SKSEPlugin_Version.pluginName;
+	pluginInfo->version = SKSEPlugin_Version.pluginVersion;
+	return true;
+}
+
+#endif

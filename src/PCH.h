@@ -26,6 +26,8 @@
 #include <variant>
 #include <vector>
 
+#define NOMINMAX
+
 #pragma warning(push)
 #pragma warning(disable: 4702)
 #define SKSE_SUPPORT_XBYAK
@@ -38,14 +40,11 @@ using namespace std::literals::string_view_literals;
 
 namespace logger = SKSE::log;
 
-
 // #include <ClibUtil/distribution.hpp>
 // #include <ClibUtil/editorID.hpp>
 // #include <ClibUtil/numeric.hpp>
 // #include <ClibUtil/rng.hpp>
 // #include <ClibUtil/simpleINI.hpp>
-
-#include <SimpleMath.h>
 
 #include <fmt/chrono.h>
 
