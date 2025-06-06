@@ -106,18 +106,12 @@ event OnConfigOpen()
 
 	Initialize()
 
-	;Pages = new string[5]
-	;Pages[0] = "$qlie_GeneralPage"
-	;Pages[1] = "$qlie_DisplayPage"
-	;Pages[2] = "$qlie_SortingPage"
-	;Pages[3] = "$qlie_ControlsPage"
-	;Pages[4] = "$qlie_CompatibilityPage"
-
-	Pages = new string[4]
+	Pages = new string[5]
 	Pages[0] = "$qlie_GeneralPage"
 	Pages[1] = "$qlie_DisplayPage"
-	Pages[2] = "$qlie_ControlsPage"
-	Pages[3] = "$qlie_CompatibilityPage"
+	Pages[2] = "$qlie_SortingPage"
+	Pages[3] = "$qlie_ControlsPage"
+	Pages[4] = "$qlie_CompatibilityPage"
 endevent
 
 event OnPageReset(string page)
@@ -363,6 +357,8 @@ function BuildDisplayPage()
 endfunction
 
 function BuildSortingPage()
+	InitSortRuleLists()
+
 	SetCursorFillMode(TOP_TO_BOTTOM)
 
 	SetCursorPosition(0)

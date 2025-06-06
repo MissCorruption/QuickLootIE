@@ -48,7 +48,7 @@ namespace QuickLoot::Config
 
 	std::vector<std::string> UserSettings::GetInfoColumns() { return QLIE_InfoColumns; }
 
-	const std::vector<std::string>& UserSettings::GetUserDefinedSortPriority() { return QLIE_SortRulesActive; }
+	const std::vector<std::string>& UserSettings::GetActiveSortRules() { return QLIE_SortRulesActive; }
 
 	std::vector<Input::Keybinding> UserSettings::GetKeybindings()
 	{
@@ -75,8 +75,12 @@ namespace QuickLoot::Config
 	bool UserSettings::ShowArtifactDisplayed() { return QLIE_ShowIconArtifactDisplayed; }
 	bool UserSettings::ShowArtifactFound() { return QLIE_ShowIconArtifactCarried; }
 	bool UserSettings::ShowArtifactNew() { return QLIE_ShowIconArtifactNew; }
+
 	bool UserSettings::ShowCompletionistNeeded() { return QLIE_ShowIconCompletionistNeeded; }
 	bool UserSettings::ShowCompletionistCollected() { return QLIE_ShowIconCompletionistCollected; }
+	bool UserSettings::ShowCompletionistDisplayed() { return QLIE_ShowIconCompletionistDisplayed; }
+	bool UserSettings::ShowCompletionistOccupied() { return QLIE_ShowIconCompletionistOccupied; }
+	bool UserSettings::ShowCompletionistDisplayable() { return QLIE_ShowIconCompletionistDisplayable; }
 
 	// TODO
 	float UserSettings::VrOffsetX() { return -10; }

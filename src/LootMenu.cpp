@@ -10,10 +10,9 @@
 #include "Input/ButtonArt.h"
 #include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
-#include "Items/OldGroundItems.h"
-#include "Items/OldInventoryItem.h"
-#include "Items/OldItem.h"
+#include "Items/ItemStack.h"
 #include "LootMenuManager.h"
+
 #include <numbers>
 
 #undef PlaySound
@@ -34,7 +33,7 @@ namespace QuickLoot
 
 	int LootMenu::GetSwfVersion()
 	{
-		IMenu dummy{  };
+		IMenu dummy{};
 		RE::GPtr<RE::GFxMovieView> movieView{};
 		RE::BSScaleformManager::GetSingleton()->LoadMovie(&dummy, movieView, FILE_NAME.data());
 
@@ -280,7 +279,7 @@ namespace QuickLoot
 
 		if (_container) {
 			LootMenuManager::SaveLastSelectedIndex(_container, _selectedIndex);
-			API::APIServer::DispatchCloseLootMenuEvent(_container);
+			API::APIServer::DispatchCloseLootMenuEvent(_container.get().get());
 		}
 
 		_container = container;
@@ -293,7 +292,7 @@ namespace QuickLoot
 				_wasInitialized = true;
 			}
 
-			API::APIServer::DispatchOpenLootMenuEvent(_container);
+			API::APIServer::DispatchOpenLootMenuEvent(_container.get().get());
 		}
 
 		_lootMenu.Visible(container.get() != nullptr);
@@ -355,13 +354,11 @@ namespace QuickLoot
 	{
 		QueueRefresh(RefreshFlags::kInfoBar);
 
-		if (newIndex < 0 || newIndex >= std::ssize(_itemListImpl)) {
+		if (newIndex < 0 || newIndex >= std::ssize(_inventory)) {
 			return;
 		}
 
-		if (const auto& item = _itemListImpl[static_cast<std::size_t>(newIndex)]) {
-			item->OnSelected(*RE::PlayerCharacter::GetSingleton());
-		}
+		_inventory[static_cast<size_t>(newIndex)]->OnSelected(RE::PlayerCharacter::GetSingleton());
 	}
 
 	void LootMenu::SetSelectedIndex(int newIndex, bool playSound)
@@ -371,8 +368,8 @@ namespace QuickLoot
 		}
 
 		// This sets the index to -1 if the container is empty.
-		if (newIndex >= _itemListImpl.size()) {
-			newIndex = static_cast<int>(_itemListImpl.size() - 1);
+		if (newIndex >= _inventory.size()) {
+			newIndex = static_cast<int>(_inventory.size() - 1);
 		}
 
 		if (newIndex == _selectedIndex) {
@@ -395,7 +392,7 @@ namespace QuickLoot
 
 	void LootMenu::ScrollDown()
 	{
-		SetSelectedIndex(std::min(_selectedIndex + 1, static_cast<int>(_itemListImpl.size()) - 1), true);
+		SetSelectedIndex(std::min(_selectedIndex + 1, static_cast<int>(_inventory.size()) - 1), true);
 	}
 
 	void LootMenu::ScrollPrevPage()
@@ -438,24 +435,28 @@ namespace QuickLoot
 
 	void LootMenu::TakeStack()
 	{
+		PROFILE_SCOPE
+
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
-		if (_selectedIndex < 0 || _selectedIndex >= _itemListImpl.size()) {
-			logger::warn("Failed to take stack at index {} ({} entries)", _selectedIndex, _itemListImpl.size());
+		if (_selectedIndex < 0 || _selectedIndex >= _inventory.size()) {
+			logger::warn("Failed to take stack at index {} ({} entries)", _selectedIndex, _inventory.size());
 			return;
 		}
 
-		_itemListImpl[_selectedIndex]->TakeAll(*player);
+		_inventory[_selectedIndex]->TakeStack(player);
 
 		OnTakeAction();
 	}
 
 	void LootMenu::TakeAll()
 	{
+		PROFILE_SCOPE
+
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
-		for (size_t i = 0; i < _itemListImpl.size(); ++i) {
-			_itemListImpl[i]->TakeAll(*player);
+		for (size_t i = 0; i < _inventory.size(); ++i) {
+			_inventory[i]->TakeStack(player);
 		}
 
 		OnTakeAction();
@@ -509,70 +510,177 @@ namespace QuickLoot
 		_refreshFlags = RefreshFlags::kNone;
 	}
 
+	using SortFunction = std::function<int(Items::QuickLootItemStack& a, Items::QuickLootItemStack& b)>;
+
+	template <Items::ItemType type>
+	bool IsType(Items::QuickLootItemStack& stack)
+	{
+		return stack.GetData().type == type;
+	}
+
+	template <Items::MiscType type>
+	bool IsMisc(Items::QuickLootItemStack& stack)
+	{
+		const auto& data = stack.GetData();
+		return data.type == Items::ItemType::kMisc && data.misc.subType.valid && data.misc.subType == type;
+	}
+
+	template <typename T>
+	SortFunction OrderAsc(T(*func)(Items::QuickLootItemStack&))
+	{
+		return [=](Items::QuickLootItemStack& a, Items::QuickLootItemStack& b) {
+			const auto diff = func(a) - func(b);
+			return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+		};
+	}
+
+	template <typename T>
+	SortFunction OrderDesc(T (*func)(Items::QuickLootItemStack&))
+	{
+		return [=](Items::QuickLootItemStack& a, Items::QuickLootItemStack& b) {
+			const auto diff = func(b) - func(a);
+			return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+		};
+	}
+
+	void LootMenu::SortInventory()
+	{
+		PROFILE_SCOPE;
+
+		std::vector<SortFunction> selectedRules{};
+
+		static std::map<std::string, SortFunction> ruleTable = {
+			{ "$qlie_SortRule_Gold", OrderDesc(IsMisc<Items::MiscType::kGold>) },
+			{ "$qlie_SortRule_Gems", OrderDesc(IsMisc<Items::MiscType::kGem>) },
+			{ "$qlie_SortRule_SoulGems", OrderDesc(IsType<Items::ItemType::kSoulGem>) },
+			{ "$qlie_SortRule_Lockpicks", OrderDesc(IsMisc<Items::MiscType::kLockpick>) },
+			{ "$qlie_SortRule_OresIngots", OrderDesc(IsMisc<Items::MiscType::kIngot>) },
+			{ "$qlie_SortRule_Potions", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::AlchemyItem
+					&& data.potion.subType != Items::PotionType::kFood
+					&& data.potion.subType != Items::PotionType::kDrink;
+			}) },
+			{ "$qlie_SortRule_FoodDrinks", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::AlchemyItem
+					&& (data.potion.subType == Items::PotionType::kFood
+					|| data.potion.subType == Items::PotionType::kDrink);
+			}) },
+			{ "$qlie_SortRule_Books", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Book
+					&& (!data.book.subType.valid
+					|| data.book.subType != Items::BookSubType::kNote
+					&& data.book.subType != Items::BookSubType::kRecipe);
+			}) },
+			{ "$qlie_SortRule_Notes", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Book
+					&& data.book.subType.valid
+					&& (data.book.subType == Items::BookSubType::kNote
+					|| data.book.subType == Items::BookSubType::kRecipe);
+			}) },
+			{ "$qlie_SortRule_Scrolls", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
+				return stack.GetData().formType == RE::FormType::Scroll;
+			}) },
+			{ "$qlie_SortRule_Weapons", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Weapon;
+			}) },
+			{ "$qlie_SortRule_ArrowsBolts", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
+				return stack.GetData().formType == RE::FormType::Ammo;
+			}) },
+			{ "$qlie_SortRule_Armors", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Armor
+					&& data.armor.weightClass != Items::ArmorWeightClass::kClothing
+					&& data.armor.weightClass != Items::ArmorWeightClass::kJewelry;
+			}) },
+			{ "$qlie_SortRule_Clothes", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Armor
+					&& data.armor.weightClass == Items::ArmorWeightClass::kClothing;
+			}) },
+			{ "$qlie_SortRule_Jewelry", OrderDesc<bool>([](Items::QuickLootItemStack& stack) {
+				const auto& data = stack.GetData();
+				return data.formType == RE::FormType::Armor
+					&& data.armor.weightClass == Items::ArmorWeightClass::kJewelry;
+			}) },
+			{ "$qlie_SortRule_Weightless", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetData().weight.value <= 0; }) },
+			{ "$qlie_SortRule_ByWeight", OrderAsc<float>([](Items::QuickLootItemStack& stack) { return stack.GetData().weight.value; }) },
+			{ "$qlie_SortRule_ByValue", OrderDesc<int>([](Items::QuickLootItemStack& stack) { return stack.GetData().value.value; }) },
+			{ "$qlie_SortRule_ByV/W", OrderDesc<float>([](Items::QuickLootItemStack& stack) {
+				const auto data = stack.GetData();
+				if (data.weight <= 0)
+					return std::numeric_limits<float>::infinity();
+				if (data.value <= 0)
+					return 0.0f;
+				return data.value / data.weight;
+			}) },
+			{ "$qlie_SortRule_ByName", [](Items::QuickLootItemStack& a, Items::QuickLootItemStack& b) {
+				 const auto& nameA = a.GetQuickLootData().displayName.value.c_str();
+				 const auto& nameB = b.GetQuickLootData().displayName.value.c_str();
+				 return strcmp(nameA, nameB);
+			 } },
+			{ "$qlie_SortRule_ArtifactNeeded", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().artifactNew.value; }) },
+			{ "$qlie_SortRule_CompletionistNeeded", OrderDesc<bool>([](Items::QuickLootItemStack& stack) { return stack.GetQuickLootData().compNeeded.value; }) },
+		};
+
+		for (auto& ruleName : Config::UserSettings::GetActiveSortRules()) {
+			const auto it = ruleTable.find(ruleName);
+			if (it != ruleTable.end()) {
+				selectedRules.push_back(it->second);
+			}
+		}
+
+		std::ranges::stable_sort(_inventory, [&](const auto& a, const auto& b) {
+			for (auto ruleFunction : selectedRules) {
+				const auto cmp = ruleFunction(*a, *b);
+				if (cmp < 0)
+					return true;
+				if (cmp > 0)
+					return false;
+			}
+
+			const auto& nameA = a->GetQuickLootData().displayName.value.c_str();
+			const auto& nameB = b->GetQuickLootData().displayName.value.c_str();
+			return strcmp(nameA, nameB) < 0;
+		});
+	}
+
 	void LootMenu::RefreshInventory()
 	{
 		PROFILE_SCOPE;
 
-		_itemListImpl.clear();
-		auto src = _container.get();
-		if (!src) {
-			_itemListProvider.ClearElements();
+		_itemListProvider.ClearElements();
+
+		const auto container = _container.get();
+		if (!container) {
 			_itemList.Invalidate();
 			_itemList.SelectedIndex(-1.0);
 			return;
 		}
 
-		const auto stealing = WouldBeStealing();
-		auto inv = src->GetInventory(CanDisplay);
-		for (auto& [obj, data] : inv) {
-			auto& [count, entry] = data;
-			if (count > 0 && entry) {
-				_itemListImpl.push_back(std::make_unique<Items::OldInventoryItem>(count, stealing, std::move(entry), _container));
-			}
-		}
-
-		auto dropped = src->GetDroppedInventory(CanDisplay);
-		for (auto& [obj, data] : dropped) {
-			auto& [count, items] = data;
-			if (count > 0 && !items.empty()) {
-				_itemListImpl.push_back(std::make_unique<Items::OldGroundItems>(count, stealing, std::move(items)));
-			}
-		}
-
-		if (!Settings::ShowWhenEmpty() && _itemListImpl.empty()) {
+		_inventory = Items::ItemStack::LoadContainerInventory<Items::QuickLootItemStack>(container.get(), CanDisplay);
+		if (_inventory.empty() && !Settings::ShowWhenEmpty()) {
 			LootMenuManager::RequestHide();
 			return;
 		}
 
-		{
-			PROFILE_SCOPE_NAMED("Sorting");
-			std::ranges::stable_sort(_itemListImpl,
-				[&](auto&& a_lhs, auto&& a_rhs) {
-					uintptr_t lhs_addr = reinterpret_cast<std::uintptr_t>(a_lhs.get());
-					uintptr_t rhs_addr = reinterpret_cast<std::uintptr_t>(a_rhs.get());
+		SortInventory();
 
-					if (lhs_addr == 0 || lhs_addr > 0xFFFFFFFFFFFF ||
-						rhs_addr == 0 || rhs_addr > 0xFFFFFFFFFFFF) {
-						logger::warn("Error: Invalid pointer address detected."sv);
-						return false;
-					}
-
-					return *a_lhs < *a_rhs;
-				});
+		std::vector<API::ItemStack> apiInventory;
+		apiInventory.reserve(_inventory.size());
+		for (auto& item : _inventory) {
+			_itemListProvider.PushBack(item->BuildDataObject(uiMovie.get()));
+			apiInventory.emplace_back(item->GetEntry(), item->GetDropRef().get().get());
 		}
 
-		std::vector<Element> elements;
-		_itemListProvider.ClearElements();
-		for (const auto& elem : _itemListImpl) {
-			_itemListProvider.PushBack(elem->GFxValue(*uiMovie));
-			elem->FillElementsVector(&elements);
-		}
 		_itemList.InvalidateData();
 		_lootMenu.GetInstance().Invoke("refresh");
 
-		_lootMenu.Visible(true);
-
-		API::APIServer::DispatchInvalidateLootMenuEvent(elements, _container);
+		API::APIServer::DispatchInvalidateLootMenuEvent(_container.get().get(), apiInventory);
 		SetSelectedIndex(_selectedIndex, false);
 
 		QueueRefresh(RefreshFlags::kWeight);
@@ -613,16 +721,17 @@ namespace QuickLoot
 	{
 		PROFILE_SCOPE;
 
+		/* TODO
 		_infoBarProvider.ClearElements();
 		const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
-		if (0 <= idx && idx < std::ssize(_itemListImpl)) {
+		if (0 <= idx && idx < std::ssize(_inventory)) {
 			typedef std::function<std::string(const QuickLoot::Items::OldItem&)> functor;
 			const std::array functors{
 				functor{ [](const QuickLoot::Items::OldItem& a_val) { return fmt::format(FMT_STRING("{:.1f}"), a_val.Weight()); } },
 				functor{ [](const QuickLoot::Items::OldItem& a_val) { return fmt::format(FMT_STRING("{}"), a_val.Value()); } },
 			};
 
-			const auto& item = _itemListImpl[static_cast<std::size_t>(idx)];
+			const auto& item = _inventory[static_cast<size_t>(idx)];
 			std::string str;
 			RE::GFxValue obj;
 			for (const auto& functor : functors) {
@@ -640,6 +749,7 @@ namespace QuickLoot
 		}
 
 		_infoBar.InvalidateData();
+		*/
 	}
 
 	void LootMenu::RefreshWeight()
@@ -648,7 +758,7 @@ namespace QuickLoot
 
 		const auto player = RE::PlayerCharacter::GetSingleton();
 		const auto currentWeight = static_cast<int64_t>(player->GetWeightInContainer());
-		const auto carryWeightLimit = static_cast<int64_t>(player->AsActorValueOwner()->GetActorValue(RE::ActorValue::kCarryWeight));
+		const auto carryWeightLimit = static_cast<int64_t>(player->GetTotalCarryWeight());
 		const auto text = fmt::format("{} / {}", currentWeight, carryWeightLimit);
 		_weight.HTMLText(text);
 		_weight.Visible(true);
@@ -790,7 +900,7 @@ namespace QuickLoot
 
 #pragma endregion
 
-#pragma region VR 
+#pragma region VR
 
 	RE::NiPointer<RE::NiNode> LootMenu::GetAttachingNode()
 	{
@@ -829,5 +939,5 @@ namespace QuickLoot
 		return RE::BSEventNotifyControl::kContinue;
 	}
 
-#pragma endregion 
+#pragma endregion
 }

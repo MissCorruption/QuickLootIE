@@ -57,15 +57,19 @@ namespace QuickLoot::Config
 
 		static std::vector<std::string> GetInfoColumns();
 
-		static const std::vector<std::string>& GetUserDefinedSortPriority();
+		static const std::vector<std::string>& GetActiveSortRules();
 
 		static std::vector<Input::Keybinding> GetKeybindings();
 
 		static bool ShowArtifactDisplayed();
 		static bool ShowArtifactFound();
 		static bool ShowArtifactNew();
+
 		static bool ShowCompletionistNeeded();
 		static bool ShowCompletionistCollected();
+		static bool ShowCompletionistDisplayed();
+		static bool ShowCompletionistDisplayable();
+		static bool ShowCompletionistOccupied();
 
 		static float VrOffsetX();
 		static float VrOffsetY();

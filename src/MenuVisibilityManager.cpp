@@ -77,6 +77,10 @@ namespace QuickLoot
 			whitelistedMenus.emplace(lootMenu.get());
 		}
 
+		if (const auto cursorMenu = ui->GetMenu(RE::CursorMenu::MENU_NAME)) {
+			whitelistedMenus.emplace(cursorMenu.get());
+		}
+
 		for (auto name : Config::SystemSettings::GetMenuWhitelist()) {
 			if (const auto whitelistedMenu = ui->GetMenu(name)) {
 				whitelistedMenus.emplace(whitelistedMenu.get());
@@ -87,9 +91,9 @@ namespace QuickLoot
 			if (menu->menuFlags & RE::UI_MENU_FLAGS::kAlwaysOpen)
 				continue;
 
-			// IMenu::menuName is unreliable and can even crash the game when read, so instead of
-			// checking whether a menu's name is on the whitelist we need to actually compare with
-			// the instances of all whitelisted menus.
+			// IMenu::menuName only exists in VR, so instead of checking whether a menu's
+			// name is on the whitelist we need to actually compare with the instances of
+			// all whitelisted menus.
 			if (whitelistedMenus.contains(menu.get()))
 				continue;
 
@@ -216,6 +220,11 @@ namespace QuickLoot
 	void MenuVisibilityManager::RefreshOpenState()
 	{
 		PROFILE_SCOPE;
+
+		// Don't refresh while the console is open to work around the missing cursor bug
+		if(RE::UI::GetSingleton()->IsMenuOpen(RE::Console::MENU_NAME)) {
+			return;
+		}
 
 		const auto container = GetContainerObject(_focusedRef);
 		if (CanOpen(container)) {

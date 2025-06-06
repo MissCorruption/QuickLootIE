@@ -21,7 +21,7 @@ namespace QuickLoot
 			return;
 		}
 
-		if (API::APIServer::DispatchOpeningLootMenuEvent(container.get()) != HandleResult::kContinue) {
+		if (API::APIServer::DispatchOpeningLootMenuEvent(container.get().get()) != API::HandleResult::kContinue) {
 			logger::info("Opening was canceled by API subscriber");
 			RequestHide();
 			return;
