@@ -42,7 +42,7 @@ namespace QuickLoot::Items
 	template <typename TEnum, typename TUnderlying = std::underlying_type_t<TEnum>>
 	struct MandatoryEnumField
 	{
-		using TWrapper = SKSE::stl::enumeration<TEnum, TUnderlying>;
+		using TWrapper = REX::EnumSet<TEnum, TUnderlying>;
 
 		TWrapper value;
 
@@ -74,7 +74,7 @@ namespace QuickLoot::Items
 	template <typename TEnum, typename TUnderlying = std::underlying_type_t<TEnum>>
 	struct OptionalEnumField
 	{
-		using TWrapper = SKSE::stl::enumeration<TEnum, TUnderlying>;
+		using TWrapper = REX::EnumSet<TEnum, TUnderlying>;
 
 		TWrapper value{};
 		bool valid = false;
