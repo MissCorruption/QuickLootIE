@@ -4,186 +4,139 @@
 
 namespace QuickLoot::API
 {
-	template <typename TEvent, std::vector<EventHandler<TEvent>>& handlerList>
-	bool RegisterHandler(const char*, const HandlerRegistrationRequest<TEvent>* request, bool* response)
+	extern "C" __declspec(dllexport) void* GetQuickLootInterfaceV20()
 	{
-		handlerList.push_back(request->handler);
-		return *response = true;
+		return APIServer::GetInterfaceV20();
 	}
 
-	bool DisableLootMenu(const char* sender, const std::monostate*, std::monostate*)
+#pragma region Interface
+
+	void APIServer::InterfaceV20::DisableLootMenu(const char* plugin)
 	{
-		MenuVisibilityManager::DisableLootMenu(sender);
-		return true;
+		MenuVisibilityManager::DisableLootMenu(plugin);
 	}
 
-	bool EnableLootMenu(const char* sender, const std::monostate*, std::monostate*)
+	void APIServer::InterfaceV20::EnableLootMenu(const char* plugin)
 	{
-		MenuVisibilityManager::EnableLootMenu(sender);
-		return true;
+		MenuVisibilityManager::EnableLootMenu(plugin);
 	}
 
-	void APIServer::Init(const SKSE::MessagingInterface* messenger)
+	void APIServer::InterfaceV20::RegisterTakingItemHandler(const char* plugin, TakingItemHandler handler)
 	{
-		_server.Init(QuickLootAPI::API_MAJOR_VERSION, QuickLootAPI::API_MINOR_VERSION);
-
-		using enum QuickLootAPI::RequestType;
-
-		_server.RegisterHandler(kDisableLootMenu, "kDisableLootMenu", DisableLootMenu);
-		_server.RegisterHandler(kEnableLootMenu, "kEnableLootMenu", EnableLootMenu);
-
-		_server.RegisterHandler(kRegisterTakingItemHandler, "kRegisterTakingItemHandler", RegisterHandler<TakingItemEvent, _takingItemHandlers>);
-		_server.RegisterHandler(kRegisterTakeItemHandler, "kRegisterTakeItemHandler", RegisterHandler<TakeItemEvent, _takeItemHandlers>);
-		_server.RegisterHandler(kRegisterSelectItemHandler, "kRegisterSelectItemHandler", RegisterHandler<SelectItemEvent, _selectItemHandlers>);
-		_server.RegisterHandler(kRegisterOpeningLootMenuHandler, "kRegisterOpeningLootMenuHandler", RegisterHandler<OpeningLootMenuEvent, _openingLootMenuHandlers>);
-		_server.RegisterHandler(kRegisterOpenLootMenuHandler, "kRegisterOpenLootMenuHandler", RegisterHandler<OpenLootMenuEvent, _openLootMenuHandlers>);
-		_server.RegisterHandler(kRegisterCloseLootMenuHandler, "kRegisterCloseLootMenuHandler", RegisterHandler<CloseLootMenuEvent, _closeLootMenuHandlers>);
-		_server.RegisterHandler(kRegisterInvalidateLootMenuHandler, "kRegisterInvalidateLootMenuHandler", RegisterHandler<InvalidateLootMenuEvent, _invalidateLootMenuHandlers>);
-
-		if (!messenger->RegisterListener(nullptr, HandleSKSEMessage)) {
-			logger::error("Failed to register SKSE message listener");
-		}
+		RegisterHandler(plugin, handler, _takingItemHandlers);
 	}
 
-	void APIServer::HandleSKSEMessage(SKSE::MessagingInterface::Message* message)
+	void APIServer::InterfaceV20::RegisterTakeItemHandler(const char* plugin, TakeItemHandler handler)
 	{
-		_server.Handle(message);
+		RegisterHandler(plugin, handler, _takeItemHandlers);
 	}
 
-	template <typename TEvent>
-	void DispatchEvent(const std::vector<EventHandler<TEvent>>& handlers, TEvent& e)
+	void APIServer::InterfaceV20::RegisterSelectItemHandler(const char* plugin, SelectItemHandler handler)
 	{
-		for (auto const& handler : handlers) {
-			handler(&e);
-		}
+		RegisterHandler(plugin, handler, _selectItemHandlers);
 	}
 
-	template <typename TEvent>
-	HandleResult DispatchCancelableEvent(const std::vector<EventHandler<TEvent>>& handlers, TEvent& e)
+	void APIServer::InterfaceV20::RegisterOpeningLootMenuHandler(const char* plugin, OpeningLootMenuHandler handler)
 	{
-		for (auto const& handler : handlers) {
-			handler(&e);
-
-			if (e.result != HandleResult::kContinue) {
-				break;
-			}
-		}
-
-		return e.result;
+		RegisterHandler(plugin, handler, _openingLootMenuHandlers);
 	}
 
-	HandleResult APIServer::DispatchTakingItemEvent(RE::Actor* actor, const std::vector<Element>& elements, RE::TESObjectREFR* container)
+	void APIServer::InterfaceV20::RegisterOpenLootMenuHandler(const char* plugin, OpenLootMenuHandler handler)
 	{
+		RegisterHandler(plugin, handler, _openLootMenuHandlers);
+	}
+
+	void APIServer::InterfaceV20::RegisterCloseLootMenuHandler(const char* plugin, CloseLootMenuHandler handler)
+	{
+		RegisterHandler(plugin, handler, _closeLootMenuHandlers);
+	}
+
+	void APIServer::InterfaceV20::RegisterInvalidateLootMenuHandler(const char* plugin, InvalidateLootMenuHandler handler)
+	{
+		RegisterHandler(plugin, handler, _invalidateLootMenuHandlers);
+	}
+
+#pragma endregion
+
+#pragma region Dispatch
+
+	HandleResult APIServer::DispatchTakingItemEvent(RE::Actor* actor, RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)
+	{
+		ItemStack stack{ entry, dropRef };
+
 		TakingItemEvent e{
 			.actor = actor,
 			.container = container,
-			.elements = elements.data(),
-			.elementsCount = elements.size(),
+			.stack = &stack,
 			.result = HandleResult::kContinue,
 		};
 
 		return DispatchCancelableEvent(_takingItemHandlers, e);
 	}
 
-	HandleResult APIServer::DispatchTakingItemEvent(RE::Actor* actor, RE::TESForm* object, std::ptrdiff_t count, RE::TESObjectREFR* container)
+	void APIServer::DispatchTakeItemEvent(RE::Actor* actor, RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)
 	{
-		Element elements[] = { Element(object, count, container) };
-		TakingItemEvent e{
-			.actor = actor,
-			.container = container,
-			.elements = elements,
-			.elementsCount = 1,
-			.result = HandleResult::kContinue,
-		};
+		ItemStack stack{ entry, dropRef };
 
-		return DispatchCancelableEvent(_takingItemHandlers, e);
-	}
-
-	void APIServer::DispatchTakeItemEvent(RE::Actor* actor, const std::vector<Element>& elements, RE::TESObjectREFR* container)
-	{
 		TakeItemEvent e{
 			.actor = actor,
 			.container = container,
-			.elements = elements.data(),
-			.elementsCount = elements.size(),
+			.stack = &stack,
 		};
 
 		DispatchEvent(_takeItemHandlers, e);
 	}
 
-	void APIServer::DispatchTakeItemEvent(RE::Actor* actor, RE::TESForm* object, std::ptrdiff_t count, RE::TESObjectREFR* container)
+	void APIServer::DispatchSelectItemEvent(RE::Actor* actor, RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)
 	{
-		Element elements[] = { Element(object, count, container) };
-		TakeItemEvent e{
-			.actor = actor,
-			.container = container,
-			.elements = elements,
-			.elementsCount = 1,
-		};
+		ItemStack stack{ entry, dropRef };
 
-		DispatchEvent(_takeItemHandlers, e);
-	}
-
-	void APIServer::DispatchSelectItemEvent(RE::Actor* actor, const std::vector<Element>& elements, RE::TESObjectREFR* container)
-	{
 		SelectItemEvent e{
 			.actor = actor,
 			.container = container,
-			.elements = elements.data(),
-			.elementsCount = elements.size(),
+			.stack = &stack,
 		};
 
 		DispatchEvent(_selectItemHandlers, e);
 	}
 
-	void APIServer::DispatchSelectItemEvent(RE::Actor* actor, RE::TESForm* object, std::ptrdiff_t count, const RE::ObjectRefHandle& container)
-	{
-		Element elements[] = { Element(object, count, container) };
-		SelectItemEvent e{
-			e.actor = actor,
-			e.container = container.get().get(),
-			e.elements = elements,
-			e.elementsCount = 1,
-		};
-
-		DispatchEvent(_selectItemHandlers, e);
-	}
-
-	HandleResult APIServer::DispatchOpeningLootMenuEvent(const RE::TESObjectREFRPtr& container)
+	HandleResult APIServer::DispatchOpeningLootMenuEvent(RE::TESObjectREFR* container)
 	{
 		OpeningLootMenuEvent e{
-			.container = container.get()
+			.container = container
 		};
 
 		return DispatchCancelableEvent(_openingLootMenuHandlers, e);
 	}
 
-	void APIServer::DispatchOpenLootMenuEvent(const RE::ObjectRefHandle& container)
+	void APIServer::DispatchOpenLootMenuEvent(RE::TESObjectREFR* container)
 	{
 		OpenLootMenuEvent e{
-			.container = container.get().get()
+			.container = container
 		};
 
 		DispatchEvent(_openLootMenuHandlers, e);
 	}
 
-	void APIServer::DispatchCloseLootMenuEvent(const RE::ObjectRefHandle& container)
+	void APIServer::DispatchCloseLootMenuEvent(RE::TESObjectREFR* container)
 	{
 		CloseLootMenuEvent e{
-			.container = container.get().get()
+			.container = container
 		};
 
 		DispatchEvent(_closeLootMenuHandlers, e);
 	}
 
-	void APIServer::DispatchInvalidateLootMenuEvent(const std::vector<Element>& elements, const RE::ObjectRefHandle& container)
+	void APIServer::DispatchInvalidateLootMenuEvent(RE::TESObjectREFR* container, const std::vector<ItemStack>& inventory)
 	{
 		InvalidateLootMenuEvent e{
-			.container = container.get().get(),
-			.elements = elements.data(),
-			.elementsCount = elements.size(),
+			.container = container,
+			.stacks = inventory.data(),
+			.stackCount = inventory.size(),
 		};
 
 		DispatchEvent(_invalidateLootMenuHandlers, e);
 	}
+
+#pragma endregion
 }

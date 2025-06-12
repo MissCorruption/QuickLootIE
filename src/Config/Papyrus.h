@@ -61,6 +61,9 @@ namespace QuickLoot::Config
 
 	inline bool QLIE_ShowIconCompletionistNeeded;
 	inline bool QLIE_ShowIconCompletionistCollected;
+	inline bool QLIE_ShowIconCompletionistDisplayed;
+	inline bool QLIE_ShowIconCompletionistOccupied;
+	inline bool QLIE_ShowIconCompletionistDisplayable;
 
 	class Papyrus
 	{
@@ -182,47 +185,37 @@ constexpr std::array SortingPresets_Default = {
 	"$qlie_SortRule_Gems",
 	"$qlie_SortRule_SoulGems",
 	"$qlie_SortRule_Lockpicks",
-	"$qlie_SortRule_Ingots",
-	"$qlie_SortRule_Ores",
+	"$qlie_SortRule_OresIngots",
 	"$qlie_SortRule_Potions",
 	"$qlie_SortRule_FoodDrinks",
 	"$qlie_SortRule_Books",
 	"$qlie_SortRule_Notes",
 	"$qlie_SortRule_Scrolls",
-	"$qlie_SortRule_ArrowsBolts",
-	"$qlie_SortRule_Jewelry",
 	"$qlie_SortRule_Weapons",
+	"$qlie_SortRule_ArrowsBolts",
 	"$qlie_SortRule_Armors",
 	"$qlie_SortRule_Clothes",
+	"$qlie_SortRule_Jewelry",
 	"$qlie_SortRule_Weightless",
 	"$qlie_SortRule_ByWeight",
 	"$qlie_SortRule_ByValue",
+	"$qlie_SortRule_ByV/W",
 	"$qlie_SortRule_ByName",
-	"$qlie_SortRule_LOTDNeeded",
+	"$qlie_SortRule_ArtifactNeeded",
 	"$qlie_SortRule_CompletionistNeeded",
 };
 
 constexpr std::array SortingPresets_Goblin = {
 	"$qlie_SortRule_Gold",
+
+	"$qlie_SortRule_CompletionistNeeded",
+	"$qlie_SortRule_ArtifactNeeded",
+
+	"$qlie_SortRule_Jewelry",
 	"$qlie_SortRule_Gems",
 	"$qlie_SortRule_SoulGems",
-	"$qlie_SortRule_Lockpicks",
-	"$qlie_SortRule_Ingots",
-	"$qlie_SortRule_Ores",
-	"$qlie_SortRule_Potions",
-	"$qlie_SortRule_FoodDrinks",
-	"$qlie_SortRule_Books",
-	"$qlie_SortRule_Notes",
-	"$qlie_SortRule_Scrolls",
-	"$qlie_SortRule_ArrowsBolts",
-	"$qlie_SortRule_Jewelry",
-	"$qlie_SortRule_Weapons",
-	"$qlie_SortRule_Armors",
-	"$qlie_SortRule_Clothes",
+
 	"$qlie_SortRule_Weightless",
-	"$qlie_SortRule_ByWeight",
-	"$qlie_SortRule_ByValue",
+
 	"$qlie_SortRule_ByName",
-	"$qlie_SortRule_LOTDNeeded",
-	"$qlie_SortRule_CompletionistNeeded",
 };

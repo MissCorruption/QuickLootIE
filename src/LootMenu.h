@@ -7,7 +7,7 @@
 #include "CLIK/TextField.h"
 #include "Config/UserSettings.h"
 #include "Input/Input.h"
-#include "Items/OldItem.h"
+#include "Items/QuickLootItemStack.h"
 #include "UniversalMenu.h"
 
 using Settings = QuickLoot::Config::UserSettings;
@@ -54,6 +54,8 @@ namespace QuickLoot
 		int _selectedIndex = -1;
 		RE::stl::enumeration<RefreshFlags> _refreshFlags = RefreshFlags::kAll;
 
+		std::vector<std::unique_ptr<Items::QuickLootItemStack>> _inventory;
+
 		CLIK::MovieClip _lootMenu;
 		CLIK::TextField _title;
 		CLIK::TextField _weight;
@@ -61,8 +63,6 @@ namespace QuickLoot
 		CLIK::GFx::Controls::ScrollingList _itemList;
 		CLIK::GFx::Controls::ButtonBar _infoBar;
 		CLIK::GFx::Controls::ButtonBar _buttonBar;
-
-		std::vector<std::unique_ptr<Items::OldItem>> _itemListImpl;
 
 		RE::GFxValue _itemListProvider;
 		RE::GFxValue _infoBarProvider;
@@ -87,6 +87,7 @@ namespace QuickLoot
 		void Transfer();
 
 		void Refresh(RefreshFlags flags = RefreshFlags::kNone);
+		void SortInventory();
 		void RefreshInventory();
 		void RefreshButtonBar();
 		void RefreshInfoBar();
