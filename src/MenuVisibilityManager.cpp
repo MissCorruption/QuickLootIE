@@ -4,13 +4,6 @@
 #include "Config/UserSettings.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
-#include "Observers/CameraStateObserver.h"
-#include "Observers/CombatStateObserver.h"
-#include "Observers/ContainerObserver.h"
-#include "Observers/CrosshairRefObserver.h"
-#include "Observers/LifeStateObserver.h"
-#include "Observers/LockChangedObserver.h"
-#include "Observers/MenuObserver.h"
 
 using Settings = QuickLoot::Config::UserSettings;
 
@@ -239,17 +232,6 @@ namespace QuickLoot
 	void MenuVisibilityManager::RefreshInventory()
 	{
 		LootMenuManager::RequestRefresh(RefreshFlags::kInventory);
-	}
-
-	void MenuVisibilityManager::InstallHooks()
-	{
-		Observers::CameraStateObserver::Install();
-		Observers::CombatStateObserver::Install();
-		Observers::ContainerObserver::Install();
-		Observers::CrosshairRefObserver::Install();
-		Observers::LifeStateObserver::Install();
-		Observers::LockChangedObserver::Install();
-		Observers::MenuObserver::Install();
 	}
 
 	void MenuVisibilityManager::DisableLootMenu(const std::string& modName)

@@ -12,8 +12,6 @@ namespace QuickLoot
 		MenuVisibilityManager& operator=(MenuVisibilityManager&&) = delete;
 		MenuVisibilityManager& operator=(const MenuVisibilityManager&) = delete;
 
-		static void InstallHooks();
-
 		static void DisableLootMenu(const std::string& modName);
 		static void EnableLootMenu(const std::string& modName);
 

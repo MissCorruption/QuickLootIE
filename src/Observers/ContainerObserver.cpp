@@ -9,7 +9,7 @@ namespace QuickLoot::Observers
 	void ContainerObserver::Install()
 	{
 		RE::ScriptEventSourceHolder::GetSingleton()->AddEventSink(GetSingleton());
-		logger::info("Installed");
+		logger::info("Installed {}", typeid(ContainerObserver).name());
 	}
 
 	RE::BSEventNotifyControl ContainerObserver::ProcessEvent(const RE::TESContainerChangedEvent* event, RE::BSTEventSource<RE::TESContainerChangedEvent>*)

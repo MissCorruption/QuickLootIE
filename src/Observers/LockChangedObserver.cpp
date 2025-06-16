@@ -9,7 +9,7 @@ namespace QuickLoot::Observers
 	void LockChangedObserver::Install()
 	{
 		RE::ScriptEventSourceHolder::GetSingleton()->AddEventSink(GetSingleton());
-		logger::info("Installed");
+		logger::info("Installed {}", typeid(LockChangedObserver).name());
 	}
 
 	RE::BSEventNotifyControl LockChangedObserver::ProcessEvent(

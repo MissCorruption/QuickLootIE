@@ -4,25 +4,14 @@
 
 namespace QuickLoot::Input
 {
-	void InputObserver::StartListening()
+	void InputObserver::Install()
 	{
-		if (!_isListening) {
-			_isListening = true;
-			RE::BSInputDeviceManager::GetSingleton()->AddEventSink(GetSingleton());
-			logger::debug("{}", __func__);
+		RE::BSInputDeviceManager::GetSingleton()->AddEventSink(GetSingleton());
 
-			// We might have missed modifier key changes while input wasn't listening.
-			InputManager::UpdateModifierKeys();
-		}
-	}
+		// We might have missed modifier key changes while input wasn't listening.
+		InputManager::UpdateModifierKeys();
 
-	void InputObserver::StopListening()
-	{
-		if (_isListening) {
-			_isListening = false;
-			RE::BSInputDeviceManager::GetSingleton()->RemoveEventSink(GetSingleton());
-			logger::debug("{}", __func__);
-		}
+		logger::info("Installed {}", typeid(InputObserver).name());
 	}
 
 	RE::BSEventNotifyControl InputObserver::ProcessEvent(RE::InputEvent* const* event, RE::BSTEventSource<RE::InputEvent*>*)

@@ -21,8 +21,7 @@ namespace QuickLoot::Input
 		InputObserver& operator=(InputObserver&&) = delete;
 		InputObserver& operator=(const InputObserver&) = delete;
 
-		static void StartListening();
-		static void StopListening();
+		static void Install();
 
 		RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* event, RE::BSTEventSource<RE::InputEvent*>* eventSource) override;
 	};

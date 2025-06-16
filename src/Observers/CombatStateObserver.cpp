@@ -9,7 +9,7 @@ namespace QuickLoot::Observers
 	void CombatStateObserver::Install()
 	{
 		RE::ScriptEventSourceHolder::GetSingleton()->AddEventSink(GetSingleton());
-		logger::info("Installed");
+		logger::info("Installed {}", typeid(CombatStateObserver).name());
 	}
 
 	bool IsPlayerEvent(const RE::TESCombatEvent* a_event)

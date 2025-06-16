@@ -45,7 +45,7 @@ namespace QuickLoot::Util
 		logger::info("Started profiler");
 	}
 
-	std::string indent(size_t depth)
+	std::string GetIndent(size_t depth)
 	{
 		static std::string indentCache = "| | | | | | | | ";
 
@@ -64,7 +64,7 @@ namespace QuickLoot::Util
 
 		if (!_intervalStack.empty() && !_loggedStart) {
 			const auto& interval = _intervalStack[_intervalStack.size() - 1];
-			_logger->info("{}{} started", indent(_intervalStack.size() - 1), _scopeNames[interval.scope]);
+			_logger->info("{}{} started", GetIndent(_intervalStack.size() - 1), _scopeNames[interval.scope]);
 		}
 
 		const auto id = _nextIntervalId++;
@@ -88,7 +88,7 @@ namespace QuickLoot::Util
 		const auto& interval = _intervalStack[_intervalStack.size() - 1];
 		const auto duration = std::chrono::duration_cast<std::chrono::microseconds>(profiler_clock::now() - interval.startTime);
 
-		_logger->info("{}{} took {}", indent(_intervalStack.size() - 1), _scopeNames[interval.scope], duration);
+		_logger->info("{}{} took {}", GetIndent(_intervalStack.size() - 1), _scopeNames[interval.scope], duration);
 		_loggedStart = true;
 		_intervalStack.pop_back();
 	}

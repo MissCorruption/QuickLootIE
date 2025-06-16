@@ -9,7 +9,7 @@ namespace QuickLoot::Observers
 	void CameraStateObserver::Install()
 	{
 		SKSE::GetCameraEventSource()->AddEventSink(GetSingleton());
-		logger::info("Installed");
+		logger::info("Installed {}", typeid(CameraStateObserver).name());
 	}
 
 	RE::BSEventNotifyControl CameraStateObserver::ProcessEvent(const SKSE::CameraEvent* event, RE::BSTEventSource<SKSE::CameraEvent>*)

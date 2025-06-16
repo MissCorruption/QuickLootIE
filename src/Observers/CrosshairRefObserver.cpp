@@ -55,7 +55,7 @@ namespace QuickLoot::Observers
 			SKSE::GetCrosshairRefEventSource()->AddEventSink(GetSingleton());
 		}
 
-		logger::info("Installed");
+		logger::info("Installed {}", typeid(CrosshairRefObserver).name());
 	}
 
 	RE::BSEventNotifyControl CrosshairRefObserver::ProcessEvent(

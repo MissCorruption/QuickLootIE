@@ -10,7 +10,7 @@ namespace QuickLoot::Observers
 	void MenuObserver::Install()
 	{
 		RE::UI::GetSingleton()->AddEventSink(GetSingleton());
-		logger::info("Installed");
+		logger::info("Installed {}", typeid(MenuObserver).name());
 	}
 
 	RE::BSEventNotifyControl MenuObserver::ProcessEvent(

@@ -10,7 +10,13 @@
 #include "Integrations/BetterThirdPersonSelection.h"
 #include "Integrations/Completionist.h"
 #include "LootMenu.h"
-#include "MenuVisibilityManager.h"
+#include "Observers/CameraStateObserver.h"
+#include "Observers/CombatStateObserver.h"
+#include "Observers/ContainerObserver.h"
+#include "Observers/CrosshairRefObserver.h"
+#include "Observers/LifeStateObserver.h"
+#include "Observers/LockChangedObserver.h"
+#include "Observers/MenuObserver.h"
 #include "SanityChecks.h"
 #include "Util/Profiler.h"
 
@@ -29,13 +35,20 @@ static void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 				return;
 			}
 
-			QuickLoot::Config::Papyrus::Init();
-
-			QuickLoot::Input::InputManager::Install();
-
 			QuickLoot::LootMenu::Register();
 
-			QuickLoot::MenuVisibilityManager::InstallHooks();
+			QuickLoot::Config::Papyrus::Install();
+
+			QuickLoot::Input::InputManager::Install();
+			QuickLoot::Input::InputObserver::Install();
+
+			QuickLoot::Observers::CameraStateObserver::Install();
+			QuickLoot::Observers::CombatStateObserver::Install();
+			QuickLoot::Observers::ContainerObserver::Install();
+			QuickLoot::Observers::CrosshairRefObserver::Install();
+			QuickLoot::Observers::LifeStateObserver::Install();
+			QuickLoot::Observers::LockChangedObserver::Install();
+			QuickLoot::Observers::MenuObserver::Install();
 
 			QuickLoot::Behaviors::ActivationPrompt::Install();
 			QuickLoot::Behaviors::LockpickActivation::Install();
@@ -44,7 +57,6 @@ static void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 			QuickLoot::Integrations::BetterThirdPersonSelection::Init();
 			QuickLoot::Integrations::Completionist::Init();
 
-			QuickLoot::Input::InputObserver::StartListening();
 			logger::info("--------------------------------[ kDataLoaded end ]--------------------------------");
 			break;
 		}
@@ -71,7 +83,7 @@ static void InitializeLog(spdlog::level::level_enum level = spdlog::level::info)
 	log->flush_on(level);
 
 	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("[%H:%M:%S.%e] [%t] [%l] [%s:%#] %v");
+	spdlog::set_pattern("[%H:%M:%S.%e] [%l] [%t] %v");
 }
 
 extern "C" __declspec(dllexport) bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* skse)
@@ -80,14 +92,14 @@ extern "C" __declspec(dllexport) bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadIn
 
 	const auto plugin = SKSE::PluginDeclaration::GetSingleton();
 
-	logger::info("Loaded plugin {} {}", plugin->GetName(), plugin->GetVersion().string("."));
+	logger::info("{} {}", plugin->GetName(), plugin->GetVersion().string("."));
 
 	QuickLoot::Config::SystemSettings::Update(true);
 	QuickLoot::Util::Profiler::Init();
 
 	PROFILE_SCOPE_NAMED("Plugin Startup");
 
-	SKSE::Init(skse);
+	SKSE::Init(skse, false);
 	SKSE::AllocTrampoline(1 << 8);
 
 	return SKSE::GetMessagingInterface()->RegisterListener(OnSKSEMessage);

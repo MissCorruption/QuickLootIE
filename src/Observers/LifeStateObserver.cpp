@@ -97,6 +97,6 @@ namespace QuickLoot::Observers
 			break;
 		}
 
-		logger::info("Installed");
+		logger::info("Installed {}", typeid(LifeStateObserver).name());
 	}
 }

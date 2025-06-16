@@ -22,7 +22,7 @@ namespace QuickLoot
 	void LootMenu::Register()
 	{
 		RE::UI::GetSingleton()->Register(MENU_NAME, CreateInstance);
-		logger::info("Registered {}"sv, MENU_NAME);
+		logger::info("Installed {} as {}"sv, typeid(LootMenu).name(), MENU_NAME);
 	}
 
 	RE::IMenu* LootMenu::CreateInstance()

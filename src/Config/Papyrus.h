@@ -75,7 +75,7 @@ namespace QuickLoot::Config
 		Papyrus& operator=(Papyrus&) = delete;
 		Papyrus& operator=(Papyrus&&) = delete;
 
-		static void Init();
+		static void Install();
 		static void SetFrameworkQuest(RE::StaticFunctionTag*, RE::TESQuest* quest);
 		static void LogWithPlugin(RE::StaticFunctionTag*, std::string message);
 		static void UpdateVariables(RE::StaticFunctionTag* = nullptr);

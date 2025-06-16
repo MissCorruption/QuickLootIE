@@ -6,9 +6,11 @@
 
 namespace QuickLoot::Config
 {
-	void Papyrus::Init()
+	void Papyrus::Install()
 	{
 		SKSE::GetPapyrusInterface()->Register(RegisterFunctions);
+
+		logger::info("Installed {}", typeid(Papyrus).name());
 	}
 
 	bool Papyrus::RegisterFunctions(RE::BSScript::IVirtualMachine* vm)
