@@ -23,11 +23,15 @@ namespace QuickLoot
 		static void OnLockChanged(RE::TESObjectREFR& container);
 		static void OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName);
 
+		static void SetForcedContainer(RE::ObjectRefHandle container);
+
 	private:
 		static constexpr bool LOG_EVENTS = false;
 
 		static inline RE::ObjectRefHandle _focusedRef{};
 		static inline RE::ObjectRefHandle _currentContainer{};
+		static inline RE::ObjectRefHandle _forcedContainer{};
+
 		static inline std::set<std::string> _disablingMods{};
 
 		static RE::TESObjectREFRPtr GetContainerObject(RE::ObjectRefHandle ref);

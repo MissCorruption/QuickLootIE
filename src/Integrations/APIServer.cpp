@@ -1,5 +1,6 @@
 #include "APIServer.h"
 
+#include "LootMenuManager.h"
 #include "MenuVisibilityManager.h"
 
 namespace QuickLoot::API
@@ -54,6 +55,30 @@ namespace QuickLoot::API
 	void APIServer::InterfaceV20::RegisterInvalidateLootMenuHandler(const char* plugin, InvalidateLootMenuHandler handler)
 	{
 		RegisterHandler(plugin, handler, _invalidateLootMenuHandlers);
+	}
+
+	void APIServer::InterfaceV20::ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container)
+	{
+		MenuVisibilityManager::SetForcedContainer(std::move(container));
+		logger::trace("Plugin {} forced container {:08X}", plugin, container.get() ? container.get()->GetFormID() : 0);
+	}
+
+	void APIServer::InterfaceV20::ClearForcedContainer(const char* plugin)
+	{
+		MenuVisibilityManager::SetForcedContainer({});
+		logger::trace("Plugin {} cleared forced container", plugin);
+	}
+
+	void APIServer::InterfaceV20::CloseLootMenu(const char* plugin)
+	{
+		LootMenuManager::RequestHide();
+		logger::trace("Plugin {} requested hiding the loot menu", plugin);
+	}
+
+	void APIServer::InterfaceV20::RefreshLootMenu(const char* plugin)
+	{
+		logger::trace("Plugin {} requested a loot menu refresh", plugin);
+		LootMenuManager::RequestRefresh(RefreshFlags::kAll);
 	}
 
 #pragma endregion

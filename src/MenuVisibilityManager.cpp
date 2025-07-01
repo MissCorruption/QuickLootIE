@@ -215,11 +215,12 @@ namespace QuickLoot
 		PROFILE_SCOPE;
 
 		// Don't refresh while the console is open to work around the missing cursor bug
+		// (any menu events while the console is open cause the cursor to disappear)
 		if(RE::UI::GetSingleton()->IsMenuOpen(RE::Console::MENU_NAME)) {
 			return;
 		}
 
-		const auto container = GetContainerObject(_focusedRef);
+		const auto container = GetContainerObject(_forcedContainer ? _forcedContainer : _focusedRef);
 		if (CanOpen(container)) {
 			_currentContainer = container->GetHandle();
 			LootMenuManager::RequestShow(_currentContainer);
@@ -332,6 +333,12 @@ namespace QuickLoot
 			Settings::Update();
 		}
 
+		RefreshOpenState();
+	}
+
+	void MenuVisibilityManager::SetForcedContainer(RE::ObjectRefHandle container)
+	{
+		_forcedContainer = std::move(container);
 		RefreshOpenState();
 	}
 

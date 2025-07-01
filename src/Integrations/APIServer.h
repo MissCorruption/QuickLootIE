@@ -29,6 +29,11 @@ namespace QuickLoot::API
 			virtual void RegisterOpenLootMenuHandler(const char* plugin, OpenLootMenuHandler handler);
 			virtual void RegisterCloseLootMenuHandler(const char* plugin, CloseLootMenuHandler handler);
 			virtual void RegisterInvalidateLootMenuHandler(const char* plugin, InvalidateLootMenuHandler handler);
+
+			virtual void ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container);
+			virtual void ClearForcedContainer(const char* plugin);
+			virtual void CloseLootMenu(const char* plugin);
+			virtual void RefreshLootMenu(const char* plugin);
 		};
 
 		static InterfaceV20* GetInterfaceV20() { return &_interface; }
