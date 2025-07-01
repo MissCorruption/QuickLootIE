@@ -13,6 +13,7 @@
 #include "Items/ItemStack.h"
 #include "LootMenuManager.h"
 
+#include <algorithm>
 #include <numbers>
 
 #undef PlaySound
@@ -363,9 +364,7 @@ namespace QuickLoot
 
 	void LootMenu::SetSelectedIndex(int newIndex, bool playSound)
 	{
-		if (newIndex < 0) {
-			newIndex = 0;
-		}
+		newIndex = std::max(newIndex, 0);
 
 		// This sets the index to -1 if the container is empty.
 		if (newIndex >= _inventory.size()) {
@@ -670,17 +669,15 @@ namespace QuickLoot
 
 		SortInventory();
 
-		std::vector<API::ItemStack> apiInventory;
-		apiInventory.reserve(_inventory.size());
-		for (auto& item : _inventory) {
-			_itemListProvider.PushBack(item->BuildDataObject(uiMovie.get()));
-			apiInventory.emplace_back(item->GetEntry(), item->GetDropRef().get().get());
-		}
+		API::APIServer::DispatchInvalidateLootMenuEvent(_container.get().get(), _inventory);
 
 		_itemList.InvalidateData();
 		_lootMenu.GetInstance().Invoke("refresh");
 
-		API::APIServer::DispatchInvalidateLootMenuEvent(_container.get().get(), apiInventory);
+		for (auto& item : _inventory) {
+			_itemListProvider.PushBack(item->BuildDataObject(uiMovie.get()));
+		}
+
 		SetSelectedIndex(_selectedIndex, false);
 
 		QueueRefresh(RefreshFlags::kWeight);
@@ -721,35 +718,20 @@ namespace QuickLoot
 	{
 		PROFILE_SCOPE;
 
-		/* TODO
 		_infoBarProvider.ClearElements();
-		const auto idx = static_cast<std::ptrdiff_t>(_itemList.SelectedIndex());
-		if (0 <= idx && idx < std::ssize(_inventory)) {
-			typedef std::function<std::string(const QuickLoot::Items::OldItem&)> functor;
-			const std::array functors{
-				functor{ [](const QuickLoot::Items::OldItem& a_val) { return fmt::format(FMT_STRING("{:.1f}"), a_val.Weight()); } },
-				functor{ [](const QuickLoot::Items::OldItem& a_val) { return fmt::format(FMT_STRING("{}"), a_val.Value()); } },
-			};
 
-			const auto& item = _inventory[static_cast<size_t>(idx)];
-			std::string str;
-			RE::GFxValue obj;
-			for (const auto& functor : functors) {
-				str = functor(*item);
-				obj.SetString(str);
-				_infoBarProvider.PushBack(obj);
-			}
+		if (_selectedIndex >= 0 && _selectedIndex < _inventory.size()) {
+			const auto& selectedItem = _inventory[_selectedIndex];
+			const auto strings = API::APIServer::DispatchPopulateInfoBarEvent(_container.get().get(), selectedItem->GetEntry(), selectedItem->GetDropRef().get().get());
 
-			const auto ench = item->EnchantmentCharge();
-			if (ench >= 0.0) {
-				str = fmt::format(FMT_STRING("{:.1f}%"), ench);
-				obj.SetString(str);
-				_infoBarProvider.PushBack(obj);
+			for (auto string : strings) {
+				if (!string.empty()) {
+					_infoBarProvider.PushBack(string.c_str());
+				}
 			}
 		}
 
 		_infoBar.InvalidateData();
-		*/
 	}
 
 	void LootMenu::RefreshWeight()

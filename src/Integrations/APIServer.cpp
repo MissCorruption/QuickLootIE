@@ -57,6 +57,11 @@ namespace QuickLoot::API
 		RegisterHandler(plugin, handler, _invalidateLootMenuHandlers);
 	}
 
+	void APIServer::InterfaceV20::RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler)
+	{
+		RegisterHandler(plugin, handler, _populateInfoBarHandlers);
+	}
+
 	void APIServer::InterfaceV20::ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container)
 	{
 		MenuVisibilityManager::SetForcedContainer(std::move(container));
@@ -152,15 +157,34 @@ namespace QuickLoot::API
 		DispatchEvent(_closeLootMenuHandlers, e);
 	}
 
-	void APIServer::DispatchInvalidateLootMenuEvent(RE::TESObjectREFR* container, const std::vector<ItemStack>& inventory)
+	void APIServer::DispatchInvalidateLootMenuEvent(RE::TESObjectREFR* container, const std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory)
 	{
+		std::vector<ItemStack> apiInventory;
+		apiInventory.reserve(inventory.size());
+		for (auto& item : inventory) {
+			apiInventory.emplace_back(item->GetEntry(), item->GetDropRef().get().get());
+		}
+
 		InvalidateLootMenuEvent e{
 			.container = container,
-			.stacks = inventory.data(),
-			.stackCount = inventory.size(),
+			.stacks = apiInventory.data(),
+			.stackCount = apiInventory.size(),
 		};
 
 		DispatchEvent(_invalidateLootMenuHandlers, e);
+	}
+
+	std::vector<RE::BSString> APIServer::DispatchPopulateInfoBarEvent(RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)
+	{
+		ItemStack stack{ entry, dropRef };
+
+		PopulateInfoBarEvent e{
+			.container = container,
+			.stack = &stack,
+			.result = {},
+		};
+
+		return DispatchResultEvent<RE::BSString>(_populateInfoBarHandlers, e);
 	}
 
 #pragma endregion

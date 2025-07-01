@@ -101,7 +101,7 @@ namespace QuickLoot::Items
 		static RE::ExtraDataList* GetInventoryEntryExtraListForRemoval(RE::InventoryEntryData* entry, int count, bool isViewingContainer);
 
 	public:
-		template <typename TItemStack>
+		template <typename TItemStack = ItemStack>
 		static std::vector<std::unique_ptr<TItemStack>> LoadContainerInventory(RE::TESObjectREFR* container,
 			const std::function<bool(RE::TESBoundObject&)>& filter = RE::TESObjectREFR::DEFAULT_INVENTORY_FILTER)
 		{

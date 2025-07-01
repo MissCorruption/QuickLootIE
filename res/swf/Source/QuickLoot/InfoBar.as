@@ -1,4 +1,4 @@
-class QuickLoot.InfoBar extends gfx.controls.ButtonBar
+﻿class QuickLoot.InfoBar extends gfx.controls.ButtonBar
 {
 	/* INITIALIZATION */
 
@@ -60,11 +60,7 @@ class QuickLoot.InfoBar extends gfx.controls.ButtonBar
 			return false;
 		}
 		reflowing = false;
-
-		var calcY: Function = function(a_height: Number): Number {
-			return Math.max((this.height - a_height) / 2, 0);
-		};
-
+		
 		var pos: Number = width;
 		for (var i: Number = 0; i < renderers.length; ++i) {
 			var renderer: MovieClip = renderers[i];
@@ -72,8 +68,8 @@ class QuickLoot.InfoBar extends gfx.controls.ButtonBar
 			pos -= renderer.width;
 			renderer._x = pos;
 			pos -= _spacing;
-
-			renderer._y = calcY(renderer.height);
+			
+			renderer._y = 0;
 			renderer._visible = true;
 		}
 

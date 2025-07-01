@@ -65,6 +65,13 @@ namespace QuickLoot::API
 			size_t stackCount;
 		};
 
+		struct PopulateInfoBarEvent
+		{
+			RE::TESObjectREFR* container;
+			const ItemStack* stack;
+			RE::BSString result;
+		};
+
 		template <typename TEvent>
 		using EventHandler = void (*)(TEvent* e);
 
@@ -81,6 +88,7 @@ namespace QuickLoot::API
 		using OpenLootMenuHandler = EventHandler<OpenLootMenuEvent>;
 		using CloseLootMenuHandler = EventHandler<CloseLootMenuEvent>;
 		using InvalidateLootMenuHandler = EventHandler<InvalidateLootMenuEvent>;
+		using PopulateInfoBarHandler = EventHandler<PopulateInfoBarEvent>;
 	}
 
 	using namespace Events;
@@ -181,6 +189,13 @@ namespace QuickLoot::API
 			}
 		}
 
+		static void RegisterPopulateInfoBarHandler(PopulateInfoBarHandler handler)
+		{
+			if (_interface) {
+				_interface->RegisterPopulateInfoBarHandler(_plugin, handler);
+			}
+		}
+
 	private:
 		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
 		struct InterfaceV20
@@ -195,6 +210,7 @@ namespace QuickLoot::API
 			virtual void RegisterOpenLootMenuHandler(const char* plugin, OpenLootMenuHandler handler);
 			virtual void RegisterCloseLootMenuHandler(const char* plugin, CloseLootMenuHandler handler);
 			virtual void RegisterInvalidateLootMenuHandler(const char* plugin, InvalidateLootMenuHandler handler);
+			virtual void RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler);
 
 			virtual void ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container);
 			virtual void ClearForcedContainer(const char* plugin);
