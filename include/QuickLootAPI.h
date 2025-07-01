@@ -12,6 +12,18 @@ namespace QuickLoot::API
 		RE::TESObjectREFR* dropRef;
 	};
 
+	enum class InventoryModificationType : uint8_t
+	{
+		kAddStack = 0,
+		kRemoveStack = 1,
+	};
+
+	struct InventoryModification
+	{
+		InventoryModificationType type;
+		ItemStack stack;
+	};
+
 	namespace Events
 	{
 		enum class HandleResult : uint8_t
@@ -72,6 +84,14 @@ namespace QuickLoot::API
 			RE::BSString result;
 		};
 
+		struct ModifyInventoryEvent
+		{
+			RE::TESObjectREFR* container;
+			const ItemStack* stacks;
+			size_t stackCount;
+			RE::BSTArray<InventoryModification> result;
+		};
+
 		template <typename TEvent>
 		using EventHandler = void (*)(TEvent* e);
 
@@ -89,6 +109,7 @@ namespace QuickLoot::API
 		using CloseLootMenuHandler = EventHandler<CloseLootMenuEvent>;
 		using InvalidateLootMenuHandler = EventHandler<InvalidateLootMenuEvent>;
 		using PopulateInfoBarHandler = EventHandler<PopulateInfoBarEvent>;
+		using ModifyInventoryHandler = EventHandler<ModifyInventoryEvent>;
 	}
 
 	using namespace Events;
@@ -210,6 +231,8 @@ namespace QuickLoot::API
 			virtual void RegisterOpenLootMenuHandler(const char* plugin, OpenLootMenuHandler handler);
 			virtual void RegisterCloseLootMenuHandler(const char* plugin, CloseLootMenuHandler handler);
 			virtual void RegisterInvalidateLootMenuHandler(const char* plugin, InvalidateLootMenuHandler handler);
+
+			virtual void RegisterModifyInventoryHandler(const char* plugin, ModifyInventoryHandler handler);
 			virtual void RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler);
 
 			virtual void ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container);

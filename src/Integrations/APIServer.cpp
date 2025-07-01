@@ -57,6 +57,11 @@ namespace QuickLoot::API
 		RegisterHandler(plugin, handler, _invalidateLootMenuHandlers);
 	}
 
+	void APIServer::InterfaceV20::RegisterModifyInventoryHandler(const char* plugin, ModifyInventoryHandler handler)
+	{
+		RegisterHandler(plugin, handler, _modifyInventoryHandlers);
+	}
+
 	void APIServer::InterfaceV20::RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler)
 	{
 		RegisterHandler(plugin, handler, _populateInfoBarHandlers);
@@ -172,6 +177,59 @@ namespace QuickLoot::API
 		};
 
 		DispatchEvent(_invalidateLootMenuHandlers, e);
+	}
+
+	void APIServer::DispatchModifyInventoryEvent(RE::TESObjectREFR* container, std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory)
+	{
+		std::shared_lock guard(_lock);
+
+		ModifyInventoryEvent e{
+			.container = container,
+			.stacks = nullptr,
+			.stackCount = 0,
+			.result = {},
+		};
+
+		std::vector<ItemStack> apiInventory;
+
+		bool rebuildApiInventory = true;
+
+		for (auto const& handler : _modifyInventoryHandlers) {
+			if (rebuildApiInventory) {
+				apiInventory.clear();
+				apiInventory.reserve(inventory.size());
+
+				for (auto& item : inventory) {
+					apiInventory.emplace_back(item->GetEntry(), item->GetDropRef().get().get());
+				}
+
+				e.stacks = apiInventory.data();
+				e.stackCount = apiInventory.size();
+				rebuildApiInventory = false;
+			}
+
+			handler(&e);
+
+			for (const auto& modification : e.result) {
+				const auto entry = modification.stack.entry;
+				const auto dropRef = modification.stack.dropRef ? modification.stack.dropRef->GetHandle() : RE::ObjectRefHandle{};
+
+				rebuildApiInventory = true;
+
+				switch (modification.type) {
+				case InventoryModificationType::kAddStack:
+					inventory.push_back(std::make_unique<Items::QuickLootItemStack>(entry, container->GetHandle(), dropRef));
+					break;
+
+				case InventoryModificationType::kRemoveStack:
+					const auto it = std::ranges::find_if(inventory, [&](const auto& stack) { return stack->GetEntry() == modification.stack.entry; });
+					if (it != inventory.end()) {
+						inventory.erase(it);
+					}
+					break;
+				}
+			}
+		}
 	}
 
 	std::vector<RE::BSString> APIServer::DispatchPopulateInfoBarEvent(RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)

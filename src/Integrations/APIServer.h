@@ -32,6 +32,8 @@ namespace QuickLoot::API
 			virtual void RegisterOpenLootMenuHandler(const char* plugin, OpenLootMenuHandler handler);
 			virtual void RegisterCloseLootMenuHandler(const char* plugin, CloseLootMenuHandler handler);
 			virtual void RegisterInvalidateLootMenuHandler(const char* plugin, InvalidateLootMenuHandler handler);
+			
+			virtual void RegisterModifyInventoryHandler(const char* plugin, ModifyInventoryHandler handler);
 			virtual void RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler);
 
 			virtual void ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container);
@@ -52,6 +54,7 @@ namespace QuickLoot::API
 
 		static void DispatchInvalidateLootMenuEvent(RE::TESObjectREFR* container, const std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory);
 
+		static void DispatchModifyInventoryEvent(RE::TESObjectREFR* container, std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory);
 		static std::vector<RE::BSString> DispatchPopulateInfoBarEvent(RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef);
 
 	private:
@@ -65,6 +68,7 @@ namespace QuickLoot::API
 		static inline std::vector<OpenLootMenuHandler> _openLootMenuHandlers{};
 		static inline std::vector<CloseLootMenuHandler> _closeLootMenuHandlers{};
 		static inline std::vector<InvalidateLootMenuHandler> _invalidateLootMenuHandlers{};
+		static inline std::vector<ModifyInventoryHandler> _modifyInventoryHandlers{};
 		static inline std::vector<PopulateInfoBarHandler> _populateInfoBarHandlers{};
 
 		template <typename THandler>
