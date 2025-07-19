@@ -2,6 +2,7 @@
 
 #include "Config/SystemSettings.h"
 #include "Config/UserSettings.h"
+#include "Integrations/DismemberingFramework.h"
 #include "LootMenu.h"
 #include "LootMenuManager.h"
 
@@ -19,8 +20,12 @@ namespace QuickLoot
 
 			// For enemies that leave behind an ash pile on death
 			if (object->Is(RE::FormType::Activator)) {
-				const auto ashPile = ptr->extraList.GetAshPileRef();
-				return GetContainerObject(ashPile);
+				return GetContainerObject(ptr->extraList.GetAshPileRef());
+			}
+
+			// For severed limbs from Dismembering Framework
+			if (const auto limbOwner = Integrations::DismemberingFramework::GetLimbOwner(ptr.get())) {
+				return limbOwner->GetHandle().get();
 			}
 
 			if (ptr->HasContainer()) {
@@ -216,7 +221,7 @@ namespace QuickLoot
 
 		// Don't refresh while the console is open to work around the missing cursor bug
 		// (any menu events while the console is open cause the cursor to disappear)
-		if(RE::UI::GetSingleton()->IsMenuOpen(RE::Console::MENU_NAME)) {
+		if (RE::UI::GetSingleton()->IsMenuOpen(RE::Console::MENU_NAME)) {
 			return;
 		}
 

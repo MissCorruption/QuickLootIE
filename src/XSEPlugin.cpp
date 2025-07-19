@@ -9,6 +9,7 @@
 #include "Integrations/Artifacts.h"
 #include "Integrations/BetterThirdPersonSelection.h"
 #include "Integrations/Completionist.h"
+#include "Integrations/DismemberingFramework.h"
 #include "LootMenu.h"
 #include "Observers/CameraStateObserver.h"
 #include "Observers/CombatStateObserver.h"
@@ -56,6 +57,7 @@ static void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 			QuickLoot::Integrations::Artifacts::Init();
 			QuickLoot::Integrations::BetterThirdPersonSelection::Init();
 			QuickLoot::Integrations::Completionist::Init();
+			QuickLoot::Integrations::DismemberingFramework::Init();
 
 			logger::info("--------------------------------[ kDataLoaded end ]--------------------------------");
 			break;
