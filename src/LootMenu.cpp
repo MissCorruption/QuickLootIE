@@ -674,12 +674,12 @@ namespace QuickLoot
 
 		API::APIServer::DispatchInvalidateLootMenuEvent(_container.get().get(), _inventory);
 
-		_itemList.InvalidateData();
-		_lootMenu.GetInstance().Invoke("refresh");
-
 		for (auto& item : _inventory) {
 			_itemListProvider.PushBack(item->BuildDataObject(uiMovie.get()));
 		}
+
+		_itemList.InvalidateData();
+		_lootMenu.GetInstance().Invoke("refresh");
 
 		SetSelectedIndex(_selectedIndex, false);
 
