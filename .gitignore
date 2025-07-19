@@ -5,6 +5,7 @@ build/
 dist/
 .vs*/
 .xmake/
+vsxmake*
 
 ## Papyrus and friends
 .vscode

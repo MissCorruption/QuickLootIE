@@ -1,5 +1,8 @@
 set_xmakever("2.9.5")
 
+-- This needs to be included before the project setup
+includes("extern/commonlibsse-ng")
+
 -- Globals
 PROJECT_NAME = "QuickLootIE"
 
@@ -7,7 +10,7 @@ PROJECT_NAME = "QuickLootIE"
 set_project(PROJECT_NAME)
 set_version("3.4.1")
 set_languages("cxx23")
-set_license("mit")
+set_license("MIT")
 set_warnings("allextra", "error")
 
 -- Build options
@@ -15,25 +18,22 @@ option("auto_plugin_deployment", {default = false, description = "Copy the build
 option("zip_to_dist", {default = true, description = "Zip the base mod and addons to their own 7z file in dist."})
 option("aio_zip_to_dist", {default = false, description = "Zip the base mod and addons to a AIO 7z file in dist."})
 
-
 -- Dependencies & Includes
--- https://github.com/xmake-io/xmake-repo/tree/dev    
+-- https://github.com/xmake-io/xmake-repo/tree/dev
 add_requires("fmt", "magic_enum", "nlohmann_json", "xbyak")
-
-includes("extern/commonlibsse-ng")
 
 -- policies
 set_policy("package.requires_lock", true)
 set_policy("check.auto_ignore_flags", false)
 
 -- rules
-add_rules("mode.debug", "mode.release")
+add_rules("mode.debug", "mode.release", "mode.releasedbg")
 add_rules("plugin.vsxmake.autoupdate")
 
 if is_mode("debug") then
     add_defines("DEBUG")
     set_optimize("none")
-elseif is_mode("release") then
+elseif is_mode("release", "releasedbg") then
     add_defines("NDEBUG")
     set_optimize("fastest")
     set_symbols("debug")
@@ -55,8 +55,7 @@ target(PROJECT_NAME)
         name = PROJECT_NAME,
         author = "Miss Corruption & AtomCrafty",
         description = "A fork of QuickLoot EE that adds new features, fixes bugs, and incorporates native compatibility for mods that previously needed patches. "
-        }
-    )
+    })
 
     -- Source files
     set_pcxxheader("src/PCH.h")
@@ -90,11 +89,11 @@ target(PROJECT_NAME)
     -- Conditional flags
     if is_mode("debug") then
         add_cxxflags("cl::/bigobj")
-    elseif is_mode("release") then
+    elseif is_mode("release", "releasedbg") then
         add_cxxflags("cl::/Zc:inline", "cl::/JMC-", "cl::/Ob3")
     end
 
-    -- Post Build 
+    -- Post Build
     after_build(function (target)
         if has_config("auto_plugin_deployment") then
             local output_dir = os.getenv("OutputDir")
@@ -110,5 +109,4 @@ target(PROJECT_NAME)
             end
         end
     end)
-
 target_end()
