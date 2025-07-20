@@ -10,11 +10,11 @@ import Debug
 ;-- Properties and Fields --------------------------
 ;---------------------------------------------------
 
-bool AutoLoadedProfile = false
+bool property IsInitialLoad = true auto hidden
 
-string ConfigPath = "../QuickLootIE/DefaultConfig"
-string SortPresetPath = "../QuickLootIE/SortPresets/"
-string ControlPresetPath = "../QuickLootIE/ControlPresets/"
+string property ConfigPath = "../QuickLootIE/DefaultConfig.json" auto hidden
+string property SortPresetPath = "../QuickLootIE/SortPresets/" auto hidden
+string property ControlPresetPath = "../QuickLootIE/ControlPresets/" auto hidden
 
 ; General > Behavior Settings
 bool property QLIE_ShowInCombat = true auto hidden
@@ -37,6 +37,7 @@ int property QLIE_WindowMinLines = 0 auto hidden
 int property QLIE_WindowMaxLines = 7 auto hidden
 float property QLIE_WindowOpacityNormal = 1.0 auto hidden
 float property QLIE_WindowOpacityEmpty = 0.3 auto hidden
+
 string[] WindowAnchorNames
 
 ; Display > Icon Settings
@@ -49,12 +50,14 @@ bool property QLIE_ShowIconEnchantedSpecial = true auto hidden
 
 ; Display > Info Columns
 string[] property QLIE_InfoColumns auto hidden
-int InfoColumnPresetIndex = 2
+
+int InfoColumnPresetIndex = 0
 string[] InfoColumnPresetNames
 string[] InfoColumnPresetStrings
 
 ; Sorting
 string[] property QLIE_SortRulesActive auto hidden
+
 string[] SortRulesAvailable			; Options available for insertion
 int[] SortRulesActiveIds			; Option IDs for each index in the active list
 int SortSelectedRuleIndex = -1		; Index of the selected option in the active list
@@ -82,7 +85,7 @@ string[] ControlPresetNames
 int ControlPredefinedPresetCount
 bool GamepadMode
 
-; Compatibility > LOTD Icons
+; Compatibility > Artifact Icons
 bool property QLIE_ShowIconArtifactNew = true auto hidden
 bool property QLIE_ShowIconArtifactCarried = true auto hidden
 bool property QLIE_ShowIconArtifactDisplayed = true auto hidden
@@ -98,7 +101,11 @@ bool property QLIE_ShowIconCompletionistCollected = true auto hidden
 event OnConfigInit()
 	LogWithPlugin("OnConfigInit")
 
-	AutoLoadConfig()
+	if IsInitialLoad
+		Initialize()
+		ImportSettings(true)
+		IsInitialLoad = false
+	endif
 endevent
 
 event OnConfigOpen()
@@ -194,15 +201,14 @@ function InitInfoColumnPresetData()
 endfunction
 
 function InitSortPresetList()
-
 	; Grab presets from the DLL.
 	SortPresetNames = GetSortingPresets()
 	SortPredefinedPresetCount = SortPresetNames.Length
 
 	; Grab custom presets from the JSON Path
-	string[] custom_presets = JsonUtil.JsonInFolder(SortPresetPath)
-	if custom_presets.Length > 0
-		SortPresetNames = AddPresetsToArray(SortPresetNames, custom_presets)
+	string[] customPresets = JsonUtil.JsonInFolder(SortPresetPath)
+	if customPresets.Length > 0
+		SortPresetNames = AddPresetsToArray(SortPresetNames, customPresets)
 	endif
 endfunction
 
@@ -239,7 +245,7 @@ function InitControlPresets()
 endfunction
 
 ;---------------------------------------------------
-;-- Events -----------------------------------------
+;-- Global Events ----------------------------------
 ;---------------------------------------------------
 
 event OnHighlightST()
@@ -280,7 +286,7 @@ event OnOptionSelect(int optionID)
 endevent
 
 ;---------------------------------------------------
-;-- Pages ------------------------------------------
+;-- Page Setup -------------------------------------
 ;---------------------------------------------------
 
 function BuildGeneralPage()
@@ -311,15 +317,15 @@ function BuildGeneralPage()
 	AddEmptyOption()
 
 	if PapyrusUtil.GetScriptVersion() > 31
-		AddHeaderOption("$qlie_ProfileActionsHeader")
-		AddTextOptionST("state_ProfileReset",	"", "$qlie_ProfileReset_text")
-		AddTextOptionST("state_ProfileSave",	"", "$qlie_ProfileSave_text")
-		AddTextOptionST("state_ProfileLoad",	"", "$qlie_ProfileLoad_text")
+		AddHeaderOption("$qlie_ManageSettingsHeader")
+		AddTextOptionST("state_SettingsReset",	"", "$qlie_SettingsReset_text")
+		AddTextOptionST("state_SettingsExport",	"", "$qlie_SettingsExport_text")
+		AddTextOptionST("state_SettingsImport",	"", "$qlie_SettingsImport_text")
 	else
-		AddHeaderOption("$qlie_ProfileActionsHeader")
-		AddTextOptionST("state_ProfileReset",	"", "$qlie_ProfileReset_text")
-		AddTextOptionST("state_ProfileSave",	"", "$qlie_ProfileSave_unavailable", OPTION_FLAG_DISABLED)
-		AddTextOptionST("state_ProfileLoad",	"", "$qlie_ProfileLoad_unavailable", OPTION_FLAG_DISABLED)
+		AddHeaderOption("$qlie_ManageSettingsHeader")
+		AddTextOptionST("state_SettingsReset",	"", "$qlie_SettingsReset_text")
+		AddTextOptionST("state_SettingsExport",	"", "$qlie_SettingsExport_unavailable", OPTION_FLAG_DISABLED)
+		AddTextOptionST("state_SettingsImport",	"", "$qlie_SettingsImport_unavailable", OPTION_FLAG_DISABLED)
 	endif
 endfunction
 
@@ -478,32 +484,114 @@ function ShowMsg(string message)
 endfunction
 
 ;---------------------------------------------------
-;-- General > Profile Actions ----------------------
+;-- General > Manage Settings ----------------------
 ;---------------------------------------------------
 
-state state_ProfileReset
+state state_SettingsReset
 	event OnSelectST()
-		SetTextOptionValueST("$qlie_ProfileReset_inprogress")
+		SetTextOptionValueST("$qlie_SettingsReset_inprogress")
 		ResetSettings()
-		SetTextOptionValueST("$qlie_ProfileReset_text")
+		SetTextOptionValueST("$qlie_SettingsReset_text")
 	endevent
 endstate
 
-state state_ProfileSave
+state state_SettingsExport
 	event OnSelectST()
-		SetTextOptionValueST("$qlie_ProfileSave_inprogress")
-		SaveProfile()
-		SetTextOptionValueST("$qlie_ProfileSave_text")
+		SetTextOptionValueST("$qlie_SettingsExport_inprogress")
+		ExportSettings()
+		SetTextOptionValueST("$qlie_SettingsExport_text")
 	endevent
 endstate
 
-state state_ProfileLoad
+state state_SettingsImport
 	event OnSelectST()
-		SetTextOptionValueST("$qlie_ProfileLoad_inprogress")
-		LoadProfile(false)
-		SetTextOptionValueST("$qlie_ProfileLoad_text")
+		SetTextOptionValueST("$qlie_SettingsImport_inprogress")
+		ImportSettings(false)
+		SetTextOptionValueST("$qlie_SettingsImport_text")
 	endevent
 endstate
+
+function ResetSettings()
+	LogWithPlugin("ResetSettings")
+
+	ResetSettings_General()
+	ResetSettings_Display()
+	ResetSettings_Sorting()
+	ResetSettings_Controls()
+	ResetSettings_Compatibility()
+
+	if IsInMenuMode()
+		ForcePageReset()
+	endif
+endfunction
+
+function ExportSettings()
+	LogWithPlugin("ExportSettings")
+
+	if PapyrusUtil.GetScriptVersion() <= 31
+		ShowMsg("$qlie_SettingsExport_failure")
+		return
+	endif
+
+	ExportSettings_General(ConfigPath)
+	ExportSettings_Display(ConfigPath)
+	ExportSettings_Sorting(ConfigPath)
+	ExportSettings_Controls(ConfigPath)
+	ExportSettings_Compatibility(ConfigPath)
+
+	JsonUtil.Save(ConfigPath)
+
+	ShowMsg("$qlie_SettingsExport_success")
+endfunction
+
+function ImportSettings(bool initialLoad)
+	LogWithPlugin("ImportSettings")
+
+	if PapyrusUtil.GetScriptVersion() <= 31
+		if initialLoad
+			Notification("$qlie_SettingsImport_unsupportedNotif")
+			ResetSettings()
+		else
+			ShowMsg("$qlie_SettingsImport_unsupported")
+		endif
+		return
+	endif
+
+	if !JsonUtil.JsonExists(ConfigPath)
+		if initialLoad
+			Notification("$qlie_SettingsImport_missingNotif")
+			ResetSettings()
+		else
+			ShowMsg("$qlie_SettingsImport_missing")
+		endif
+		return
+	endif
+
+	if !JsonUtil.IsGood(ConfigPath)
+		if initialLoad
+			Notification("$qlie_SettingsImport_corruptNotif");
+			ResetSettings()
+		else
+			ShowMsg("$qlie_SettingsImport_corrupt{" + JsonUtil.GetErrors(ConfigPath) + "}")
+		endif
+		return
+	endif
+
+	ImportSettings_General(ConfigPath)
+	ImportSettings_Display(ConfigPath)
+	ImportSettings_Sorting(ConfigPath)
+	ImportSettings_Controls(ConfigPath)
+	ImportSettings_Compatibility(ConfigPath)
+
+	JsonUtil.Unload(ConfigPath, false)
+
+	if initialLoad
+		Notification("$qlie_SettingsImport_successNotif")
+	else
+		ShowMsg("$qlie_SettingsImport_success")
+		ForcePageReset()
+	endif
+endfunction
 
 ;---------------------------------------------------
 ;-- General > Behavior Settings --------------------
@@ -629,6 +717,49 @@ state state_PlayScrollSound
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_PlayScrollSound))
 	endevent
 endstate
+
+;---------------------------------------------------
+;-- General > Manage -------------------------------
+;---------------------------------------------------
+
+function ResetSettings_General()
+	QLIE_ShowInCombat = true
+	QLIE_ShowWhenEmpty = false
+	QLIE_ShowWhenUnlocked = true
+	QLIE_ShowInThirdPerson = true
+	QLIE_ShowWhenMounted = false
+	QLIE_EnableForCorpses = true
+	QLIE_EnableForAnimals = true
+	QLIE_EnableForDragons = true
+	QLIE_BreakInvisibility = true
+	QLIE_PlayScrollSound = true
+endfunction
+
+function ExportSettings_General(string path)
+	JsonUtil.SetPathIntValue(path, "ShowInCombat", QLIE_ShowInCombat as int)
+	JsonUtil.SetPathIntValue(path, "ShowWhenEmpty", QLIE_ShowWhenEmpty as int)
+	JsonUtil.SetPathIntValue(path, "ShowWhenUnlocked", QLIE_ShowWhenUnlocked as int)
+	JsonUtil.SetPathIntValue(path, "ShowInThirdPerson", QLIE_ShowInThirdPerson as int)
+	JsonUtil.SetPathIntValue(path, "ShowWhenMounted", QLIE_ShowWhenMounted as int)
+	JsonUtil.SetPathIntValue(path, "EnableForCorpses", QLIE_EnableForCorpses as int)
+	JsonUtil.SetPathIntValue(path, "EnableForAnimals", QLIE_EnableForAnimals as int)
+	JsonUtil.SetPathIntValue(path, "EnableForDragons", QLIE_EnableForDragons as int)
+	JsonUtil.SetPathIntValue(path, "BreakInvisibility", QLIE_BreakInvisibility as int)
+	JsonUtil.SetPathIntValue(path, "PlayScrollSound", QLIE_PlayScrollSound as int)
+endfunction
+
+function ImportSettings_General(string path)
+	QLIE_ShowInCombat = JsonUtil.GetPathIntValue(path, "ShowInCombat", QLIE_ShowInCombat as int)
+	QLIE_ShowWhenEmpty = JsonUtil.GetPathIntValue(path, "ShowWhenEmpty", QLIE_ShowWhenEmpty as int)
+	QLIE_ShowWhenUnlocked = JsonUtil.GetPathIntValue(path, "ShowWhenUnlocked", QLIE_ShowWhenUnlocked as int)
+	QLIE_ShowInThirdPerson = JsonUtil.GetPathIntValue(path, "ShowInThirdPerson", QLIE_ShowInThirdPerson as int)
+	QLIE_ShowWhenMounted = JsonUtil.GetPathIntValue(path, "ShowWhenMounted", QLIE_ShowWhenMounted as int)
+	QLIE_EnableForCorpses = JsonUtil.GetPathIntValue(path, "EnableForCorpses", QLIE_EnableForCorpses as int)
+	QLIE_EnableForAnimals = JsonUtil.GetPathIntValue(path, "EnableForAnimals", QLIE_EnableForAnimals as int)
+	QLIE_EnableForDragons = JsonUtil.GetPathIntValue(path, "EnableForDragons", QLIE_EnableForDragons as int)
+	QLIE_BreakInvisibility = JsonUtil.GetPathIntValue(path, "BreakInvisibility", QLIE_BreakInvisibility as int)
+	QLIE_PlayScrollSound = JsonUtil.GetPathIntValue(path, "PlayScrollSound", QLIE_PlayScrollSound as int)
+endfunction
 
 ;---------------------------------------------------
 ;-- Display > Window Settings ----------------------
@@ -947,6 +1078,70 @@ bool function ValidateInfoColumns(string[] columns)
 endfunction
 
 ;---------------------------------------------------
+;-- Display > Manage -------------------------------
+;---------------------------------------------------
+
+function ResetSettings_Display()
+	QLIE_WindowOffsetX = 100
+	QLIE_WindowOffsetY = -200
+	QLIE_WindowScale = 1.0
+	QLIE_WindowAnchor = 0
+	QLIE_WindowMinLines = 0
+	QLIE_WindowMaxLines = 7
+	QLIE_WindowOpacityNormal = 1.0
+	QLIE_WindowOpacityEmpty = 0.3
+
+	QLIE_ShowIconItem = true
+	QLIE_ShowIconRead = true
+	QLIE_ShowIconStolen = true
+	QLIE_ShowIconEnchanted = true
+	QLIE_ShowIconEnchantedKnown = true
+	QLIE_ShowIconEnchantedSpecial = true
+
+	SetInfoColumns(InfoColumnPresetStrings[0], 0, true)
+endfunction
+
+function ExportSettings_Display(string path)
+	JsonUtil.SetPathIntValue(path, "WindowOffsetX", QLIE_WindowOffsetX)
+	JsonUtil.SetPathIntValue(path, "WindowOffsetY", QLIE_WindowOffsetY)
+	JsonUtil.SetPathFloatValue(path, "WindowScale", QLIE_WindowScale)
+	JsonUtil.SetPathIntValue(path, "WindowAnchor", QLIE_WindowAnchor)
+	JsonUtil.SetPathIntValue(path, "WindowMinLines", QLIE_WindowMinLines)
+	JsonUtil.SetPathIntValue(path, "WindowMaxLines", QLIE_WindowMaxLines)
+	JsonUtil.SetPathFloatValue(path, "WindowOpacityNormal", QLIE_WindowOpacityNormal)
+	JsonUtil.SetPathFloatValue(path, "WindowOpacityEmpty", QLIE_WindowOpacityEmpty)
+
+	JsonUtil.SetPathIntValue(path, "ShowIconItem", QLIE_ShowIconItem as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconRead", QLIE_ShowIconRead as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconStolen", QLIE_ShowIconStolen as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconEnchanted", QLIE_ShowIconEnchanted as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconEnchantedKnown", QLIE_ShowIconEnchantedKnown as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconEnchantedSpecial", QLIE_ShowIconEnchantedSpecial as int)
+
+	JsonUtil.SetPathStringArray(path, "InfoColumns", QLIE_InfoColumns)
+endfunction
+
+function ImportSettings_Display(string path)
+	QLIE_WindowOffsetX = JsonUtil.GetPathIntValue(path, "WindowOffsetX", QLIE_WindowOffsetX)
+	QLIE_WindowOffsetY = JsonUtil.GetPathIntValue(path, "WindowOffsetY", QLIE_WindowOffsetY)
+	QLIE_WindowScale = JsonUtil.GetPathFloatValue(path, "WindowScale", QLIE_WindowScale)
+	QLIE_WindowAnchor = JsonUtil.GetPathIntValue(path, "WindowAnchor", QLIE_WindowAnchor)
+	QLIE_WindowMinLines = JsonUtil.GetPathIntValue(path, "WindowMinLines", QLIE_WindowMinLines)
+	QLIE_WindowMaxLines = JsonUtil.GetPathIntValue(path, "WindowMaxLines", QLIE_WindowMaxLines)
+	QLIE_WindowOpacityNormal = JsonUtil.GetPathFloatValue(path, "WindowOpacityNormal", QLIE_WindowOpacityNormal)
+	QLIE_WindowOpacityEmpty = JsonUtil.GetPathFloatValue(path, "WindowOpacityEmpty", QLIE_WindowOpacityEmpty)
+
+	QLIE_ShowIconItem = JsonUtil.GetPathIntValue(path, "ShowIconItem", QLIE_ShowIconItem as int)
+	QLIE_ShowIconRead = JsonUtil.GetPathIntValue(path, "ShowIconRead", QLIE_ShowIconRead as int)
+	QLIE_ShowIconStolen = JsonUtil.GetPathIntValue(path, "ShowIconStolen", QLIE_ShowIconStolen as int)
+	QLIE_ShowIconEnchanted = JsonUtil.GetPathIntValue(path, "ShowIconEnchanted", QLIE_ShowIconEnchanted as int)
+	QLIE_ShowIconEnchantedKnown = JsonUtil.GetPathIntValue(path, "ShowIconEnchantedKnown", QLIE_ShowIconEnchantedKnown as int)
+	QLIE_ShowIconEnchantedSpecial = JsonUtil.GetPathIntValue(path, "ShowIconEnchantedSpecial", QLIE_ShowIconEnchantedSpecial as int)
+
+	QLIE_InfoColumns = JsonUtil.PathStringElements(path, "InfoColumns", QLIE_InfoColumns)
+endfunction
+
+;---------------------------------------------------
 ;-- Sorting ----------------------------------------
 ;---------------------------------------------------
 
@@ -1042,8 +1237,10 @@ function SaveSortPreset(string presetName)
 		return
 	endif
 
-	JsonUtil.SetPathStringArray(SortPresetPath + presetName, ".SortRules", QLIE_SortRulesActive, false)
-	JsonUtil.Save(SortPresetPath + presetName, false)
+	string path = SortPresetPath + presetName
+	ExportSettings_Sorting(path)
+	JsonUtil.Save(path)
+
 	ShowMsg("$qlie_SortPresetSave_success")
 
 	InitSortPresetList()
@@ -1062,10 +1259,39 @@ function LoadSortPreset(int index)
 	if index < SortPredefinedPresetCount
 		QLIE_SortRulesActive = GetSortingPreset(index)
 	else
-		QLIE_SortRulesActive = JsonUtil.PathStringElements(SortPresetPath + SortPresetNames[index], ".SortRules")
+		string path = SortPresetPath + SortPresetNames[index]
+		ShowMsg(path)
+		ImportSettings_Sorting(path)
+		JsonUtil.Unload(path, false)
 	endif
 
 	ForcePageReset()
+endfunction
+
+;---------------------------------------------------
+;-- Sorting > Manage -------------------------------
+;---------------------------------------------------
+
+function ResetSettings_Sorting()
+	QLIE_SortRulesActive = GetSortingPreset(0)
+endfunction
+
+function ExportSettings_Sorting(string path)
+	JsonUtil.SetPathStringArray(path, "SortRulesActive", QLIE_SortRulesActive)
+endfunction
+
+function ImportSettings_Sorting(string path)
+	string[] temp = JsonUtil.PathStringElements(path, "SortRulesActive")
+	if temp != None
+		QLIE_SortRulesActive = temp
+		return
+	endif
+
+	; keep old presets compatible
+	temp = JsonUtil.PathStringElements(path, "SortRules")
+	if temp != None
+		QLIE_SortRulesActive = temp
+	endif
 endfunction
 
 ;---------------------------------------------------
@@ -1281,42 +1507,15 @@ bool function IsGamepadKey(int keyCode)
 endfunction
 
 function ResetControls(int presetId = 0)
+	ResetSettings_Controls()
+
 	if presetId == 1
-		QLIE_KeybindingTake = 18				; E
-		QLIE_KeybindingTakeAll = 18				; E
-		QLIE_KeybindingTransfer = 19			; R
-		QLIE_KeybindingDisable = -1				; Unmapped
-		QLIE_KeybindingEnable = -1				; Unmapped
+		QLIE_KeybindingTakeAll = 18					; E
+		QLIE_KeybindingTransfer = 19				; R
 
-		QLIE_KeybindingTakeModifier = 1			; None
-		QLIE_KeybindingTakeAllModifier = 2		; Shift
-		QLIE_KeybindingTransferModifier = 0		; Ignore
-		QLIE_KeybindingDisableModifier = 0		; Ignore
-		QLIE_KeybindingEnableModifier = 0		; Ignore
+		QLIE_KeybindingTakeAllModifier = 1			; LShift
 
-		QLIE_KeybindingTakeGamepad = 276		; Gamepad A
-		QLIE_KeybindingTakeAllGamepad = 278		; Gamepad X
-		QLIE_KeybindingTransferGamepad = 273	; Gamepad Right Stick
-		QLIE_KeybindingDisableGamepad = -1		; Unmapped
-		QLIE_KeybindingEnableGamepad = -1		; Unmapped
-	else
-		QLIE_KeybindingTake = 18				; E
-		QLIE_KeybindingTakeAll = 19				; R
-		QLIE_KeybindingTransfer = 16			; Q
-		QLIE_KeybindingDisable = -1				; Unmapped
-		QLIE_KeybindingEnable = -1				; Unmapped
-
-		QLIE_KeybindingTakeModifier = 0			; Ignore
-		QLIE_KeybindingTakeAllModifier = 0		; Ignore
-		QLIE_KeybindingTransferModifier = 0		; Ignore
-		QLIE_KeybindingDisableModifier = 0		; Ignore
-		QLIE_KeybindingEnableModifier = 0		; Ignore
-
-		QLIE_KeybindingTakeGamepad = 276		; Gamepad A
-		QLIE_KeybindingTakeAllGamepad = 278		; Gamepad X
-		QLIE_KeybindingTransferGamepad = 271	; Gamepad Back
-		QLIE_KeybindingDisableGamepad = -1		; Unmapped
-		QLIE_KeybindingEnableGamepad = -1		; Unmapped
+		QLIE_KeybindingTransferGamepad = 273		; Gamepad Right Stick
 	endif
 endfunction
 
@@ -1331,26 +1530,9 @@ function SaveControlPreset(string presetName)
 	endif
 
 	string path = ControlPresetPath + presetName
+	ExportSettings_Controls(path)
+	JsonUtil.Save(path)
 
-	JsonUtil.SetPathIntValue(path, "KeybindingTake", QLIE_KeybindingTake)
-	JsonUtil.SetPathIntValue(path, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
-	JsonUtil.SetPathIntValue(path, "KeybindingTransfer", QLIE_KeybindingTransfer)
-	JsonUtil.SetPathIntValue(path, "KeybindingDisable", QLIE_KeybindingDisable)
-	JsonUtil.SetPathIntValue(path, "KeybindingEnable", QLIE_KeybindingEnable)
-
-	JsonUtil.SetPathIntValue(path, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
-	JsonUtil.SetPathIntValue(path, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
-	JsonUtil.SetPathIntValue(path, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
-	JsonUtil.SetPathIntValue(path, "KeybindingDisableModifier", QLIE_KeybindingDisableModifier)
-	JsonUtil.SetPathIntValue(path, "KeybindingEnableModifier", QLIE_KeybindingEnableModifier)
-
-	JsonUtil.SetPathIntValue(path, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
-	JsonUtil.SetPathIntValue(path, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
-	JsonUtil.SetPathIntValue(path, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
-	JsonUtil.SetPathIntValue(path, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
-	JsonUtil.SetPathIntValue(path, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
-
-	JsonUtil.Save(path, false)
 	ShowMsg("$qlie_ControlPresetSave_success")
 
 	InitControlPresets()
@@ -1370,30 +1552,75 @@ function LoadControlPreset(int index)
 		ResetControls(index)
 	else
 		string path = ControlPresetPath + ControlPresetNames[index]
-		JsonUtil.Load(path)
-
-		QLIE_KeybindingTake = JsonUtil.GetPathIntValue(path, "KeybindingTake", QLIE_KeybindingTake)
-		QLIE_KeybindingTakeAll = JsonUtil.GetPathIntValue(path, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
-		QLIE_KeybindingTransfer = JsonUtil.GetPathIntValue(path, "KeybindingTransfer", QLIE_KeybindingTransfer)
-		QLIE_KeybindingDisable = JsonUtil.GetPathIntValue(path, "KeybindingDisable", QLIE_KeybindingDisable)
-		QLIE_KeybindingEnable = JsonUtil.GetPathIntValue(path, "KeybindingEnable", QLIE_KeybindingEnable)
-
-		QLIE_KeybindingTakeModifier = JsonUtil.GetPathIntValue(path, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
-		QLIE_KeybindingTakeAllModifier = JsonUtil.GetPathIntValue(path, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
-		QLIE_KeybindingTransferModifier = JsonUtil.GetPathIntValue(path, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
-		QLIE_KeybindingDisableModifier = JsonUtil.GetPathIntValue(path, "KeybindingDisableModifier", QLIE_KeybindingDisableModifier)
-		QLIE_KeybindingEnableModifier = JsonUtil.GetPathIntValue(path, "KeybindingEnableModifier", QLIE_KeybindingEnableModifier)
-
-		QLIE_KeybindingTakeGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
-		QLIE_KeybindingTakeAllGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
-		QLIE_KeybindingTransferGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
-		QLIE_KeybindingDisableGamepad = JsonUtil.GetPathIntValue(path, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
-		QLIE_KeybindingEnableGamepad = JsonUtil.GetPathIntValue(path, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
-
-		JsonUtil.Unload(path)
+		ImportSettings_Controls(path)
+		JsonUtil.Unload(path, false)
 	endif
 
 	ForcePageReset()
+endfunction
+
+;---------------------------------------------------
+;-- Controls > Manage ------------------------------
+;---------------------------------------------------
+
+function ResetSettings_Controls()
+	QLIE_KeybindingTake = 18					; E
+	QLIE_KeybindingTakeAll = 19					; R
+	QLIE_KeybindingTransfer = 16				; Q
+	QLIE_KeybindingDisable = -1					; None
+	QLIE_KeybindingEnable = -1					; None
+
+	QLIE_KeybindingTakeModifier = 0				; None
+	QLIE_KeybindingTakeAllModifier = 0			; None
+	QLIE_KeybindingTransferModifier = 0			; None
+	QLIE_KeybindingDisableModifier = 0			; None
+	QLIE_KeybindingEnableModifier = 0			; None
+
+	QLIE_KeybindingTakeGamepad = 276			; Gamepad A
+	QLIE_KeybindingTakeAllGamepad = 278			; Gamepad X
+	QLIE_KeybindingTransferGamepad = 271		; Gamepad Back
+	QLIE_KeybindingDisableGamepad = -1			; None
+	QLIE_KeybindingEnableGamepad = -1			; None
+endfunction
+
+function ExportSettings_Controls(string path)
+	JsonUtil.SetPathIntValue(path, "KeybindingTake", QLIE_KeybindingTake)
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
+	JsonUtil.SetPathIntValue(path, "KeybindingTransfer", QLIE_KeybindingTransfer)
+	JsonUtil.SetPathIntValue(path, "KeybindingDisable", QLIE_KeybindingDisable)
+	JsonUtil.SetPathIntValue(path, "KeybindingEnable", QLIE_KeybindingEnable)
+
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingDisableModifier", QLIE_KeybindingDisableModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingEnableModifier", QLIE_KeybindingEnableModifier)
+
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
+	JsonUtil.SetPathIntValue(path, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
+	JsonUtil.SetPathIntValue(path, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
+	JsonUtil.SetPathIntValue(path, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
+endfunction
+
+function ImportSettings_Controls(string path)
+	QLIE_KeybindingTake = JsonUtil.GetPathIntValue(path, "KeybindingTake", QLIE_KeybindingTake)
+	QLIE_KeybindingTakeAll = JsonUtil.GetPathIntValue(path, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
+	QLIE_KeybindingTransfer = JsonUtil.GetPathIntValue(path, "KeybindingTransfer", QLIE_KeybindingTransfer)
+	QLIE_KeybindingDisable = JsonUtil.GetPathIntValue(path, "KeybindingDisable", QLIE_KeybindingDisable)
+	QLIE_KeybindingEnable = JsonUtil.GetPathIntValue(path, "KeybindingEnable", QLIE_KeybindingEnable)
+
+	QLIE_KeybindingTakeModifier = JsonUtil.GetPathIntValue(path, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
+	QLIE_KeybindingTakeAllModifier = JsonUtil.GetPathIntValue(path, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
+	QLIE_KeybindingTransferModifier = JsonUtil.GetPathIntValue(path, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
+	QLIE_KeybindingDisableModifier = JsonUtil.GetPathIntValue(path, "KeybindingDisableModifier", QLIE_KeybindingDisableModifier)
+	QLIE_KeybindingEnableModifier = JsonUtil.GetPathIntValue(path, "KeybindingEnableModifier", QLIE_KeybindingEnableModifier)
+
+	QLIE_KeybindingTakeGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
+	QLIE_KeybindingTakeAllGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
+	QLIE_KeybindingTransferGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
+	QLIE_KeybindingDisableGamepad = JsonUtil.GetPathIntValue(path, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
+	QLIE_KeybindingEnableGamepad = JsonUtil.GetPathIntValue(path, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
 endfunction
 
 ;---------------------------------------------------
@@ -1425,7 +1652,6 @@ state state_ShowIconArtifactCarried
 endstate
 
 state state_ShowIconArtifactNew
-
 	event OnSelectST()
 		QLIE_ShowIconArtifactNew = !QLIE_ShowIconArtifactNew
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconArtifactNew))
@@ -1438,7 +1664,6 @@ state state_ShowIconArtifactNew
 endstate
 
 state state_ShowIconCompletionistNeeded
-
 	event OnSelectST()
 		QLIE_ShowIconCompletionistNeeded = !QLIE_ShowIconCompletionistNeeded
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconCompletionistNeeded))
@@ -1451,7 +1676,6 @@ state state_ShowIconCompletionistNeeded
 endstate
 
 state state_ShowIconCompletionistCollected
-
 	event OnSelectST()
 		QLIE_ShowIconCompletionistCollected = !QLIE_ShowIconCompletionistCollected
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconCompletionistCollected))
@@ -1464,239 +1688,32 @@ state state_ShowIconCompletionistCollected
 endstate
 
 ;---------------------------------------------------
-;-- Profile Management -----------------------------
+;-- Compatibility > Manage -------------------------
 ;---------------------------------------------------
 
-function ResetSettings()
-	LogWithPlugin("ResetSettings")
-
-	; General > Behavior
-	QLIE_ShowInCombat = true
-	QLIE_ShowWhenEmpty = false
-	QLIE_ShowWhenUnlocked = true
-	QLIE_ShowInThirdPerson = true
-	QLIE_ShowWhenMounted = false
-	QLIE_EnableForCorpses = true
-	QLIE_EnableForAnimals = true
-	QLIE_EnableForDragons = true
-	QLIE_BreakInvisibility = true
-	QLIE_PlayScrollSound = true
-
-	; Display > Window Settings
-	QLIE_WindowOffsetX = 100
-	QLIE_WindowOffsetY = -200
-	QLIE_WindowScale = 1.0
-	QLIE_WindowAnchor = 0
-	QLIE_WindowMinLines = 0
-	QLIE_WindowMaxLines = 7
-	QLIE_WindowOpacityNormal = 1.0
-	QLIE_WindowOpacityEmpty = 0.3
-
-	; Display > Icon Settings
-	QLIE_ShowIconItem = true
-	QLIE_ShowIconRead = true
-	QLIE_ShowIconStolen = true
-	QLIE_ShowIconEnchanted = true
-	QLIE_ShowIconEnchantedKnown = true
-	QLIE_ShowIconEnchantedSpecial = true
-
-	; Display > Info Column Layout
-	SetInfoColumns(InfoColumnPresetStrings[0], 0, true)
-
-	; Sorting
-	QLIE_SortRulesActive = GetSortingPreset(0)
-
-	; Controls
-	ResetControls(0)
-
-	; Compatibility > LOTD Icons
+function ResetSettings_Compatibility()
 	QLIE_ShowIconArtifactNew = true
 	QLIE_ShowIconArtifactCarried = true
 	QLIE_ShowIconArtifactDisplayed = true
 
-	; Compatibility > Completionist Icons
 	QLIE_ShowIconCompletionistNeeded = true
 	QLIE_ShowIconCompletionistCollected = true
-
-	if IsInMenuMode()
-		ForcePageReset()
-	endif
 endfunction
 
-function SaveProfile()
-	LogWithPlugin("SaveProfile")
+function ExportSettings_Compatibility(string path)
+	JsonUtil.SetPathIntValue(path, "ShowIconArtifactNew", QLIE_ShowIconArtifactNew as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconArtifactCarried", QLIE_ShowIconArtifactCarried as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconArtifactDisplayed", QLIE_ShowIconArtifactDisplayed as int)
 
-	if PapyrusUtil.GetScriptVersion() <= 31
-		ShowMsg("$qlie_ProfileSave_failure")
-		return
-	endif
-
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowInCombat", QLIE_ShowInCombat as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowWhenEmpty", QLIE_ShowWhenEmpty as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowWhenUnlocked", QLIE_ShowWhenUnlocked as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowInThirdPerson", QLIE_ShowInThirdPerson as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowWhenMounted", QLIE_ShowWhenMounted as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForCorpses", QLIE_EnableForCorpses as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForAnimals", QLIE_EnableForAnimals as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".EnableForDragons", QLIE_EnableForDragons as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".BreakInvisibility", QLIE_BreakInvisibility as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".PlayScrollSound", QLIE_PlayScrollSound as int)
-
-	JsonUtil.SetPathIntValue(ConfigPath, ".WindowOffsetX", QLIE_WindowOffsetX)
-	JsonUtil.SetPathIntValue(ConfigPath, ".WindowOffsetY", QLIE_WindowOffsetY)
-	JsonUtil.SetPathFloatValue(ConfigPath, ".WindowScale", QLIE_WindowScale)
-	JsonUtil.SetPathIntValue(ConfigPath, ".WindowAnchor", QLIE_WindowAnchor)
-	JsonUtil.SetPathIntValue(ConfigPath, ".WindowMinLines", QLIE_WindowMinLines)
-	JsonUtil.SetPathIntValue(ConfigPath, ".WindowMaxLines", QLIE_WindowMaxLines)
-	JsonUtil.SetPathFloatValue(ConfigPath, ".WindowOpacityNormal", QLIE_WindowOpacityNormal)
-	JsonUtil.SetPathFloatValue(ConfigPath, ".WindowOpacityEmpty", QLIE_WindowOpacityEmpty)
-
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconItem", QLIE_ShowIconItem as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconRead", QLIE_ShowIconRead as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconStolen", QLIE_ShowIconStolen as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconEnchanted", QLIE_ShowIconEnchanted as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconEnchantedKnown", QLIE_ShowIconEnchantedKnown as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconEnchantedSpecial", QLIE_ShowIconEnchantedSpecial as int)
-
-	JsonUtil.SetPathStringArray(ConfigPath, ".InfoColumns", QLIE_InfoColumns)
-
-	JsonUtil.SetPathStringArray(ConfigPath, ".SortRulesActive", QLIE_SortRulesActive)
-
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTake", QLIE_KeybindingTake)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTransfer", QLIE_KeybindingTransfer)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingDisable", QLIE_KeybindingDisable)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingEnable", QLIE_KeybindingEnable)
-
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingDisableModifier", QLIE_KeybindingDisableModifier)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingEnableModifier", QLIE_KeybindingEnableModifier)
-
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
-	JsonUtil.SetPathIntValue(ConfigPath, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
-
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconArtifactNew", QLIE_ShowIconArtifactNew as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconArtifactCarried", QLIE_ShowIconArtifactCarried as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconArtifactDisplayed", QLIE_ShowIconArtifactDisplayed as int)
-
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconCompletionistNeeded", QLIE_ShowIconCompletionistNeeded as int)
-	JsonUtil.SetPathIntValue(ConfigPath, ".ShowIconCompletionistCollected", QLIE_ShowIconCompletionistCollected as int)
-
-	JsonUtil.Save(ConfigPath, false)
-	ShowMsg("$qlie_ProfileSave_success")
+	JsonUtil.SetPathIntValue(path, "ShowIconCompletionistNeeded", QLIE_ShowIconCompletionistNeeded as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconCompletionistCollected", QLIE_ShowIconCompletionistCollected as int)
 endfunction
 
-function LoadProfile(bool initialLoad)
-	LogWithPlugin("LoadProfile")
+function ImportSettings_Compatibility(string path)
+	QLIE_ShowIconArtifactDisplayed = JsonUtil.GetPathIntValue(path, "ShowIconArtifactDisplayed", QLIE_ShowIconArtifactDisplayed as int)
+	QLIE_ShowIconArtifactCarried = JsonUtil.GetPathIntValue(path, "ShowIconArtifactCarried", QLIE_ShowIconArtifactCarried as int)
+	QLIE_ShowIconArtifactNew = JsonUtil.GetPathIntValue(path, "ShowIconArtifactNew", QLIE_ShowIconArtifactNew as int)
 
-	if PapyrusUtil.GetScriptVersion() <= 31
-		if initialLoad
-			Notification("$qlie_NotificationProfileUnsupported")
-		else
-			ShowMsg("$qlie_ProfileLoad_unsupported")
-		endif
-		return
-	endif
-
-	if !JsonUtil.JsonExists(ConfigPath)
-		if initialLoad
-			Notification("$qlie_NotificationProfileMissing")
-			ResetSettings()
-		else
-			ShowMsg("$qlie_ProfileLoad_missing")
-		endif
-		return
-	endif
-
-	if !JsonUtil.IsGood(ConfigPath)
-		if initialLoad
-			Notification("$qlie_NotificationProfileCorrupt");
-			ResetSettings()
-		else
-			ShowMsg("$qlie_ProfileLoad_corrupt{" + JsonUtil.GetErrors(ConfigPath) + "}")
-		endif
-		return
-	endif
-
-	JsonUtil.Load(ConfigPath)
-
-	QLIE_ShowInCombat = JsonUtil.GetPathIntValue(ConfigPath, ".ShowInCombat", QLIE_ShowInCombat as int)
-	QLIE_ShowWhenEmpty = JsonUtil.GetPathIntValue(ConfigPath, ".ShowWhenEmpty", QLIE_ShowWhenEmpty as int)
-	QLIE_ShowWhenUnlocked = JsonUtil.GetPathIntValue(ConfigPath, ".ShowWhenUnlocked", QLIE_ShowWhenUnlocked as int)
-	QLIE_ShowInThirdPerson = JsonUtil.GetPathIntValue(ConfigPath, ".ShowInThirdPerson", QLIE_ShowInThirdPerson as int)
-	QLIE_ShowWhenMounted = JsonUtil.GetPathIntValue(ConfigPath, ".ShowWhenMounted", QLIE_ShowWhenMounted as int)
-	QLIE_EnableForCorpses = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForCorpses", QLIE_EnableForCorpses as int)
-	QLIE_EnableForAnimals = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForAnimals", QLIE_EnableForAnimals as int)
-	QLIE_EnableForDragons = JsonUtil.GetPathIntValue(ConfigPath, ".EnableForDragons", QLIE_EnableForDragons as int)
-	QLIE_BreakInvisibility = JsonUtil.GetPathIntValue(ConfigPath, ".BreakInvisibility", QLIE_BreakInvisibility as int)
-	QLIE_PlayScrollSound = JsonUtil.GetPathIntValue(ConfigPath, ".PlayScrollSound", QLIE_PlayScrollSound as int)
-
-	QLIE_WindowOffsetX = JsonUtil.GetPathIntValue(ConfigPath, ".WindowOffsetX", QLIE_WindowOffsetX)
-	QLIE_WindowOffsetY = JsonUtil.GetPathIntValue(ConfigPath, ".WindowOffsetY", QLIE_WindowOffsetY)
-	QLIE_WindowScale = JsonUtil.GetPathFloatValue(ConfigPath, ".WindowScale", QLIE_WindowScale)
-	QLIE_WindowAnchor = JsonUtil.GetPathIntValue(ConfigPath, ".WindowAnchor", QLIE_WindowAnchor)
-	QLIE_WindowMinLines = JsonUtil.GetPathIntValue(ConfigPath, ".WindowMinLines", QLIE_WindowMinLines)
-	QLIE_WindowMaxLines = JsonUtil.GetPathIntValue(ConfigPath, ".WindowMaxLines", QLIE_WindowMaxLines)
-	QLIE_WindowOpacityNormal = JsonUtil.GetPathFloatValue(ConfigPath, ".WindowOpacityNormal", QLIE_WindowOpacityNormal)
-	QLIE_WindowOpacityEmpty = JsonUtil.GetPathFloatValue(ConfigPath, ".WindowOpacityEmpty", QLIE_WindowOpacityEmpty)
-
-	QLIE_ShowIconItem = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconItem", QLIE_ShowIconItem as int)
-	QLIE_ShowIconRead = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconRead", QLIE_ShowIconRead as int)
-	QLIE_ShowIconStolen = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconStolen", QLIE_ShowIconStolen as int)
-	QLIE_ShowIconEnchanted = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconEnchanted", QLIE_ShowIconEnchanted as int)
-	QLIE_ShowIconEnchantedKnown = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconEnchantedKnown", QLIE_ShowIconEnchantedKnown as int)
-	QLIE_ShowIconEnchantedSpecial = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconEnchantedSpecial", QLIE_ShowIconEnchantedSpecial as int)
-
-	QLIE_InfoColumns = JsonUtil.PathStringElements(ConfigPath, ".InfoColumns", QLIE_InfoColumns)
-
-	QLIE_SortRulesActive = JsonUtil.PathStringElements(ConfigPath, ".SortRulesActive", QLIE_SortRulesActive)
-
-	QLIE_KeybindingTake = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTake", QLIE_KeybindingTake)
-	QLIE_KeybindingTakeAll = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
-	QLIE_KeybindingTransfer = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTransfer", QLIE_KeybindingTransfer)
-	QLIE_KeybindingDisable = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingDisable", QLIE_KeybindingDisable)
-	QLIE_KeybindingEnable = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingEnable", QLIE_KeybindingEnable)
-
-	QLIE_KeybindingTakeModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeModifier", QLIE_KeybindingTakeModifier)
-	QLIE_KeybindingTakeAllModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeAllModifier", QLIE_KeybindingTakeAllModifier)
-	QLIE_KeybindingTransferModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTransferModifier", QLIE_KeybindingTransferModifier)
-	QLIE_KeybindingDisableModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingDisableModifier", QLIE_KeybindingDisableModifier)
-	QLIE_KeybindingEnableModifier = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingEnableModifier", QLIE_KeybindingEnableModifier)
-
-	QLIE_KeybindingTakeGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeGamepad", QLIE_KeybindingTakeGamepad)
-	QLIE_KeybindingTakeAllGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTakeAllGamepad", QLIE_KeybindingTakeAllGamepad)
-	QLIE_KeybindingTransferGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
-	QLIE_KeybindingDisableGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
-	QLIE_KeybindingEnableGamepad = JsonUtil.GetPathIntValue(ConfigPath, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
-
-	QLIE_ShowIconArtifactDisplayed = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconArtifactDisplayed", QLIE_ShowIconArtifactDisplayed as int)
-	QLIE_ShowIconArtifactCarried = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconArtifactCarried", QLIE_ShowIconArtifactCarried as int)
-	QLIE_ShowIconArtifactNew = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconArtifactNew", QLIE_ShowIconArtifactNew as int)
-
-	QLIE_ShowIconCompletionistNeeded = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconCompletionistNeeded", QLIE_ShowIconCompletionistNeeded as int)
-	QLIE_ShowIconCompletionistCollected = JsonUtil.GetPathIntValue(ConfigPath, ".ShowIconCompletionistCollected", QLIE_ShowIconCompletionistCollected as int)
-
-	JsonUtil.Unload(ConfigPath, false)
-
-	if initialLoad
-		Notification("$qlie_NotificationProfileImported")
-	else
-		ShowMsg("$qlie_ProfileLoad_success")
-		ForcePageReset()
-	endif
-endfunction
-
-function AutoLoadConfig()
-	if AutoLoadedProfile
-		return
-	endif
-
-	Initialize()
-	LoadProfile(true)
-	AutoLoadedProfile = true
+	QLIE_ShowIconCompletionistNeeded = JsonUtil.GetPathIntValue(path, "ShowIconCompletionistNeeded", QLIE_ShowIconCompletionistNeeded as int)
+	QLIE_ShowIconCompletionistCollected = JsonUtil.GetPathIntValue(path, "ShowIconCompletionistCollected", QLIE_ShowIconCompletionistCollected as int)
 endfunction
