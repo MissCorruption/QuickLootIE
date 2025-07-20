@@ -252,8 +252,12 @@ namespace QuickLoot::Input
 
 	bool QUsingGamepad(RE::BSInputDeviceManager* _this)
 	{
+		uint64_t aeId = 68622;
+		if (REL::Module::get().version() >= REL::Version(1, 6, 1130, 0)) aeId = 443396;
+		if (REL::Module::get().version() >= REL::Version(1, 6, 1179, 0)) aeId = 510926;
+
 		using func_t = decltype(&QUsingGamepad);
-		REL::Relocation<func_t> func{ RELOCATION_ID(67320, REL::Module::get().version() < REL::Version(1, 6, 1130, 0) ? 68622 : 443396) };
+		REL::Relocation<func_t> func{ RELOCATION_ID(67320, aeId) };
 		return func(_this);
 	}
 
