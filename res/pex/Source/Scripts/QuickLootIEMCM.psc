@@ -70,17 +70,25 @@ int property QLIE_KeybindingTakeAll = 19 auto hidden
 int property QLIE_KeybindingTransfer = 16 auto hidden
 int property QLIE_KeybindingDisable = -1 auto hidden
 int property QLIE_KeybindingEnable = -1 auto hidden
-int property QLIE_KeybindingTakeModifier = 0 auto hidden
-int property QLIE_KeybindingTakeAllModifier = 0 auto hidden
-int property QLIE_KeybindingTransferModifier = 0 auto hidden
-int property QLIE_KeybindingDisableModifier = 0 auto hidden
-int property QLIE_KeybindingEnableModifier = 0 auto hidden
+
+int property QLIE_KeybindingTakeModifier = -1 auto hidden
+int property QLIE_KeybindingTakeAllModifier = -1 auto hidden
+int property QLIE_KeybindingTransferModifier = -1 auto hidden
+int property QLIE_KeybindingDisableModifier = -1 auto hidden
+int property QLIE_KeybindingEnableModifier = -1 auto hidden
+
 int property QLIE_KeybindingTakeGamepad = 276 auto hidden
 int property QLIE_KeybindingTakeAllGamepad = 278 auto hidden
 int property QLIE_KeybindingTransferGamepad = 271 auto hidden
 int property QLIE_KeybindingDisableGamepad = -1 auto hidden
 int property QLIE_KeybindingEnableGamepad = -1 auto hidden
-string[] KeyModifierOptions
+
+int property QLIE_KeybindingTakeGamepadModifier = -1 auto hidden
+int property QLIE_KeybindingTakeAllGamepadModifier = -1 auto hidden
+int property QLIE_KeybindingTransferGamepadModifier = -1 auto hidden
+int property QLIE_KeybindingDisableGamepadModifier = -1 auto hidden
+int property QLIE_KeybindingEnableGamepadModifier = -1 auto hidden
+
 string[] ControlPresetNames
 int ControlPredefinedPresetCount
 bool GamepadMode
@@ -167,7 +175,6 @@ function Initialize()
 	InitInfoColumnPresetData()
 	InitSortPresetList()
 	InitSortRuleLists()
-	InitModifierOptions()
 	InitControlPresets()
 
 	GamepadMode = Game.UsingGamepad()
@@ -224,15 +231,6 @@ function InitSortRuleLists(bool forceReset = false)
 	; Remove entries from available list if they are in the active list
 	SortRulesAvailable = FormatSortOptionsList(SortRulesAvailable, QLIE_SortRulesActive)
 	SortRulesActiveIds = Utility.CreateIntArray(QLIE_SortRulesActive.Length, -1)
-endfunction
-
-function InitModifierOptions()
-	KeyModifierOptions = new string[5]
-	KeyModifierOptions[0] = "$qlie_ModifierKey_ignore"
-	KeyModifierOptions[1] = "$qlie_ModifierKey_none"
-	KeyModifierOptions[2] = "$qlie_ModifierKey_shift"
-	KeyModifierOptions[3] = "$qlie_ModifierKey_control"
-	KeyModifierOptions[4] = "$qlie_ModifierKey_alt"
 endfunction
 
 function InitControlPresets()
@@ -409,26 +407,26 @@ function BuildControlsPage()
 
 	if GamepadMode
 		AddKeyMapOptionST("state_ControlsTake",				"$qlie_ControlsTake_text", QLIE_KeybindingTakeGamepad, OPTION_FLAG_WITH_UNMAP)
-		AddEmptyOption()
+		AddKeyMapOptionST("state_ControlsTakeModifier",		"$qlie_ControlsModifier_text", QLIE_KeybindingTakeGamepadModifier, OPTION_FLAG_WITH_UNMAP)
 		AddKeyMapOptionST("state_ControlsTakeAll",			"$qlie_ControlsTakeAll_text", QLIE_KeybindingTakeAllGamepad, OPTION_FLAG_WITH_UNMAP)
-		AddEmptyOption()
+		AddKeyMapOptionST("state_ControlsTakeAllModifier",	"$qlie_ControlsModifier_text", QLIE_KeybindingTakeAllGamepadModifier, OPTION_FLAG_WITH_UNMAP)
 		AddKeyMapOptionST("state_ControlsTransfer",			"$qlie_ControlsTransfer_text", QLIE_KeybindingTransferGamepad, OPTION_FLAG_WITH_UNMAP)
-		AddEmptyOption()
+		AddKeyMapOptionST("state_ControlsTransferModifier",	"$qlie_ControlsModifier_text", QLIE_KeybindingTransferGamepadModifier, OPTION_FLAG_WITH_UNMAP)
 		AddKeyMapOptionST("state_ControlsDisable",			"$qlie_ControlsDisable_text", QLIE_KeybindingDisableGamepad, OPTION_FLAG_WITH_UNMAP)
-		AddEmptyOption()
+		AddKeyMapOptionST("state_ControlsDisableModifier",	"$qlie_ControlsModifier_text", QLIE_KeybindingDisableGamepadModifier, OPTION_FLAG_WITH_UNMAP)
 		AddKeyMapOptionST("state_ControlsEnable",			"$qlie_ControlsEnable_text", QLIE_KeybindingEnableGamepad, OPTION_FLAG_WITH_UNMAP)
-		AddEmptyOption()
+		AddKeyMapOptionST("state_ControlsEnableModifier",	"$qlie_ControlsModifier_text", QLIE_KeybindingEnableGamepadModifier, OPTION_FLAG_WITH_UNMAP)
 	else
 		AddKeyMapOptionST("state_ControlsTake",				"$qlie_ControlsTake_text", QLIE_KeybindingTake, OPTION_FLAG_WITH_UNMAP)
-		AddMenuOptionST("state_ControlsTakeModifier",		"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingTakeModifier])
+		AddKeyMapOptionST("state_ControlsTakeModifier",		"$qlie_ControlsModifier_text", QLIE_KeybindingTakeModifier, OPTION_FLAG_WITH_UNMAP)
 		AddKeyMapOptionST("state_ControlsTakeAll",			"$qlie_ControlsTakeAll_text", QLIE_KeybindingTakeAll, OPTION_FLAG_WITH_UNMAP)
-		AddMenuOptionST("state_ControlsTakeAllModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingTakeAllModifier])
+		AddKeyMapOptionST("state_ControlsTakeAllModifier",	"$qlie_ControlsModifier_text", QLIE_KeybindingTakeAllModifier, OPTION_FLAG_WITH_UNMAP)
 		AddKeyMapOptionST("state_ControlsTransfer",			"$qlie_ControlsTransfer_text", QLIE_KeybindingTransfer, OPTION_FLAG_WITH_UNMAP)
-		AddMenuOptionST("state_ControlsTransferModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingTransferModifier])
+		AddKeyMapOptionST("state_ControlsTransferModifier",	"$qlie_ControlsModifier_text", QLIE_KeybindingTransferModifier, OPTION_FLAG_WITH_UNMAP)
 		AddKeyMapOptionST("state_ControlsDisable",			"$qlie_ControlsDisable_text", QLIE_KeybindingDisable, OPTION_FLAG_WITH_UNMAP)
-		AddMenuOptionST("state_ControlsDisableModifier",	"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingDisableModifier])
+		AddKeyMapOptionST("state_ControlsDisableModifier",	"$qlie_ControlsModifier_text", QLIE_KeybindingDisableModifier, OPTION_FLAG_WITH_UNMAP)
 		AddKeyMapOptionST("state_ControlsEnable",			"$qlie_ControlsEnable_text", QLIE_KeybindingEnable, OPTION_FLAG_WITH_UNMAP)
-		AddMenuOptionST("state_ControlsEnableModifier",		"$qlie_ControlsModifier_text", KeyModifierOptions[QLIE_KeybindingEnableModifier])
+		AddKeyMapOptionST("state_ControlsEnableModifier",	"$qlie_ControlsModifier_text", QLIE_KeybindingEnableModifier, OPTION_FLAG_WITH_UNMAP)
 	endif
 
 	SetCursorFillMode(TOP_TO_BOTTOM)
@@ -1389,15 +1387,20 @@ state state_ControlsEnable
 endstate
 
 state state_ControlsTakeModifier
-	event OnMenuOpenST()
-		SetMenuDialogStartIndex(0)
-		SetMenuDialogDefaultIndex(0)
-		SetMenuDialogOptions(KeyModifierOptions)
-	endevent
+	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
+		SetKeyMapOptionValueST(keyCode)
 
-	event OnMenuAcceptST(int index)
-		QLIE_KeybindingTakeModifier = index
-		SetMenuOptionValueST(KeyModifierOptions[QLIE_KeybindingTakeModifier])
+		bool isGamepad = IsGamepadKey(keyCode)
+		if isGamepad
+			QLIE_KeybindingTakeGamepadModifier = keyCode
+		else
+			QLIE_KeybindingTakeModifier = keyCode
+		endif
+
+		if isGamepad != GamepadMode
+			GamepadMode = isGamepad
+			ForcePageReset()
+		endif
 	endevent
 
 	event OnHighlightST()
@@ -1406,15 +1409,20 @@ state state_ControlsTakeModifier
 endstate
 
 state state_ControlsTakeAllModifier
-	event OnMenuOpenST()
-		SetMenuDialogStartIndex(0)
-		SetMenuDialogDefaultIndex(0)
-		SetMenuDialogOptions(KeyModifierOptions)
-	endevent
+	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
+		SetKeyMapOptionValueST(keyCode)
 
-	event OnMenuAcceptST(int index)
-		QLIE_KeybindingTakeAllModifier = index
-		SetMenuOptionValueST(KeyModifierOptions[QLIE_KeybindingTakeAllModifier])
+		bool isGamepad = IsGamepadKey(keyCode)
+		if isGamepad
+			QLIE_KeybindingTakeAllGamepadModifier = keyCode
+		else
+			QLIE_KeybindingTakeAllModifier = keyCode
+		endif
+
+		if isGamepad != GamepadMode
+			GamepadMode = isGamepad
+			ForcePageReset()
+		endif
 	endevent
 
 	event OnHighlightST()
@@ -1423,15 +1431,20 @@ state state_ControlsTakeAllModifier
 endstate
 
 state state_ControlsTransferModifier
-	event OnMenuOpenST()
-		SetMenuDialogStartIndex(0)
-		SetMenuDialogDefaultIndex(0)
-		SetMenuDialogOptions(KeyModifierOptions)
-	endevent
+	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
+		SetKeyMapOptionValueST(keyCode)
 
-	event OnMenuAcceptST(int index)
-		QLIE_KeybindingTransferModifier = index
-		SetMenuOptionValueST(KeyModifierOptions[QLIE_KeybindingTransferModifier])
+		bool isGamepad = IsGamepadKey(keyCode)
+		if isGamepad
+			QLIE_KeybindingTransferGamepadModifier = keyCode
+		else
+			QLIE_KeybindingTransferModifier = keyCode
+		endif
+
+		if isGamepad != GamepadMode
+			GamepadMode = isGamepad
+			ForcePageReset()
+		endif
 	endevent
 
 	event OnHighlightST()
@@ -1440,15 +1453,20 @@ state state_ControlsTransferModifier
 endstate
 
 state state_ControlsDisableModifier
-	event OnMenuOpenST()
-		SetMenuDialogStartIndex(0)
-		SetMenuDialogDefaultIndex(0)
-		SetMenuDialogOptions(KeyModifierOptions)
-	endevent
+	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
+		SetKeyMapOptionValueST(keyCode)
 
-	event OnMenuAcceptST(int index)
-		QLIE_KeybindingDisableModifier = index
-		SetMenuOptionValueST(KeyModifierOptions[QLIE_KeybindingDisableModifier])
+		bool isGamepad = IsGamepadKey(keyCode)
+		if isGamepad
+			QLIE_KeybindingDisableGamepadModifier = keyCode
+		else
+			QLIE_KeybindingDisableModifier = keyCode
+		endif
+
+		if isGamepad != GamepadMode
+			GamepadMode = isGamepad
+			ForcePageReset()
+		endif
 	endevent
 
 	event OnHighlightST()
@@ -1457,15 +1475,20 @@ state state_ControlsDisableModifier
 endstate
 
 state state_ControlsEnableModifier
-	event OnMenuOpenST()
-		SetMenuDialogStartIndex(0)
-		SetMenuDialogDefaultIndex(0)
-		SetMenuDialogOptions(KeyModifierOptions)
-	endevent
+	event OnKeyMapChangeST(int keyCode, string conflictControl, string conflictName)
+		SetKeyMapOptionValueST(keyCode)
 
-	event OnMenuAcceptST(int index)
-		QLIE_KeybindingEnableModifier = index
-		SetMenuOptionValueST(KeyModifierOptions[QLIE_KeybindingEnableModifier])
+		bool isGamepad = IsGamepadKey(keyCode)
+		if isGamepad
+			QLIE_KeybindingEnableGamepadModifier = keyCode
+		else
+			QLIE_KeybindingEnableModifier = keyCode
+		endif
+
+		if isGamepad != GamepadMode
+			GamepadMode = isGamepad
+			ForcePageReset()
+		endif
 	endevent
 
 	event OnHighlightST()
@@ -1513,7 +1536,7 @@ function ResetControls(int presetId = 0)
 		QLIE_KeybindingTakeAll = 18					; E
 		QLIE_KeybindingTransfer = 19				; R
 
-		QLIE_KeybindingTakeAllModifier = 1			; LShift
+		QLIE_KeybindingTakeAllModifier = 42			; LShift
 
 		QLIE_KeybindingTransferGamepad = 273		; Gamepad Right Stick
 	endif
@@ -1570,20 +1593,29 @@ function ResetSettings_Controls()
 	QLIE_KeybindingDisable = -1					; None
 	QLIE_KeybindingEnable = -1					; None
 
-	QLIE_KeybindingTakeModifier = 0				; None
-	QLIE_KeybindingTakeAllModifier = 0			; None
-	QLIE_KeybindingTransferModifier = 0			; None
-	QLIE_KeybindingDisableModifier = 0			; None
-	QLIE_KeybindingEnableModifier = 0			; None
+	QLIE_KeybindingTakeModifier = -1			; None
+	QLIE_KeybindingTakeAllModifier = -1			; None
+	QLIE_KeybindingTransferModifier = -1		; None
+	QLIE_KeybindingDisableModifier = -1			; None
+	QLIE_KeybindingEnableModifier = -1			; None
 
 	QLIE_KeybindingTakeGamepad = 276			; Gamepad A
 	QLIE_KeybindingTakeAllGamepad = 278			; Gamepad X
 	QLIE_KeybindingTransferGamepad = 271		; Gamepad Back
 	QLIE_KeybindingDisableGamepad = -1			; None
 	QLIE_KeybindingEnableGamepad = -1			; None
+
+	QLIE_KeybindingTakeGamepadModifier = -1		; None
+	QLIE_KeybindingTakeAllGamepadModifier = -1	; None
+	QLIE_KeybindingTransferGamepadModifier = -1	; None
+	QLIE_KeybindingDisableGamepadModifier = -1	; None
+	QLIE_KeybindingEnableGamepadModifier = -1	; None
 endfunction
 
 function ExportSettings_Controls(string path)
+	; Signal that we're using keycodes instead of the modifier enum
+	JsonUtil.SetPathIntValue(path, "KeybindingNewFormat", 1)
+
 	JsonUtil.SetPathIntValue(path, "KeybindingTake", QLIE_KeybindingTake)
 	JsonUtil.SetPathIntValue(path, "KeybindingTakeAll", QLIE_KeybindingTakeAll)
 	JsonUtil.SetPathIntValue(path, "KeybindingTransfer", QLIE_KeybindingTransfer)
@@ -1601,6 +1633,12 @@ function ExportSettings_Controls(string path)
 	JsonUtil.SetPathIntValue(path, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
 	JsonUtil.SetPathIntValue(path, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
 	JsonUtil.SetPathIntValue(path, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
+
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeGamepadModifier", QLIE_KeybindingTakeGamepadModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingTakeAllGamepadModifier", QLIE_KeybindingTakeAllGamepadModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingTransferGamepadModifier", QLIE_KeybindingTransferGamepadModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingDisableGamepadModifier", QLIE_KeybindingDisableGamepadModifier)
+	JsonUtil.SetPathIntValue(path, "KeybindingEnableGamepadModifier", QLIE_KeybindingEnableGamepadModifier)
 endfunction
 
 function ImportSettings_Controls(string path)
@@ -1621,6 +1659,12 @@ function ImportSettings_Controls(string path)
 	QLIE_KeybindingTransferGamepad = JsonUtil.GetPathIntValue(path, "KeybindingTransferGamepad", QLIE_KeybindingTransferGamepad)
 	QLIE_KeybindingDisableGamepad = JsonUtil.GetPathIntValue(path, "KeybindingDisableGamepad", QLIE_KeybindingDisableGamepad)
 	QLIE_KeybindingEnableGamepad = JsonUtil.GetPathIntValue(path, "KeybindingEnableGamepad", QLIE_KeybindingEnableGamepad)
+
+	QLIE_KeybindingTakeGamepadModifier = JsonUtil.GetPathIntValue(path, "KeybindingTakeGamepadModifier", QLIE_KeybindingTakeGamepadModifier)
+	QLIE_KeybindingTakeAllGamepadModifier = JsonUtil.GetPathIntValue(path, "KeybindingTakeAllGamepadModifier", QLIE_KeybindingTakeAllGamepadModifier)
+	QLIE_KeybindingTransferGamepadModifier = JsonUtil.GetPathIntValue(path, "KeybindingTransferGamepadModifier", QLIE_KeybindingTransferGamepadModifier)
+	QLIE_KeybindingDisableGamepadModifier = JsonUtil.GetPathIntValue(path, "KeybindingDisableGamepadModifier", QLIE_KeybindingDisableGamepadModifier)
+	QLIE_KeybindingEnableGamepadModifier = JsonUtil.GetPathIntValue(path, "KeybindingEnableGamepadModifier", QLIE_KeybindingEnableGamepadModifier)
 endfunction
 
 ;---------------------------------------------------
