@@ -69,14 +69,17 @@ If for some reason you are unable to do so, you can disable the check in [b]Quic
 [list]
 [*][color=#f6b26b][b]I get a popup talking about the MCM quest[/b][/color]
 Make sure QuickLootIE.esp exists and is enabled in your load order. 
-If it is and you still get the popup, you're probably on a version before [b]1.6.1130[/b] and did not install [url=https://www.nexusmods.com/skyrimspecialedition/mods/106441]BEES[/url]. 
-We've also gotten multiple reports that it was caused by an old version of [url=https://www.nexusmods.com/skyrimspecialedition/mods/17230]SSE Engine Fixes[url], so make sure to update that.
+If you're on a version before [b]1.6.1130[/b] you need to install [url=https://www.nexusmods.com/skyrimspecialedition/mods/106441]BEES[/url]. 
+Another known cause is [url=https://www.nexusmods.com/skyrimspecialedition/mods/17230]SSE Engine Fixes[/url], so make sure to install the correct version of that. 
+If none of the above resolve your issue, install [url=https://www.nexusmods.com/skyrimspecialedition/mods/155118]LoadOrderTest[/url] and send us the log it generates.
 [/list]
 [list]
 [*][color=#f6b26b][b]The loot menu doesn't show up when I look at a container[/b][/color]
 This is most likely caused by another mod adding an overlay menu that isn't properly flagged as such. 
-Check your QuickLoot IE log ([b]Documents/My Games/Skyrim Special Edition/SKSE/QuickLootIE.log[/b]) for a line saying "LootMenu disabled because a blocking menu is open." 
-At the end of the line it will state the name of the menu. Add this to the menu whitelist in [b]QuickLootIE.json[/b].
+Check your QuickLoot IE log ([b]Documents/My Games/Skyrim Special Edition/SKSE/QuickLootIE.log[/b]) for a line saying 
+"LootMenu disabled because a blocking menu is open." 
+At the end of the line it will state the name of the menu. Add this to the menu whitelist in [b]QuickLootIE.json[/b]. 
+Make sure there is a comma after each menu on the whitelist, except the last one.
 [/list]
 [list]
 [*][color=#f6b26b][b]I have another issue[/b][/color]
