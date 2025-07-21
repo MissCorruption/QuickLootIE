@@ -100,17 +100,23 @@ namespace QuickLoot::Config
 		LoadSettingsVar(QLIE_KeybindingDisable, -1);
 		LoadSettingsVar(QLIE_KeybindingEnable, -1);
 
-		LoadSettingsVar(QLIE_KeybindingTakeModifier, 0);
-		LoadSettingsVar(QLIE_KeybindingTakeAllModifier, 0);
-		LoadSettingsVar(QLIE_KeybindingTransferModifier, 0);
-		LoadSettingsVar(QLIE_KeybindingDisableModifier, 0);
-		LoadSettingsVar(QLIE_KeybindingEnableModifier, 0);
+		LoadSettingsVar(QLIE_KeybindingTakeModifier, -1);
+		LoadSettingsVar(QLIE_KeybindingTakeAllModifier, -1);
+		LoadSettingsVar(QLIE_KeybindingTransferModifier, -1);
+		LoadSettingsVar(QLIE_KeybindingDisableModifier, -1);
+		LoadSettingsVar(QLIE_KeybindingEnableModifier, -1);
 
 		LoadSettingsVar(QLIE_KeybindingTakeGamepad, 276);
 		LoadSettingsVar(QLIE_KeybindingTakeAllGamepad, 278);
 		LoadSettingsVar(QLIE_KeybindingTransferGamepad, 271);
 		LoadSettingsVar(QLIE_KeybindingDisableGamepad, -1);
 		LoadSettingsVar(QLIE_KeybindingEnableGamepad, -1);
+
+		LoadSettingsVar(QLIE_KeybindingTakeGamepadModifier, -1);
+		LoadSettingsVar(QLIE_KeybindingTakeAllGamepadModifier, -1);
+		LoadSettingsVar(QLIE_KeybindingTransferGamepadModifier, -1);
+		LoadSettingsVar(QLIE_KeybindingDisableGamepadModifier, -1);
+		LoadSettingsVar(QLIE_KeybindingEnableGamepadModifier, -1);
 
 		// Compatibility > LOTD Icons
 		LoadSettingsVar(QLIE_ShowIconArtifactNew, false);

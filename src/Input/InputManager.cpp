@@ -145,9 +145,8 @@ namespace QuickLoot::Input
 
 			mapping.userEventGroupFlag.set(QUICKLOOT_EVENT_GROUP_FLAG);
 
-			logger::debug("Added mapping to the QuickLoot user event group: {} (device {}, key code {})", 
-			std::string_view(mapping.eventID), static_cast<int>(deviceType), mapping.inputKey);
-
+			logger::debug("Added mapping to the QuickLoot user event group: {} (device {}, key code {})",
+				std::string_view(mapping.eventID), static_cast<int>(deviceType), mapping.inputKey);
 		});
 
 		LootMenuManager::RequestRefresh(RefreshFlags::kButtonBar);
@@ -177,9 +176,20 @@ namespace QuickLoot::Input
 
 	void InputManager::HandleButtonEvent(const RE::ButtonEvent* event)
 	{
-		UpdateModifierKeys(event);
+		const DeviceKey eventKey = {
+			.deviceType = event->GetDevice(),
+			.keyCode = event->GetIDCode(),
+		};
 
-		Keybinding* keybinding = FindMatchingKeybinding(event);
+		if (_allModifierKeys.contains(eventKey)) {
+			UpdateModifierStates();
+		}
+
+		if (!_allInputKeys.contains(eventKey)) {
+			return;
+		}
+
+		Keybinding* keybinding = FindSatisfiedKeybinding(event);
 
 		if (HandleGrab(event, keybinding)) {
 			return;
@@ -269,13 +279,12 @@ namespace QuickLoot::Input
 			filtered.push_back(Keybinding{ .action = QuickLootAction::kTake, .buttonArtOverride = ButtonArtIndex::kOculusA });
 			filtered.push_back(Keybinding{ .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kOculusAHold });
 		} else {
-			bool isGamepad = QUsingGamepad(RE::BSInputDeviceManager::GetSingleton());
+			const bool isGamepad = QUsingGamepad(RE::BSInputDeviceManager::GetSingleton());
 
 			std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
 				return keybinding.group == ControlGroup::kButtonBar &&
-				       (keybinding.deviceType == DeviceType::kGamepad) == isGamepad &&
-				       (keybinding.modifiers == ModifierKeys::kIgnore ||
-						   keybinding.modifiers == (_currentModifiers & _usedModifiers));
+				       keybinding.isModifierSatisfied &&
+				       (keybinding.inputKey.deviceType == DeviceType::kGamepad) == isGamepad;
 			});
 		}
 
@@ -286,59 +295,69 @@ namespace QuickLoot::Input
 	{
 		_keybindings.clear();
 
-		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceType::kMouse, MouseButton::kWheelUp, ModifierKeys::kNone, QuickLootAction::kScrollUp, false);
-		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceType::kMouse, MouseButton::kWheelDown, ModifierKeys::kNone, QuickLootAction::kScrollDown, false);
-		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceType::kMouse, MouseButton::kWheelUp, ModifierKeys::kShift, QuickLootAction::kPrevPage, false);
-		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceType::kMouse, MouseButton::kWheelDown, ModifierKeys::kShift, QuickLootAction::kNextPage, false);
+		constexpr std::optional<DeviceKey> none = {};
+		constexpr std::optional<DeviceKey> shift = { DeviceKey::Get(KeyboardKey::kLeftShift) };
 
-		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceType::kKeyboard, KeyboardKey::kUp, ModifierKeys::kIgnore, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceType::kKeyboard, KeyboardKey::kDown, ModifierKeys::kIgnore, QuickLootAction::kScrollDown, true);
-		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceType::kKeyboard, KeyboardKey::kLeft, ModifierKeys::kIgnore, QuickLootAction::kPrevPage, false);
-		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceType::kKeyboard, KeyboardKey::kRight, ModifierKeys::kIgnore, QuickLootAction::kNextPage, false);
+		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelUp), none, QuickLootAction::kScrollUp, false);
+		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelDown), none, QuickLootAction::kScrollDown, false);
+		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelUp), shift, QuickLootAction::kPrevPage, false);
+		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelDown), shift, QuickLootAction::kNextPage, false);
 
-		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceType::kKeyboard, KeyboardKey::kKP_8, ModifierKeys::kIgnore, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceType::kKeyboard, KeyboardKey::kKP_2, ModifierKeys::kIgnore, QuickLootAction::kScrollDown, true);
-		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceType::kKeyboard, KeyboardKey::kKP_4, ModifierKeys::kIgnore, QuickLootAction::kPrevPage, false);
-		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceType::kKeyboard, KeyboardKey::kKP_6, ModifierKeys::kIgnore, QuickLootAction::kNextPage, false);
+		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kUp), none, QuickLootAction::kScrollUp, true);
+		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kDown), none, QuickLootAction::kScrollDown, true);
+		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kLeft), none, QuickLootAction::kPrevPage, false);
+		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kRight), none, QuickLootAction::kNextPage, false);
 
-		_keybindings.emplace_back(ControlGroup::kPageKeys, DeviceType::kKeyboard, KeyboardKey::kPageUp, ModifierKeys::kIgnore, QuickLootAction::kPrevPage, false);
-		_keybindings.emplace_back(ControlGroup::kPageKeys, DeviceType::kKeyboard, KeyboardKey::kPageDown, ModifierKeys::kIgnore, QuickLootAction::kNextPage, false);
+		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_8), none, QuickLootAction::kScrollUp, true);
+		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_2), none, QuickLootAction::kScrollDown, true);
+		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_4), none, QuickLootAction::kPrevPage, false);
+		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_6), none, QuickLootAction::kNextPage, false);
 
-		_keybindings.emplace_back(ControlGroup::kDpad, DeviceType::kGamepad, GamepadInput::kUp, ModifierKeys::kIgnore, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kDpad, DeviceType::kGamepad, GamepadInput::kDown, ModifierKeys::kIgnore, QuickLootAction::kScrollDown, true);
-		_keybindings.emplace_back(ControlGroup::kDpad, DeviceType::kGamepad, GamepadInput::kLeft, ModifierKeys::kIgnore, QuickLootAction::kPrevPage, false);
-		_keybindings.emplace_back(ControlGroup::kDpad, DeviceType::kGamepad, GamepadInput::kRight, ModifierKeys::kIgnore, QuickLootAction::kNextPage, false);
+		_keybindings.emplace_back(ControlGroup::kPageKeys, DeviceKey::Get(KeyboardKey::kPageUp), none, QuickLootAction::kPrevPage, false);
+		_keybindings.emplace_back(ControlGroup::kPageKeys, DeviceKey::Get(KeyboardKey::kPageDown), none, QuickLootAction::kNextPage, false);
 
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kOculusPrimary, VRInput::kMainThumbStickUp, ModifierKeys::kIgnore, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kOculusPrimary, VRInput::kMainThumbStickDown, ModifierKeys::kIgnore, QuickLootAction::kScrollDown, true);
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kVivePrimary, VRInput::kMainThumbStickUp, ModifierKeys::kIgnore, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kVivePrimary, VRInput::kMainThumbStickDown, ModifierKeys::kIgnore, QuickLootAction::kScrollDown, true);
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kWMRPrimary, VRInput::kMainThumbStickUp, ModifierKeys::kIgnore, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceType::kWMRPrimary, VRInput::kMainThumbStickDown, ModifierKeys::kIgnore, QuickLootAction::kScrollDown, true);
+		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kUp), none, QuickLootAction::kScrollUp, true);
+		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kDown), none, QuickLootAction::kScrollDown, true);
+		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kLeft), none, QuickLootAction::kPrevPage, false);
+		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kRight), none, QuickLootAction::kNextPage, false);
+
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kOculusPrimary, VRInput::kMainThumbStickUp), none, QuickLootAction::kScrollUp, true);
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kOculusPrimary, VRInput::kMainThumbStickDown), none, QuickLootAction::kScrollDown, true);
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kVivePrimary, VRInput::kMainThumbStickUp), none, QuickLootAction::kScrollUp, true);
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kVivePrimary, VRInput::kMainThumbStickDown), none, QuickLootAction::kScrollDown, true);
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kMainThumbStickUp), none, QuickLootAction::kScrollUp, true);
+		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kMainThumbStickDown), none, QuickLootAction::kScrollDown, true);
 
 		_keybindings.append_range(Settings::GetKeybindings());
 
-		_usedModifiers = ModifierKeys::kNone;
+		_allInputKeys.clear();
+		_allModifierKeys.clear();
 
-		for (const auto& keybinding : _keybindings) {
-			if (keybinding.modifiers != ModifierKeys::kIgnore) {
-				_usedModifiers |= keybinding.modifiers;
+		for (size_t a = 0; a < _keybindings.size(); ++a) {
+			auto& keybindingA = _keybindings[a];
+
+			_allInputKeys.insert(keybindingA.inputKey);
+
+			if (keybindingA.modifierKey) {
+				_allModifierKeys.insert(*keybindingA.modifierKey);
 			}
 		}
+
+		UpdateModifierStates();
 	}
 
 	Keybinding* InputManager::FindConflictingKeybinding(const UserEventMapping& mapping, DeviceType deviceType)
 	{
 		const auto it = std::ranges::find_if(_keybindings, [&](const Keybinding& keybinding) {
-			return keybinding.deviceType == deviceType &&
-			       keybinding.inputKey == mapping.inputKey &&
+			return keybinding.inputKey.deviceType == deviceType &&
+			       keybinding.inputKey.keyCode == mapping.inputKey &&
 			       !keybinding.global;
 		});
 
 		return it != _keybindings.end() ? &*it : nullptr;
 	}
 
-	Keybinding* InputManager::FindMatchingKeybinding(const RE::ButtonEvent* event)
+	Keybinding* InputManager::FindSatisfiedKeybinding(const RE::ButtonEvent* event)
 	{
 		const auto deviceType = event->GetDevice();
 		auto inputKey = event->GetIDCode();
@@ -349,14 +368,54 @@ namespace QuickLoot::Input
 		}
 
 		const auto it = std::ranges::find_if(_keybindings, [&](const Keybinding& keybinding) {
-			return keybinding.deviceType == deviceType &&
-			       keybinding.inputKey == inputKey &&
-			       (keybinding.modifiers == ModifierKeys::kIgnore ||
-					   keybinding.modifiers == (_currentModifiers & _usedModifiers)) &&
-			       (keybinding.global || LootMenuManager::IsShowing());
+			return (keybinding.global || LootMenuManager::IsShowing()) &&
+			       keybinding.inputKey.deviceType == deviceType &&
+			       keybinding.inputKey.keyCode == inputKey &&
+			       keybinding.isModifierSatisfied;
 		});
 
 		return it != _keybindings.end() ? &*it : nullptr;
+	}
+
+	bool InputManager::IsKeyPressed(DeviceKey key)
+	{
+		const auto device = GetInputDevice(key.deviceType);
+		return device && device->IsPressed(key.keyCode);
+	}
+
+	RE::BSInputDevice* InputManager::GetInputDevice(DeviceType deviceType)
+	{
+		const auto deviceManager = RE::BSInputDeviceManager::GetSingleton();
+
+		switch (deviceType) {
+		case DeviceType::kKeyboard:
+			return deviceManager->GetKeyboard();
+
+		case DeviceType::kMouse:
+			return deviceManager->GetMouse();
+
+		case DeviceType::kGamepad:
+			return deviceManager->GetGamepad();
+
+		case DeviceType::kOculusPrimary:
+		case DeviceType::kVivePrimary:
+		case DeviceType::kWMRPrimary:
+			{
+				const auto rightHanded = RE::PlayerCharacter::GetSingleton()->GetVRPlayerRuntimeData().isRightHandMainHand;
+				return rightHanded ? deviceManager->GetVRControllerRight() : deviceManager->GetVRControllerLeft();
+			}
+
+		case DeviceType::kOculusSecondary:
+		case DeviceType::kViveSecondary:
+		case DeviceType::kWMRSecondary:
+			{
+				const auto rightHanded = RE::PlayerCharacter::GetSingleton()->GetVRPlayerRuntimeData().isRightHandMainHand;
+				return rightHanded ? deviceManager->GetVRControllerLeft() : deviceManager->GetVRControllerRight();
+			}
+
+		default:
+			return nullptr;
+		}
 	}
 
 	void InputManager::SendFakeButtonEvent(DeviceType device, int idCode, float value, float heldDownSecs)
@@ -375,55 +434,46 @@ namespace QuickLoot::Input
 		HandleButtonEvent(fakeEvent);
 	}
 
-	void InputManager::UpdateModifierKeys(const RE::ButtonEvent* event)
+	void InputManager::UpdateModifierStates()
 	{
-		const auto deviceType = event->GetDevice();
-		const auto inputKey = static_cast<KeyboardKey>(event->GetIDCode());
+		std::set<DeviceKey> suppressedInputKeys{};
+		bool requiresButtonBarUpdate = false;
 
-		if (deviceType != RE::INPUT_DEVICE::kKeyboard) {
-			return;
+		// check keybindings with modifier first
+		for (auto& keybinding : _keybindings) {
+			if (!keybinding.modifierKey) {
+				continue;
+			}
+
+			const bool wasSatisfied = keybinding.isModifierSatisfied;
+			const bool isSatisfied = IsKeyPressed(*keybinding.modifierKey);
+			keybinding.isModifierSatisfied = isSatisfied;
+
+			if (isSatisfied) {
+				suppressedInputKeys.insert(keybinding.inputKey);
+			}
+
+			if (isSatisfied != wasSatisfied && keybinding.group == ControlGroup::kButtonBar) {
+				requiresButtonBarUpdate = true;
+			}
 		}
 
-		switch (inputKey) {
-		case KeyboardKey::kLeftShift:
-		case KeyboardKey::kRightShift:
-		case KeyboardKey::kLeftControl:
-		case KeyboardKey::kRightControl:
-		case KeyboardKey::kLeftAlt:
-		case KeyboardKey::kRightAlt:
-			break;
+		// check keybindings without modifier
+		for (auto& keybinding : _keybindings) {
+			if (keybinding.modifierKey) {
+				continue;
+			}
 
-		default:
-			return;
+			const bool wasSatisfied = keybinding.isModifierSatisfied;
+			const bool isSatisfied = !suppressedInputKeys.contains(keybinding.inputKey);
+			keybinding.isModifierSatisfied = isSatisfied;
+
+			if (isSatisfied != wasSatisfied && keybinding.group == ControlGroup::kButtonBar) {
+				requiresButtonBarUpdate = true;
+			}
 		}
 
-		UpdateModifierKeys();
-	}
-
-	void InputManager::UpdateModifierKeys()
-	{
-		if (REL::Module::IsVR()) {
-			return;
-		}
-
-		const auto oldModifiers = _currentModifiers;
-		_currentModifiers = ModifierKeys::kNone;
-
-		// We have to upcast this to BSKeyboardDevice because BSWin32KeyboardDevice::IsPressed is not implemented in CLib.
-		const auto* keyboard = reinterpret_cast<RE::BSKeyboardDevice*>(RE::BSInputDeviceManager::GetSingleton()->GetKeyboard());
-
-		if (keyboard->IsPressed(KeyboardKey::kLeftShift) || keyboard->IsPressed(KeyboardKey::kRightShift)) {
-			_currentModifiers |= ModifierKeys::kShift;
-		}
-		if (keyboard->IsPressed(KeyboardKey::kLeftControl) || keyboard->IsPressed(KeyboardKey::kRightControl)) {
-			_currentModifiers |= ModifierKeys::kControl;
-		}
-		if (keyboard->IsPressed(KeyboardKey::kLeftAlt) || keyboard->IsPressed(KeyboardKey::kRightAlt)) {
-			_currentModifiers |= ModifierKeys::kAlt;
-		}
-
-		if (_currentModifiers != oldModifiers) {
-			// The button bar needs to be updated when the pressed modifier keys change.
+		if (requiresButtonBarUpdate) {
 			LootMenuManager::RequestRefresh(RefreshFlags::kButtonBar);
 		}
 	}
@@ -463,7 +513,7 @@ namespace QuickLoot::Input
 	{
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
-		if(!LootMenuManager::IsShowing()) {
+		if (!LootMenuManager::IsShowing()) {
 			return false;
 		}
 

@@ -2,19 +2,19 @@
 
 namespace QuickLoot::Input
 {
-	ButtonArtIndex ButtonArt::GetFrameIndexForDeviceKey(DeviceType deviceType, uint16_t keyCode)
+	ButtonArtIndex ButtonArt::GetFrameIndexForDeviceKey(DeviceKey key)
 	{
 		Initialize();
 
-		switch (deviceType) {
+		switch (key.deviceType) {
 		case DeviceType::kKeyboard:
-			return GetFrameIndexForKeyboardKey(keyCode);
+			return GetFrameIndexForKeyboardKey(static_cast<uint16_t>(key.keyCode));
 
 		case DeviceType::kMouse:
-			return GetFrameIndexForMouseButton(keyCode);
+			return GetFrameIndexForMouseButton(static_cast<uint16_t>(key.keyCode));
 
 		case DeviceType::kGamepad:
-			return GetFrameIndexForGamepadInput(keyCode);
+			return GetFrameIndexForGamepadInput(static_cast<uint16_t>(key.keyCode));
 
 		default:
 			return ButtonArtIndex::kNoMapping;

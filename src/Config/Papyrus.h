@@ -55,6 +55,12 @@ namespace QuickLoot::Config
 	inline int QLIE_KeybindingDisableGamepad;
 	inline int QLIE_KeybindingEnableGamepad;
 
+	inline int QLIE_KeybindingTakeGamepadModifier;
+	inline int QLIE_KeybindingTakeAllGamepadModifier;
+	inline int QLIE_KeybindingTransferGamepadModifier;
+	inline int QLIE_KeybindingDisableGamepadModifier;
+	inline int QLIE_KeybindingEnableGamepadModifier;
+
 	inline bool QLIE_ShowIconArtifactNew;
 	inline bool QLIE_ShowIconArtifactCarried;
 	inline bool QLIE_ShowIconArtifactDisplayed;

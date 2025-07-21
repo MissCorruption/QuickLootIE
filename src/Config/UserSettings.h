@@ -80,8 +80,7 @@ namespace QuickLoot::Config
 		static float VrScale();
 
 	private:
-		static Input::Keybinding BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseKey, int modifierType);
-		static Input::ModifierKeys ModifierTypeToModifierKeys(int modifierType);
-		static void SkseKeyToDeviceKey(int skseKey, Input::DeviceType& deviceType, uint16_t& keyCode);
+		static Input::Keybinding BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseInputKey, int skseModifierKey);
+		static Input::DeviceKey SkseKeyToDeviceKey(int skseKey);
 	};
 }

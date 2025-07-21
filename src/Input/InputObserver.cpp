@@ -9,7 +9,7 @@ namespace QuickLoot::Input
 		RE::BSInputDeviceManager::GetSingleton()->AddEventSink(GetSingleton());
 
 		// We might have missed modifier key changes while input wasn't listening.
-		InputManager::UpdateModifierKeys();
+		InputManager::UpdateModifierStates();
 
 		logger::info("Installed {}", typeid(InputObserver).name());
 	}

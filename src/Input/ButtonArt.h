@@ -15,7 +15,7 @@ namespace QuickLoot::Input
 		ButtonArt& operator=(ButtonArt&&) = delete;
 		ButtonArt& operator=(const ButtonArt&) = delete;
 
-		static ButtonArtIndex GetFrameIndexForDeviceKey(DeviceType deviceType, uint16_t keyCode);
+		static ButtonArtIndex GetFrameIndexForDeviceKey(DeviceKey key);
 		static ButtonArtIndex GetFrameIndexForEvent(const std::string_view& event);
 
 	private:

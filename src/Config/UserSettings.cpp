@@ -59,15 +59,15 @@ namespace QuickLoot::Config
 			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kDisable, QLIE_KeybindingDisable, QLIE_KeybindingDisableModifier),
 			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kEnable, QLIE_KeybindingEnable, QLIE_KeybindingEnableModifier),
 
-			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTake, QLIE_KeybindingTakeGamepad, 0),
-			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTakeAll, QLIE_KeybindingTakeAllGamepad, 0),
-			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTransfer, QLIE_KeybindingTransferGamepad, 0),
-			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kDisable, QLIE_KeybindingDisableGamepad, 0),
-			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kEnable, QLIE_KeybindingEnableGamepad, 0),
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTake, QLIE_KeybindingTakeGamepad, QLIE_KeybindingTakeGamepadModifier),
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTakeAll, QLIE_KeybindingTakeAllGamepad, QLIE_KeybindingTakeAllGamepadModifier),
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTransfer, QLIE_KeybindingTransferGamepad, QLIE_KeybindingTransferGamepadModifier),
+			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kDisable, QLIE_KeybindingDisableGamepad, QLIE_KeybindingDisableGamepadModifier),
+			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kEnable, QLIE_KeybindingEnableGamepad, QLIE_KeybindingEnableGamepadModifier),
 		};
 
 		// Remove unmapped keybindings.
-		std::erase_if(keybindings, [](const auto& keybinding) { return keybinding.inputKey == static_cast<uint16_t>(-1); });
+		std::erase_if(keybindings, [](const auto& keybinding) { return keybinding.inputKey.keyCode == static_cast<uint32_t>(-1); });
 
 		return keybindings;
 	}
@@ -91,44 +91,39 @@ namespace QuickLoot::Config
 	float UserSettings::VrAngleZ() { return 0; }
 	float UserSettings::VrScale() { return 50; }
 
-	Input::Keybinding UserSettings::BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseKey, int modifierType)
+	Input::Keybinding UserSettings::BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseInputKey, int skseModifierKey)
 	{
-		Input::ModifierKeys modifiers = ModifierTypeToModifierKeys(modifierType);
-		Input::DeviceType deviceType;
-		uint16_t keyCode;
-		SkseKeyToDeviceKey(skseKey, deviceType, keyCode);
-		bool global = group == Input::ControlGroup::kEnableState;
+		Input::DeviceKey inputKey = SkseKeyToDeviceKey(skseInputKey);
+		std::optional<Input::DeviceKey> modifierKey{};
 
-		return Input::Keybinding{ group, deviceType, keyCode, modifiers, action, false, 0.0f, global };
-	}
-
-	Input::ModifierKeys UserSettings::ModifierTypeToModifierKeys(int modifierType)
-	{
-		switch (modifierType) {
-		case 1:
-			return Input::ModifierKeys::kNone;
-		case 2:
-			return Input::ModifierKeys::kShift;
-		case 3:
-			return Input::ModifierKeys::kControl;
-		case 4:
-			return Input::ModifierKeys::kAlt;
-		default:
-			return Input::ModifierKeys::kIgnore;
+		if (skseModifierKey > 0) {
+			modifierKey = { SkseKeyToDeviceKey(skseModifierKey) };
 		}
+
+		const bool global = group == Input::ControlGroup::kEnableState;
+
+		return Input::Keybinding{ group, inputKey, modifierKey, action, false, global };
 	}
 
-	void UserSettings::SkseKeyToDeviceKey(int skseKey, Input::DeviceType& deviceType, uint16_t& keyCode)
+	Input::DeviceKey UserSettings::SkseKeyToDeviceKey(int skseKey)
 	{
 		if (skseKey >= 266) {
-			deviceType = Input::DeviceType::kGamepad;
-			keyCode = static_cast<uint16_t>(SKSE::InputMap::GamepadKeycodeToMask(skseKey));
-		} else if (skseKey >= 256) {
-			deviceType = Input::DeviceType::kMouse;
-			keyCode = static_cast<uint16_t>(skseKey - 256);
-		} else {
-			deviceType = Input::DeviceType::kKeyboard;
-			keyCode = static_cast<uint16_t>(skseKey);
+			return {
+				.deviceType = Input::DeviceType::kGamepad,
+				.keyCode = static_cast<uint16_t>(SKSE::InputMap::GamepadKeycodeToMask(skseKey))
+			};
 		}
+
+		if (skseKey >= 256) {
+			return {
+				.deviceType = Input::DeviceType::kMouse,
+				.keyCode = static_cast<uint16_t>(skseKey - 256)
+			};
+		}
+
+		return {
+			.deviceType = Input::DeviceType::kKeyboard,
+			.keyCode = static_cast<uint16_t>(skseKey)
+		};
 	}
 }

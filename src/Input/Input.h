@@ -29,15 +29,32 @@ namespace QuickLoot::Input
 
 	constexpr UEFlag QUICKLOOT_EVENT_GROUP_FLAG = static_cast<UEFlag>(1 << 12);
 
-	enum class ModifierKeys : uint8_t
+	struct DeviceKey
 	{
-		kNone = 0,
+		DeviceType deviceType;
+		uint32_t keyCode;
 
-		kShift = 1 << 0,
-		kControl = 1 << 1,
-		kAlt = 1 << 2,
+		auto operator<=>(const DeviceKey& deviceKey) const = default;
 
-		kIgnore = static_cast<ModifierKeys>(-1),
+		static constexpr DeviceKey Get(DeviceType deviceType, uint32_t keyCode)
+		{
+			return { deviceType, keyCode };
+		}
+
+		static constexpr DeviceKey Get(KeyboardKey keyCode)
+		{
+			return Get(RE::INPUT_DEVICE::kKeyboard, keyCode);
+		}
+
+		static constexpr DeviceKey Get(MouseButton keyCode)
+		{
+			return Get(RE::INPUT_DEVICE::kMouse, keyCode);
+		}
+
+		static constexpr DeviceKey Get(GamepadInput keyCode)
+		{
+			return Get(RE::INPUT_DEVICE::kGamepad, keyCode);
+		}
 	};
 
 	enum class ControlGroup : uint8_t
@@ -80,15 +97,18 @@ namespace QuickLoot::Input
 		// If a keybinding is part of a group with the kOptional bit set and conflicts with a
 		// predefined keybinding, then all keybindings within the same group will be disabled.
 		RE::stl::enumeration<ControlGroup> group = ControlGroup::kNone;
-		DeviceType deviceType;
-		uint16_t inputKey;
-		RE::stl::enumeration<ModifierKeys> modifiers;
+		DeviceKey inputKey;
+		std::optional<DeviceKey> modifierKey;
 		QuickLootAction action;
 		// Whether the action should be periodically re-triggered when the button is held.
 		bool retrigger;
-		float nextRetriggerTime = 0.0f;
 		// Whether the keybinding should be active while the loot menu is closed.
 		bool global = false;
 		ButtonArtIndex buttonArtOverride = static_cast<ButtonArtIndex>(0);
+
+		// Dynamic information
+
+		float nextRetriggerTime = 0.0f;
+		bool isModifierSatisfied = false;
 	};
 }
