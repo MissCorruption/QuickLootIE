@@ -50,12 +50,21 @@ namespace QuickLoot::Integrations
 
 			const auto& scripts = it->second;
 			for (const auto& script : scripts) {
-				if (!IsScriptOfType(*script, "DFLimbRefBaseScript")) continue;
+				if (!IsScriptOfType(*script, "DFLimbRefBaseScript")) {
+					continue;
+				}
 
-				const auto referenceActor = script->GetVariable("ReferenceActor");
-				if (!referenceActor || !IsScriptOfType(*referenceActor->GetObject(), "ObjectReference")) continue;
+				const auto variable = script->GetVariable("ReferenceActor");
+				if (!variable) {
+					continue;
+				}
 
-				const auto vmActorHandle = referenceActor->GetObject()->GetHandle();
+				const auto object = variable->GetObject();
+				if (!object || !IsScriptOfType(*object, "ObjectReference")) {
+					continue;
+				}
+
+				const auto vmActorHandle = object->GetHandle();
 				const auto actor = policy->GetObjectForHandle(RE::FormType::ActorCharacter, vmActorHandle);
 
 				return skyrim_cast<RE::TESObjectREFR*>(actor);
