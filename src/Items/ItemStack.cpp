@@ -123,6 +123,8 @@ namespace QuickLoot::Items
 		SetDataMember(_dataObj, "iconLabel", data.iconLabel);
 		SetDataMember(_dataObj, "iconColor", data.iconColor);
 
+		SetDataMember(_dataObj, "bestInClass", data.bestInClass);
+
 		switch (data.formType.value.get()) {
 		case RE::FormType::Armor:
 			SetDataMember(_dataObj, "material", data.armor.material);

@@ -17,7 +17,6 @@ namespace QuickLoot::Config
 		static void UpdateMenuWhitelist(const json& config);
 		static void UpdateContainerBlacklist(const json& config);
 
-		static bool SkipOldSwfCheck() { return _skipOldSwfCheck; }
 		static bool EnableProfiler() { return _enableProfiler; }
 		static int ProfilerFlushInterval() { return _profilerFlushInterval; }
 		static bool EnableMenuCaching() { return _enableMenuCaching; }
@@ -27,7 +26,6 @@ namespace QuickLoot::Config
 	private:
 		static constexpr auto CONFIG_PATH = "Data\\SKSE\\Plugins\\QuickLootIE.json";
 
-		static inline bool _skipOldSwfCheck = false;
 		static inline bool _enableProfiler = false;
 		static inline int _profilerFlushInterval = false;
 		static inline bool _enableMenuCaching = true;

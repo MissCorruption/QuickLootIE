@@ -81,6 +81,7 @@ namespace QuickLoot::Config
 
 		// Display > Icon Settings
 		LoadSettingsVar(QLIE_ShowIconItem, true);
+		LoadSettingsVar(QLIE_ShowIconBest, true);
 		LoadSettingsVar(QLIE_ShowIconRead, true);
 		LoadSettingsVar(QLIE_ShowIconStolen, true);
 		LoadSettingsVar(QLIE_ShowIconEnchanted, true);

@@ -40,6 +40,7 @@ namespace QuickLoot::Config
 	float UserSettings::GetWindowOpacityEmpty() { return QLIE_WindowOpacityEmpty; }
 
 	bool UserSettings::ShowIconItem() { return QLIE_ShowIconItem; }
+	bool UserSettings::ShowIconBest() { return QLIE_ShowIconBest; }
 	bool UserSettings::ShowIconRead() { return QLIE_ShowIconRead; }
 	bool UserSettings::ShowIconStolen() { return QLIE_ShowIconStolen; }
 	bool UserSettings::ShowIconEnchanted() { return QLIE_ShowIconEnchanted; }

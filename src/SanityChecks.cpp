@@ -1,6 +1,5 @@
 #include "SanityChecks.h"
 
-#include "Config/SystemSettings.h"
 #include "LootMenu.h"
 #include "Util/FormUtil.h"
 
@@ -15,44 +14,26 @@ void ShowFatalError(const char* message)
 
 bool QuickLoot::SanityChecks::PerformChecks()
 {
-	return ValidatePlugins() && ValidateSWF();
+	return ValidateEsp() & ValidateSwf();
 }
 
-bool QuickLoot::SanityChecks::ValidatePlugins()
+bool QuickLoot::SanityChecks::ValidateEsp()
 {
-	logger::info("Checking plugins...");
-
 	if (!Util::FormUtil::FormExists("QuickLootIE.esp", 0x001)) {
-		logger::error("MCM quest not found");
-
-		ShowFatalError(
-			"Unable to locate the QuickLoot MCM quest. "
-			"Please make sure that QuickLootIE.esp is present and enabled."
-			"\n\nExit Game now? (Recommend yes)");
+		logger::error("QuickLootIE.esp is not loaded");
 		return false;
 	}
 
 	return true;
 }
 
-bool QuickLoot::SanityChecks::ValidateSWF()
+bool QuickLoot::SanityChecks::ValidateSwf()
 {
-	logger::info("Checking SWF files...");
-
-	if (!Config::SystemSettings::SkipOldSwfCheck() && std::filesystem::exists(LEGACY_SWF)) {
-		logger::error("LootMenu.swf present");
-
-		ShowFatalError(
-			"LootMenu.swf has been found. "
-			"This file is no longer used by QuickLoot IE and was "
-			"most likely provided by an incompatible UI patch. "
-			"It will be ignored."
-			"\n\nSet skipOldSwfCheck to true in QuickLootIE.json to disable this message."
-			"\n\nExit Game now? (Recommend no)");
+	if (std::filesystem::exists(LEGACY_SWF)) {
+		logger::warn("LootMenu.swf present");
 
 		// The presence of LootMenu.swf does not prevent QuickLoot from working,
 		// so it shouldn't fail the sanity check.
-		//return false;
 	}
 
 	switch (const int version = LootMenu::GetSwfVersion()) {

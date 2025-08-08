@@ -303,6 +303,7 @@ namespace QuickLoot::Items
 		MandatoryField<const char*> iconLabel;
 		OptionalField<uint32_t> iconColor;
 
+		OptionalField<bool> bestInClass;
 		MandatoryField<EnchantmentType> enchantmentType;
 
 		union

@@ -663,6 +663,10 @@ namespace QuickLoot
 
 		_inventory = Items::ItemStack::LoadContainerInventory<Items::QuickLootItemStack>(container.get(), CanDisplay);
 
+		if (Settings::ShowIconBest()) {
+			Items::ItemStack::MarkBestInClassItems(_inventory);
+		}
+
 		API::APIServer::DispatchModifyInventoryEvent(_container.get().get(), _inventory);
 
 		if (_inventory.empty() && !Settings::ShowWhenEmpty()) {

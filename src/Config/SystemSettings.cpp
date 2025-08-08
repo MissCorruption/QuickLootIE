@@ -51,8 +51,6 @@ namespace QuickLoot::Config
 			return;
 		}
 
-		_skipOldSwfCheck = config.value("skipOldSwfCheck", false);
-
 		_enableProfiler = config.value("enableProfiler", false);
 		_profilerFlushInterval = config.value("profilerFlushInterval", 1000);
 

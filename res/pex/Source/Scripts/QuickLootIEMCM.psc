@@ -42,6 +42,7 @@ string[] WindowAnchorNames
 
 ; Display > Icon Settings
 bool property QLIE_ShowIconItem = true auto hidden
+bool property QLIE_ShowIconBest = true auto hidden
 bool property QLIE_ShowIconRead = true auto hidden
 bool property QLIE_ShowIconStolen = true auto hidden
 bool property QLIE_ShowIconEnchanted = true auto hidden
@@ -344,6 +345,7 @@ function BuildDisplayPage()
 	SetCursorPosition(1)
 	AddHeaderOption("$qlie_IconSettingsHeader")
 	AddTextOptionST("state_ShowIconItem",				"$qlie_ShowIconItem_text",				GetEnabledStatusText(QLIE_ShowIconItem))
+	AddTextOptionST("state_ShowIconBest",				"$qlie_ShowIconBest_text",				GetEnabledStatusText(QLIE_ShowIconBest))
 	AddTextOptionST("state_ShowIconRead",				"$qlie_ShowIconRead_text",				GetEnabledStatusText(QLIE_ShowIconRead))
 	AddTextOptionST("state_ShowIconStolen",				"$qlie_ShowIconStolen_text",			GetEnabledStatusText(QLIE_ShowIconStolen))
 	AddTextOptionST("state_ShowIconEnchanted",			"$qlie_ShowIconEnchanted_text",			GetEnabledStatusText(QLIE_ShowIconEnchanted))
@@ -940,6 +942,18 @@ state state_ShowIconItem
 	endevent
 endstate
 
+state state_ShowIconBest
+	event OnSelectST()
+		QLIE_ShowIconBest = !QLIE_ShowIconBest
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconBest))
+	endevent
+
+	event OnDefaultST()
+		QLIE_ShowIconBest = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconBest))
+	endevent
+endstate
+
 state state_ShowIconRead
 	event OnSelectST()
 		QLIE_ShowIconRead = !QLIE_ShowIconRead
@@ -1090,6 +1104,7 @@ function ResetSettings_Display()
 	QLIE_WindowOpacityEmpty = 0.3
 
 	QLIE_ShowIconItem = true
+	QLIE_ShowIconBest = true
 	QLIE_ShowIconRead = true
 	QLIE_ShowIconStolen = true
 	QLIE_ShowIconEnchanted = true
@@ -1110,6 +1125,7 @@ function ExportSettings_Display(string path)
 	JsonUtil.SetPathFloatValue(path, "WindowOpacityEmpty", QLIE_WindowOpacityEmpty)
 
 	JsonUtil.SetPathIntValue(path, "ShowIconItem", QLIE_ShowIconItem as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconBest", QLIE_ShowIconBest as int)
 	JsonUtil.SetPathIntValue(path, "ShowIconRead", QLIE_ShowIconRead as int)
 	JsonUtil.SetPathIntValue(path, "ShowIconStolen", QLIE_ShowIconStolen as int)
 	JsonUtil.SetPathIntValue(path, "ShowIconEnchanted", QLIE_ShowIconEnchanted as int)
@@ -1130,6 +1146,7 @@ function ImportSettings_Display(string path)
 	QLIE_WindowOpacityEmpty = JsonUtil.GetPathFloatValue(path, "WindowOpacityEmpty", QLIE_WindowOpacityEmpty)
 
 	QLIE_ShowIconItem = JsonUtil.GetPathIntValue(path, "ShowIconItem", QLIE_ShowIconItem as int)
+	QLIE_ShowIconBest = JsonUtil.GetPathIntValue(path, "ShowIconBest", QLIE_ShowIconBest as int)
 	QLIE_ShowIconRead = JsonUtil.GetPathIntValue(path, "ShowIconRead", QLIE_ShowIconRead as int)
 	QLIE_ShowIconStolen = JsonUtil.GetPathIntValue(path, "ShowIconStolen", QLIE_ShowIconStolen as int)
 	QLIE_ShowIconEnchanted = JsonUtil.GetPathIntValue(path, "ShowIconEnchanted", QLIE_ShowIconEnchanted as int)

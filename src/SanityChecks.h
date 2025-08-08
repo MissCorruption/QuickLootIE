@@ -18,7 +18,7 @@ namespace QuickLoot
 		static constexpr auto LEGACY_SWF = "Data\\Interface\\LootMenu.swf";
 		static constexpr auto CURRENT_SWF = "Data\\Interface\\LootMenuIE.swf";
 
-		static bool ValidatePlugins();
-		static bool ValidateSWF();
+		static bool ValidateEsp();
+		static bool ValidateSwf();
 	};
 }

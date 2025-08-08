@@ -124,7 +124,6 @@ namespace QuickLoot::Items
 			// Changed items
 
 			if (changes && changes->entryList) {
-
 				for (const auto entry : *changes->entryList) {
 					if (!entry->object || !filter(*entry->object)) {
 						continue;
@@ -140,11 +139,12 @@ namespace QuickLoot::Items
 			if (const auto baseContainer = container->GetContainer()) {
 				baseContainer->ForEachContainerObject([&](RE::ContainerObject& entry) {
 					const auto object = entry.obj;
-					const auto it = lookup.find(object);
 
 					if (!object || !filter(*object) || skyrim_cast<RE::TESLevItem*>(object)) {
 						return RE::BSContainer::ForEachResult::kContinue;
 					}
+
+					const auto it = lookup.find(object);
 
 					if (it == lookup.end()) {
 						lookup.emplace(object, inventory.size());
@@ -188,6 +188,118 @@ namespace QuickLoot::Items
 			});
 
 			return inventory;
+		}
+
+		template <typename TItemStack = ItemStack>
+		static void MarkBestInClassItems(const std::vector<std::unique_ptr<TItemStack>>& inventory, bool includePlayerInventory = true)
+		{
+			struct BestItem
+			{
+				TItemStack* stack;
+				float value;
+			};
+
+			BestItem bestArmorBySlot[32]{};
+			BestItem bestOneHandWeapon{};
+			BestItem bestTwoHandWeapon{};
+			BestItem bestRangedWeapon{};
+			BestItem bestAmmo{};
+
+			const auto UpdateBest = [](BestItem& bestItem, float value, TItemStack* stack) {
+				if (value > bestItem.value) {
+					bestItem.value = value;
+					bestItem.stack = stack;
+				}
+			};
+
+			const auto CheckBest = [&](RE::InventoryEntryData* entry, TItemStack* stack) {
+				const auto player = RE::PlayerCharacter::GetSingleton();
+				const auto object = entry->object;
+
+				switch (object->formType.get()) {
+				case RE::FormType::Armor:
+					{
+						const auto armor = skyrim_cast<RE::TESObjectARMO*>(object);
+						unsigned long slot = 0;
+						if (_BitScanForward(&slot, static_cast<unsigned long>(armor->GetSlotMask()))) {
+							UpdateBest(bestArmorBySlot[slot], player->GetArmorValue(entry), stack);
+						}
+						break;
+					}
+
+				case RE::FormType::Weapon:
+					{
+						const auto weapon = skyrim_cast<RE::TESObjectWEAP*>(object);
+						switch (weapon->weaponData.animationType.get()) {
+						case RE::WEAPON_TYPE::kOneHandAxe:
+						case RE::WEAPON_TYPE::kOneHandMace:
+						case RE::WEAPON_TYPE::kOneHandSword:
+						case RE::WEAPON_TYPE::kOneHandDagger:
+							UpdateBest(bestOneHandWeapon, player->GetDamage(entry), stack);
+							break;
+
+						case RE::WEAPON_TYPE::kTwoHandAxe:
+						case RE::WEAPON_TYPE::kTwoHandSword:
+							UpdateBest(bestTwoHandWeapon, player->GetDamage(entry), stack);
+
+						case RE::WEAPON_TYPE::kBow:
+						case RE::WEAPON_TYPE::kCrossbow:
+							UpdateBest(bestRangedWeapon, player->GetDamage(entry), stack);
+							break;
+
+						default:
+							break;
+						}
+						break;
+					}
+
+				case RE::FormType::Ammo:
+					{
+						UpdateBest(bestAmmo, player->GetDamage(entry), stack);
+						break;
+					}
+
+				default:
+					break;
+				}
+			};
+
+			for (const auto& stack : inventory) {
+				CheckBest(stack->GetEntry(), stack.get());
+			}
+
+			if (includePlayerInventory) {
+				// We don't need to actually build the inventory here. Just iterating the raw change list should do.
+
+				const auto player = RE::PlayerCharacter::GetSingleton();
+				const auto changes = player->GetInventoryChanges(false);
+
+				for (const auto& entry : *changes->entryList) {
+					CheckBest(entry, nullptr);
+				}
+			}
+
+			for (auto& bestItem : bestArmorBySlot) {
+				if (bestItem.stack) {
+					bestItem.stack->GetData().bestInClass = true;
+				}
+			}
+
+			if (bestOneHandWeapon.stack) {
+				bestOneHandWeapon.stack->GetData().bestInClass = true;
+			}
+
+			if (bestTwoHandWeapon.stack) {
+				bestTwoHandWeapon.stack->GetData().bestInClass = true;
+			}
+
+			if (bestRangedWeapon.stack) {
+				bestRangedWeapon.stack->GetData().bestInClass = true;
+			}
+
+			if (bestAmmo.stack) {
+				bestAmmo.stack->GetData().bestInClass = true;
+			}
 		}
 	};
 }
