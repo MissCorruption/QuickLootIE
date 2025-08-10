@@ -30,6 +30,7 @@
 	public var itemIcon: MovieClip;
 	public var itemName: TextField;
 	
+	public var bestInClassIcon: MovieClip;
 	public var stolenIcon: MovieClip;
 	public var readIcon: MovieClip;
 	
@@ -72,6 +73,7 @@
 		itemIcon._visible = false;
 		itemName._visible = false;
 		
+		bestInClassIcon._visible = false;
 		stolenIcon._visible = false;
 		readIcon._visible = false;
 		
@@ -216,6 +218,7 @@
 		_selectedIcons = [];
 		_totalIconWidth = 0;
 		
+		selectIcon(bestInClassIcon, data.bestInClass);
 		selectIcon(stolenIcon, data.stolen);
 		selectIcon(readIcon, data.read);
 		
