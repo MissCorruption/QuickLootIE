@@ -7,6 +7,9 @@ namespace QuickLoot::Behaviors
 		static void thunk(RE::UIMessageQueue* _this, const RE::BSFixedString& menuName, RE::UI_MESSAGE_TYPE type, RE::HUDData* data)
 		{
 			if (ActivationPrompt::IsBlocked() && (data->type == RE::HUDData::Type::kActivate || data->type == RE::HUDData::Type::kActivateNoLabel)) {
+				std::string text = data->text.c_str();
+				std::ranges::replace(text, '\n', ' ');
+				logger::trace("Blocking activation prompt '{}'", text);
 				data->text = "";
 				data->unk40 = false; // enable
 			}
