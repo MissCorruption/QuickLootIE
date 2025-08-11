@@ -3,7 +3,7 @@
 
 namespace QuickLoot::Items
 {
-	void ItemStack::SkyUiProcessEntry()
+	void ItemStack::SkyUiProcessEntry() const
 	{
 		PROFILE_SCOPE;
 
@@ -106,7 +106,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessArmorClass()
+	void ItemStack::SkyUiProcessArmorClass() const
 	{
 		PROFILE_SCOPE;
 
@@ -145,7 +145,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessArmorPartMask()
+	void ItemStack::SkyUiProcessArmorPartMask() const
 	{
 		PROFILE_SCOPE;
 
@@ -178,7 +178,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessArmorOther()
+	void ItemStack::SkyUiProcessArmorOther() const
 	{
 		PROFILE_SCOPE;
 
@@ -217,7 +217,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessArmorKnownForms()
+	void ItemStack::SkyUiProcessArmorKnownForms() const
 	{
 		PROFILE_SCOPE;
 
@@ -234,7 +234,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessMaterialKeywords()
+	void ItemStack::SkyUiProcessMaterialKeywords() const
 	{
 		PROFILE_SCOPE;
 
@@ -251,7 +251,7 @@ namespace QuickLoot::Items
 		_data.material.materialDisplay = "$Other";
 	}
 
-	void ItemStack::SkyUiProcessBookType()
+	void ItemStack::SkyUiProcessBookType() const
 	{
 		PROFILE_SCOPE;
 
@@ -283,7 +283,7 @@ namespace QuickLoot::Items
 		_data.subTypeDisplay = "$Book";
 	}
 
-	void ItemStack::SkyUiProcessMiscType()
+	void ItemStack::SkyUiProcessMiscType() const
 	{
 		PROFILE_SCOPE;
 
@@ -301,7 +301,7 @@ namespace QuickLoot::Items
 		_data.subTypeDisplay = "$Misc";
 	}
 
-	void ItemStack::SkyUiProcessMiscKnownForms()
+	void ItemStack::SkyUiProcessMiscKnownForms() const
 	{
 		PROFILE_SCOPE;
 
@@ -354,7 +354,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessWeaponType()
+	void ItemStack::SkyUiProcessWeaponType() const
 	{
 		PROFILE_SCOPE;
 
@@ -430,7 +430,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessWeaponKnownForms()
+	void ItemStack::SkyUiProcessWeaponKnownForms() const
 	{
 		PROFILE_SCOPE;
 
@@ -452,7 +452,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessAmmoType()
+	void ItemStack::SkyUiProcessAmmoType() const
 	{
 		PROFILE_SCOPE;
 
@@ -469,7 +469,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessAmmoKnownForms()
+	void ItemStack::SkyUiProcessAmmoKnownForms() const
 	{
 		PROFILE_SCOPE;
 
@@ -569,7 +569,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessKeyType()
+	void ItemStack::SkyUiProcessKeyType() const
 	{
 		PROFILE_SCOPE;
 
@@ -586,7 +586,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessPotionType()
+	void ItemStack::SkyUiProcessPotionType() const
 	{
 		PROFILE_SCOPE;
 
@@ -625,7 +625,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessSoulGemType()
+	void ItemStack::SkyUiProcessSoulGemType() const
 	{
 		PROFILE_SCOPE;
 
@@ -642,7 +642,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessSoulGemStatus()
+	void ItemStack::SkyUiProcessSoulGemStatus() const
 	{
 		PROFILE_SCOPE;
 
@@ -666,7 +666,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiProcessSoulGemKnownForms()
+	void ItemStack::SkyUiProcessSoulGemKnownForms() const
 	{
 		PROFILE_SCOPE;
 

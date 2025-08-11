@@ -3,7 +3,7 @@
 
 namespace QuickLoot::Items
 {
-	void ItemStack::SkseExtendItemData()
+	void ItemStack::SkseExtendItemData() const
 	{
 		PROFILE_SCOPE;
 
@@ -19,7 +19,7 @@ namespace QuickLoot::Items
 		// but we don't have access to those. It seems to be a pretty rarely used feature though.
 	}
 
-	void ItemStack::SkseExtendCommonItemData()
+	void ItemStack::SkseExtendCommonItemData() const
 	{
 		PROFILE_SCOPE;
 
@@ -29,7 +29,7 @@ namespace QuickLoot::Items
 		_data.formId = _object->formID;
 	}
 
-	void ItemStack::SkseExtendItemInfoData()
+	void ItemStack::SkseExtendItemInfoData() const
 	{
 		PROFILE_SCOPE;
 
@@ -40,7 +40,7 @@ namespace QuickLoot::Items
 		//_data.isStolen = _entry->IsOwnedBy(RE::PlayerCharacter::GetSingleton(), true); // SkyUI overwrites this
 	}
 
-	void ItemStack::SkseExtendStandardItemData()
+	void ItemStack::SkseExtendStandardItemData() const
 	{
 		PROFILE_SCOPE;
 
@@ -117,7 +117,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkseExtendInventoryData()
+	void ItemStack::SkseExtendInventoryData() const
 	{
 		PROFILE_SCOPE;
 
@@ -147,7 +147,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkseExtendMagicItemData()
+	void ItemStack::SkseExtendMagicItemData() const
 	{
 		PROFILE_SCOPE;
 

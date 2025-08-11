@@ -10,7 +10,7 @@ namespace QuickLoot::Items
 	QuickLootItemStack::QuickLootItemStack(RE::InventoryEntryData* entry, RE::ObjectRefHandle container, RE::ObjectRefHandle dropRef)
 		: ItemStack(entry, std::move(container), std::move(dropRef)) {}
 
-	QuickLootItemData& QuickLootItemStack::GetQuickLootData()
+	QuickLootItemData& QuickLootItemStack::GetQuickLootData() const
 	{
 		if (_dataInitialized) {
 			return _data;
@@ -21,7 +21,7 @@ namespace QuickLoot::Items
 		return _data;
 	}
 
-	RE::GFxValue& QuickLootItemStack::BuildDataObject(RE::GFxMovieView* view)
+	RE::GFxValue& QuickLootItemStack::BuildDataObject(RE::GFxMovieView* view) const
 	{
 		auto& obj = ItemStack::BuildDataObject(view);
 
@@ -77,7 +77,7 @@ namespace QuickLoot::Items
 		API::APIServer::DispatchTakeItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get());
 	}
 
-	void QuickLootItemStack::SetQuickLootData()
+	void QuickLootItemStack::SetQuickLootData() const
 	{
 		PROFILE_SCOPE;
 

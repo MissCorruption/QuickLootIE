@@ -3,7 +3,7 @@
 
 namespace QuickLoot::Items
 {
-	void ItemStack::SkyUiSelectIcon()
+	void ItemStack::SkyUiSelectIcon() const
 	{
 		PROFILE_SCOPE;
 
@@ -60,7 +60,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectScrollColor()
+	void ItemStack::SkyUiSelectScrollColor() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L93
 
@@ -82,7 +82,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectArmorIcon()
+	void ItemStack::SkyUiSelectArmorIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L113
 
@@ -111,7 +111,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectLightArmorIcon()
+	void ItemStack::SkyUiSelectLightArmorIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L138
 
@@ -155,7 +155,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectHeavyArmorIcon()
+	void ItemStack::SkyUiSelectHeavyArmorIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L185
 
@@ -199,7 +199,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectClothingIcon()
+	void ItemStack::SkyUiSelectClothingIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L251
 
@@ -240,7 +240,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectJewelryIcon()
+	void ItemStack::SkyUiSelectJewelryIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L231
 
@@ -262,7 +262,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectBookIcon()
+	void ItemStack::SkyUiSelectBookIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L292
 
@@ -282,7 +282,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectMiscIcon()
+	void ItemStack::SkyUiSelectMiscIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L514
 
@@ -353,7 +353,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectWeaponIcon()
+	void ItemStack::SkyUiSelectWeaponIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L309
 
@@ -414,7 +414,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectAmmoIcon()
+	void ItemStack::SkyUiSelectAmmoIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L372
 
@@ -427,7 +427,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectPotionIcon()
+	void ItemStack::SkyUiSelectPotionIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L387
 
@@ -487,7 +487,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectSoulGemIcon()
+	void ItemStack::SkyUiSelectSoulGemIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L444
 
@@ -529,7 +529,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SkyUiSelectSoulGemStatusIcon(bool grand)
+	void ItemStack::SkyUiSelectSoulGemStatusIcon(bool grand) const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L482
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L498

@@ -11,7 +11,7 @@ namespace QuickLoot::Items
 	{
 	}
 
-	ItemData& ItemStack::GetData()
+	ItemData& ItemStack::GetData() const
 	{
 		if (_dataInitialized) {
 			return _data;
@@ -81,7 +81,7 @@ namespace QuickLoot::Items
 		return keywords;
 	}
 
-	RE::GFxValue& ItemStack::BuildDataObject(RE::GFxMovieView* view)
+	RE::GFxValue& ItemStack::BuildDataObject(RE::GFxMovieView* view) const
 	{
 		if (_dataObj.IsObject()) {
 			return _dataObj;
@@ -295,7 +295,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SetVanillaData()
+	void ItemStack::SetVanillaData() const
 	{
 		PROFILE_SCOPE;
 

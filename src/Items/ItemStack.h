@@ -22,8 +22,8 @@ namespace QuickLoot::Items
 		[[nodiscard]] RE::ObjectRefHandle GetContainer() const { return _container; }
 		[[nodiscard]] RE::ObjectRefHandle GetDropRef() const { return _dropRef; }
 
-		[[nodiscard]] virtual ItemData& GetData();
-		[[nodiscard]] virtual RE::GFxValue& BuildDataObject(RE::GFxMovieView* view);
+		[[nodiscard]] virtual ItemData& GetData() const;
+		[[nodiscard]] virtual RE::GFxValue& BuildDataObject(RE::GFxMovieView* view) const;
 
 		virtual void TakeStack(RE::Actor* actor) const;
 		virtual void TakeOne(RE::Actor* actor) const;
@@ -36,51 +36,51 @@ namespace QuickLoot::Items
 		RE::ObjectRefHandle _dropRef;
 
 		mutable ItemData _data{};
-		RE::GFxValue _dataObj{};
-		bool _dataInitialized = false;
+		mutable RE::GFxValue _dataObj{};
+		mutable bool _dataInitialized = false;
 
-		void SetVanillaData();
+		void SetVanillaData() const;
 
-		void SkseExtendItemData();
-		void SkseExtendCommonItemData();
-		void SkseExtendItemInfoData();
-		void SkseExtendStandardItemData();
-		void SkseExtendInventoryData();
-		void SkseExtendMagicItemData();
+		void SkseExtendItemData() const;
+		void SkseExtendCommonItemData() const;
+		void SkseExtendItemInfoData() const;
+		void SkseExtendStandardItemData() const;
+		void SkseExtendInventoryData() const;
+		void SkseExtendMagicItemData() const;
 
-		void SkyUiProcessEntry();
-		void SkyUiProcessArmorClass();
-		void SkyUiProcessArmorPartMask();
-		void SkyUiProcessArmorOther();
-		void SkyUiProcessArmorKnownForms();
-		void SkyUiProcessMaterialKeywords();
-		void SkyUiProcessBookType();
-		void SkyUiProcessMiscType();
-		void SkyUiProcessMiscKnownForms();
-		void SkyUiProcessWeaponType();
-		void SkyUiProcessWeaponKnownForms();
-		void SkyUiProcessAmmoType();
-		void SkyUiProcessAmmoKnownForms();
-		void SkyUiProcessKeyType();
-		void SkyUiProcessPotionType();
-		void SkyUiProcessSoulGemType();
-		void SkyUiProcessSoulGemStatus();
-		void SkyUiProcessSoulGemKnownForms();
+		void SkyUiProcessEntry() const;
+		void SkyUiProcessArmorClass() const;
+		void SkyUiProcessArmorPartMask() const;
+		void SkyUiProcessArmorOther() const;
+		void SkyUiProcessArmorKnownForms() const;
+		void SkyUiProcessMaterialKeywords() const;
+		void SkyUiProcessBookType() const;
+		void SkyUiProcessMiscType() const;
+		void SkyUiProcessMiscKnownForms() const;
+		void SkyUiProcessWeaponType() const;
+		void SkyUiProcessWeaponKnownForms() const;
+		void SkyUiProcessAmmoType() const;
+		void SkyUiProcessAmmoKnownForms() const;
+		void SkyUiProcessKeyType() const;
+		void SkyUiProcessPotionType() const;
+		void SkyUiProcessSoulGemType() const;
+		void SkyUiProcessSoulGemStatus() const;
+		void SkyUiProcessSoulGemKnownForms() const;
 
-		void SkyUiSelectIcon();
-		void SkyUiSelectScrollColor();
-		void SkyUiSelectArmorIcon();
-		void SkyUiSelectLightArmorIcon();
-		void SkyUiSelectHeavyArmorIcon();
-		void SkyUiSelectClothingIcon();
-		void SkyUiSelectJewelryIcon();
-		void SkyUiSelectBookIcon();
-		void SkyUiSelectMiscIcon();
-		void SkyUiSelectWeaponIcon();
-		void SkyUiSelectAmmoIcon();
-		void SkyUiSelectPotionIcon();
-		void SkyUiSelectSoulGemIcon();
-		void SkyUiSelectSoulGemStatusIcon(bool grand);
+		void SkyUiSelectIcon() const;
+		void SkyUiSelectScrollColor() const;
+		void SkyUiSelectArmorIcon() const;
+		void SkyUiSelectLightArmorIcon() const;
+		void SkyUiSelectHeavyArmorIcon() const;
+		void SkyUiSelectClothingIcon() const;
+		void SkyUiSelectJewelryIcon() const;
+		void SkyUiSelectBookIcon() const;
+		void SkyUiSelectMiscIcon() const;
+		void SkyUiSelectWeaponIcon() const;
+		void SkyUiSelectAmmoIcon() const;
+		void SkyUiSelectPotionIcon() const;
+		void SkyUiSelectSoulGemIcon() const;
+		void SkyUiSelectSoulGemStatusIcon(bool grand) const;
 
 		// Helpers
 
