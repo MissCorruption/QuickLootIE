@@ -95,8 +95,6 @@ namespace QuickLoot::Input
 			break;
 		}
 
-		UpdateMappings();
-
 		_grabDelaySetting = RE::GetINISetting("fZKeyDelay:Controls");
 
 		logger::info("Installed {}", typeid(InputManager).name());
@@ -300,26 +298,26 @@ namespace QuickLoot::Input
 
 		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelUp), none, QuickLootAction::kScrollUp, false);
 		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelDown), none, QuickLootAction::kScrollDown, false);
-		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelUp), shift, QuickLootAction::kPrevPage, false);
-		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelDown), shift, QuickLootAction::kNextPage, false);
+		//_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelUp), shift, QuickLootAction::kPrevPage, false);
+		//_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelDown), shift, QuickLootAction::kNextPage, false);
 
 		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kUp), none, QuickLootAction::kScrollUp, true);
 		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kDown), none, QuickLootAction::kScrollDown, true);
-		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kLeft), none, QuickLootAction::kPrevPage, false);
-		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kRight), none, QuickLootAction::kNextPage, false);
+		//_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kLeft), none, QuickLootAction::kPrevPage, false);
+		//_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kRight), none, QuickLootAction::kNextPage, false);
 
 		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_8), none, QuickLootAction::kScrollUp, true);
 		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_2), none, QuickLootAction::kScrollDown, true);
-		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_4), none, QuickLootAction::kPrevPage, false);
-		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_6), none, QuickLootAction::kNextPage, false);
+		//_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_4), none, QuickLootAction::kPrevPage, false);
+		//_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_6), none, QuickLootAction::kNextPage, false);
 
-		_keybindings.emplace_back(ControlGroup::kPageKeys, DeviceKey::Get(KeyboardKey::kPageUp), none, QuickLootAction::kPrevPage, false);
-		_keybindings.emplace_back(ControlGroup::kPageKeys, DeviceKey::Get(KeyboardKey::kPageDown), none, QuickLootAction::kNextPage, false);
+		//_keybindings.emplace_back(ControlGroup::kPageKeys, DeviceKey::Get(KeyboardKey::kPageUp), none, QuickLootAction::kPrevPage, false);
+		//_keybindings.emplace_back(ControlGroup::kPageKeys, DeviceKey::Get(KeyboardKey::kPageDown), none, QuickLootAction::kNextPage, false);
 
 		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kUp), none, QuickLootAction::kScrollUp, true);
 		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kDown), none, QuickLootAction::kScrollDown, true);
-		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kLeft), none, QuickLootAction::kPrevPage, false);
-		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kRight), none, QuickLootAction::kNextPage, false);
+		//_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kLeft), none, QuickLootAction::kPrevPage, false);
+		//_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kRight), none, QuickLootAction::kNextPage, false);
 
 		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kOculusPrimary, VRInput::kMainThumbStickUp), none, QuickLootAction::kScrollUp, true);
 		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kOculusPrimary, VRInput::kMainThumbStickDown), none, QuickLootAction::kScrollDown, true);
@@ -446,7 +444,7 @@ namespace QuickLoot::Input
 			}
 
 			const bool wasSatisfied = keybinding.isModifierSatisfied;
-			const bool isSatisfied = IsKeyPressed(*keybinding.modifierKey);
+			const bool isSatisfied = !suppressedInputKeys.contains(keybinding.inputKey) && IsKeyPressed(*keybinding.modifierKey);
 			keybinding.isModifierSatisfied = isSatisfied;
 
 			if (isSatisfied) {

@@ -54,12 +54,14 @@ namespace QuickLoot::Config
 	std::vector<Input::Keybinding> UserSettings::GetKeybindings()
 	{
 		std::vector keybindings{
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kUse, QLIE_KeybindingUse, QLIE_KeybindingUseModifier),
 			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTake, QLIE_KeybindingTake, QLIE_KeybindingTakeModifier),
 			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTakeAll, QLIE_KeybindingTakeAll, QLIE_KeybindingTakeAllModifier),
 			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTransfer, QLIE_KeybindingTransfer, QLIE_KeybindingTransferModifier),
 			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kDisable, QLIE_KeybindingDisable, QLIE_KeybindingDisableModifier),
 			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kEnable, QLIE_KeybindingEnable, QLIE_KeybindingEnableModifier),
 
+			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kUse, QLIE_KeybindingUseGamepad, QLIE_KeybindingUseGamepadModifier),
 			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTake, QLIE_KeybindingTakeGamepad, QLIE_KeybindingTakeGamepadModifier),
 			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTakeAll, QLIE_KeybindingTakeAllGamepad, QLIE_KeybindingTakeAllGamepadModifier),
 			BuildKeybinding(Input::ControlGroup::kButtonBar, Input::QuickLootAction::kTransfer, QLIE_KeybindingTransferGamepad, QLIE_KeybindingTransferGamepadModifier),
@@ -68,7 +70,10 @@ namespace QuickLoot::Config
 		};
 
 		// Remove unmapped keybindings.
-		std::erase_if(keybindings, [](const auto& keybinding) { return keybinding.inputKey.keyCode == static_cast<uint32_t>(-1); });
+		std::erase_if(keybindings, [](const auto& keybinding) {
+			return keybinding.inputKey.keyCode == static_cast<uint32_t>(-1)
+			    || keybinding.inputKey.keyCode == 0;
+		});
 
 		return keybindings;
 	}

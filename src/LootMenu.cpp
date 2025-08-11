@@ -318,6 +318,10 @@ namespace QuickLoot
 		}
 
 		switch (action) {
+		case Input::QuickLootAction::kUse:
+			UseItem();
+			break;
+
 		case Input::QuickLootAction::kTake:
 			TakeStack();
 			break;
@@ -354,6 +358,7 @@ namespace QuickLoot
 	void LootMenu::OnSelectedIndexChanged(int newIndex)
 	{
 		QueueRefresh(RefreshFlags::kInfoBar);
+		QueueRefresh(RefreshFlags::kButtonBar);
 
 		if (newIndex < 0 || newIndex >= std::ssize(_inventory)) {
 			return;
@@ -464,6 +469,22 @@ namespace QuickLoot
 	void LootMenu::Transfer()
 	{
 		RE::PlayerCharacter::GetSingleton()->ActivatePickRef();
+	}
+
+	void LootMenu::UseItem()
+	{
+		PROFILE_SCOPE
+
+		const auto player = RE::PlayerCharacter::GetSingleton();
+
+		if (_selectedIndex < 0 || _selectedIndex >= _inventory.size()) {
+			logger::warn("Failed to use stack at index {} ({} entries)", _selectedIndex, _inventory.size());
+			return;
+		}
+
+		_inventory[_selectedIndex]->Use(player);
+
+		OnTakeAction();
 	}
 
 #pragma endregion
@@ -764,7 +785,7 @@ namespace QuickLoot
 		}
 	}
 
-	const char* LootMenu::GetActionDisplayName(Input::QuickLootAction action, bool stealing)
+	const char* LootMenu::GetActionDisplayName(Input::QuickLootAction action, bool stealing) const
 	{
 		struct ActionDefinition
 		{
@@ -775,31 +796,33 @@ namespace QuickLoot
 			const char* stealingLabelFallback;
 		};
 
-		constexpr std::array actionDefinitions{
-			ActionDefinition{ "sTake", "Take", "sSteal", "Steal" },
-			ActionDefinition{ "sTakeAll", "Take All", "sTakeAll", "Take All" },
-			ActionDefinition{ "sSearch", "Search", "sStealFrom", "Steal From" },
-		};
+		ActionDefinition button;
 
-		int actionIndex;
 		switch (action) {
 		case Input::QuickLootAction::kTake:
-			actionIndex = 0;
+			button = { "sTake", "Take", "sSteal", "Steal" };
 			break;
 
 		case Input::QuickLootAction::kTakeAll:
-			actionIndex = 1;
+			button = { "sTakeAll", "Take All", "sTakeAll", "Take All" };
 			break;
 
 		case Input::QuickLootAction::kTransfer:
-			actionIndex = 2;
+			button = { "sSearch", "Search", "sStealFrom", "Steal From" };
 			break;
+
+		case Input::QuickLootAction::kUse:
+			{
+				const auto selectedItem = _selectedIndex >= 0 && _selectedIndex < _inventory.size() ? _inventory[_selectedIndex].get() : nullptr;
+				const char* useLabel = selectedItem ? selectedItem->GetUseLabel() : "$Use";
+
+				button = { useLabel, useLabel, useLabel, useLabel };
+				break;
+			}
 
 		default:
 			return "<invalid>";
 		}
-
-		const auto& button = actionDefinitions[actionIndex];
 
 		const auto labelKey = stealing ? button.stealingLabelKey : button.labelKey;
 		const auto labelFallback = stealing ? button.stealingLabelFallback : button.labelFallback;

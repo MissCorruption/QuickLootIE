@@ -80,6 +80,7 @@ namespace QuickLoot::Input
 		kDisable,
 		kEnable,
 
+		kUse,
 		kTake,
 		kTakeAll,
 		kTransfer,

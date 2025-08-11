@@ -34,6 +34,7 @@ namespace QuickLoot::Items
 
 		void OnSelected(RE::Actor* actor) const;
 		void Take(RE::Actor* actor, int count) const override;
+		void Use(RE::Actor* actor) const override;
 
 	private:
 		mutable QuickLootItemData _data;

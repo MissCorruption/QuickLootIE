@@ -77,6 +77,17 @@ namespace QuickLoot::Items
 		API::APIServer::DispatchTakeItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get());
 	}
 
+	void QuickLootItemStack::Use(RE::Actor* actor) const
+	{
+		if (API::APIServer::DispatchTakingItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get()) == API::HandleResult::kStop) {
+			return;
+		}
+
+		ItemStack::Use(actor);
+
+		API::APIServer::DispatchTakeItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get());
+	}
+
 	void QuickLootItemStack::SetQuickLootData() const
 	{
 		PROFILE_SCOPE;

@@ -295,6 +295,57 @@ namespace QuickLoot::Items
 		}
 	}
 
+	void ItemStack::Use(RE::Actor* actor) const
+	{
+		if (_entry->object->formType == RE::FormType::Ammo) {
+			TakeStack(actor);
+		} else {
+			TakeOne(actor);
+		}
+
+		if (_entry->object->formType == RE::FormType::Book) {
+			const auto book = skyrim_cast<RE::TESObjectBOOK*>(_entry->object);
+			const auto extraList = !_entry->extraLists || _entry->extraLists->empty() ? nullptr : _entry->extraLists->front();
+
+			if (book->TeachesSpell()) {
+				const auto player = RE::PlayerCharacter::GetSingleton();
+				if (book->Read(player)) {
+					player->RemoveItem(book, 1, RE::ITEM_REMOVE_REASON::kRemove, extraList, nullptr);
+				}
+			} else {
+				RE::BSString text{};
+				book->GetDescription(text, nullptr);
+				RE::BookMenu::OpenBookMenu(text, extraList, nullptr, book, {}, {}, 1, true);
+			}
+		} else {
+			RE::ActorEquipManager::GetSingleton()->EquipObject(actor, _entry->object);
+		}
+	}
+
+	const char* ItemStack::GetUseLabel() const
+	{
+		const auto& data = GetData();
+
+		switch (data.type.value.get()) {
+		case ItemType::kArmor:
+		case ItemType::kWeapon:
+			return "$Equip";
+
+		case ItemType::kBook:
+			return "$Read";
+
+		case ItemType::kFood:
+		case ItemType::kIngredient:
+			if (data.formType == RE::FormType::AlchemyItem && data.potion.subType == PotionType::kDrink) {
+				return "$Use";
+			}
+			return "$Eat";
+
+		default:
+			return "$Use";
+		}
+	}
+
 	void ItemStack::SetVanillaData() const
 	{
 		PROFILE_SCOPE;
@@ -349,7 +400,7 @@ namespace QuickLoot::Items
 			return ItemType::kWeapon;
 
 		case RE::FormType::Book:
-			if (const auto book = dynamic_cast<RE::TESObjectBOOK*>(_object)) {
+			if (const auto book = skyrim_cast<RE::TESObjectBOOK*>(_object)) {
 				return book->TeachesSpell() ? ItemType::kMagicItem : ItemType::kBook;
 			}
 			return ItemType::kBook;
@@ -365,7 +416,7 @@ namespace QuickLoot::Items
 			return ItemType::kKey;
 
 		case RE::FormType::AlchemyItem:
-			if (const auto alchemyItem = dynamic_cast<RE::AlchemyItem*>(_object)) {
+			if (const auto alchemyItem = skyrim_cast<RE::AlchemyItem*>(_object)) {
 				return alchemyItem->IsFood() ? ItemType::kFood : ItemType::kMagicItem;
 			}
 			return ItemType::kMagicItem;

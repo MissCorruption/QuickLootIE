@@ -95,24 +95,28 @@ namespace QuickLoot::Config
 		LoadSettingsVar(QLIE_SortRulesActive, {});
 
 		// Controls
+		LoadSettingsVar(QLIE_KeybindingUse, 18);
 		LoadSettingsVar(QLIE_KeybindingTake, 18);
 		LoadSettingsVar(QLIE_KeybindingTakeAll, 19);
 		LoadSettingsVar(QLIE_KeybindingTransfer, 16);
 		LoadSettingsVar(QLIE_KeybindingDisable, -1);
 		LoadSettingsVar(QLIE_KeybindingEnable, -1);
 
+		LoadSettingsVar(QLIE_KeybindingUseModifier, 42);
 		LoadSettingsVar(QLIE_KeybindingTakeModifier, -1);
 		LoadSettingsVar(QLIE_KeybindingTakeAllModifier, -1);
 		LoadSettingsVar(QLIE_KeybindingTransferModifier, -1);
 		LoadSettingsVar(QLIE_KeybindingDisableModifier, -1);
 		LoadSettingsVar(QLIE_KeybindingEnableModifier, -1);
 
+		LoadSettingsVar(QLIE_KeybindingUseGamepad, 279);
 		LoadSettingsVar(QLIE_KeybindingTakeGamepad, 276);
 		LoadSettingsVar(QLIE_KeybindingTakeAllGamepad, 278);
 		LoadSettingsVar(QLIE_KeybindingTransferGamepad, 271);
 		LoadSettingsVar(QLIE_KeybindingDisableGamepad, -1);
 		LoadSettingsVar(QLIE_KeybindingEnableGamepad, -1);
 
+		LoadSettingsVar(QLIE_KeybindingUseGamepadModifier, -1);
 		LoadSettingsVar(QLIE_KeybindingTakeGamepadModifier, -1);
 		LoadSettingsVar(QLIE_KeybindingTakeAllGamepadModifier, -1);
 		LoadSettingsVar(QLIE_KeybindingTransferGamepadModifier, -1);

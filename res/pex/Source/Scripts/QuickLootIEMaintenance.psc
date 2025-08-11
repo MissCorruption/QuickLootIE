@@ -33,10 +33,11 @@ endevent
 
 event OnUpdate()
 	MCMScript = (self as Quest) as QuickLootIEMCM
-	SetFrameworkQuest(self as Quest)
 
 	InitCurrentVersion()
 	CheckVersionChange()
+
+	SetFrameworkQuest(self as Quest)
 endevent
 
 ;---------------------------------------------------
@@ -80,7 +81,7 @@ function CheckVersionChange()
 		Wait(0.1)
 	endwhile
 
-	if LastVersionNumber < CurrentVersionNumber
+	if LastVersionString != "" && LastVersionNumber < CurrentVersionNumber
 		UpdateVersion()
 	endif
 endfunction

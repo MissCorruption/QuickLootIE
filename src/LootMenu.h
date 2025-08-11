@@ -85,6 +85,7 @@ namespace QuickLoot
 		void TakeStack();
 		void TakeAll();
 		void Transfer();
+		void UseItem();
 
 		void Refresh(RefreshFlags flags = RefreshFlags::kNone);
 		void SortInventory();
@@ -94,7 +95,7 @@ namespace QuickLoot
 		void RefreshWeight();
 		void RefreshTitle();
 
-		[[nodiscard]] static const char* GetActionDisplayName(Input::QuickLootAction action, bool stealing);
+		[[nodiscard]] const char* GetActionDisplayName(Input::QuickLootAction action, bool stealing) const;
 		[[nodiscard]] static bool CanDisplay(const RE::TESBoundObject& object);
 		[[nodiscard]] bool WouldBeStealing() const;
 
