@@ -373,18 +373,40 @@ namespace QuickLoot::Items
 			_data.soulLVL = static_cast<SoulLevel>(_entry->GetSoulLevel());
 		}
 
-		// SetIsStealingFlags
-		const auto container = _container.get().get();
-		if (container != RE::PlayerCharacter::GetSingleton()) {
-			auto owner = _entry->GetOwner();
-			if (!owner) {
-				const auto actor = container->As<RE::Actor>();
-				owner = actor ? actor : container->GetOwner();
-			}
+		_data.isStealing = IsStealing();
+	}
 
-			const auto allowed = IsPlayerAllowedToTakeItemWithValue(RE::PlayerCharacter::GetSingleton(), owner, _entry->GetValue());
-			_data.isStealing = owner && !allowed;
+	bool ItemStack::IsStealing() const
+	{
+		// SetIsStealingFlags (RELOCATION_ID(50231, ?))
+
+		const auto player = RE::PlayerCharacter::GetSingleton();
+		const auto container = _container.get().get();
+		const auto actor = container->As<RE::Actor>();
+		const auto owner = container->GetOwner();
+
+		// player can't steal from their own inventory
+		if (container == player) {
+			return false;
 		}
+
+		// taking from dead actors is never considered stealing
+		if (actor && actor->IsDead(false)) {
+			return false;
+		}
+
+		// if the container is not an actor and not owned by anyone, we're not stealing
+		if (!actor && !owner) {
+			return false;
+		}
+
+		auto itemOwner = _entry->GetOwner();
+		if (!itemOwner) {
+			itemOwner = actor ? actor : owner;
+		}
+
+		const auto allowed = IsPlayerAllowedToTakeItemWithValue(player, itemOwner, _entry->GetValue());
+		return owner && !allowed;
 	}
 
 	ItemType ItemStack::GetItemType() const

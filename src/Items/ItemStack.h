@@ -86,6 +86,7 @@ namespace QuickLoot::Items
 
 		// Helpers
 
+		bool IsStealing() const;
 		ItemType GetItemType() const;
 		int GetPickpocketChance() const;
 
