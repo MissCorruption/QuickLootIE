@@ -245,15 +245,15 @@ namespace QuickLoot::Items
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L231
 
 		switch (_data.armor.subType) {
-		case ArmorSubType::kLongHair:
+		case ArmorSubType::kAmulet:
 			_data.iconLabel = "armor_amulet";
 			break;
 
-		case ArmorSubType::kTail:
+		case ArmorSubType::kRing:
 			_data.iconLabel = "armor_ring";
 			break;
 
-		case ArmorSubType::kHands:
+		case ArmorSubType::kCirclet:
 			_data.iconLabel = "armor_circlet";
 			break;
 
@@ -265,6 +265,11 @@ namespace QuickLoot::Items
 	void ItemStack::SkyUiSelectBookIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L292
+
+		if (!_data.book.subType.valid) {
+			_data.iconLabel = "default_book";
+			return;
+		}
 
 		switch (_data.book.subType) {
 		case BookSubType::kSpellTome:
@@ -285,6 +290,11 @@ namespace QuickLoot::Items
 	void ItemStack::SkyUiSelectMiscIcon() const
 	{
 		// https://github.com/schlangster/skyui/blob/835428728e2305865e220fdfc99d791434955eb1/src/ItemMenus/InventoryIconSetter.as#L514
+
+		if (!_data.misc.subType.valid) {
+			_data.iconLabel = "default_misc";
+			return;
+		}
 
 		switch (_data.misc.subType) {
 		case MiscType::kGem:

@@ -18,6 +18,7 @@ namespace QuickLoot::Items
 
 		SetQuickLootData();
 
+		_dataInitialized = true;
 		return _data;
 	}
 

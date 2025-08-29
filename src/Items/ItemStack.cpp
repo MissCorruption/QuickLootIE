@@ -24,6 +24,8 @@ namespace QuickLoot::Items
 		SkyUiProcessEntry();
 		SkyUiSelectIcon();
 
+		I4ExtendItemData();
+
 		// MoreHUD enchantment type
 		_data.enchantmentType = GetEnchantmentType();
 
@@ -57,14 +59,11 @@ namespace QuickLoot::Items
 		return data;
 	}
 
-	RE::GFxValue BuildKeywordsObject(RE::GFxMovieView* view, const RE::BGSKeywordForm* form)
+	void ExtendKeywordsObject(RE::GFxValue& keywords, const RE::BGSKeywordForm* form)
 	{
 		if (!form) {
-			return {};
+			return;
 		}
-
-		RE::GFxValue keywords;
-		view->CreateObject(&keywords);
 
 		for (uint32_t i = 0; i < form->GetNumKeywords(); i++) {
 			const auto keyword = form->GetKeywordAt(i).value_or(nullptr);
@@ -77,8 +76,20 @@ namespace QuickLoot::Items
 
 			keywords.SetMember(editorId, true);
 		}
+	}
+
+	RE::GFxValue BuildKeywordsObject(RE::GFxMovieView* view, const RE::BGSKeywordForm* form)
+	{
+		RE::GFxValue keywords;
+		view->CreateObject(&keywords);
+
+		ExtendKeywordsObject(keywords, form);
 
 		return keywords;
+	}
+
+	void ItemStack::I4ExtendItemData() const
+	{
 	}
 
 	RE::GFxValue& ItemStack::BuildDataObject(RE::GFxMovieView* view) const
@@ -118,12 +129,32 @@ namespace QuickLoot::Items
 		SetDataMember(_dataObj, "infoValue", data.infoValue);
 		SetDataMember(_dataObj, "infoWeight", data.infoWeight);
 		SetDataMember(_dataObj, "infoValueWeight", data.infoValueWeight);
+		SetDataMember(_dataObj, "infoTotalWeight", data.infoTotalWeight);
 
 		SetDataMember(_dataObj, "subTypeDisplay", data.subTypeDisplay);
 		SetDataMember(_dataObj, "iconLabel", data.iconLabel);
 		SetDataMember(_dataObj, "iconColor", data.iconColor);
 
 		SetDataMember(_dataObj, "bestInClass", data.bestInClass);
+
+		if (skyrim_cast<RE::MagicItem*>(_object)) {
+			SetDataMember(_dataObj, "spellName", data.magic.spellName);
+			SetDataMember(_dataObj, "magnitude", data.magic.magnitude);
+			SetDataMember(_dataObj, "duration", data.magic.duration);
+			SetDataMember(_dataObj, "area", data.magic.area);
+			SetDataMember(_dataObj, "effectName", data.magic.effectName);
+			SetDataMember(_dataObj, "subType", data.magic.subType);
+			SetDataMember(_dataObj, "effectFlags", data.magic.effectFlags);
+			SetDataMember(_dataObj, "school", data.magic.school);
+			SetDataMember(_dataObj, "skillLevel", data.magic.skillLevel);
+			SetDataMember(_dataObj, "archetype", data.magic.archetype);
+			SetDataMember(_dataObj, "deliveryType", data.magic.deliveryType);
+			SetDataMember(_dataObj, "castTime", data.magic.castTime);
+			SetDataMember(_dataObj, "delayTime", data.magic.delayTime);
+			SetDataMember(_dataObj, "actorValue", data.magic.actorValue);
+			SetDataMember(_dataObj, "castType", data.magic.castType);
+			SetDataMember(_dataObj, "resistance", data.magic.resistance);
+		}
 
 		switch (data.formType.value.get()) {
 		case RE::FormType::Armor:
@@ -191,8 +222,8 @@ namespace QuickLoot::Items
 			break;
 
 		case RE::FormType::Misc:
-		case RE::FormType::KeyMaster:
 			SetDataMember(_dataObj, "subType", data.misc.subType);
+		case RE::FormType::KeyMaster:
 			break;
 
 		case RE::FormType::SoulGem:
@@ -206,23 +237,19 @@ namespace QuickLoot::Items
 			break;
 		}
 
-		if (skyrim_cast<RE::MagicItem*>(_object)) {
-			SetDataMember(_dataObj, "spellName", data.magic.spellName);
-			SetDataMember(_dataObj, "magnitude", data.magic.magnitude);
-			SetDataMember(_dataObj, "duration", data.magic.duration);
-			SetDataMember(_dataObj, "area", data.magic.area);
-			SetDataMember(_dataObj, "effectName", data.magic.effectName);
-			SetDataMember(_dataObj, "subType", data.magic.subType);
-			SetDataMember(_dataObj, "effectFlags", data.magic.effectFlags);
-			SetDataMember(_dataObj, "school", data.magic.school);
-			SetDataMember(_dataObj, "skillLevel", data.magic.skillLevel);
-			SetDataMember(_dataObj, "archetype", data.magic.archetype);
-			SetDataMember(_dataObj, "deliveryType", data.magic.deliveryType);
-			SetDataMember(_dataObj, "castTime", data.magic.castTime);
-			SetDataMember(_dataObj, "delayTime", data.magic.delayTime);
-			SetDataMember(_dataObj, "actorValue", data.magic.actorValue);
-			SetDataMember(_dataObj, "castType", data.magic.castType);
-			SetDataMember(_dataObj, "resistance", data.magic.resistance);
+		// i4 extended data
+
+		if (const auto magicItem = skyrim_cast<RE::MagicItem*>(_object)) {
+			RE::GFxValue keywords;
+			view->CreateObject(&keywords);
+
+			for (const auto effect : magicItem->effects) {
+				if (effect) {
+					ExtendKeywordsObject(keywords, skyrim_cast<RE::BGSKeywordForm*>(effect->baseEffect));
+				}
+			}
+
+			SetDataMember(_dataObj, "effectKeywords", keywords);
 		}
 
 		return _dataObj;
@@ -297,28 +324,44 @@ namespace QuickLoot::Items
 
 	void ItemStack::Use(RE::Actor* actor) const
 	{
-		if (_entry->object->formType == RE::FormType::Ammo) {
+		switch (_entry->object->formType.get()) {
+		case RE::FormType::Book:
+		case RE::FormType::Ammo:
 			TakeStack(actor);
-		} else {
+			break;
+
+		default:
 			TakeOne(actor);
+			break;
 		}
 
-		if (_entry->object->formType == RE::FormType::Book) {
-			const auto book = skyrim_cast<RE::TESObjectBOOK*>(_entry->object);
-			const auto extraList = !_entry->extraLists || _entry->extraLists->empty() ? nullptr : _entry->extraLists->front();
+		const auto extraList = !_entry->extraLists || _entry->extraLists->empty() ? nullptr : _entry->extraLists->front();
 
-			if (book->TeachesSpell()) {
-				const auto player = RE::PlayerCharacter::GetSingleton();
-				if (book->Read(player)) {
-					player->RemoveItem(book, 1, RE::ITEM_REMOVE_REASON::kRemove, extraList, nullptr);
+		switch (_entry->object->formType.get()) {
+		case RE::FormType::Book:
+			{
+				const auto book = skyrim_cast<RE::TESObjectBOOK*>(_entry->object);
+				if (!book)
+					break;
+
+				if (book->TeachesSpell()) {
+					const auto player = RE::PlayerCharacter::GetSingleton();
+					if (book->Read(player)) {
+						player->RemoveItem(book, 1, RE::ITEM_REMOVE_REASON::kRemove, extraList, nullptr);
+					}
+				} else {
+					RE::BSString text{};
+					book->GetDescription(text, nullptr);
+					RE::BookMenu::OpenBookMenu(text, extraList, nullptr, book, {}, {}, 1, true);
 				}
-			} else {
-				RE::BSString text{};
-				book->GetDescription(text, nullptr);
-				RE::BookMenu::OpenBookMenu(text, extraList, nullptr, book, {}, {}, 1, true);
+				break;
 			}
-		} else {
-			RE::ActorEquipManager::GetSingleton()->EquipObject(actor, _entry->object);
+
+		default:
+			{
+				RE::ActorEquipManager::GetSingleton()->EquipObject(actor, _entry->object, extraList, _entry->countDelta, nullptr, false, false, true, false);
+				break;
+			}
 		}
 	}
 
@@ -368,9 +411,22 @@ namespace QuickLoot::Items
 		_data.favorite = itemData->GetFavorite();
 		_data.enabled = itemData->GetEnabled();
 
-		// InventoryEntryData::PopulateSoulLevel
+		// ItemCard::ShowItemInfo
 		if (_object->Is(RE::FormType::SoulGem)) {
-			_data.soulLVL = static_cast<SoulLevel>(_entry->GetSoulLevel());
+			constexpr const char* soulLevelNames[]{
+				"sNone",
+				"sSoulLevelNamePetty",
+				"sSoulLevelNameLesser",
+				"sSoulLevelNameCommon",
+				"sSoulLevelNameGreater",
+				"sSoulLevelNameGrand",
+				"sSoulLevelNameGrand",  // Azura's Star
+			};
+
+			const auto soulLevel = static_cast<SoulLevel>(_entry->GetSoulLevel());
+			if (soulLevel > SoulLevel::kNone && soulLevel <= SoulLevel::kAzura) {
+				_data.soulLVL = soulLevelNames[static_cast<int>(soulLevel)];
+			}
 		}
 
 		_data.isStealing = IsStealing();
@@ -437,6 +493,7 @@ namespace QuickLoot::Items
 		case RE::FormType::KeyMaster:
 			return ItemType::kKey;
 
+		case RE::FormType::Scroll:
 		case RE::FormType::AlchemyItem:
 			if (const auto alchemyItem = skyrim_cast<RE::AlchemyItem*>(_object)) {
 				return alchemyItem->IsFood() ? ItemType::kFood : ItemType::kMagicItem;

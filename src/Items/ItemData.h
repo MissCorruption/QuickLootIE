@@ -155,7 +155,7 @@ namespace QuickLoot::Items
 		MandatoryEnumField<ArmorSlot> partMask;
 		OptionalEnumField<ArmorWeightClass> weightClass;
 		MandatoryField<float> armor;
-		MandatoryField<float> infoArmor;
+		OptionalField<float> infoArmor;
 		MandatoryField<bool> isEnchanted;
 		MandatoryField<const char*> weightClassDisplay;
 		MandatoryEnumField<ArmorSlot> mainPartMask;
@@ -174,7 +174,7 @@ namespace QuickLoot::Items
 		MandatoryField<uint16_t> baseDamage;
 		OptionalField<RE::FormID> equipSlot;
 		MandatoryField<float> damage;
-		MandatoryField<float> infoDamage;
+		OptionalField<float> infoDamage;
 		MandatoryField<bool> isPoisoned;
 		MandatoryField<bool> isEnchanted;
 		OptionalEnumField<WeaponType> subType;
@@ -192,21 +192,21 @@ namespace QuickLoot::Items
 	struct MagicItemData
 	{
 		MandatoryField<const char*> spellName;
-		MandatoryField<float> magnitude;
-		MandatoryField<uint32_t> duration;
-		MandatoryField<uint32_t> area;
+		OptionalField<float> magnitude;
+		OptionalField<uint32_t> duration;
+		OptionalField<uint32_t> area;
 		OptionalField<const char*> effectName;
-		OptionalEnumField<RE::ActorValue> subType;
+		OptionalEnumField<RE::ActorValue, uint32_t> subType;
 		OptionalEnumField<EffectFlags, uint32_t> effectFlags;
-		OptionalEnumField<RE::ActorValue> school;
+		OptionalEnumField<RE::ActorValue, uint32_t> school;
 		OptionalField<uint32_t> skillLevel;
 		OptionalEnumField<RE::EffectArchetype> archetype;
 		OptionalEnumField<RE::MagicSystem::Delivery> deliveryType;
 		OptionalField<float> castTime;
 		OptionalField<float> delayTime;
-		OptionalEnumField<RE::ActorValue> actorValue;
+		OptionalEnumField<RE::ActorValue, uint32_t> actorValue;
 		OptionalEnumField<RE::MagicSystem::CastingType> castType;
-		OptionalEnumField<RE::ActorValue> resistance;
+		OptionalEnumField<RE::ActorValue, uint32_t> resistance;
 	};
 
 	struct AlchemyItemData : MagicItemData
@@ -232,7 +232,7 @@ namespace QuickLoot::Items
 		MandatoryEnumField<BookFlags, uint8_t> flags;
 		MandatoryEnumField<BookType, uint8_t> bookType;
 		OptionalField<RE::FormID> teachesSpell;
-		OptionalEnumField<RE::ActorValue> teachesSkill;
+		OptionalEnumField<RE::ActorValue, uint32_t> teachesSkill;
 		MandatoryField<bool> isRead;
 		OptionalEnumField<BookSubType> subType;
 	};
@@ -281,7 +281,7 @@ namespace QuickLoot::Items
 		MandatoryField<uint32_t> favorite;
 		MandatoryField<bool> enabled;
 		MandatoryField<bool> isStealing;
-		MandatoryField<SoulLevel> soulLVL;
+		OptionalField<const char*> soulLVL;
 
 		MandatoryEnumField<RE::FormType, uint8_t> formType;
 		MandatoryField<RE::FormID> formId;
@@ -298,6 +298,7 @@ namespace QuickLoot::Items
 		OptionalField<float> infoValue;
 		OptionalField<float> infoWeight;
 		OptionalField<float> infoValueWeight;
+		OptionalField<float> infoTotalWeight;
 
 		MandatoryField<const char*> subTypeDisplay;
 		MandatoryField<const char*> iconLabel;

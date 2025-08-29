@@ -19,14 +19,17 @@ namespace QuickLoot::Items
 		_data.isEquipped = _data.equipState > 0;
 		_data.isStolen = _container == player->GetHandle() && !_entry->IsOwnedBy(player, true);
 
-		//if (value > 0) { // This does nothing for integers
-		//	_data.infoValue = TruncatePrecision(value);
-		//}
+		if (value > 0) {
+			_data.infoValue = TruncatePrecision(static_cast<float>(value));
+		}
 		if (weight > 0) {
 			_data.infoWeight = TruncatePrecision(weight);
 		}
 		if (value > 0 && weight > 0) {
 			_data.infoValueWeight = RoundValue(value / weight);
+		}
+		if (weight > 0) {
+			_data.infoTotalWeight = TruncatePrecision(_entry->countDelta * weight);
 		}
 
 		switch (_object->formType.get()) {
@@ -35,11 +38,22 @@ namespace QuickLoot::Items
 
 			//_data.magic.duration = TruncatePrecision(_data.magic.duration); // This does nothing for integers
 			_data.magic.magnitude = TruncatePrecision(_data.magic.magnitude);
+
+			if (_data.magic.duration.value <= 0) {
+				_data.magic.duration.unset();
+			}
+			if (_data.magic.magnitude.value <= 0) {
+				_data.magic.magnitude.unset();
+			}
 			break;
 
 		case RE::FormType::Armor:
 			_data.armor.isEnchanted = _entry->IsEnchanted();
 			_data.armor.infoArmor = TruncatePrecision(player->GetArmorValue(_entry.get()));
+
+			if (_data.armor.infoArmor.value <= 0) {
+				_data.armor.infoArmor.unset();
+			}
 
 			SkyUiProcessArmorClass();
 			SkyUiProcessArmorPartMask();
@@ -70,6 +84,10 @@ namespace QuickLoot::Items
 			_data.weapon.isPoisoned = _entry->extraLists && !_entry->extraLists->empty() && !_entry->extraLists->front()->HasType(RE::ExtraDataType::kPoison);
 			_data.weapon.infoDamage = TruncatePrecision(player->GetDamage(_entry.get()));
 
+			if (_data.weapon.infoDamage.value <= 0) {
+				_data.weapon.infoDamage.unset();
+			}
+
 			SkyUiProcessWeaponType();
 			SkyUiProcessMaterialKeywords();
 			SkyUiProcessWeaponKnownForms();
@@ -91,6 +109,13 @@ namespace QuickLoot::Items
 		case RE::FormType::AlchemyItem:
 			//_data.magic.duration = TruncatePrecision(_data.magic.duration); // This does nothing for integers
 			_data.magic.magnitude = TruncatePrecision(_data.magic.magnitude);
+
+			if (_data.magic.duration.value <= 0) {
+				_data.magic.duration.unset();
+			}
+			if (_data.magic.magnitude.value <= 0) {
+				_data.magic.magnitude.unset();
+			}
 
 			SkyUiProcessPotionType();
 			break;
@@ -612,11 +637,13 @@ namespace QuickLoot::Items
 
 			const auto actorValue = _data.potion.actorValue;
 
-			for (const auto& entry : PotionTypeTable) {
-				if (entry.actorValue == actorValue) {
-					_data.potion.subType = entry.subType;
-					_data.subTypeDisplay = entry.subTypeDisplay;
-					return;
+			if (actorValue.valid) {
+				for (const auto& entry : PotionTypeTable) {
+					if (entry.actorValue == actorValue.value) {
+						_data.potion.subType = entry.subType;
+						_data.subTypeDisplay = entry.subTypeDisplay;
+						return;
+					}
 				}
 			}
 
