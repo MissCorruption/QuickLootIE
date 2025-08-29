@@ -45,6 +45,9 @@ namespace QuickLoot
 		void OnInputAction(Input::QuickLootAction action);
 		void QueueRefresh(RefreshFlags flags);
 
+		using SortRule = std::function<int(Items::QuickLootItemStack& a, Items::QuickLootItemStack& b)>;
+		static const std::map<std::string, SortRule>& GetAvailableSortRules();
+
 	protected:
 		static inline RE::GPtr<RE::GFxMovieView> _cachedView{};
 		int _swfFeatureLevel = 0;
