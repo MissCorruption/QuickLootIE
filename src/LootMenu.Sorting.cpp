@@ -12,7 +12,8 @@ namespace QuickLoot
 	namespace SortHelpers
 	{
 		template <typename T>
-		static int Sign(T value) {
+		static int Sign(T value)
+		{
 			return (T(0) < value) - (value < T(0));
 		}
 
@@ -191,6 +192,14 @@ namespace QuickLoot
 			});
 		}
 
+		static int Enchanted(Items::QuickLootItemStack& a, Items::QuickLootItemStack& b)
+		{
+			return OrderDescending<bool>(a, b, [](const Items::QuickLootItemStack& stack) {
+				const auto data = stack.GetQuickLootData();
+				return data.enchanted.valid && data.enchanted.value;
+			});
+		}
+
 		static int ByWeight(Items::QuickLootItemStack& a, Items::QuickLootItemStack& b)
 		{
 			return OrderAscending<float>(a, b, [](const Items::ItemData& data) {
@@ -257,6 +266,7 @@ namespace QuickLoot
 		{ "$qlie_SortRule_Clothes", Clothes },
 		{ "$qlie_SortRule_Jewelry", Jewelry },
 		{ "$qlie_SortRule_Weightless", Weightless },
+		{ "$qlie_SortRule_Enchanted", Enchanted },
 		{ "$qlie_SortRule_ByWeight", ByWeight },
 		{ "$qlie_SortRule_ByValue", ByValue },
 		{ "$qlie_SortRule_ByV/W", ByValuePerWeight },
