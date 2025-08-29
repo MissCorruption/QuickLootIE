@@ -94,7 +94,7 @@ extern "C" __declspec(dllexport) bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadIn
 
 	const auto plugin = SKSE::PluginDeclaration::GetSingleton();
 
-	logger::info("{} {}", plugin->GetName(), plugin->GetVersion().string("."));
+	logger::info("Starting {} {} on Skyrim {}", plugin->GetName(), plugin->GetVersion().string("."), REL::Module::get().version().string("."));
 
 	QuickLoot::Config::SystemSettings::Update(true);
 	QuickLoot::Util::Profiler::Init();
