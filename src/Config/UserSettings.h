@@ -30,9 +30,11 @@ namespace QuickLoot::Config
 
 		static bool ShowInCombat();
 		static bool ShowWhenEmpty();
+		static bool ShowWhenSneaking();
 		static bool ShowWhenUnlocked();
 		static bool ShowInThirdPersonView();
 		static bool ShowWhenMounted();
+		static bool EnableForContainers();
 		static bool EnableForCorpses();
 		static bool EnableForAnimals();
 		static bool EnableForDragons();

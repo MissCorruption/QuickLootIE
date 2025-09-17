@@ -21,9 +21,11 @@ namespace QuickLoot::Config
 
 	bool UserSettings::ShowInCombat() { return QLIE_ShowInCombat; }
 	bool UserSettings::ShowWhenEmpty() { return QLIE_ShowWhenEmpty; }
+	bool UserSettings::ShowWhenSneaking() { return QLIE_ShowWhenSneaking; }
 	bool UserSettings::ShowWhenUnlocked() { return QLIE_ShowWhenUnlocked; }
 	bool UserSettings::ShowInThirdPersonView() { return QLIE_ShowInThirdPerson; }
 	bool UserSettings::ShowWhenMounted() { return QLIE_ShowWhenMounted; }
+	bool UserSettings::EnableForContainers() { return QLIE_EnableForContainers; }
 	bool UserSettings::EnableForCorpses() { return QLIE_EnableForCorpses; }
 	bool UserSettings::EnableForAnimals() { return QLIE_EnableForAnimals; }
 	bool UserSettings::EnableForDragons() { return QLIE_EnableForDragons; }

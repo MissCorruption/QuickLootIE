@@ -58,14 +58,16 @@ namespace QuickLoot::Config
 #define LoadSettingsVar(name, ...) LoadSetting(name, #name, __VA_ARGS__)
 
 		// General > Behavior Settings
-		LoadSettingsVar(QLIE_ShowInCombat, false);
-		LoadSettingsVar(QLIE_ShowWhenEmpty, true);
+		LoadSettingsVar(QLIE_ShowInCombat, true);
+		LoadSettingsVar(QLIE_ShowWhenEmpty, false);
+		LoadSettingsVar(QLIE_ShowWhenSneaking, true);
 		LoadSettingsVar(QLIE_ShowWhenUnlocked, true);
 		LoadSettingsVar(QLIE_ShowInThirdPerson, true);
 		LoadSettingsVar(QLIE_ShowWhenMounted, false);
-		LoadSettingsVar(QLIE_EnableForCorpses, false);
-		LoadSettingsVar(QLIE_EnableForAnimals, false);
-		LoadSettingsVar(QLIE_EnableForDragons, false);
+		LoadSettingsVar(QLIE_EnableForContainers, true);
+		LoadSettingsVar(QLIE_EnableForCorpses, true);
+		LoadSettingsVar(QLIE_EnableForAnimals, true);
+		LoadSettingsVar(QLIE_EnableForDragons, true);
 		LoadSettingsVar(QLIE_BreakInvisibility, true);
 		LoadSettingsVar(QLIE_PlayScrollSound, true);
 

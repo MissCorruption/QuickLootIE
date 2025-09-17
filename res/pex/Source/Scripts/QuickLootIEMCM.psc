@@ -19,9 +19,11 @@ string property ControlPresetPath = "../QuickLootIE/ControlPresets/" auto hidden
 ; General > Behavior Settings
 bool property QLIE_ShowInCombat = true auto hidden
 bool property QLIE_ShowWhenEmpty = false auto hidden
+bool property QLIE_ShowWhenSneaking = true auto hidden
 bool property QLIE_ShowWhenUnlocked = true auto hidden
 bool property QLIE_ShowInThirdPerson = true auto hidden
 bool property QLIE_ShowWhenMounted = false auto hidden
+bool property QLIE_EnableForContainers = true auto hidden
 bool property QLIE_EnableForCorpses = true auto hidden
 bool property QLIE_EnableForAnimals = true auto hidden
 bool property QLIE_EnableForDragons = true auto hidden
@@ -299,9 +301,11 @@ function BuildGeneralPage()
 	AddHeaderOption("$qlie_BehaviorSettingsHeader")
 	AddTextOptionST("state_ShowInCombat",			"$qlie_ShowInCombat_text",			GetEnabledStatusText(QLIE_ShowInCombat))
 	AddTextOptionST("state_ShowWhenEmpty",			"$qlie_ShowWhenEmpty_text",			GetEnabledStatusText(QLIE_ShowWhenEmpty))
+	AddTextOptionST("state_ShowWhenSneaking",		"$qlie_ShowWhenSneaking_text",		GetEnabledStatusText(QLIE_ShowWhenSneaking))
 	AddTextOptionST("state_ShowWhenUnlocked",		"$qlie_ShowWhenUnlocked_text",		GetEnabledStatusText(QLIE_ShowWhenUnlocked))
 	AddTextOptionST("state_ShowInThirdPerson",		"$qlie_ShowInThirdPerson_text",		GetEnabledStatusText(QLIE_ShowInThirdPerson))
 	AddTextOptionST("state_ShowWhenMounted",		"$qlie_ShowWhenMounted_text",		GetEnabledStatusText(QLIE_ShowWhenMounted))
+	AddTextOptionST("state_EnableForContainers",	"$qlie_EnableForContainers_text",	GetEnabledStatusText(QLIE_EnableForContainers))
 	AddTextOptionST("state_EnableForCorpses",		"$qlie_EnableForCorpses_text",		GetEnabledStatusText(QLIE_EnableForCorpses))
 	AddTextOptionST("state_EnableForAnimals",		"$qlie_EnableForAnimals_text",		GetEnabledStatusText(QLIE_EnableForAnimals))
 	AddTextOptionST("state_EnableForDragons",		"$qlie_EnableForDragons_text",		GetEnabledStatusText(QLIE_EnableForDragons))
@@ -629,8 +633,19 @@ state state_ShowWhenEmpty
 	endevent
 endstate
 
-state state_ShowWhenUnlocked
+state state_ShowWhenSneaking
+	event OnSelectST()
+		QLIE_ShowWhenSneaking = !QLIE_ShowWhenSneaking
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowWhenSneaking))
+	endevent
 
+	event OnDefaultST()
+		QLIE_ShowWhenSneaking = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowWhenSneaking))
+	endevent
+endstate
+
+state state_ShowWhenUnlocked
 	event OnSelectST()
 		QLIE_ShowWhenUnlocked = !QLIE_ShowWhenUnlocked
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowWhenUnlocked))
@@ -663,6 +678,18 @@ state state_ShowWhenMounted
 	event OnDefaultST()
 		QLIE_ShowWhenMounted = false
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowWhenMounted))
+	endevent
+endstate
+
+state state_EnableForContainers
+	event OnSelectST()
+		QLIE_EnableForContainers = !QLIE_EnableForContainers
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_EnableForContainers))
+	endevent
+
+	event OnDefaultST()
+		QLIE_EnableForContainers = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_EnableForContainers))
 	endevent
 endstate
 
@@ -733,9 +760,11 @@ endstate
 function ResetSettings_General()
 	QLIE_ShowInCombat = true
 	QLIE_ShowWhenEmpty = false
+	QLIE_ShowWhenSneaking = true
 	QLIE_ShowWhenUnlocked = true
 	QLIE_ShowInThirdPerson = true
 	QLIE_ShowWhenMounted = false
+	QLIE_EnableForContainers = true
 	QLIE_EnableForCorpses = true
 	QLIE_EnableForAnimals = true
 	QLIE_EnableForDragons = true
@@ -746,9 +775,11 @@ endfunction
 function ExportSettings_General(string path)
 	JsonUtil.SetPathIntValue(path, "ShowInCombat", QLIE_ShowInCombat as int)
 	JsonUtil.SetPathIntValue(path, "ShowWhenEmpty", QLIE_ShowWhenEmpty as int)
+	JsonUtil.SetPathIntValue(path, "ShowWhenSneaking", QLIE_ShowWhenSneaking as int)
 	JsonUtil.SetPathIntValue(path, "ShowWhenUnlocked", QLIE_ShowWhenUnlocked as int)
 	JsonUtil.SetPathIntValue(path, "ShowInThirdPerson", QLIE_ShowInThirdPerson as int)
 	JsonUtil.SetPathIntValue(path, "ShowWhenMounted", QLIE_ShowWhenMounted as int)
+	JsonUtil.SetPathIntValue(path, "EnableForContainers", QLIE_EnableForContainers as int)
 	JsonUtil.SetPathIntValue(path, "EnableForCorpses", QLIE_EnableForCorpses as int)
 	JsonUtil.SetPathIntValue(path, "EnableForAnimals", QLIE_EnableForAnimals as int)
 	JsonUtil.SetPathIntValue(path, "EnableForDragons", QLIE_EnableForDragons as int)
@@ -759,9 +790,11 @@ endfunction
 function ImportSettings_General(string path)
 	QLIE_ShowInCombat = JsonUtil.GetPathIntValue(path, "ShowInCombat", QLIE_ShowInCombat as int)
 	QLIE_ShowWhenEmpty = JsonUtil.GetPathIntValue(path, "ShowWhenEmpty", QLIE_ShowWhenEmpty as int)
+	QLIE_ShowWhenSneaking = JsonUtil.GetPathIntValue(path, "ShowWhenSneaking", QLIE_ShowWhenSneaking as int)
 	QLIE_ShowWhenUnlocked = JsonUtil.GetPathIntValue(path, "ShowWhenUnlocked", QLIE_ShowWhenUnlocked as int)
 	QLIE_ShowInThirdPerson = JsonUtil.GetPathIntValue(path, "ShowInThirdPerson", QLIE_ShowInThirdPerson as int)
 	QLIE_ShowWhenMounted = JsonUtil.GetPathIntValue(path, "ShowWhenMounted", QLIE_ShowWhenMounted as int)
+	QLIE_EnableForContainers = JsonUtil.GetPathIntValue(path, "EnableForContainers", QLIE_EnableForContainers as int)
 	QLIE_EnableForCorpses = JsonUtil.GetPathIntValue(path, "EnableForCorpses", QLIE_EnableForCorpses as int)
 	QLIE_EnableForAnimals = JsonUtil.GetPathIntValue(path, "EnableForAnimals", QLIE_EnableForAnimals as int)
 	QLIE_EnableForDragons = JsonUtil.GetPathIntValue(path, "EnableForDragons", QLIE_EnableForDragons as int)

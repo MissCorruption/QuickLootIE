@@ -8,9 +8,11 @@ namespace QuickLoot::Config
 
 	inline bool QLIE_ShowInCombat;
 	inline bool QLIE_ShowWhenEmpty;
+	inline bool QLIE_ShowWhenSneaking;
 	inline bool QLIE_ShowWhenUnlocked;
 	inline bool QLIE_ShowInThirdPerson;
 	inline bool QLIE_ShowWhenMounted;
+	inline bool QLIE_EnableForContainers;
 	inline bool QLIE_EnableForCorpses;
 	inline bool QLIE_EnableForAnimals;
 	inline bool QLIE_EnableForDragons;
