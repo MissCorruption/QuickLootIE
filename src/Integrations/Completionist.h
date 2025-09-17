@@ -100,6 +100,11 @@ namespace QuickLoot::Integrations
 			return _interface && _interface->UseOccupiedItemTextColor();
 		}
 
+		static bool TreatOccupiedAsDisplayed()
+		{
+			return _interface && _interface->TreatOccupiedAsDisplayed();
+		}
+
 		// Icon info
 
 		struct IconInfo
@@ -113,13 +118,21 @@ namespace QuickLoot::Integrations
 			bool isDisplayable;
 			bool isDisplayed;
 			bool isOccupied;
+			bool treatOccupiedAsDisplayed;
 
-			std::string GetRequiredIconName() const {
-				if (isDisplayed)    return "compDisplayed";
-				if (isOccupied)     return "compOccupied";
-				if (isDisplayable)  return "compDisplayable";
-				if (isCollected)    return "compFound";
-				if (isNeeded)       return "compNew";
+			const char* GetRequiredIconName() const
+			{
+				if (isDisplayed || (isOccupied && treatOccupiedAsDisplayed))
+					return "cmpDisplayed";
+				if (isOccupied)
+					return "cmpOccupied";
+				if (isDisplayable)
+					return "cmpDisplayable";
+				if (isCollected)
+					return "cmpFound";
+				if (isNeeded)
+					return "cmpNew";
+
 				return "";
 			}
 		};
@@ -163,13 +176,21 @@ namespace QuickLoot::Integrations
 			bool isDisplayable;
 			bool isDisplayed;
 			bool isOccupied;
+			bool treatOccupiedAsDisplayed;
 
-			std::string GetRequiredIconName() const {
-				if (isDisplayed)    return "compDisplayed";
-				if (isOccupied)     return "compOccupied";
-				if (isDisplayable)  return "compDisplayable";
-				if (isCollected)    return "compFound";
-				if (isNeeded)       return "compNew";
+			const char* GetRequiredIconName() const
+			{
+				if (isDisplayed || (isOccupied && treatOccupiedAsDisplayed))
+					return "cmpDisplayed";
+				if (isOccupied)
+					return "cmpOccupied";
+				if (isDisplayable)
+					return "cmpDisplayable";
+				if (isCollected)
+					return "cmpFound";
+				if (isNeeded)
+					return "cmpNew";
+
 				return "";
 			}
 		};
@@ -272,6 +293,8 @@ namespace QuickLoot::Integrations
 			virtual bool UseDisplayableItemTextColor();
 			virtual bool UseDisplayedItemTextColor();
 			virtual bool UseOccupiedItemTextColor();
+
+			virtual bool TreatOccupiedAsDisplayed();
 
 			virtual void GetItemInfo(ItemInfo* info, size_t count);
 			virtual void GetIconInfo(IconInfo* info, size_t count);
