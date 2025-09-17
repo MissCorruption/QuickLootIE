@@ -19,9 +19,11 @@ namespace QuickLoot
 		static void OnCombatStateChanged(RE::ACTOR_COMBAT_STATE state);
 		static void OnContainerChanged(RE::FormID container);
 		static void OnCrosshairRefChanged(const RE::ObjectRefHandle& ref);
+		static void OnGrabStateChanged();
 		static void OnLifeStateChanged(RE::Actor& actor);
 		static void OnLockChanged(RE::TESObjectREFR& container);
 		static void OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName);
+		static void OnSneakStateChanged();
 
 		static void SetForcedContainer(RE::ObjectRefHandle container);
 

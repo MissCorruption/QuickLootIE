@@ -4,16 +4,9 @@ namespace QuickLoot::Observers
 {
 	class LifeStateObserver
 	{
-		static LifeStateObserver* GetSingleton()
-		{
-			static LifeStateObserver instance;
-			return &instance;
-		}
-
-		LifeStateObserver() = default;
-		~LifeStateObserver() = default;
-
 	public:
+		LifeStateObserver() = delete;
+		~LifeStateObserver() = delete;
 		LifeStateObserver(LifeStateObserver&&) = delete;
 		LifeStateObserver(const LifeStateObserver&) = delete;
 		LifeStateObserver& operator=(LifeStateObserver&&) = delete;

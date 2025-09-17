@@ -1,5 +1,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 
+#include "LootMenu.h"
+#include "SanityChecks.h"
 #include "Behaviors/ActivationPrompt.h"
 #include "Behaviors/LockpickActivation.h"
 #include "Config/Papyrus.h"
@@ -10,15 +12,15 @@
 #include "Integrations/BetterThirdPersonSelection.h"
 #include "Integrations/Completionist.h"
 #include "Integrations/DismemberingFramework.h"
-#include "LootMenu.h"
 #include "Observers/CameraStateObserver.h"
 #include "Observers/CombatStateObserver.h"
 #include "Observers/ContainerObserver.h"
 #include "Observers/CrosshairRefObserver.h"
+#include "Observers/GrabStateObserver.h"
 #include "Observers/LifeStateObserver.h"
 #include "Observers/LockChangedObserver.h"
 #include "Observers/MenuObserver.h"
-#include "SanityChecks.h"
+#include "Observers/SneakStateObserver.h"
 #include "Util/Profiler.h"
 
 static void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
@@ -47,9 +49,11 @@ static void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 			QuickLoot::Observers::CombatStateObserver::Install();
 			QuickLoot::Observers::ContainerObserver::Install();
 			QuickLoot::Observers::CrosshairRefObserver::Install();
+			QuickLoot::Observers::GrabStateObserver::Install();
 			QuickLoot::Observers::LifeStateObserver::Install();
 			QuickLoot::Observers::LockChangedObserver::Install();
 			QuickLoot::Observers::MenuObserver::Install();
+			QuickLoot::Observers::SneakStateObserver::Install();
 
 			QuickLoot::Behaviors::ActivationPrompt::Install();
 			QuickLoot::Behaviors::LockpickActivation::Install();

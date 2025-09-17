@@ -140,6 +140,11 @@ namespace QuickLoot
 			return false;
 		}
 
+		if (!Settings::ShowWhenSneaking() && player->IsSneaking()) {
+			logger::debug("LootMenu disabled because player is sneaking");
+			return false;
+		}
+
 		if (player->IsGrabbing()) {
 			logger::debug("LootMenu disabled because player is grabbing something");
 			return false;
@@ -210,6 +215,10 @@ namespace QuickLoot
 				logger::debug("LootMenu disabled for dragons");
 				return false;
 			}
+		}
+		else if (!Settings::EnableForContainers()) {
+			logger::debug("LootMenu disabled for containers");
+			return false;
 		}
 
 		return true;
@@ -293,6 +302,15 @@ namespace QuickLoot
 		}
 	}
 
+	void MenuVisibilityManager::OnGrabStateChanged()
+	{
+		if (LOG_EVENTS) {
+			logger::trace("OnGrabStateChanged");
+		}
+
+		RefreshOpenState();
+	}
+
 	void MenuVisibilityManager::OnLifeStateChanged(RE::Actor& actor)
 	{
 		if (LOG_EVENTS) {
@@ -336,6 +354,15 @@ namespace QuickLoot
 
 		if (!opening && menuName == RE::JournalMenu::MENU_NAME) {
 			Settings::Update();
+		}
+
+		RefreshOpenState();
+	}
+
+	void MenuVisibilityManager::OnSneakStateChanged()
+	{
+		if (LOG_EVENTS) {
+			logger::trace("OnSneakStateChanged");
 		}
 
 		RefreshOpenState();
