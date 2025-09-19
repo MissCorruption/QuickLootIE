@@ -47,6 +47,10 @@ namespace QuickLoot
 
 	void LootMenuManager::RequestHide()
 	{
+		if (!IsShowing()) {
+			return;
+		}
+
 		Input::InputManager::UnblockConflictingInputs();
 		Behaviors::ActivationPrompt::Unblock();
 		Behaviors::ContainerAnimator::CloseContainer(_currentContainer);
