@@ -55,6 +55,7 @@ namespace QuickLoot::Config
 		_profilerFlushInterval = config.value("profilerFlushInterval", 1000);
 
 		_enableMenuCaching = config.value("enableMenuCaching", true);
+		_suppressActivationPrompt = config.value("suppressActivationPrompt", true);
 
 		if (minimal) {
 			return;

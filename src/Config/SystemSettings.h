@@ -20,6 +20,7 @@ namespace QuickLoot::Config
 		static bool EnableProfiler() { return _enableProfiler; }
 		static int ProfilerFlushInterval() { return _profilerFlushInterval; }
 		static bool EnableMenuCaching() { return _enableMenuCaching; }
+		static bool SuppressActivationPrompt() { return _suppressActivationPrompt; }
 		static const std::vector<std::string>& GetMenuWhitelist() { return _menuWhitelist; }
 		static const std::set<RE::FormID>& GetContainerBlacklist() { return _containerBlacklist; }
 
@@ -29,6 +30,7 @@ namespace QuickLoot::Config
 		static inline bool _enableProfiler = false;
 		static inline int _profilerFlushInterval = false;
 		static inline bool _enableMenuCaching = true;
+		static inline bool _suppressActivationPrompt = true;
 		static inline std::vector<std::string> _menuWhitelist{};
 		static inline std::set<RE::FormID> _containerBlacklist{};
 	};
