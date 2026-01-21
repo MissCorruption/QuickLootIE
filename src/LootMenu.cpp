@@ -315,7 +315,7 @@ namespace QuickLoot
 
 	void LootMenu::OnInputAction(Input::QuickLootAction action)
 	{
-		if (!uiMovie) {
+		if (!uiMovie || RE::UI::GetSingleton()->IsMenuOpen(RE::Console::MENU_NAME)) {
 			return;
 		}
 
