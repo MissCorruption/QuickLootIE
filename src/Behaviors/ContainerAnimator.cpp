@@ -57,7 +57,7 @@ namespace QuickLoot::Behaviors
 
 	void ContainerAnimator::WaitAndAnimate(const RE::ObjectRefHandle& container, OpenState idleState, bool open)
 	{
-		const auto containerRef = container.get().get();
+		const auto containerRef = container.get();
 		if (!containerRef)
 			return;
 
@@ -65,18 +65,18 @@ namespace QuickLoot::Behaviors
 		constexpr auto timeout = std::chrono::milliseconds(1000);
 
 		while (std::chrono::system_clock::now() < start + timeout) {
-			if (RE::BGSOpenCloseForm::GetOpenState(containerRef) != idleState) {
+			if (RE::BGSOpenCloseForm::GetOpenState(containerRef.get()) != idleState) {
 				// Wait until the idle state has been reached to start the animation
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 				continue;
 			}
 
-			SKSE::GetTaskInterface()->AddTask([=, &container] {
+			SKSE::GetTaskInterface()->AddTask([=] {
 				const auto sequence = containerRef->GetSequence(open ? "Open" : "Close");
 				if (sequence && sequence->Animating())
 					return;
 
-				RE::BGSOpenCloseForm::SetOpenState(containerRef, open, false);
+				RE::BGSOpenCloseForm::SetOpenState(containerRef.get(), open, false);
 			});
 
 			break;
