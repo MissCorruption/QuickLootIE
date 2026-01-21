@@ -695,31 +695,6 @@ namespace QuickLoot
 
 	bool LootMenu::CanDisplay(const RE::TESBoundObject& object)
 	{
-		switch (object.GetFormType()) {
-		case RE::FormType::Scroll:
-		case RE::FormType::Armor:
-		case RE::FormType::Book:
-		case RE::FormType::Ingredient:
-		case RE::FormType::Misc:
-		case RE::FormType::Weapon:
-		case RE::FormType::Ammo:
-		case RE::FormType::KeyMaster:
-		case RE::FormType::AlchemyItem:
-		case RE::FormType::Note:
-		case RE::FormType::SoulGem:
-			break;
-		case RE::FormType::Light:
-			{
-				auto& light = static_cast<const RE::TESObjectLIGH&>(object);
-				if (!light.CanBeCarried()) {
-					return false;
-				}
-			}
-			break;
-		default:
-			return false;
-		}
-
 		if (!object.GetPlayable()) {
 			return false;
 		}
@@ -729,7 +704,28 @@ namespace QuickLoot
 			return false;
 		}
 
-		return true;
+		switch (object.GetFormType()) {
+		case RE::FormType::Scroll:
+		case RE::FormType::Armor:
+		case RE::FormType::Book:
+		case RE::FormType::Ingredient:
+		case RE::FormType::Misc:
+		case RE::FormType::Weapon:
+		case RE::FormType::KeyMaster:
+		case RE::FormType::AlchemyItem:
+		case RE::FormType::Note:
+		case RE::FormType::SoulGem:
+			return true;
+
+		case RE::FormType::Ammo:
+			return !skyrim_cast<const RE::BGSKeywordForm*>(&object)->HasKeyword(Items::KnownForms::boundArrow.LookupForm<RE::BGSKeyword>());
+
+		case RE::FormType::Light:
+			return skyrim_cast<const RE::TESObjectLIGH*>(&object)->CanBeCarried();
+
+		default:
+			return false;
+		}
 	}
 
 	bool LootMenu::WouldBeStealing() const
