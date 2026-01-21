@@ -67,6 +67,11 @@ namespace QuickLoot::API
 		RegisterHandler(plugin, handler, _populateInfoBarHandlers);
 	}
 
+	void APIServer::InterfaceV20::RegisterPopulateButtonBarHandler(const char* plugin, PopulateButtonBarHandler handler)
+	{
+		RegisterHandler(plugin, handler, _populateButtonBarHandlers);
+	}
+
 	void APIServer::InterfaceV20::ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container)
 	{
 		MenuVisibilityManager::SetForcedContainer(std::move(container));
@@ -243,6 +248,19 @@ namespace QuickLoot::API
 		};
 
 		return DispatchResultEvent<RE::BSString>(_populateInfoBarHandlers, e);
+	}
+
+	std::vector<ButtonDefinition> APIServer::DispatchPopulateButtonBarEvent(RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)
+	{
+		ItemStack stack{ entry, dropRef };
+
+		PopulateButtonBarEvent e{
+			.container = container,
+			.stack = &stack,
+			.result = {},
+		};
+
+		return DispatchResultEvent<ButtonDefinition>(_populateButtonBarHandlers, e);
 	}
 
 #pragma endregion

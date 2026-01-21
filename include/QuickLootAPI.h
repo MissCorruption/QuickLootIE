@@ -77,13 +77,6 @@ namespace QuickLoot::API
 			size_t stackCount;
 		};
 
-		struct PopulateInfoBarEvent
-		{
-			RE::TESObjectREFR* container;
-			const ItemStack* stack;
-			RE::BSString result;
-		};
-
 		struct ModifyInventoryEvent
 		{
 			RE::TESObjectREFR* container;
@@ -92,14 +85,28 @@ namespace QuickLoot::API
 			RE::BSTArray<InventoryModification> result;
 		};
 
-		template <typename TEvent>
-		using EventHandler = void (*)(TEvent* e);
+		struct PopulateInfoBarEvent
+		{
+			RE::TESObjectREFR* container;
+			const ItemStack* stack;
+			RE::BSTArray<RE::BSString> result;
+		};
+
+		struct ButtonDefinition
+		{
+			RE::BSString label;
+			uint16_t buttonArtIndex;
+		};
+
+		struct PopulateButtonBarEvent
+		{
+			RE::TESObjectREFR* container;
+			const ItemStack* stack;
+			RE::BSTArray<ButtonDefinition> result;
+		};
 
 		template <typename TEvent>
-		struct HandlerRegistrationRequest
-		{
-			EventHandler<TEvent> handler;
-		};
+		using EventHandler = void (*)(TEvent* e);
 
 		using TakingItemHandler = EventHandler<TakingItemEvent>;
 		using TakeItemHandler = EventHandler<TakeItemEvent>;
@@ -108,8 +115,9 @@ namespace QuickLoot::API
 		using OpenLootMenuHandler = EventHandler<OpenLootMenuEvent>;
 		using CloseLootMenuHandler = EventHandler<CloseLootMenuEvent>;
 		using InvalidateLootMenuHandler = EventHandler<InvalidateLootMenuEvent>;
-		using PopulateInfoBarHandler = EventHandler<PopulateInfoBarEvent>;
 		using ModifyInventoryHandler = EventHandler<ModifyInventoryEvent>;
+		using PopulateInfoBarHandler = EventHandler<PopulateInfoBarEvent>;
+		using PopulateButtonBarHandler = EventHandler<PopulateButtonBarEvent>;
 	}
 
 	using namespace Events;
@@ -234,6 +242,7 @@ namespace QuickLoot::API
 
 			virtual void RegisterModifyInventoryHandler(const char* plugin, ModifyInventoryHandler handler);
 			virtual void RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler);
+			virtual void RegisterPopulateButtonBarHandler(const char* plugin, PopulateButtonBarHandler handler);
 
 			virtual void ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container);
 			virtual void ClearForcedContainer(const char* plugin);

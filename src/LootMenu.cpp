@@ -297,6 +297,9 @@ namespace QuickLoot
 
 		_lootMenu.Visible(container.get() != nullptr);
 
+		// Make sure OnSelected is called even if the selected index is the same as with the previous container.
+		_selectedIndex = -1;
+
 		Refresh(RefreshFlags::kAll);
 		SetSelectedIndex(selectedIndex, false);
 	}
@@ -594,6 +597,21 @@ namespace QuickLoot
 
 			obj.SetMember("label", label);
 			obj.SetMember("index", index);
+			obj.SetMember("stolen", stealing);
+
+			_buttonBarProvider.PushBack(obj);
+		}
+
+		bool isItemSelected = _selectedIndex >= 0 && _selectedIndex < _inventory.size();
+		const auto entry = isItemSelected ? _inventory[_selectedIndex].get()->GetEntry() : nullptr;
+		const auto dropRef = isItemSelected ? _inventory[_selectedIndex].get()->GetDropRef().get().get() : nullptr;
+
+		for (const auto& extraButton : API::APIServer::DispatchPopulateButtonBarEvent(_container.get().get(), entry, dropRef)) {
+			RE::GFxValue obj;
+			uiMovie->CreateObject(&obj);
+
+			obj.SetMember("label", extraButton.label.c_str());
+			obj.SetMember("index", extraButton.buttonArtIndex);
 			obj.SetMember("stolen", stealing);
 
 			_buttonBarProvider.PushBack(obj);

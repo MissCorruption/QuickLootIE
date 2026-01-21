@@ -2,8 +2,8 @@
 
 #include <shared_mutex>
 
-#include "QuickLootAPI.h"
 #include "Items/QuickLootItemStack.h"
+#include "QuickLootAPI.h"
 
 #include <vector>
 
@@ -32,9 +32,10 @@ namespace QuickLoot::API
 			virtual void RegisterOpenLootMenuHandler(const char* plugin, OpenLootMenuHandler handler);
 			virtual void RegisterCloseLootMenuHandler(const char* plugin, CloseLootMenuHandler handler);
 			virtual void RegisterInvalidateLootMenuHandler(const char* plugin, InvalidateLootMenuHandler handler);
-			
+
 			virtual void RegisterModifyInventoryHandler(const char* plugin, ModifyInventoryHandler handler);
 			virtual void RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler);
+			virtual void RegisterPopulateButtonBarHandler(const char* plugin, PopulateButtonBarHandler handler);
 
 			virtual void ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container);
 			virtual void ClearForcedContainer(const char* plugin);
@@ -56,6 +57,7 @@ namespace QuickLoot::API
 
 		static void DispatchModifyInventoryEvent(RE::TESObjectREFR* container, std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory);
 		static std::vector<RE::BSString> DispatchPopulateInfoBarEvent(RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef);
+		static std::vector<ButtonDefinition> DispatchPopulateButtonBarEvent(RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef);
 
 	private:
 		static inline InterfaceV20 _interface{};
@@ -70,6 +72,7 @@ namespace QuickLoot::API
 		static inline std::vector<InvalidateLootMenuHandler> _invalidateLootMenuHandlers{};
 		static inline std::vector<ModifyInventoryHandler> _modifyInventoryHandlers{};
 		static inline std::vector<PopulateInfoBarHandler> _populateInfoBarHandlers{};
+		static inline std::vector<PopulateButtonBarHandler> _populateButtonBarHandlers{};
 
 		template <typename THandler>
 		static void RegisterHandler(const char* plugin, THandler handler, std::vector<THandler>& handlerList)
@@ -109,11 +112,14 @@ namespace QuickLoot::API
 		static std::vector<TResult> DispatchResultEvent(const std::vector<EventHandler<TEvent>>& handlers, TEvent& e)
 		{
 			std::shared_lock guard(_lock);
-			std::vector<TResult> result {};
+			std::vector<TResult> result{};
 
 			for (auto const& handler : handlers) {
 				handler(&e);
-				result.push_back(std::move(e.result));
+
+				for (auto const& item : e.result) {
+					result.push_back(std::move(item));
+				}
 			}
 
 			return result;
