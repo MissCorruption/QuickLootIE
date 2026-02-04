@@ -33,6 +33,7 @@ namespace QuickLoot
 		if (!RE::PlayerCamera::GetSingleton()->IsInThirdPerson() ||
 			!Integrations::BetterThirdPersonSelection::Is3DWidgetEnabled()) {
 			Behaviors::ActivationPrompt::Block();
+			logger::info("Blocked conflicting inputs and activation prompt")
 		}
 
 		_currentContainer = container;
@@ -49,6 +50,7 @@ namespace QuickLoot
 	{
 		Input::InputManager::UnblockConflictingInputs();
 		Behaviors::ActivationPrompt::Unblock();
+		logger::info("Unblocked input and activation prompt")
 		Behaviors::ContainerAnimator::CloseContainer(_currentContainer);
 
 		_currentContainer.reset();
