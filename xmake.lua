@@ -20,7 +20,7 @@ option("aio_zip_to_dist", {default = false, description = "Zip the base mod and 
 -- https://github.com/xmake-io/xmake-repo/tree/dev    
 add_requires("fmt", "magic_enum", "nlohmann_json", "xbyak")
 
-includes("extern/commonlibsse-ng")
+includes("extern/CommonLibSSE-NG")
 
 -- policies
 set_policy("package.requires_lock", true)
