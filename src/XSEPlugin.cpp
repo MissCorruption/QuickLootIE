@@ -9,6 +9,7 @@
 #include "Integrations/Artifacts.h"
 #include "Integrations/BetterThirdPersonSelection.h"
 #include "Integrations/Completionist.h"
+#include "Integrations/MergeMapperPluginAPI.h"
 #include "LootMenu.h"
 #include "MenuVisibilityManager.h"
 #include "SanityChecks.h"
@@ -17,6 +18,17 @@
 static void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 {
 	switch (msg->type) {
+	case SKSE::MessagingInterface::kPostPostLoad:
+		{
+			MergeMapperPluginAPI::GetMergeMapperInterface001();
+			if (g_mergeMapperInterface) {
+				logger::info("MergeMapper interface obtained, build {}", g_mergeMapperInterface->GetBuildNumber());
+			} else {
+				logger::info("MergeMapper not detected");
+			}
+			break;
+		}
+
 	case SKSE::MessagingInterface::kDataLoaded:
 		{
 			PROFILE_SCOPE_NAMED("SKSE Message (kDataLoaded)");

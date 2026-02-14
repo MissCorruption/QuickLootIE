@@ -262,8 +262,8 @@ namespace QuickLoot::Input
 		std::vector<Keybinding> filtered{};
 
 		if (REL::Module::IsVR()) {
-			filtered.push_back(Keybinding{ .action = QuickLootAction::kTake, .buttonArtOverride = ButtonArtIndex::kOculusA });
-			filtered.push_back(Keybinding{ .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kOculusAHold });
+			filtered.push_back(Keybinding{ .action = QuickLootAction::kTake, .buttonArtOverride = ButtonArtIndex::kVrTrigger });
+			filtered.push_back(Keybinding{ .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kVrTriggerHold });
 		} else {
 			bool isGamepad = QUsingGamepad(RE::BSInputDeviceManager::GetSingleton());
 
@@ -463,13 +463,20 @@ namespace QuickLoot::Input
 			return false;
 		}
 
-		player->StartGrabObject();
-		if (!player->IsGrabbing()) {
-			return false;
-		}
+		if (REL::Module::IsVR()) {
+			const auto hand = player->GetVRPlayerRuntimeData().isRightHandMainHand
+				? RE::VR_DEVICE::kRightController
+				: RE::VR_DEVICE::kLeftController;
+			player->ActivatePickRef(hand);
+		} else {
+			player->StartGrabObject();
+			if (!player->IsGrabbing()) {
+				return false;
+			}
 
-		if (auto activateHandler = RE::PlayerControls::GetSingleton()->GetActivateHandler()) {
-			activateHandler->SetHeldButtonActionSuccess(true);
+			if (auto activateHandler = RE::PlayerControls::GetSingleton()->GetActivateHandler()) {
+				activateHandler->SetHeldButtonActionSuccess(true);
+			}
 		}
 
 		LootMenuManager::RequestHide();
@@ -530,7 +537,8 @@ namespace QuickLoot::Input
 			if (!context)
 				continue;
 
-			for (int deviceType = 0; deviceType < DeviceType::kFlatTotal; ++deviceType) {
+			const int deviceTypeCount = REL::Module::IsVR() ? DeviceType::kTotal : DeviceType::kFlatTotal;
+		for (int deviceType = 0; deviceType < deviceTypeCount; ++deviceType) {
 				for (auto& userMapping : context->deviceMappings[deviceType]) {
 					functor(userMapping, static_cast<DeviceType>(deviceType));
 				}

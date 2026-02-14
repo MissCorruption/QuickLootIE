@@ -16,6 +16,14 @@ namespace QuickLoot::Input
 		case DeviceType::kGamepad:
 			return GetFrameIndexForGamepadInput(keyCode);
 
+		case DeviceType::kOculusPrimary:
+		case DeviceType::kOculusSecondary:
+		case DeviceType::kVivePrimary:
+		case DeviceType::kViveSecondary:
+		case DeviceType::kWMRPrimary:
+		case DeviceType::kWMRSecondary:
+			return GetFrameIndexForVRInput(keyCode);
+
 		default:
 			return ButtonArtIndex::kNoMapping;
 		}
@@ -30,6 +38,10 @@ namespace QuickLoot::Input
 
 		if (!input || !controlMap) {
 			return ButtonArtIndex::kNoMapping;
+		}
+
+		if (REL::Module::IsVR()) {
+			return GetFrameIndexForVRInput(LOWORD(controlMap->GetMappedKey(event, RE::INPUT_DEVICE::kOculusPrimary)));
 		}
 
 		if (input->IsGamepadEnabled()) {
@@ -75,6 +87,12 @@ namespace QuickLoot::Input
 		return it != _gamepadMap.end() ? it->second : ButtonArtIndex::kNoMapping;
 	}
 
+	ButtonArtIndex ButtonArt::GetFrameIndexForVRInput(uint16_t keyCode)
+	{
+		const auto& it = _vrMap.find(keyCode);
+		return it != _vrMap.end() ? it->second : ButtonArtIndex::kNoMapping;
+	}
+
 	void ButtonArt::Initialize()
 	{
 		if (_initialized) {
@@ -86,6 +104,7 @@ namespace QuickLoot::Input
 		InitializeKeyboard();
 		InitializeMouse();
 		InitializeGamepad();
+		InitializeVR();
 	}
 
 	void ButtonArt::InitializeKeyboard()
@@ -131,5 +150,20 @@ namespace QuickLoot::Input
 		_gamepadMap[GamepadInput::kY] = ButtonArtIndex::kGamepadY;
 		_gamepadMap[GamepadInput::kLeftTrigger] = ButtonArtIndex::kGamepadLeftTrigger;
 		_gamepadMap[GamepadInput::kRightTrigger] = ButtonArtIndex::kGamepadRightTrigger;
+	}
+
+	void ButtonArt::InitializeVR()
+	{
+		using VR = RE::BSOpenVRControllerDevice::Key;
+
+		_vrMap[static_cast<uint16_t>(VR::kTrigger)] = ButtonArtIndex::kVrTrigger;
+		_vrMap[static_cast<uint16_t>(VR::kGrip)] = ButtonArtIndex::kVrGrip;
+		_vrMap[static_cast<uint16_t>(VR::kBY)] = ButtonArtIndex::kOculusB;
+		_vrMap[static_cast<uint16_t>(VR::kXA)] = ButtonArtIndex::kOculusA;
+		_vrMap[static_cast<uint16_t>(VR::kJoystickTrigger)] = ButtonArtIndex::kVrRThumbPress;
+
+		// Synthetic thumbstick events
+		_vrMap[static_cast<uint16_t>(VRInput::kMainThumbStickUp)] = ButtonArtIndex::kVrRThumbUp;
+		_vrMap[static_cast<uint16_t>(VRInput::kMainThumbStickDown)] = ButtonArtIndex::kVrRThumbDown;
 	}
 }

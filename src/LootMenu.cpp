@@ -464,7 +464,16 @@ namespace QuickLoot
 
 	void LootMenu::Transfer()
 	{
-		RE::PlayerCharacter::GetSingleton()->ActivatePickRef();
+		auto player = RE::PlayerCharacter::GetSingleton();
+
+		if (REL::Module::IsVR()) {
+			const auto hand = player->GetVRPlayerRuntimeData().isRightHandMainHand
+				? RE::VR_DEVICE::kRightController
+				: RE::VR_DEVICE::kLeftController;
+			player->ActivatePickRef(hand);
+		} else {
+			player->ActivatePickRef();
+		}
 	}
 
 #pragma endregion

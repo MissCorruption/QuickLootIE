@@ -22,14 +22,17 @@ namespace QuickLoot::Input
 		static inline bool _initialized = false;
 		static inline std::bitset<KeyboardKey::kDelete + 1> _keySet{};
 		static inline std::map<uint16_t, ButtonArtIndex> _gamepadMap{};
+		static inline std::map<uint16_t, ButtonArtIndex> _vrMap{};
 
 		static ButtonArtIndex GetFrameIndexForKeyboardKey(uint16_t keyCode);
 		static ButtonArtIndex GetFrameIndexForMouseButton(uint16_t keyCode);
 		static ButtonArtIndex GetFrameIndexForGamepadInput(uint16_t keyCode);
+		static ButtonArtIndex GetFrameIndexForVRInput(uint16_t keyCode);
 
 		static void Initialize();
 		static void InitializeKeyboard();
 		static void InitializeMouse();
 		static void InitializeGamepad();
+		static void InitializeVR();
 	};
 }

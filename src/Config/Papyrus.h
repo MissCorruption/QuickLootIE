@@ -65,6 +65,14 @@ namespace QuickLoot::Config
 	inline bool QLIE_ShowIconCompletionistOccupied;
 	inline bool QLIE_ShowIconCompletionistDisplayable;
 
+	inline float QLIE_VrOffsetX;
+	inline float QLIE_VrOffsetY;
+	inline float QLIE_VrOffsetZ;
+	inline float QLIE_VrAngleX;
+	inline float QLIE_VrAngleY;
+	inline float QLIE_VrAngleZ;
+	inline float QLIE_VrScale;
+
 	class Papyrus
 	{
 	public:

@@ -82,14 +82,13 @@ namespace QuickLoot::Config
 	bool UserSettings::ShowCompletionistOccupied() { return QLIE_ShowIconCompletionistOccupied; }
 	bool UserSettings::ShowCompletionistDisplayable() { return QLIE_ShowIconCompletionistDisplayable; }
 
-	// TODO
-	float UserSettings::VrOffsetX() { return -10; }
-	float UserSettings::VrOffsetY() { return 5; }
-	float UserSettings::VrOffsetZ() { return 0; }
-	float UserSettings::VrAngleX() { return 45; }
-	float UserSettings::VrAngleY() { return 0; }
-	float UserSettings::VrAngleZ() { return 0; }
-	float UserSettings::VrScale() { return 50; }
+	float UserSettings::VrOffsetX() { return QLIE_VrOffsetX; }
+	float UserSettings::VrOffsetY() { return QLIE_VrOffsetY; }
+	float UserSettings::VrOffsetZ() { return QLIE_VrOffsetZ; }
+	float UserSettings::VrAngleX() { return QLIE_VrAngleX; }
+	float UserSettings::VrAngleY() { return QLIE_VrAngleY; }
+	float UserSettings::VrAngleZ() { return QLIE_VrAngleZ; }
+	float UserSettings::VrScale() { return QLIE_VrScale; }
 
 	Input::Keybinding UserSettings::BuildKeybinding(Input::ControlGroup group, Input::QuickLootAction action, int skseKey, int modifierType)
 	{

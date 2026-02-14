@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+
 namespace QuickLoot::Observers
 {
 	class CrosshairRefObserver : public RE::BSTEventSink<SKSE::CrosshairRefEvent>
@@ -20,8 +22,12 @@ namespace QuickLoot::Observers
 		CrosshairRefObserver& operator=(const CrosshairRefObserver&) = delete;
 
 		static void StartVRTargetPollThread();
+		static void StopVRTargetPollThread();
 		static void Install();
 
-        RE::BSEventNotifyControl ProcessEvent(const SKSE::CrosshairRefEvent* event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override;
-    };
+		RE::BSEventNotifyControl ProcessEvent(const SKSE::CrosshairRefEvent* event, RE::BSTEventSource<SKSE::CrosshairRefEvent>* a_eventSource) override;
+
+	private:
+		static inline std::atomic<bool> _vrPollRunning{ false };
+	};
 }

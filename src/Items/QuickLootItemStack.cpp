@@ -83,6 +83,29 @@ namespace QuickLoot::Items
 
 		_data.displayName = _entry->GetDisplayName();
 
+		// Append health percentage for damaged items (e.g. "Iron Sword [85%]")
+		if (_entry->extraLists) {
+			for (const auto& xList : *_entry->extraLists) {
+				if (!xList) continue;
+				const auto xHealth = xList->GetByType<RE::ExtraHealth>();
+				if (!xHealth) continue;
+
+				const float remainder = std::fmod(xHealth->health * 10.0f, 1.0f);
+				if (remainder > 0.00000001f) {
+					const float totalDamage = remainder * 10000.0f;
+					const float healthPercent = std::clamp(100.0f - totalDamage, 0.0f, 100.0f);
+					if (healthPercent >= 0.0f && healthPercent < 100.0f) {
+						std::string name(_data.displayName.value.c_str());
+						name += " [";
+						name += std::to_string(static_cast<int>(std::floor(healthPercent)));
+						name += "%]";
+						_data.displayName = name;
+					}
+				}
+				break;
+			}
+		}
+
 		using Settings = Config::UserSettings;
 		using namespace Integrations;
 

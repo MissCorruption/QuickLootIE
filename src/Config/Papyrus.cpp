@@ -119,6 +119,15 @@ namespace QuickLoot::Config
 		LoadSettingsVar(QLIE_ShowIconCompletionistNeeded, false);
 		LoadSettingsVar(QLIE_ShowIconCompletionistCollected, false);
 
+		// VR Settings
+		LoadSettingsVar(QLIE_VrOffsetX, -10.0f);
+		LoadSettingsVar(QLIE_VrOffsetY, 5.0f);
+		LoadSettingsVar(QLIE_VrOffsetZ, 0.0f);
+		LoadSettingsVar(QLIE_VrAngleX, 45.0f);
+		LoadSettingsVar(QLIE_VrAngleY, 0.0f);
+		LoadSettingsVar(QLIE_VrAngleZ, 0.0f);
+		LoadSettingsVar(QLIE_VrScale, 50.0f);
+
 #undef LoadSettingsVar
 	}
 

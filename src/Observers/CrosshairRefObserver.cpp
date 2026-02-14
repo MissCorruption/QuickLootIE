@@ -27,10 +27,12 @@ namespace QuickLoot::Observers
 
 	void CrosshairRefObserver::StartVRTargetPollThread()
 	{
+		_vrPollRunning = true;
+
 		std::thread t([] {
 			bool isReady = true;
 
-			while (true) {
+			while (_vrPollRunning) {
 				if (isReady) {
 					isReady = false;
 
@@ -45,6 +47,11 @@ namespace QuickLoot::Observers
 		});
 
 		t.detach();
+	}
+
+	void CrosshairRefObserver::StopVRTargetPollThread()
+	{
+		_vrPollRunning = false;
 	}
 
 	void CrosshairRefObserver::Install()
