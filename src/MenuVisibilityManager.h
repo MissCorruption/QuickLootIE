@@ -26,7 +26,7 @@ namespace QuickLoot
 		static void OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName);
 
 	private:
-		static constexpr bool LOG_EVENTS = false;
+		static constexpr bool LOG_EVENTS = true;
 
 		static inline RE::ObjectRefHandle _focusedRef{};
 		static inline RE::ObjectRefHandle _currentContainer{};
