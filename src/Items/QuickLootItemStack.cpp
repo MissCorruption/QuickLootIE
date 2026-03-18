@@ -62,31 +62,33 @@ namespace QuickLoot::Items
 		return obj;
 	}
 
+	// TODO move API dispatch out of this class
+
 	void QuickLootItemStack::OnSelected(RE::Actor* actor) const
 	{
-		API::APIServer::DispatchSelectItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get());
+		API::APIServer::DispatchSelectItemEvent(actor, GetContainer(), GetEntry(), GetDropRef());
 	}
 
 	void QuickLootItemStack::Take(RE::Actor* actor, int count) const
 	{
-		if (API::APIServer::DispatchTakingItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get()) == API::HandleResult::kStop) {
+		if (API::APIServer::DispatchTakingItemEvent(actor, GetContainer(), GetEntry(), GetDropRef()) == API::HandleResult::kStop) {
 			return;
 		}
 
 		ItemStack::Take(actor, count);
 
-		API::APIServer::DispatchTakeItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get());
+		API::APIServer::DispatchTakeItemEvent(actor, GetContainer(), GetEntry(), GetDropRef());
 	}
 
 	void QuickLootItemStack::Use(RE::Actor* actor) const
 	{
-		if (API::APIServer::DispatchTakingItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get()) == API::HandleResult::kStop) {
+		if (API::APIServer::DispatchTakingItemEvent(actor, GetContainer(), GetEntry(), GetDropRef()) == API::HandleResult::kStop) {
 			return;
 		}
 
 		ItemStack::Use(actor);
 
-		API::APIServer::DispatchTakeItemEvent(actor, GetContainer().get().get(), GetEntry(), GetDropRef().get().get());
+		API::APIServer::DispatchTakeItemEvent(actor, GetContainer(), GetEntry(), GetDropRef());
 	}
 
 	void QuickLootItemStack::SetQuickLootData() const

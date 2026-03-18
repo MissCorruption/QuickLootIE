@@ -45,19 +45,19 @@ namespace QuickLoot::API
 
 		static InterfaceV20* GetInterfaceV20() { return &_interface; }
 
-		static HandleResult DispatchTakingItemEvent(RE::Actor* actor, RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef);
-		static void DispatchTakeItemEvent(RE::Actor* actor, RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef);
-		static void DispatchSelectItemEvent(RE::Actor* actor, RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef);
+		static HandleResult DispatchTakingItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
+		static void DispatchTakeItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
+		static void DispatchSelectItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 
-		static HandleResult DispatchOpeningLootMenuEvent(RE::TESObjectREFR* container);
-		static void DispatchOpenLootMenuEvent(RE::TESObjectREFR* container);
-		static void DispatchCloseLootMenuEvent(RE::TESObjectREFR* container);
+		static HandleResult DispatchOpeningLootMenuEvent(RE::ObjectRefHandle container);
+		static void DispatchOpenLootMenuEvent(RE::ObjectRefHandle container);
+		static void DispatchCloseLootMenuEvent(RE::ObjectRefHandle container);
 
-		static void DispatchInvalidateLootMenuEvent(RE::TESObjectREFR* container, const std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory);
+		static void DispatchInvalidateLootMenuEvent(RE::ObjectRefHandle container, const std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory);
 
-		static void DispatchModifyInventoryEvent(RE::TESObjectREFR* container, std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory);
-		static std::vector<RE::BSString> DispatchPopulateInfoBarEvent(RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef);
-		static std::vector<ButtonDefinition> DispatchPopulateButtonBarEvent(RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef);
+		static void DispatchModifyInventoryEvent(RE::ObjectRefHandle container, std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory);
+		static std::vector<RE::BSString> DispatchPopulateInfoBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
+		static std::vector<ButtonDefinition> DispatchPopulateButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 
 	private:
 		static inline InterfaceV20 _interface{};

@@ -100,9 +100,9 @@ namespace QuickLoot::API
 
 #pragma region Dispatch
 
-	HandleResult APIServer::DispatchTakingItemEvent(RE::Actor* actor, RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)
+	HandleResult APIServer::DispatchTakingItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef)
 	{
-		ItemStack stack{ entry, dropRef };
+		ItemStack stack{ entry, std::move(dropRef) };
 
 		TakingItemEvent e{
 			.actor = actor,
@@ -114,9 +114,9 @@ namespace QuickLoot::API
 		return DispatchCancelableEvent(_takingItemHandlers, e);
 	}
 
-	void APIServer::DispatchTakeItemEvent(RE::Actor* actor, RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)
+	void APIServer::DispatchTakeItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef)
 	{
-		ItemStack stack{ entry, dropRef };
+		ItemStack stack{ entry, std::move(dropRef) };
 
 		TakeItemEvent e{
 			.actor = actor,
@@ -127,9 +127,9 @@ namespace QuickLoot::API
 		DispatchEvent(_takeItemHandlers, e);
 	}
 
-	void APIServer::DispatchSelectItemEvent(RE::Actor* actor, RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)
+	void APIServer::DispatchSelectItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef)
 	{
-		ItemStack stack{ entry, dropRef };
+		ItemStack stack{ entry, std::move(dropRef) };
 
 		SelectItemEvent e{
 			.actor = actor,
@@ -140,7 +140,7 @@ namespace QuickLoot::API
 		DispatchEvent(_selectItemHandlers, e);
 	}
 
-	HandleResult APIServer::DispatchOpeningLootMenuEvent(RE::TESObjectREFR* container)
+	HandleResult APIServer::DispatchOpeningLootMenuEvent(RE::ObjectRefHandle container)
 	{
 		OpeningLootMenuEvent e{
 			.container = container
@@ -149,7 +149,7 @@ namespace QuickLoot::API
 		return DispatchCancelableEvent(_openingLootMenuHandlers, e);
 	}
 
-	void APIServer::DispatchOpenLootMenuEvent(RE::TESObjectREFR* container)
+	void APIServer::DispatchOpenLootMenuEvent(RE::ObjectRefHandle container)
 	{
 		OpenLootMenuEvent e{
 			.container = container
@@ -158,7 +158,7 @@ namespace QuickLoot::API
 		DispatchEvent(_openLootMenuHandlers, e);
 	}
 
-	void APIServer::DispatchCloseLootMenuEvent(RE::TESObjectREFR* container)
+	void APIServer::DispatchCloseLootMenuEvent(RE::ObjectRefHandle container)
 	{
 		CloseLootMenuEvent e{
 			.container = container
@@ -167,12 +167,12 @@ namespace QuickLoot::API
 		DispatchEvent(_closeLootMenuHandlers, e);
 	}
 
-	void APIServer::DispatchInvalidateLootMenuEvent(RE::TESObjectREFR* container, const std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory)
+	void APIServer::DispatchInvalidateLootMenuEvent(RE::ObjectRefHandle container, const std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory)
 	{
 		std::vector<ItemStack> apiInventory;
 		apiInventory.reserve(inventory.size());
 		for (auto& item : inventory) {
-			apiInventory.emplace_back(item->GetEntry(), item->GetDropRef().get().get());
+			apiInventory.emplace_back(item->GetEntry(), item->GetDropRef());
 		}
 
 		InvalidateLootMenuEvent e{
@@ -184,7 +184,7 @@ namespace QuickLoot::API
 		DispatchEvent(_invalidateLootMenuHandlers, e);
 	}
 
-	void APIServer::DispatchModifyInventoryEvent(RE::TESObjectREFR* container, std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory)
+	void APIServer::DispatchModifyInventoryEvent(RE::ObjectRefHandle container, std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory)
 	{
 		std::shared_lock guard(_lock);
 
@@ -205,7 +205,7 @@ namespace QuickLoot::API
 				apiInventory.reserve(inventory.size());
 
 				for (auto& item : inventory) {
-					apiInventory.emplace_back(item->GetEntry(), item->GetDropRef().get().get());
+					apiInventory.emplace_back(item->GetEntry(), item->GetDropRef());
 				}
 
 				e.stacks = apiInventory.data();
@@ -217,13 +217,13 @@ namespace QuickLoot::API
 
 			for (const auto& modification : e.result) {
 				const auto entry = modification.stack.entry;
-				const auto dropRef = modification.stack.dropRef ? modification.stack.dropRef->GetHandle() : RE::ObjectRefHandle{};
+				const auto dropRef = modification.stack.dropRef;
 
 				rebuildApiInventory = true;
 
 				switch (modification.type) {
 				case InventoryModificationType::kAddStack:
-					inventory.push_back(std::make_unique<Items::QuickLootItemStack>(entry, container->GetHandle(), dropRef));
+					inventory.push_back(std::make_unique<Items::QuickLootItemStack>(entry, container, dropRef));
 					break;
 
 				case InventoryModificationType::kRemoveStack:
@@ -237,9 +237,9 @@ namespace QuickLoot::API
 		}
 	}
 
-	std::vector<RE::BSString> APIServer::DispatchPopulateInfoBarEvent(RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)
+	std::vector<RE::BSString> APIServer::DispatchPopulateInfoBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef)
 	{
-		ItemStack stack{ entry, dropRef };
+		ItemStack stack{ entry, std::move(dropRef) };
 
 		PopulateInfoBarEvent e{
 			.container = container,
@@ -250,9 +250,9 @@ namespace QuickLoot::API
 		return DispatchResultEvent<RE::BSString>(_populateInfoBarHandlers, e);
 	}
 
-	std::vector<ButtonDefinition> APIServer::DispatchPopulateButtonBarEvent(RE::TESObjectREFR* container, RE::InventoryEntryData* entry, RE::TESObjectREFR* dropRef)
+	std::vector<ButtonDefinition> APIServer::DispatchPopulateButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef)
 	{
-		ItemStack stack{ entry, dropRef };
+		ItemStack stack{ entry, std::move(dropRef) };
 
 		PopulateButtonBarEvent e{
 			.container = container,

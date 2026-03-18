@@ -279,7 +279,7 @@ namespace QuickLoot
 
 		if (_container) {
 			LootMenuManager::SaveLastSelectedIndex(_container, _selectedIndex);
-			API::APIServer::DispatchCloseLootMenuEvent(_container.get().get());
+			API::APIServer::DispatchCloseLootMenuEvent(_container);
 		}
 
 		_container = container;
@@ -292,7 +292,7 @@ namespace QuickLoot
 				_wasInitialized = true;
 			}
 
-			API::APIServer::DispatchOpenLootMenuEvent(_container.get().get());
+			API::APIServer::DispatchOpenLootMenuEvent(_container);
 		}
 
 		_lootMenu.Visible(container.get() != nullptr);
@@ -551,7 +551,7 @@ namespace QuickLoot
 			Items::ItemStack::MarkBestInClassItems(_inventory);
 		}
 
-		API::APIServer::DispatchModifyInventoryEvent(_container.get().get(), _inventory);
+		API::APIServer::DispatchModifyInventoryEvent(_container, _inventory);
 
 		if (_inventory.empty() && !Settings::ShowWhenEmpty()) {
 			LootMenuManager::RequestHide();
@@ -560,7 +560,7 @@ namespace QuickLoot
 
 		SortInventory();
 
-		API::APIServer::DispatchInvalidateLootMenuEvent(_container.get().get(), _inventory);
+		API::APIServer::DispatchInvalidateLootMenuEvent(_container, _inventory);
 
 		for (auto& item : _inventory) {
 			_itemListProvider.PushBack(item->BuildDataObject(uiMovie.get()));
@@ -604,9 +604,9 @@ namespace QuickLoot
 
 		bool isItemSelected = _selectedIndex >= 0 && _selectedIndex < _inventory.size();
 		const auto entry = isItemSelected ? _inventory[_selectedIndex].get()->GetEntry() : nullptr;
-		const auto dropRef = isItemSelected ? _inventory[_selectedIndex].get()->GetDropRef().get().get() : nullptr;
+		const auto dropRef = isItemSelected ? _inventory[_selectedIndex].get()->GetDropRef() : RE::ObjectRefHandle{};
 
-		for (const auto& extraButton : API::APIServer::DispatchPopulateButtonBarEvent(_container.get().get(), entry, dropRef)) {
+		for (const auto& extraButton : API::APIServer::DispatchPopulateButtonBarEvent(_container, entry, dropRef)) {
 			RE::GFxValue obj;
 			uiMovie->CreateObject(&obj);
 
@@ -628,7 +628,7 @@ namespace QuickLoot
 
 		if (_selectedIndex >= 0 && _selectedIndex < _inventory.size()) {
 			const auto& selectedItem = _inventory[_selectedIndex];
-			const auto strings = API::APIServer::DispatchPopulateInfoBarEvent(_container.get().get(), selectedItem->GetEntry(), selectedItem->GetDropRef().get().get());
+			const auto strings = API::APIServer::DispatchPopulateInfoBarEvent(_container, selectedItem->GetEntry(), selectedItem->GetDropRef());
 
 			for (auto string : strings) {
 				if (!string.empty()) {

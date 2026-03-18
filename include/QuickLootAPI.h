@@ -9,7 +9,7 @@ namespace QuickLoot::API
 	struct ItemStack
 	{
 		RE::InventoryEntryData* entry;
-		RE::TESObjectREFR* dropRef;
+		RE::ObjectRefHandle dropRef;
 	};
 
 	enum class InventoryModificationType : uint8_t
@@ -35,7 +35,7 @@ namespace QuickLoot::API
 		struct TakingItemEvent
 		{
 			RE::Actor* actor;
-			RE::TESObjectREFR* container;
+			RE::ObjectRefHandle container;
 			const ItemStack* stack;
 			HandleResult result = HandleResult::kContinue;
 		};
@@ -43,43 +43,43 @@ namespace QuickLoot::API
 		struct TakeItemEvent
 		{
 			RE::Actor* actor;
-			RE::TESObjectREFR* container;
+			RE::ObjectRefHandle container;
 			const ItemStack* stack;
 		};
 
 		struct SelectItemEvent
 		{
 			RE::Actor* actor;
-			RE::TESObjectREFR* container;
+			RE::ObjectRefHandle container;
 			const ItemStack* stack;
 		};
 
 		struct OpeningLootMenuEvent
 		{
-			RE::TESObjectREFR* container;
+			RE::ObjectRefHandle container;
 			HandleResult result = HandleResult::kContinue;
 		};
 
 		struct OpenLootMenuEvent
 		{
-			RE::TESObjectREFR* container;
+			RE::ObjectRefHandle container;
 		};
 
 		struct CloseLootMenuEvent
 		{
-			RE::TESObjectREFR* container;
+			RE::ObjectRefHandle container;
 		};
 
 		struct InvalidateLootMenuEvent
 		{
-			RE::TESObjectREFR* container;
+			RE::ObjectRefHandle container;
 			const ItemStack* stacks;
 			size_t stackCount;
 		};
 
 		struct ModifyInventoryEvent
 		{
-			RE::TESObjectREFR* container;
+			RE::ObjectRefHandle container;
 			const ItemStack* stacks;
 			size_t stackCount;
 			RE::BSTArray<InventoryModification> result;
@@ -87,7 +87,7 @@ namespace QuickLoot::API
 
 		struct PopulateInfoBarEvent
 		{
-			RE::TESObjectREFR* container;
+			RE::ObjectRefHandle container;
 			const ItemStack* stack;
 			RE::BSTArray<RE::BSString> result;
 		};
@@ -100,7 +100,7 @@ namespace QuickLoot::API
 
 		struct PopulateButtonBarEvent
 		{
-			RE::TESObjectREFR* container;
+			RE::ObjectRefHandle container;
 			const ItemStack* stack;
 			RE::BSTArray<ButtonDefinition> result;
 		};
