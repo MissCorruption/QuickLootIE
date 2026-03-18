@@ -11,19 +11,7 @@ namespace QuickLoot::API
 		RE::InventoryEntryData* entry;
 		RE::ObjectRefHandle dropRef;
 	};
-
-	enum class InventoryModificationType : uint8_t
-	{
-		kAddStack = 0,
-		kRemoveStack = 1,
-	};
-
-	struct InventoryModification
-	{
-		InventoryModificationType type;
-		ItemStack stack;
-	};
-
+	
 	namespace Events
 	{
 		enum class HandleResult : uint8_t
@@ -73,16 +61,13 @@ namespace QuickLoot::API
 		struct InvalidateLootMenuEvent
 		{
 			RE::ObjectRefHandle container;
-			const ItemStack* stacks;
-			size_t stackCount;
+			const RE::BSTArray<ItemStack>& inventory;
 		};
 
 		struct ModifyInventoryEvent
 		{
 			RE::ObjectRefHandle container;
-			const ItemStack* stacks;
-			size_t stackCount;
-			RE::BSTArray<InventoryModification> result;
+			RE::BSTArray<ItemStack>& inventory;
 		};
 
 		struct PopulateInfoBarEvent

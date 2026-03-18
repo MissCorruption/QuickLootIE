@@ -53,9 +53,9 @@ namespace QuickLoot::API
 		static void DispatchOpenLootMenuEvent(RE::ObjectRefHandle container);
 		static void DispatchCloseLootMenuEvent(RE::ObjectRefHandle container);
 
-		static void DispatchInvalidateLootMenuEvent(RE::ObjectRefHandle container, const std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory);
+		static void DispatchInvalidateLootMenuEvent(RE::ObjectRefHandle container, const RE::BSTArray<ItemStack>& inventory);
+		static void DispatchModifyInventoryEvent(RE::ObjectRefHandle container, RE::BSTArray<ItemStack>& inventory);
 
-		static void DispatchModifyInventoryEvent(RE::ObjectRefHandle container, std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory);
 		static std::vector<RE::BSString> DispatchPopulateInfoBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 		static std::vector<ButtonDefinition> DispatchPopulateButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 

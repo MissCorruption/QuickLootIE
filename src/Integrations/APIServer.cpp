@@ -2,6 +2,7 @@
 
 #include "LootMenuManager.h"
 #include "MenuVisibilityManager.h"
+#include "Items/Inventory.h"
 
 namespace QuickLoot::API
 {
@@ -167,74 +168,26 @@ namespace QuickLoot::API
 		DispatchEvent(_closeLootMenuHandlers, e);
 	}
 
-	void APIServer::DispatchInvalidateLootMenuEvent(RE::ObjectRefHandle container, const std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory)
+	void APIServer::DispatchInvalidateLootMenuEvent(RE::ObjectRefHandle container, const RE::BSTArray<ItemStack>& inventory)
 	{
-		std::vector<ItemStack> apiInventory;
-		apiInventory.reserve(inventory.size());
-		for (auto& item : inventory) {
-			apiInventory.emplace_back(item->GetEntry(), item->GetDropRef());
-		}
-
 		InvalidateLootMenuEvent e{
 			.container = container,
-			.stacks = apiInventory.data(),
-			.stackCount = apiInventory.size(),
+			.inventory = inventory,
 		};
 
 		DispatchEvent(_invalidateLootMenuHandlers, e);
 	}
 
-	void APIServer::DispatchModifyInventoryEvent(RE::ObjectRefHandle container, std::vector<std::unique_ptr<Items::QuickLootItemStack>>& inventory)
+	void APIServer::DispatchModifyInventoryEvent(RE::ObjectRefHandle container, RE::BSTArray<Items::InventoryEntry>& inventory)
 	{
 		std::shared_lock guard(_lock);
 
 		ModifyInventoryEvent e{
 			.container = container,
-			.stacks = nullptr,
-			.stackCount = 0,
-			.result = {},
+			.inventory = inventory,
 		};
 
-		std::vector<ItemStack> apiInventory;
-
-		bool rebuildApiInventory = true;
-
-		for (auto const& handler : _modifyInventoryHandlers) {
-			if (rebuildApiInventory) {
-				apiInventory.clear();
-				apiInventory.reserve(inventory.size());
-
-				for (auto& item : inventory) {
-					apiInventory.emplace_back(item->GetEntry(), item->GetDropRef());
-				}
-
-				e.stacks = apiInventory.data();
-				e.stackCount = apiInventory.size();
-				rebuildApiInventory = false;
-			}
-
-			handler(&e);
-
-			for (const auto& modification : e.result) {
-				const auto entry = modification.stack.entry;
-				const auto dropRef = modification.stack.dropRef;
-
-				rebuildApiInventory = true;
-
-				switch (modification.type) {
-				case InventoryModificationType::kAddStack:
-					inventory.push_back(std::make_unique<Items::QuickLootItemStack>(entry, container, dropRef));
-					break;
-
-				case InventoryModificationType::kRemoveStack:
-					const auto it = std::ranges::find_if(inventory, [&](const auto& stack) { return stack->GetEntry() == modification.stack.entry; });
-					if (it != inventory.end()) {
-						inventory.erase(it);
-					}
-					break;
-				}
-			}
-		}
+		DispatchEvent(_modifyInventoryHandlers, e);
 	}
 
 	std::vector<RE::BSString> APIServer::DispatchPopulateInfoBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef)
