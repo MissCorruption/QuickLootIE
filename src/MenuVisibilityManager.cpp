@@ -231,14 +231,35 @@ namespace QuickLoot
 		// Don't refresh while the console is open to work around the missing cursor bug
 		// (any menu events while the console is open cause the cursor to disappear)
 		if (RE::UI::GetSingleton()->IsMenuOpen(RE::Console::MENU_NAME)) {
+			if (LOG_EVENTS) {
+				logger::debug("Skipping RefreshOpenState because the console is open");
+			}
 			return;
 		}
 
 		const auto container = GetContainerObject(_forcedContainer ? _forcedContainer : _focusedRef);
 		if (CanOpen(container)) {
+			if (LOG_EVENTS) {
+				if (LootMenuManager::IsShowing()) {
+					logger::debug("RefreshOpenState: Menu staying open");
+				}
+				else {
+					logger::debug("RefreshOpenState: Menu opening");
+				}
+			}
+
 			_currentContainer = container->GetHandle();
 			LootMenuManager::RequestShow(_currentContainer);
 		} else {
+			if (LOG_EVENTS) {
+				if (LootMenuManager::IsShowing()) {
+					logger::debug("RefreshOpenState: Menu closing");
+				}
+				else {
+					logger::debug("RefreshOpenState: Menu staying closed");
+				}
+			}
+
 			_currentContainer.reset();
 			LootMenuManager::RequestHide();
 		}
@@ -264,7 +285,8 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnCameraStateChanged(RE::CameraState state)
 	{
 		if (LOG_EVENTS) {
-			logger::trace("OnCameraStateChanged: {}", std::to_underlying(state));
+			logger::debug("");
+			logger::debug("OnCameraStateChanged: {}", std::to_underlying(state));
 		}
 
 		RefreshOpenState();
@@ -273,7 +295,8 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnCombatStateChanged(RE::ACTOR_COMBAT_STATE state)
 	{
 		if (LOG_EVENTS) {
-			logger::trace("OnCombatStateChanged: {}", std::to_underlying(state));
+			logger::debug("");
+			logger::debug("OnCombatStateChanged: {}", std::to_underlying(state));
 		}
 
 		RefreshOpenState();
@@ -282,7 +305,8 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnContainerChanged(RE::FormID container)
 	{
 		if (LOG_EVENTS) {
-			logger::trace("OnContainerChanged: {:08X}", container);
+			logger::debug("");
+			logger::debug("OnContainerChanged: {:08X}", container);
 		}
 
 		if (_currentContainer.get() && container == _currentContainer.get()->GetFormID()) {
@@ -293,7 +317,8 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnCrosshairRefChanged(const RE::ObjectRefHandle& ref)
 	{
 		if (LOG_EVENTS) {
-			logger::trace("OnCrosshairRefChanged: {:08X}", ref.get() ? ref.get()->GetFormID() : 0);
+			logger::debug("");
+			logger::debug("OnCrosshairRefChanged: {:08X}", ref.get() ? ref.get()->GetFormID() : 0);
 		}
 
 		if (ref != _focusedRef) {
@@ -305,7 +330,8 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnGrabStateChanged()
 	{
 		if (LOG_EVENTS) {
-			logger::trace("OnGrabStateChanged");
+			logger::debug("");
+			logger::debug("OnGrabStateChanged");
 		}
 
 		RefreshOpenState();
@@ -314,7 +340,8 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnLifeStateChanged(RE::Actor& actor)
 	{
 		if (LOG_EVENTS) {
-			logger::trace("OnLifeStateChanged: {:08X}", actor.GetFormID());
+			logger::debug("");
+			logger::debug("OnLifeStateChanged: {:08X}", actor.GetFormID());
 		}
 
 		if (actor.GetHandle() == _focusedRef) {
@@ -325,7 +352,8 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnLockChanged(RE::TESObjectREFR& container)
 	{
 		if (LOG_EVENTS) {
-			logger::trace("OnLockChanged: {:08X}", container.GetFormID());
+			logger::debug("");
+			logger::debug("OnLockChanged: {:08X}", container.GetFormID());
 		}
 
 		if (Settings::ShowWhenUnlocked() && container.GetHandle() == _focusedRef) {
@@ -336,7 +364,8 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnMenuOpenClose(bool opening, const RE::BSFixedString& menuName)
 	{
 		if (LOG_EVENTS) {
-			logger::trace("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", std::string_view(menuName));
+			logger::debug("");
+			logger::debug("OnMenuOpenClose: {} {}", opening ? "Open" : "Close", std::string_view(menuName));
 		}
 
 		// Always ignore events related to the loot menu to avoid feedback loops
@@ -362,7 +391,8 @@ namespace QuickLoot
 	void MenuVisibilityManager::OnSneakStateChanged()
 	{
 		if (LOG_EVENTS) {
-			logger::trace("OnSneakStateChanged");
+			logger::debug("");
+			logger::debug("OnSneakStateChanged");
 		}
 
 		RefreshOpenState();

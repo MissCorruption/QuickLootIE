@@ -1,6 +1,7 @@
 #include "SystemSettings.h"
 
 #include "Util/FormUtil.h"
+#include "MenuVisibilityManager.h"
 
 namespace QuickLoot::Config
 {
@@ -70,7 +71,9 @@ namespace QuickLoot::Config
 	{
 		const auto logLevel = config.value("logLevel", "info");
 		const auto flushLevel = config.value("logFlush", logLevel);
+		const auto logEvents = config.value("logEvents", false);
 
+		QuickLoot::MenuVisibilityManager::LOG_EVENTS = logEvents;
 		spdlog::default_logger()->set_level(spdlog::level::from_str(logLevel));
 		spdlog::default_logger()->flush_on(spdlog::level::from_str(flushLevel));
 	}

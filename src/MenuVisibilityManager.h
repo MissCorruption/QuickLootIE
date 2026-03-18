@@ -27,9 +27,9 @@ namespace QuickLoot
 
 		static void SetForcedContainer(RE::ObjectRefHandle container);
 
-	private:
-		static constexpr bool LOG_EVENTS = false;
+		static inline bool LOG_EVENTS = false;
 
+	private:
 		static inline RE::ObjectRefHandle _focusedRef{};
 		static inline RE::ObjectRefHandle _currentContainer{};
 		static inline RE::ObjectRefHandle _forcedContainer{};

@@ -1,6 +1,7 @@
 {
 	"logLevel": "trace",
 	"logFlush": "trace",
+	"logEvents": true,
 	"skipOldSwfCheck": false,
 	"enableProfiler": false,
 	"profilerFlushInterval": 1000,
