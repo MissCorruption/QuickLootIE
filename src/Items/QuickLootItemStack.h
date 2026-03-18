@@ -29,8 +29,10 @@ namespace QuickLoot::Items
 	public:
 		QuickLootItemStack(RE::InventoryEntryData* entry, RE::ObjectRefHandle container, RE::ObjectRefHandle dropRef = {});
 
-		[[nodiscard]] QuickLootItemData& GetQuickLootData() const;
+		[[nodiscard]] QuickLootItemData& GetQuickLootData() const { LoadData(); return _data; }
 		[[nodiscard]] RE::GFxValue& BuildDataObject(RE::GFxMovieView* view) const override;
+
+		void LoadData() const override;
 
 		void OnSelected(RE::Actor* actor) const;
 		void Take(RE::Actor* actor, int count) const override;
@@ -39,7 +41,5 @@ namespace QuickLoot::Items
 	private:
 		mutable QuickLootItemData _data;
 		mutable bool _dataInitialized = false;
-
-		void SetQuickLootData() const;
 	};
 }

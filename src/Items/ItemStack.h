@@ -22,8 +22,10 @@ namespace QuickLoot::Items
 		[[nodiscard]] RE::ObjectRefHandle GetContainer() const { return _container; }
 		[[nodiscard]] RE::ObjectRefHandle GetDropRef() const { return _dropRef; }
 
-		[[nodiscard]] virtual ItemData& GetData() const;
+		[[nodiscard]] ItemData& GetData() const { LoadData(); return _data; }
 		[[nodiscard]] virtual RE::GFxValue& BuildDataObject(RE::GFxMovieView* view) const;
+
+		virtual void LoadData() const;
 
 		virtual void TakeStack(RE::Actor* actor) const;
 		virtual void TakeOne(RE::Actor* actor) const;
@@ -41,7 +43,7 @@ namespace QuickLoot::Items
 		mutable RE::GFxValue _dataObj{};
 		mutable bool _dataInitialized = false;
 
-		void SetVanillaData() const;
+		void LoadVanillaData() const;
 
 		void SkseExtendItemData() const;
 		void SkseExtendCommonItemData() const;

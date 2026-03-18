@@ -11,15 +11,17 @@ namespace QuickLoot::Items
 	{
 	}
 
-	ItemData& ItemStack::GetData() const
+	void ItemStack::LoadData() const
 	{
 		if (_dataInitialized) {
-			return _data;
+			return;
 		}
+
+		_dataInitialized = true;
 
 		PROFILE_SCOPE;
 
-		SetVanillaData();
+		LoadVanillaData();
 		SkseExtendItemData();
 		SkyUiProcessEntry();
 		SkyUiSelectIcon();
@@ -28,9 +30,6 @@ namespace QuickLoot::Items
 
 		// MoreHUD enchantment type
 		_data.enchantmentType = GetEnchantmentType();
-
-		_dataInitialized = true;
-		return _data;
 	}
 
 	RE::GFxValue BuildBasicFormInfoObject(RE::GFxMovieView* view, RE::TESForm* form)
@@ -389,7 +388,7 @@ namespace QuickLoot::Items
 		}
 	}
 
-	void ItemStack::SetVanillaData() const
+	void ItemStack::LoadVanillaData() const
 	{
 		PROFILE_SCOPE;
 
