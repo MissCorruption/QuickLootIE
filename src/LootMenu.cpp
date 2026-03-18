@@ -10,6 +10,7 @@
 #include "Input/ButtonArt.h"
 #include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
+#include "Items/Inventory.h"
 #include "Items/ItemStack.h"
 #include "LootMenuManager.h"
 
@@ -532,6 +533,40 @@ namespace QuickLoot
 		_refreshFlags = RefreshFlags::kNone;
 	}
 
+	void LootMenu::LoadInventory()
+	{
+		PROFILE_SCOPE
+
+		auto inventory = Items::Inventory::LoadContainerInventory(_container.get().get(), CanDisplay);
+
+		API::APIServer::DispatchModifyInventoryEvent(_container, inventory);
+
+		if (inventory.empty() && !Settings::ShowWhenEmpty()) {
+			LootMenuManager::RequestHide();
+			return;
+		}
+
+		API::APIServer::DispatchInvalidateLootMenuEvent(_container, inventory);
+
+		{
+			PROFILE_SCOPE_NAMED("Item data")
+			_inventory.clear();
+			_inventory.reserve(inventory.size());
+
+			for (auto stack : inventory) {
+				auto s = std::make_unique<Items::QuickLootItemStack>(stack.entry, _container, stack.dropRef);
+				s->LoadData();
+				_inventory.emplace_back(std::move(s));
+			}
+
+			if (Settings::ShowIconBest()) {
+				for (size_t index : Items::Inventory::FindBestInClassItems(inventory)) {
+					_inventory[index]->GetData().bestInClass = true;
+				}
+			}
+		}
+	}
+
 	void LootMenu::RefreshInventory()
 	{
 		PROFILE_SCOPE;
@@ -545,22 +580,8 @@ namespace QuickLoot
 			return;
 		}
 
-		_inventory = Items::ItemStack::LoadContainerInventory<Items::QuickLootItemStack>(container.get(), CanDisplay);
-
-		if (Settings::ShowIconBest()) {
-			Items::ItemStack::MarkBestInClassItems(_inventory);
-		}
-
-		API::APIServer::DispatchModifyInventoryEvent(_container, _inventory);
-
-		if (_inventory.empty() && !Settings::ShowWhenEmpty()) {
-			LootMenuManager::RequestHide();
-			return;
-		}
-
+		LoadInventory();
 		SortInventory();
-
-		API::APIServer::DispatchInvalidateLootMenuEvent(_container, _inventory);
 
 		for (auto& item : _inventory) {
 			_itemListProvider.PushBack(item->BuildDataObject(uiMovie.get()));

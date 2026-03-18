@@ -577,32 +577,11 @@ namespace QuickLoot::Items
 
 	// Native calls
 
-	void ItemStack::ShowItemInfo(RE::ItemCard* itemCard, RE::InventoryEntryData* entry, bool isContainerItem)
-	{
-		using func_t = decltype(&ShowItemInfo);
-		REL::Relocation<func_t> func{ RELOCATION_ID(51019, 51897) };
-		return func(itemCard, entry, isContainerItem);
-	}
-
 	bool ItemStack::IsPlayerAllowedToTakeItemWithValue(RE::PlayerCharacter* player, RE::TESForm* ownerNpcOrFaction, int value)
 	{
 		using func_t = decltype(&IsPlayerAllowedToTakeItemWithValue);
 		REL::Relocation<func_t> func{ RELOCATION_ID(39584, 40670) };
 		return func(player, ownerNpcOrFaction, value);
-	}
-
-	void ItemStack::RefreshEnchantedWeapons(RE::Actor* actor, RE::InventoryChanges* changes)
-	{
-		using func_t = decltype(&RefreshEnchantedWeapons);
-		REL::Relocation<func_t> func{ RELOCATION_ID(50946, 51823) };
-		return func(actor, changes);
-	}
-
-	RE::InventoryEntryData* ItemStack::GetInventoryEntryAt(RE::InventoryChanges* changes, int index)
-	{
-		using func_t = decltype(&GetInventoryEntryAt);
-		REL::Relocation<func_t> func{ RELOCATION_ID(15866, 16106) };
-		return func(changes, index);
 	}
 
 	RE::ExtraDataList* ItemStack::GetInventoryEntryExtraListForRemoval(RE::InventoryEntryData* entry, int count, bool isViewingContainer)

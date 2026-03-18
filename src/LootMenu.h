@@ -91,6 +91,7 @@ namespace QuickLoot
 		void UseItem();
 
 		void Refresh(RefreshFlags flags = RefreshFlags::kNone);
+		void LoadInventory();
 		void SortInventory();
 		void RefreshInventory();
 		void RefreshButtonBar();
