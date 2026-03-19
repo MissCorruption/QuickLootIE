@@ -35,6 +35,8 @@ Tested with the following
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/52743]Oblivion Interaction Icons[/url] - Icons now show up in the loot menu button bar.
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/27859]Skyrim Souls RE[/url] - Loot menu no longer shows on top of other menus.
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/56767]Simple Activate SKSE[/url] - Fixed flickering vanilla activation prompt.
+[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/126203]Dismembering Framework[/url] - Added the ability to loot severed limbs.
+[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/73081]NPCs Names Distributor[/url] - Looting an enemy now reveals their name.
 [/list][/list]
 [list]
 [*][color=#f6b26b][b]MCM settings[/b][/color]
@@ -47,6 +49,7 @@ Many aspects of QuickLoot IE's behavior can be configured via the included MCM:
 [*] Individual toggles for the various optional icons
 [*] Which info columns to show and in what order
 [*] Key bindings for all QuickLoot actions (+ save/load presets)
+[*] Rule based item sort order
 [/list][/list]
 [color=#6aa84f][size=5][b]Reskins[/b][/size][/color]
 If you are using a UI overhaul and want the loot menu to match its design, check out these fantastic reskins provided by members of the modding community:
@@ -61,13 +64,8 @@ If you are using a UI overhaul and want the loot menu to match its design, check
 [color=#6aa84f][size=5][b]Frequently Asked Questions[/b][/size][/color]
 
 [list]
-[*][color=#f6b26b][b]I get a popup talking about "LootMenu.swf"[/b][/color]
-This means that you installed a loot menu reskin created for an older version of QuickLoot, which is incompatible with QuickLoot IE. 
-Check which mod provides [b]Interface/LootMenu.swf[/b] and remove the file. 
-If for some reason you are unable to do so, you can disable the check in [b]QuickLootIE.json[/b] by setting [b]skipOldSwfCheck[/b] to [b]true[/b].
-[/list]
 [list]
-[*][color=#f6b26b][b]I get a popup talking about the MCM quest[/b][/color]
+[*][color=#f6b26b][b]My log says QuickLootIE.esp is not loaded[/b][/color]
 Make sure QuickLootIE.esp exists and is enabled in your load order. 
 If you're on a version before [b]1.6.1130[/b] you need to install [url=https://www.nexusmods.com/skyrimspecialedition/mods/106441]BEES[/url]. 
 Another known cause is [url=https://www.nexusmods.com/skyrimspecialedition/mods/17230]SSE Engine Fixes[/url], so make sure to install the correct version of that. 
@@ -80,6 +78,10 @@ Check your QuickLoot IE log ([b]Documents/My Games/Skyrim Special Edition/SKSE/Q
 "LootMenu disabled because a blocking menu is open." 
 At the end of the line it will state the name of the menu. Add this to the menu whitelist in [b]QuickLootIE.json[/b]. 
 Make sure there is a comma after each menu on the whitelist, except the last one.
+[/list]
+[list]
+[*][color=#f6b26b][b]The value and weight info columns next to items are missing[/b][/color]
+This happens if [url=https://www.nexusmods.com/skyrimspecialedition/mods/13048]PapyrusUtil[/url] is missing or outdated. Make sure you're using the latest version and it isn't getting overwritten by another mod.
 [/list]
 [list]
 [*][color=#f6b26b][b]I have another issue[/b][/color]
