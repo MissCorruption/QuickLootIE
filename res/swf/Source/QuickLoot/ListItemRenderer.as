@@ -103,8 +103,11 @@
 		_visible = true;
 		_hasData = true;
 
-		// Call i4 if it is installed
-		skse.plugins.InventoryInjector.ProcessEntry(data);
+		if(!data.skyui_itemDataProcessed) {
+			// Call i4 if it is installed
+			skse.plugins.InventoryInjector.ProcessEntry(data);
+			data.skyui_itemDataProcessed = true;
+		}
 		
 		if(_lootMenu.showItemIcons) {
 			// Do this first, so the icon source can load
