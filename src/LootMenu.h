@@ -76,7 +76,6 @@ namespace QuickLoot
 		RE::GFxValue BuildSettingsObject() const;
 		static void ResolveAnchorPoint(Config::AnchorPoint anchor, double& fractionX, double& fractionY);
 
-		void OnSelectedIndexChanged(int newIndex);
 		void SetSelectedIndex(int newIndex, bool playSound);
 		void ScrollUp();
 		void ScrollDown();

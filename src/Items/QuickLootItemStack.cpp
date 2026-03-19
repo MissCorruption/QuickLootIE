@@ -1,7 +1,6 @@
 #include "QuickLootItemStack.h"
 
 #include "Config/UserSettings.h"
-#include "Integrations/APIServer.h"
 #include "Integrations/Artifacts.h"
 #include "Integrations/Completionist.h"
 
@@ -48,35 +47,6 @@ namespace QuickLoot::Items
 
 		obj.SetMember("quickLoot", true);
 		return obj;
-	}
-
-	// TODO move API dispatch out of this class
-
-	void QuickLootItemStack::OnSelected(RE::Actor* actor) const
-	{
-		API::APIServer::DispatchSelectItemEvent(actor, GetContainer(), GetEntry(), GetDropRef());
-	}
-
-	void QuickLootItemStack::Take(RE::Actor* actor, int count) const
-	{
-		if (API::APIServer::DispatchTakingItemEvent(actor, GetContainer(), GetEntry(), GetDropRef()) == API::HandleResult::kStop) {
-			return;
-		}
-
-		ItemStack::Take(actor, count);
-
-		API::APIServer::DispatchTakeItemEvent(actor, GetContainer(), GetEntry(), GetDropRef());
-	}
-
-	void QuickLootItemStack::Use(RE::Actor* actor) const
-	{
-		if (API::APIServer::DispatchTakingItemEvent(actor, GetContainer(), GetEntry(), GetDropRef()) == API::HandleResult::kStop) {
-			return;
-		}
-
-		ItemStack::Use(actor);
-
-		API::APIServer::DispatchTakeItemEvent(actor, GetContainer(), GetEntry(), GetDropRef());
 	}
 
 	void QuickLootItemStack::LoadData() const

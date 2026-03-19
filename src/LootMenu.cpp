@@ -299,11 +299,9 @@ namespace QuickLoot
 
 		_lootMenu.Visible(container.get() != nullptr);
 
-		// Make sure OnSelected is called even if the selected index is the same as with the previous container.
-		_selectedIndex = -1;
-
 		Refresh(RefreshFlags::kAll);
 		SetSelectedIndex(selectedIndex, false);
+		Refresh();
 	}
 
 	void LootMenu::Hide()
@@ -359,18 +357,6 @@ namespace QuickLoot
 		}
 	}
 
-	void LootMenu::OnSelectedIndexChanged(int newIndex)
-	{
-		QueueRefresh(RefreshFlags::kInfoBar);
-		QueueRefresh(RefreshFlags::kButtonBar);
-
-		if (newIndex < 0 || newIndex >= std::ssize(_inventory)) {
-			return;
-		}
-
-		_inventory[static_cast<size_t>(newIndex)]->OnSelected(RE::PlayerCharacter::GetSingleton());
-	}
-
 	void LootMenu::SetSelectedIndex(int newIndex, bool playSound)
 	{
 		newIndex = std::max(newIndex, 0);
@@ -380,17 +366,22 @@ namespace QuickLoot
 			newIndex = static_cast<int>(_inventory.size() - 1);
 		}
 
-		if (newIndex == _selectedIndex) {
-			return;
-		}
-
-		if (playSound && Config::UserSettings::PlayScrollSound()) {
-			RE::PlaySound("UIMenuFocus");
+		if (newIndex != _selectedIndex) {
+			if (playSound && Config::UserSettings::PlayScrollSound()) {
+				RE::PlaySound("UIMenuFocus");
+			}
 		}
 
 		_selectedIndex = newIndex;
 		_itemList.SelectedIndex(newIndex);
-		OnSelectedIndexChanged(newIndex);
+
+		QueueRefresh(RefreshFlags::kInfoBar);
+		QueueRefresh(RefreshFlags::kButtonBar);
+
+		if (newIndex >= 0 && newIndex < std::ssize(_inventory)) {
+			const auto& stack = _inventory[static_cast<size_t>(newIndex)];
+			API::APIServer::DispatchSelectItemEvent(RE::PlayerCharacter::GetSingleton(), _container, stack->GetEntry(), stack->GetDropRef());
+		}
 	}
 
 	void LootMenu::ScrollUp()
@@ -452,7 +443,13 @@ namespace QuickLoot
 			return;
 		}
 
-		_inventory[_selectedIndex]->TakeStack(player);
+		auto& stack = _inventory[_selectedIndex];
+
+		if (API::APIServer::DispatchTakingItemEvent(player, _container, stack->GetEntry(), stack->GetDropRef()) != API::HandleResult::kStop) {
+			stack->TakeStack(player);
+
+			API::APIServer::DispatchTakeItemEvent(player, _container, stack->GetEntry(), stack->GetDropRef());
+		}
 
 		OnTakeAction();
 	}
@@ -464,7 +461,13 @@ namespace QuickLoot
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
 		for (size_t i = 0; i < _inventory.size(); ++i) {
-			_inventory[i]->TakeStack(player);
+			auto& stack = _inventory[i];
+
+			if (API::APIServer::DispatchTakingItemEvent(player, _container, stack->GetEntry(), stack->GetDropRef()) != API::HandleResult::kStop) {
+				stack->TakeStack(player);
+
+				API::APIServer::DispatchTakeItemEvent(player, _container, stack->GetEntry(), stack->GetDropRef());
+			}
 		}
 
 		OnTakeAction();
@@ -486,7 +489,13 @@ namespace QuickLoot
 			return;
 		}
 
-		_inventory[_selectedIndex]->Use(player);
+		auto& stack = _inventory[_selectedIndex];
+
+		if (API::APIServer::DispatchTakingItemEvent(player, _container, stack->GetEntry(), stack->GetDropRef()) != API::HandleResult::kStop) {
+			stack->Use(player);
+
+			API::APIServer::DispatchTakeItemEvent(player, _container, stack->GetEntry(), stack->GetDropRef());
+		}
 
 		OnTakeAction();
 	}

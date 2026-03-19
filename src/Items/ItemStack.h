@@ -27,11 +27,11 @@ namespace QuickLoot::Items
 
 		virtual void LoadData() const;
 
-		virtual void TakeStack(RE::Actor* actor) const;
-		virtual void TakeOne(RE::Actor* actor) const;
-		virtual void Take(RE::Actor* actor, int count) const;
-		virtual void Use(RE::Actor* actor) const;
-		virtual const char* GetUseLabel() const;
+		void TakeStack(RE::Actor* actor) const;
+		void TakeOne(RE::Actor* actor) const;
+		void Take(RE::Actor* actor, int count) const;
+		void Use(RE::Actor* actor) const;
+		const char* GetUseLabel() const;
 
 	protected:
 		std::unique_ptr<RE::InventoryEntryData> _entry;
