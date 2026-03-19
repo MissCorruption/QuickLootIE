@@ -331,13 +331,13 @@ namespace QuickLoot::Input
 		_allInputKeys.clear();
 		_allModifierKeys.clear();
 
-		for (size_t a = 0; a < _keybindings.size(); ++a) {
-			auto& keybindingA = _keybindings[a];
+		for (size_t i = 0; i < _keybindings.size(); ++i) {
+			auto& keybinding = _keybindings[i];
 
-			_allInputKeys.insert(keybindingA.inputKey);
+			_allInputKeys.insert(keybinding.inputKey);
 
-			if (keybindingA.modifierKey) {
-				_allModifierKeys.insert(*keybindingA.modifierKey);
+			if (keybinding.modifierKey) {
+				_allModifierKeys.insert(*keybinding.modifierKey);
 			}
 		}
 
