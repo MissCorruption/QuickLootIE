@@ -152,7 +152,7 @@ namespace QuickLoot::Input
 
 	void InputManager::BlockConflictingInputs()
 	{
-		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, false);
+		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, false, false);
 
 		if (REL::Module::IsVR()) {
 			const auto playerControls = RE::PlayerControls::GetSingleton();
@@ -163,7 +163,7 @@ namespace QuickLoot::Input
 
 	void InputManager::UnblockConflictingInputs()
 	{
-		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, true);
+		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, true, false);
 
 		if (REL::Module::IsVR()) {
 			const auto playerControls = RE::PlayerControls::GetSingleton();
@@ -424,8 +424,8 @@ namespace QuickLoot::Input
 
 		fakeEvent->eventType = RE::INPUT_EVENT_TYPE::kButton;
 		fakeEvent->device = device;
-		fakeEvent->idCode = idCode;
-		fakeEvent->userEvent = "";
+		fakeEvent->AsIDEvent()->idCode = idCode;
+		fakeEvent->AsIDEvent()->userEvent = "";
 		fakeEvent->GetRuntimeData().value = value;
 		fakeEvent->GetRuntimeData().heldDownSecs = heldDownSecs;
 

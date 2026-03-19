@@ -6,12 +6,12 @@ namespace QuickLoot::Behaviors
 	{
 		static void thunk(RE::UIMessageQueue* _this, const RE::BSFixedString& menuName, RE::UI_MESSAGE_TYPE type, RE::HUDData* data)
 		{
-			if (ActivationPrompt::IsBlocked() && (data->type == RE::HUDData::Type::kActivate || data->type == RE::HUDData::Type::kActivateNoLabel)) {
+			if (ActivationPrompt::IsBlocked() && (data->type == RE::HUD_MESSAGE_TYPE::kSetCrosshairTarget || data->type == RE::HUD_MESSAGE_TYPE::kSetCrosshairTargetTextOnly)) {
 				std::string text = data->text.c_str();
 				std::ranges::replace(text, '\n', ' ');
 				logger::trace("Blocking activation prompt '{}'", text);
 				data->text = "";
-				data->unk40 = false; // enable
+				data->show = false; // enable
 			}
 
 			func(_this, menuName, type, data);

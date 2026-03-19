@@ -288,15 +288,15 @@ namespace QuickLoot::Items
 			const auto owner = container->GetOwner();
 
 			if (actor == player) {
-				auto eventType = RE::PlayerCharacter::EventType::kContainer;
+				auto eventType = RE::AQUIRE_TYPE::kContainer;
 				if (stealing) {
-					eventType = RE::PlayerCharacter::EventType::kThief;
+					eventType = RE::AQUIRE_TYPE::kSteal;
 				} else if (containerActor && containerActor->IsDead(false)) {
-					eventType = RE::PlayerCharacter::EventType::kDeadBody;
+					eventType = RE::AQUIRE_TYPE::kDeadBody;
 				}
 
 				PROFILE_SCOPE_NAMED("RE::PlayerCharacter::PlayPickupEvent")
-				player->PlayPickupEvent(_object, owner, container.get(), eventType);
+				player->AddPlayerAddItemEvent(_object, owner, container.get(), eventType);
 			}
 
 			actor->PlayPickUpSound(_object, true, false);
@@ -349,9 +349,9 @@ namespace QuickLoot::Items
 						player->RemoveItem(book, 1, RE::ITEM_REMOVE_REASON::kRemove, extraList, nullptr);
 					}
 				} else {
-					RE::BSString text{};
-					book->GetDescription(text, nullptr);
-					RE::BookMenu::OpenBookMenu(text, extraList, nullptr, book, {}, {}, 1, true);
+					RE::NiMatrix3 rot{};
+					rot.SetEulerAnglesXYZ(-0.05f, -0.05f, 1.50f);
+					RE::BookMenu::OpenMenuFromBaseForm(book, extraList, {}, rot, 1, true);
 				}
 				break;
 			}

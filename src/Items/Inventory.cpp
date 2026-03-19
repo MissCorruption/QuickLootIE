@@ -121,7 +121,7 @@ namespace QuickLoot::Items
 				{
 					const auto armor = skyrim_cast<RE::TESObjectARMO*>(object);
 					unsigned long slot = 0;
-					if (_BitScanForward(&slot, static_cast<unsigned long>(armor->GetSlotMask()))) {
+					if (_BitScanForward(&slot, armor->GetSlotMask().underlying())) {
 						UpdateBest(bestArmorBySlot[slot], player->GetArmorValue(entry), index);
 					}
 					break;
