@@ -12,6 +12,7 @@
 #include "Integrations/BetterThirdPersonSelection.h"
 #include "Integrations/Completionist.h"
 #include "Integrations/DismemberingFramework.h"
+#include "Integrations/NPCsNamesDistributor.h"
 #include "Observers/CameraStateObserver.h"
 #include "Observers/CombatStateObserver.h"
 #include "Observers/ContainerObserver.h"
@@ -62,6 +63,7 @@ static void OnSKSEMessage(SKSE::MessagingInterface::Message* msg)
 			QuickLoot::Integrations::BetterThirdPersonSelection::Init();
 			QuickLoot::Integrations::Completionist::Init();
 			QuickLoot::Integrations::DismemberingFramework::Init();
+			QuickLoot::Integrations::NPCsNamesDistributor::Init();
 
 			logger::info("--------------------------------[ kDataLoaded end ]--------------------------------");
 			break;

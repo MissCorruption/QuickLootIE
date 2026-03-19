@@ -10,6 +10,7 @@
 #include "Input/ButtonArt.h"
 #include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
+#include "Integrations/NPCsNamesDistributor.h"
 #include "Items/Inventory.h"
 #include "Items/ItemStack.h"
 #include "LootMenuManager.h"
@@ -678,8 +679,15 @@ namespace QuickLoot
 		PROFILE_SCOPE;
 
 		if (const auto container = _container.get()) {
-			const auto name = container->GetDisplayFullName();
-			_title.HTMLText(name ? name : "");
+			std::string name = container->GetDisplayFullName();
+
+			if (Integrations::NPCsNamesDistributor::IsReady()) {
+				if (const auto actor = skyrim_cast<RE::Actor*>(container.get())) {
+					name = Integrations::NPCsNamesDistributor::GetName(actor);
+				}
+			}
+
+			_title.HTMLText(name);
 			_title.Visible(true);
 		}
 	}

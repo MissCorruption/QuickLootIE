@@ -5,6 +5,7 @@
 #include "Input/InputManager.h"
 #include "Integrations/APIServer.h"
 #include "Integrations/BetterThirdPersonSelection.h"
+#include "Integrations/NPCsNamesDistributor.h"
 #include "LootMenu.h"
 #include "MenuVisibilityManager.h"
 
@@ -33,6 +34,10 @@ namespace QuickLoot
 		if (!RE::PlayerCamera::GetSingleton()->IsInThirdPerson() ||
 			!Integrations::BetterThirdPersonSelection::Is3DWidgetEnabled()) {
 			Behaviors::ActivationPrompt::Block();
+		}
+
+		if (const auto actor = skyrim_cast<RE::Actor*>(container.get().get())) {
+			Integrations::NPCsNamesDistributor::RevealName(actor);
 		}
 
 		_currentContainer = container;
