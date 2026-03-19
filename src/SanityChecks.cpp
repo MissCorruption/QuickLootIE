@@ -45,7 +45,7 @@ bool QuickLoot::SanityChecks::ValidateSwf()
 				"LootMenuIE.swf is missing. "
 				"This file is required by QuickLoot IE. "
 				"Please make sure the mod is installed correctly."
-				"\n\nExit Game now? (Recommend yes)");
+				"\n\nExit game now? (Recommend yes)");
 
 			return false;
 		}
@@ -55,7 +55,7 @@ bool QuickLoot::SanityChecks::ValidateSwf()
 		ShowFatalError(
 			"LootMenuIE.swf exists but failed to load. "
 			"If you are using a reskin, make sure all of its dependencies are installed."
-			"\n\nExit Game now? (Recommend yes)");
+			"\n\nExit game now? (Recommend yes)");
 
 		return false;
 
@@ -64,7 +64,7 @@ bool QuickLoot::SanityChecks::ValidateSwf()
 
 		ShowFatalError(
 			"The installed version of LootMenuIE.swf is not compatible with QuickLoot IE."
-			"\n\nExit Game now? (Recommend yes)");
+			"\n\nExit game now? (Recommend yes)");
 
 		return false;
 
