@@ -127,10 +127,6 @@ namespace QuickLoot
 			// This is where Show is called.
 			LootMenuManager::ProcessPendingTasks(*this);
 		}
-
-		if (REL::Module::IsVR()) {
-			UniversalMenu::SetupMenuNode();
-		}
 	}
 
 	void LootMenu::InjectUtilsClass()
