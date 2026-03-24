@@ -420,16 +420,11 @@ namespace QuickLoot::Input
 	{
 		//logger::debug("Fake button event: device {}, key {} {} (held for {:.2f}s)", static_cast<uint32_t>(device), idCode, value > 0 ? "down" : "up", heldDownSecs);
 
-		static auto fakeEvent = RE::ButtonEvent::Create(RE::INPUT_DEVICE::kNone, "", 0, 0, 0);
-
-		fakeEvent->eventType = RE::INPUT_EVENT_TYPE::kButton;
-		fakeEvent->device = device;
-		fakeEvent->AsIDEvent()->idCode = idCode;
-		fakeEvent->AsIDEvent()->userEvent = "";
-		fakeEvent->GetRuntimeData().value = value;
-		fakeEvent->GetRuntimeData().heldDownSecs = heldDownSecs;
+		const auto fakeEvent = RE::ButtonEvent::Create(device, "", idCode, value, heldDownSecs);
 
 		HandleButtonEvent(fakeEvent);
+
+		RE::free(fakeEvent);
 	}
 
 	void InputManager::UpdateModifierStates()
