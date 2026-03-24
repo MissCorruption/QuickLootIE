@@ -29,6 +29,7 @@ namespace QuickLoot::Observers
 	{
 		std::thread t([] {
 			bool isReady = true;
+			RE::ObjectRefHandle lastTarget{};
 
 			while (true) {
 				if (isReady) {
@@ -36,7 +37,11 @@ namespace QuickLoot::Observers
 
 					SKSE::GetTaskInterface()->AddTask([&] {
 						isReady = true;
-						MenuVisibilityManager::OnCrosshairRefChanged(GetCurrentVRTarget());
+						const auto target = GetCurrentVRTarget();
+						if (target != lastTarget) {
+							MenuVisibilityManager::OnCrosshairRefChanged(target);
+							lastTarget = target;
+						}
 					});
 				}
 
