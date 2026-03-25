@@ -30,13 +30,15 @@ namespace QuickLoot::Integrations
 			}
 		}
 
-		static std::string_view GetName(RE::Actor* actor)
+		static std::string GetName(RE::Actor* actor)
 		{
-			if (_api) {
-				return _api->GetName(actor, NameContext::kInventory);
-			}
+			std::string name{};
 
-			return actor->GetDisplayFullName();
+			if (_api) {
+				name = _api->GetName(actor, NameContext::kInventory);
+			}
+			
+			return name.empty() ? actor->GetDisplayFullName() : name;
 		}
 
 	private:
