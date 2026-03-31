@@ -69,7 +69,7 @@ namespace QuickLoot
 		menuName = MENU_NAME;
 		menuFlags.set(Flag::kAllowSaving, Flag::kHasButtonBar);
 
-		if (_cachedView) {
+		if (SystemSettings::EnableMenuCaching() && _cachedView) {
 			logger::debug("Using cached swf");
 			uiMovie = _cachedView;
 		} else {
@@ -78,9 +78,7 @@ namespace QuickLoot
 
 			RE::BSScaleformManager::GetSingleton()->LoadMovie(this, uiMovie, FILE_NAME.data());
 
-			if (SystemSettings::EnableMenuCaching()) {
-				_cachedView = uiMovie;
-			}
+			_cachedView = SystemSettings::EnableMenuCaching() ? uiMovie : nullptr;
 		}
 
 		if (!uiMovie) {
