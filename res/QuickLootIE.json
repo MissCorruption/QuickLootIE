@@ -24,5 +24,16 @@
 		// Gunjar (must be interacted with directly to
 		// progress the intro quest)
 		"Skyrim.esm|09B0AD"
-	]
+	],
+	"swfConfig": {
+		// This can be used to modify internal values of the menu without building a new swf.
+		// Leave it alone unless you understand what you're doing.
+		"overrides": {
+			//"_root.lootMenu.nonTransparentElements": ["title"],
+			//"QuickLoot.Button.WHITE": 255,
+			//"QuickLoot.Button.RED": 65280,
+			//"QuickLoot.ListItemRenderer.DEFAULT_TEXT_COLOR": 255,
+			//"QuickLoot.ListItemRenderer.STEALING_TEXT_COLOR": 65280
+		}
+	}
 }

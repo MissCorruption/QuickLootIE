@@ -99,6 +99,8 @@
 		
 		loadSetting(settings, "systemSettings", "object");
 		
+		applyOverrides();
+		
 		if(scale == 0) scale = 1;
 		
 		var self = this;
@@ -122,6 +124,8 @@
 		setOpacity(isEmpty ? alphaEmpty : alphaNormal);
 		updateScale();
 		updateScrollArrows();
+		
+		applyOverrides();
 	}
 	
 	// private functions
@@ -216,7 +220,9 @@
 			var element = this[member];
 			
 			if(!(element instanceof MovieClip) && !(element instanceof TextField)) continue;
-			if(contains(nonTransparentElements, element)) {
+			
+			if(contains(nonTransparentElements, element) || contains(nonTransparentElements, element._name)) {
+				//QuickLoot.Utils.log("Nontransparent: " + element._name);
 				continue;
 			}
 			
@@ -240,6 +246,39 @@
 			element._originalY = element._y;
 			element._originalW = element._width;
 			element._originalH = element._height;
+		}
+	}
+	
+	private function applyOverrides()
+	{
+		if(typeof(systemSettings.overrides) != "object") return;
+		
+		for(var key in systemSettings.overrides) {
+			var value = systemSettings.overrides[key];
+			var path = key.split(".");
+			var member = path.pop();
+			var current = _global;
+			
+			//QuickLoot.Utils.log("Processing override " + key + " = " + value);
+			
+			if(path[0] == "_root") {
+				current = _root;
+				path.splice(0, 1);
+			}
+			
+			for(var i = 0; i < path.length; i++) {
+				var name = path[i];
+				current = current[name];
+				
+				if(!current) {
+					//QuickLoot.Utils.log("Unable to resolve field " + name);
+					break;
+				}
+			}
+			
+			if(current) {
+				current[member] = value;
+			}
 		}
 	}
 }
