@@ -10,8 +10,6 @@
 #include "Items/QuickLootItemStack.h"
 #include "UniversalMenu.h"
 
-using Settings = QuickLoot::Config::UserSettings;
-
 namespace QuickLoot
 {
 	enum class RefreshFlags : uint8_t

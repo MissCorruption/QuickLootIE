@@ -19,6 +19,8 @@
 
 #undef PlaySound
 
+using namespace QuickLoot::Config;
+
 namespace QuickLoot
 {
 	void LootMenu::Register()
@@ -75,7 +77,7 @@ namespace QuickLoot
 
 			RE::BSScaleformManager::GetSingleton()->LoadMovie(this, uiMovie, FILE_NAME.data());
 
-			if (Config::SystemSettings::EnableMenuCaching()) {
+			if (SystemSettings::EnableMenuCaching()) {
 				_cachedView = uiMovie;
 			}
 		}
@@ -181,19 +183,19 @@ namespace QuickLoot
 
 		uiMovie->CreateObject(&settings);
 
-		settings.SetMember("minLines", Settings::GetWindowMinLines());
-		settings.SetMember("maxLines", Settings::GetWindowMaxLines());
+		settings.SetMember("minLines", UserSettings::GetWindowMinLines());
+		settings.SetMember("maxLines", UserSettings::GetWindowMaxLines());
 
-		settings.SetMember("offsetX", Settings::GetWindowX());
-		settings.SetMember("offsetY", Settings::GetWindowY());
-		settings.SetMember("scale", Settings::GetWindowScale());
+		settings.SetMember("offsetX", UserSettings::GetWindowX());
+		settings.SetMember("offsetY", UserSettings::GetWindowY());
+		settings.SetMember("scale", UserSettings::GetWindowScale());
 
-		settings.SetMember("alphaNormal", Settings::GetWindowOpacityNormal());
-		settings.SetMember("alphaEmpty", Settings::GetWindowOpacityEmpty());
+		settings.SetMember("alphaNormal", UserSettings::GetWindowOpacityNormal());
+		settings.SetMember("alphaEmpty", UserSettings::GetWindowOpacityEmpty());
 
 		double anchorFractionX = 0;
 		double anchorFractionY = 0;
-		ResolveAnchorPoint(Settings::GetWindowAnchor(), anchorFractionX, anchorFractionY);
+		ResolveAnchorPoint(UserSettings::GetWindowAnchor(), anchorFractionX, anchorFractionY);
 
 		settings.SetMember("anchorFractionX", anchorFractionX);
 		settings.SetMember("anchorFractionY", anchorFractionY);
@@ -209,7 +211,7 @@ namespace QuickLoot
 			"valuePerWeight"
 		};
 
-		for (const auto& column : Settings::GetInfoColumns()) {
+		for (const auto& column : UserSettings::GetInfoColumns()) {
 			for (const auto& normalized : normalizedColumnNames) {
 				if (_stricmp(column.c_str(), normalized) == 0) {
 					infoColumns.PushBack(normalized);
@@ -220,14 +222,14 @@ namespace QuickLoot
 
 		settings.SetMember("infoColumns", infoColumns);
 
-		settings.SetMember("showItemIcons", Settings::ShowIconItem());
+		settings.SetMember("showItemIcons", UserSettings::ShowIconItem());
 
 		return settings;
 	}
 
-	void LootMenu::ResolveAnchorPoint(Config::AnchorPoint anchor, double& fractionX, double& fractionY)
+	void LootMenu::ResolveAnchorPoint(AnchorPoint anchor, double& fractionX, double& fractionY)
 	{
-		using enum Config::AnchorPoint;
+		using enum AnchorPoint;
 		switch (anchor) {
 		case kTopLeft:
 		case kCenterLeft:
@@ -363,7 +365,7 @@ namespace QuickLoot
 		}
 
 		if (newIndex != _selectedIndex) {
-			if (playSound && Config::UserSettings::PlayScrollSound()) {
+			if (playSound && UserSettings::PlayScrollSound()) {
 				RE::PlaySound("UIMenuFocus");
 			}
 		}
@@ -421,7 +423,7 @@ namespace QuickLoot
 
 		// Taken from WaterFox' fork of QuickLootEE
 		// See: https://github.com/Eloquence4/QuickLootEE/blob/c93e56dcb7f0372a5ad7df4b22e118e37deeb286/src/Scaleform/LootMenu.h#L136-L162
-		if (Settings::DispelInvisibility()) {
+		if (UserSettings::DispelInvisibility()) {
 			DispelEffectsWithArchetype(player->AsMagicTarget(), RE::EffectArchetypes::ArchetypeID::kInvisibility, false);
 		}
 
@@ -547,7 +549,7 @@ namespace QuickLoot
 
 		API::APIServer::DispatchModifyInventoryEvent(_container, inventory);
 
-		if (inventory.empty() && !Settings::ShowWhenEmpty()) {
+		if (inventory.empty() && !UserSettings::ShowWhenEmpty()) {
 			LootMenuManager::RequestHide();
 			return;
 		}
@@ -565,7 +567,7 @@ namespace QuickLoot
 				_inventory.emplace_back(std::move(s));
 			}
 
-			if (Settings::ShowIconBest()) {
+			if (UserSettings::ShowIconBest()) {
 				for (size_t index : Items::Inventory::FindBestInClassItems(inventory)) {
 					_inventory[index]->GetData().bestInClass = true;
 				}
@@ -830,15 +832,15 @@ namespace QuickLoot
 
 	void LootMenu::SetTransform()
 	{
-		const float dx = Settings::VrOffsetX();
-		const float dy = Settings::VrOffsetY();
-		const float dz = Settings::VrOffsetZ();
+		const float dx = UserSettings::VrOffsetX();
+		const float dy = UserSettings::VrOffsetY();
+		const float dz = UserSettings::VrOffsetZ();
 
-		const float rx = static_cast<float>(Settings::VrAngleX() * std::numbers::pi / 180);
-		const float ry = static_cast<float>(Settings::VrAngleY() * std::numbers::pi / 180);
-		const float rz = static_cast<float>(Settings::VrAngleZ() * std::numbers::pi / 180);
+		const float rx = static_cast<float>(UserSettings::VrAngleX() * std::numbers::pi / 180);
+		const float ry = static_cast<float>(UserSettings::VrAngleY() * std::numbers::pi / 180);
+		const float rz = static_cast<float>(UserSettings::VrAngleZ() * std::numbers::pi / 180);
 
-		const float scale = Settings::VrScale();
+		const float scale = UserSettings::VrScale();
 
 		menuNode->local.translate = RE::NiPoint3(dx, dy, dz);
 		menuNode->local.rotate.EulerAnglesToAxesZXY(rx, ry, rz);

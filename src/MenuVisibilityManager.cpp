@@ -6,7 +6,7 @@
 #include "LootMenu.h"
 #include "LootMenuManager.h"
 
-using Settings = QuickLoot::Config::UserSettings;
+using namespace QuickLoot::Config;
 
 namespace QuickLoot
 {
@@ -43,10 +43,10 @@ namespace QuickLoot
 			return true;
 
 		case RE::CameraState::kThirdPerson:
-			return Settings::ShowInThirdPersonView();
+			return UserSettings::ShowInThirdPersonView();
 
 		case RE::CameraState::kMount:
-			return Settings::ShowWhenMounted();
+			return UserSettings::ShowWhenMounted();
 
 		default:
 			return false;
@@ -79,7 +79,7 @@ namespace QuickLoot
 			whitelistedMenus.emplace(cursorMenu.get());
 		}
 
-		for (auto name : Config::SystemSettings::GetMenuWhitelist()) {
+		for (auto name : SystemSettings::GetMenuWhitelist()) {
 			if (const auto whitelistedMenu = ui->GetMenu(name)) {
 				whitelistedMenus.emplace(whitelistedMenu.get());
 			}
@@ -103,7 +103,7 @@ namespace QuickLoot
 
 	bool MenuVisibilityManager::IsContainerBlacklisted(const RE::TESObjectREFRPtr& container)
 	{
-		const auto& blacklist = Config::SystemSettings::GetContainerBlacklist();
+		const auto& blacklist = SystemSettings::GetContainerBlacklist();
 
 		if (blacklist.contains(container->formID)) {
 			return true;
@@ -135,12 +135,12 @@ namespace QuickLoot
 			return false;
 		}
 
-		if (!Settings::ShowInCombat() && player->IsInCombat()) {
+		if (!UserSettings::ShowInCombat() && player->IsInCombat()) {
 			logger::debug("LootMenu disabled because player is in combat");
 			return false;
 		}
 
-		if (!Settings::ShowWhenSneaking() && player->IsSneaking()) {
+		if (!UserSettings::ShowWhenSneaking() && player->IsSneaking()) {
 			logger::debug("LootMenu disabled because player is sneaking");
 			return false;
 		}
@@ -201,22 +201,22 @@ namespace QuickLoot
 				return false;
 			}
 
-			if (!Settings::EnableForCorpses()) {
+			if (!UserSettings::EnableForCorpses()) {
 				logger::debug("LootMenu disabled for corpses");
 				return false;
 			}
 
-			if (!Settings::EnableForAnimals() && actor->HasKeywordString("ActorTypeAnimal")) {
+			if (!UserSettings::EnableForAnimals() && actor->HasKeywordString("ActorTypeAnimal")) {
 				logger::debug("LootMenu disabled for animals");
 				return false;
 			}
 
-			if (!Settings::EnableForDragons() && actor->HasKeywordString("ActorTypeDragon")) {
+			if (!UserSettings::EnableForDragons() && actor->HasKeywordString("ActorTypeDragon")) {
 				logger::debug("LootMenu disabled for dragons");
 				return false;
 			}
 		}
-		else if (!Settings::EnableForContainers()) {
+		else if (!UserSettings::EnableForContainers()) {
 			logger::debug("LootMenu disabled for containers");
 			return false;
 		}
@@ -356,7 +356,7 @@ namespace QuickLoot
 			logger::debug("OnLockChanged: {:08X}", container.GetFormID());
 		}
 
-		if (Settings::ShowWhenUnlocked() && container.GetHandle() == _focusedRef) {
+		if (UserSettings::ShowWhenUnlocked() && container.GetHandle() == _focusedRef) {
 			RefreshOpenState();
 		}
 	}
@@ -373,7 +373,7 @@ namespace QuickLoot
 			return;
 		}
 
-		if (!opening && menuName == RE::LockpickingMenu::MENU_NAME && !Settings::ShowWhenUnlocked()) {
+		if (!opening && menuName == RE::LockpickingMenu::MENU_NAME && !UserSettings::ShowWhenUnlocked()) {
 			// Without this the activation prompt will continue to show the container as locked
 			RE::PlayerCharacter::GetSingleton()->UpdateCrosshairs();
 
@@ -382,7 +382,8 @@ namespace QuickLoot
 		}
 
 		if (!opening && menuName == RE::JournalMenu::MENU_NAME) {
-			Settings::Update();
+			UserSettings::Update();
+			SystemSettings::Update();
 		}
 
 		RefreshOpenState();

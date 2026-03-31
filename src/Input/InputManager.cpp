@@ -326,7 +326,7 @@ namespace QuickLoot::Input
 		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kMainThumbStickUp), none, QuickLootAction::kScrollUp, true);
 		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kMainThumbStickDown), none, QuickLootAction::kScrollDown, true);
 
-		_keybindings.append_range(Settings::GetKeybindings());
+		_keybindings.append_range(Config::UserSettings::GetKeybindings());
 
 		_allInputKeys.clear();
 		_allModifierKeys.clear();
