@@ -2,14 +2,15 @@
 
 UniversalMenu::~UniversalMenu()
 {
-	// TODO, unregister if registered for HudModeChangEvent
-	if (menuNode) {
-		if (menuNode->parent) {
-			menuNode->parent->DetachChild2(menuNode.get());
-		}
-		menuNode.reset();
+	// TODO, unregister if registered for HudModeChangeEvent
+
+	logger::trace("UniversalMenu::~UniversalMenu (menu node: {})", static_cast<void*>(menuNode.get()));
+
+	if (menuNode && menuNode->parent) {
+		menuNode->parent->DetachChild2(menuNode.get());
 	}
 
+	menuNode.reset();
 	menuName.~BSFixedString();
 	fxDelegate.reset();
 	uiMovie.reset();
@@ -24,7 +25,9 @@ UniversalMenu::UniversalMenu(bool a_vrRegisterForHudModeChangeEvent, bool a_vrMa
 	}
 }
 
-void UniversalMenu::ConstructFlatrim() {
+void UniversalMenu::ConstructFlatrim()
+{
+	logger::trace("UniversalMenu::ConstructFlatrim");
 	this->depthPriority = static_cast<int8_t>(3);
 	auto version = REL::Module::get().version();
 	if (version.patch() >= 1130) {
@@ -35,6 +38,7 @@ void UniversalMenu::ConstructFlatrim() {
 
 void UniversalMenu::ConstructVR(bool a_registerForHudModeChangeEvent, bool a_matchAsTopMenu, bool a_queueUpdateFixup)
 {
+	logger::trace("UniversalMenu::ConstructVR");
 	this->unk30 = RE::UI_MENU_Unk09::kNone;
 	this->inputContext.set(static_cast<Context>(22));
 
@@ -75,6 +79,7 @@ RE::UI_MESSAGE_RESULTS UniversalMenu::ProcessMessage(RE::UIMessage& a_message)
 		return IMenu::ProcessMessage(a_message);
 	}
 }
+
 void UniversalMenu::Unk_09(RE::UI_MENU_Unk09 a_unk)
 {
 	assert(REL::Module::IsVR());
@@ -85,9 +90,10 @@ void UniversalMenu::Unk_09(RE::UI_MENU_Unk09 a_unk)
 
 void UniversalMenu::SetupMenuNode()
 {
+	logger::trace("UniversalMenu::SetupMenuNode (menu node: {})", static_cast<void*>(menuNode.get()));
+
 	assert(REL::Module::IsVR());
 	using func_t = decltype(&UniversalMenu::SetupMenuNode);
 	REL::Relocation<func_t> func{ REL::Offset(0x53C450) };
 	return func(this);
 }
-

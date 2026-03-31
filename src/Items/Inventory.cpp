@@ -208,6 +208,9 @@ namespace QuickLoot::Items
 
 	void Inventory::RefreshEnchantedWeapons(RE::Actor* actor, RE::InventoryChanges* changes)
 	{
+		// TODO implement this for VR
+		if (REL::Module::IsVR()) return;
+
 		using func_t = decltype(&RefreshEnchantedWeapons);
 		REL::Relocation<func_t> func{ RELOCATION_ID(50946, 51823) };
 		return func(actor, changes);

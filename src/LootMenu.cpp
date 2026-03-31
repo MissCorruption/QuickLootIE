@@ -849,9 +849,37 @@ namespace QuickLoot
 		menuNode->Update(data);
 	}
 
+	void LootMenu::PostCreate()
+	{
+		if (!REL::Module::IsVR()) {
+			return;
+		}
+
+		SetupMenuNode();
+		SetTransform();
+
+		auto def = uiMovie->GetMovieDef();
+		auto rect = def->GetFrameRect();
+		logger::info("movie: size: {}/{}, frame: {}/{}/{}/{}", def->GetWidth(), def->GetHeight(), rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+
+		RE::GViewport viewport;
+		uiMovie->GetViewport(&viewport);
+		logger::info("viewport: buffer: {}/{}, origin: {}/{}, size: {}/{}", viewport.bufferWidth, viewport.bufferHeight, viewport.left, viewport.top, viewport.width, viewport.height);
+
+		//viewport.bufferWidth = static_cast<int>(def->GetWidth());
+		//viewport.bufferHeight = static_cast<int>(def->GetHeight());
+		viewport.width = static_cast<int>(def->GetWidth());
+		viewport.height = static_cast<int>(def->GetHeight());
+		viewport.left = 0;
+		viewport.top = 0;
+		uiMovie->SetViewport(viewport);
+		logger::info("viewport: buffer: {}/{}, origin: {}/{}, size: {}/{}", viewport.bufferWidth, viewport.bufferHeight, viewport.left, viewport.top, viewport.width, viewport.height);
+	}
+
 	RE::NiNode* LootMenu::GetMenuParentNode()
 	{
-		return RE::PlayerCharacter::GetSingleton()->GetVRNodeData()->UprightHmdNode.get();
+		// No need to specify this here because we attach the node manually in SetTransform
+		return nullptr;
 	}
 
 	RE::BSEventNotifyControl LootMenu::ProcessEvent(const RE::HudModeChangeEvent*, RE::BSTEventSource<RE::HudModeChangeEvent>*)

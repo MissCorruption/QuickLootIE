@@ -105,6 +105,7 @@ namespace QuickLoot
 		// UniversalMenu implementation
 		static RE::NiPointer<RE::NiNode> GetAttachingNode();
 
+		void PostCreate() override;
 		RE::UI_MESSAGE_RESULTS ProcessMessage(RE::UIMessage& message) override;
 		void AdvanceMovie(float interval, std::uint32_t currentTime) override;
 		void RefreshPlatform() override;
