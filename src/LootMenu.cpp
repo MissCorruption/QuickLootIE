@@ -14,6 +14,7 @@
 #include "Items/Inventory.h"
 #include "Items/ItemStack.h"
 #include "LootMenuManager.h"
+#include "Util/ScaleformUtil.h"
 
 #include <numbers>
 
@@ -223,6 +224,8 @@ namespace QuickLoot
 		settings.SetMember("infoColumns", infoColumns);
 
 		settings.SetMember("showItemIcons", UserSettings::ShowIconItem());
+
+		settings.SetMember("systemSettings", Util::ScaleformUtil::BuildGFxValueFromJson(uiMovie.get(), SystemSettings::GetSwfConfig()));
 
 		return settings;
 	}

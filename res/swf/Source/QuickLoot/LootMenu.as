@@ -52,6 +52,8 @@
 	
 	public var showItemIcons = true;
 	
+	public var systemSettings = {};
+	
 	// public functions
 	
 	public function getVersion() {
@@ -94,6 +96,8 @@
 		loadSetting(settings, "infoColumns", "object");
 		
 		loadSetting(settings, "showItemIcons", "boolean");
+		
+		loadSetting(settings, "systemSettings", "object");
 		
 		if(scale == 0) scale = 1;
 		

@@ -23,6 +23,7 @@ namespace QuickLoot::Config
 		static bool SuppressActivationPrompt() { return _suppressActivationPrompt; }
 		static const std::vector<std::string>& GetMenuWhitelist() { return _menuWhitelist; }
 		static const std::set<RE::FormID>& GetContainerBlacklist() { return _containerBlacklist; }
+		static const json& GetSwfConfig() { return _swfConfig; }
 
 	private:
 		static constexpr auto CONFIG_PATH = "Data\\SKSE\\Plugins\\QuickLootIE.json";
@@ -33,5 +34,6 @@ namespace QuickLoot::Config
 		static inline bool _suppressActivationPrompt = true;
 		static inline std::vector<std::string> _menuWhitelist{};
 		static inline std::set<RE::FormID> _containerBlacklist{};
+		static inline json _swfConfig;
 	};
 }

@@ -58,6 +58,8 @@ namespace QuickLoot::Config
 		_enableMenuCaching = config.value("enableMenuCaching", true);
 		_suppressActivationPrompt = config.value("suppressActivationPrompt", true);
 
+		_swfConfig = config["swfConfig"];
+
 		if (minimal) {
 			return;
 		}
