@@ -26,6 +26,7 @@ namespace QuickLoot::Integrations
 		static void RevealName(RE::Actor* actor)
 		{
 			if (_api) {
+				//logger::debug("NND: Calling RevealName(0x{:x}, kLooting)", reinterpret_cast<uintptr_t>(actor));
 				_api->RevealName(actor, RevealReason::kLooting);
 			}
 		}
@@ -36,6 +37,7 @@ namespace QuickLoot::Integrations
 
 			if (_api) {
 				name = _api->GetName(actor, NameContext::kInventory);
+				//logger::debug("NND: GetName(0x{:x}) returned \"{}\"", reinterpret_cast<uintptr_t>(actor), name);
 			}
 			
 			return name.empty() ? actor->GetDisplayFullName() : name;

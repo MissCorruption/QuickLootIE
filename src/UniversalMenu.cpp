@@ -4,7 +4,7 @@ UniversalMenu::~UniversalMenu()
 {
 	// TODO, unregister if registered for HudModeChangeEvent
 
-	logger::trace("UniversalMenu::~UniversalMenu (menu node: {})", static_cast<void*>(menuNode.get()));
+	//logger::trace("UniversalMenu::~UniversalMenu (menu node: {})", static_cast<void*>(menuNode.get()));
 
 	if (menuNode && menuNode->parent) {
 		menuNode->parent->DetachChild2(menuNode.get());
@@ -27,7 +27,7 @@ UniversalMenu::UniversalMenu(bool a_vrRegisterForHudModeChangeEvent, bool a_vrMa
 
 void UniversalMenu::ConstructFlatrim()
 {
-	logger::trace("UniversalMenu::ConstructFlatrim");
+	//logger::trace("UniversalMenu::ConstructFlatrim");
 	this->depthPriority = static_cast<int8_t>(3);
 	auto version = REL::Module::get().version();
 	if (version.patch() >= 1130) {
@@ -38,7 +38,7 @@ void UniversalMenu::ConstructFlatrim()
 
 void UniversalMenu::ConstructVR(bool a_registerForHudModeChangeEvent, bool a_matchAsTopMenu, bool a_queueUpdateFixup)
 {
-	logger::trace("UniversalMenu::ConstructVR");
+	//logger::trace("UniversalMenu::ConstructVR");
 	this->unk30 = RE::UI_MENU_Unk09::kNone;
 	this->inputContext.set(static_cast<Context>(22));
 
