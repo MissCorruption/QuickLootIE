@@ -29,7 +29,7 @@ namespace QuickLoot
 	public:
 		static constexpr std::string_view FILE_NAME{ "LootMenuIE" };
 		static constexpr std::string_view MENU_NAME{ "LootMenu" };
-		static constexpr int CURRENT_MENU_VERSION = 5;
+		static constexpr int CURRENT_MENU_VERSION = 6;
 
 		static void Register();
 		static IMenu* CreateInstance();

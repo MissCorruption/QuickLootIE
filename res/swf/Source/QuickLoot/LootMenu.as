@@ -64,8 +64,9 @@
 		3: supports showItemIcons (+bugfix)
 		4: supports reinitialization
 		5: supports Completionist museum mode icons and diamond markers
+		6: supports property overrides
 		*/
-		return 5;
+		return 6;
 	}
 	
 	public function LootMenu() {
