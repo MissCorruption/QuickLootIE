@@ -112,7 +112,7 @@
 		itemList["container"].scale9Grid = null;
 		itemList.rowCount = maxLines;
 		
-		initColumnHeaders()
+		initColumnHeaders();
 		refresh();
 	}
 	
