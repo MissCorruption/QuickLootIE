@@ -1,4 +1,4 @@
-![image](.github/docs/QuickLootIE.png)
+![image](res/swf/Source/Credits.png)
 
 # QuickLootIE
 
