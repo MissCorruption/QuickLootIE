@@ -15,13 +15,15 @@ namespace QuickLoot
 	enum class RefreshFlags : uint8_t
 	{
 		kNone = 0,
-		kAll = static_cast<RefreshFlags>(-1),
 
 		kInventory = 1 << 0,
 		kButtonBar = 1 << 1,
 		kInfoBar = 1 << 2,
 		kWeight = 1 << 3,
 		kTitle = 1 << 4,
+
+		kAll = kInventory | kButtonBar | kInfoBar | kWeight | kTitle,
+		kAllButInventory = kAll & ~kInventory
 	};
 
 	class LootMenu : public UniversalMenu
@@ -90,7 +92,7 @@ namespace QuickLoot
 		void Refresh(RefreshFlags flags = RefreshFlags::kNone);
 		void LoadInventory();
 		void SortInventory();
-		void RefreshInventory();
+		void RefreshInventory(bool updateSelectedIndex = true);
 		void RefreshButtonBar();
 		void RefreshInfoBar();
 		void RefreshWeight();

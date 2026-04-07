@@ -298,9 +298,10 @@ namespace QuickLoot
 
 		_lootMenu.Visible(container.get() != nullptr);
 
-		Refresh(RefreshFlags::kAll);
+		_refreshFlags = RefreshFlags::kNone;
+		RefreshInventory(false);
 		SetSelectedIndex(selectedIndex, false);
-		Refresh();
+		Refresh(RefreshFlags::kAllButInventory);
 	}
 
 	void LootMenu::Hide()
@@ -385,12 +386,16 @@ namespace QuickLoot
 
 	void LootMenu::ScrollUp()
 	{
-		SetSelectedIndex(std::max(_selectedIndex - 1, 0), true);
+		if (_selectedIndex > 0) {
+			SetSelectedIndex(_selectedIndex - 1, true);
+		}
 	}
 
 	void LootMenu::ScrollDown()
 	{
-		SetSelectedIndex(std::min(_selectedIndex + 1, static_cast<int>(_inventory.size()) - 1), true);
+		if (_selectedIndex < _inventory.size() - 1) {
+			SetSelectedIndex(_selectedIndex + 1, true);
+		}
 	}
 
 	void LootMenu::ScrollPrevPage()
@@ -576,7 +581,7 @@ namespace QuickLoot
 		}
 	}
 
-	void LootMenu::RefreshInventory()
+	void LootMenu::RefreshInventory(bool updateSelectedIndex)
 	{
 		PROFILE_SCOPE;
 
@@ -599,7 +604,9 @@ namespace QuickLoot
 		_itemList.InvalidateData();
 		_lootMenu.GetInstance().Invoke("refresh");
 
-		SetSelectedIndex(_selectedIndex, false);
+		if (updateSelectedIndex) {
+			SetSelectedIndex(_selectedIndex, false);
+		}
 
 		QueueRefresh(RefreshFlags::kWeight);
 		QueueRefresh(RefreshFlags::kInfoBar);
