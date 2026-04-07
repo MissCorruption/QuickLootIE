@@ -203,10 +203,24 @@ namespace QuickLoot::API
 			}
 		}
 
+		static void RegisterModifyInventoryHandler(ModifyInventoryHandler handler)
+		{
+			if (_interface) {
+				_interface->RegisterModifyInventoryHandler(_plugin, handler);
+			}
+		}
+
 		static void RegisterPopulateInfoBarHandler(PopulateInfoBarHandler handler)
 		{
 			if (_interface) {
 				_interface->RegisterPopulateInfoBarHandler(_plugin, handler);
+			}
+		}
+
+		static void RegisterPopulateButtonBarHandler(PopulateButtonBarHandler handler)
+		{
+			if (_interface) {
+				_interface->RegisterPopulateButtonBarHandler(_plugin, handler);
 			}
 		}
 
