@@ -5,7 +5,6 @@ QuickLoot IE allows you to look through and take items from containers without t
 [color=#6aa84f][size=5][b]Version Compatibility[/b][/size][/color]
 
 QuickLoot IE supports all game versions in the range of [b]1.5.97[/b] to [b]1.6.1179[/b], but if you are on a version older than [b]1.6.1130[/b], you need to have [url=https://www.nexusmods.com/skyrimspecialedition/mods/106441]BEES[/url] installed.
-Support for Skyrim VR is in the works. In the meantime you can use [url=https://www.nexusmods.com/skyrimspecialedition/mods/102094]this VR version[/url] of the original QuickLoot EE.
 
 You cannot use reskins made for QuickLoot EE with our version of the mod since the menu was completely rewritten from scratch. To indicate this we've decided to rename the swf file to [b]LootMenuIE.swf[/b] to avoid confusion. Should [b]LootMenu.swf[/b] still be present due to an incompatible UI patch, then a warning message will show every time you start the game. To prevent this, either hide the file in your mod manager or disable the check in [b]QuickLootIE.json[/b].
 
@@ -64,7 +63,6 @@ If you are using a UI overhaul and want the loot menu to match its design, check
 [color=#6aa84f][size=5][b]Frequently Asked Questions[/b][/size][/color]
 
 [list]
-[list]
 [*][color=#f6b26b][b]My log says QuickLootIE.esp is not loaded[/b][/color]
 Make sure QuickLootIE.esp exists and is enabled in your load order. 
 If you're on a version before [b]1.6.1130[/b] you need to install [url=https://www.nexusmods.com/skyrimspecialedition/mods/106441]BEES[/url]. 
@@ -102,7 +100,7 @@ Although the file does not exist by default, it can be provided by mod list auth
 This file contains some more niche technical settings that most players won't have to interact with. 
 It allows you to control some debug features, whitelist improperly flagged menus and exclude containers from being searchable by QuickLoot IE.
 [/list]
-Beyond the json blacklist, containers can also be excluded from use with QuickLoot IE by assigning the keyword [b]QuickLootIE_Exclude[/b] (QuickLootIE.esp|0x002) to them. Should this not be flexible enough for your needs, QuickLoot IE provides an [url=https://github.com/MissCorruption/QuickLootIE/blob/master/include/QuickLootAPI.h]SKSE API[/url], which you can use in your own SKSE plugin.
+Beyond the json blacklist, containers can also be excluded from use with QuickLoot IE by assigning the keyword [b]QuickLootIE_Exclude[/b] (QuickLootIE.esp|0x002) to them. Should this not be flexible enough for your needs, QuickLoot IE provides an [url=https://github.com/MissCorruption/QuickLootIE/blob/master/include/QuickLootAPI.h]SKSE API[/url], which you can use in your own SKSE plugin. An example plugin demonstrating some of the API features can be found [url=https://github.com/AtomCrafty/QuickLootIE-ExamplePlugin]here[/url].
 
 [color=#6aa84f][size=5][b]Credits[/b][/size][/color]
 
