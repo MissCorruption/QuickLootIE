@@ -6,7 +6,7 @@ QuickLoot IE allows you to look through and take items from containers without t
 
 QuickLoot IE supports all game versions in the range of [b]1.5.97[/b] to [b]1.6.1179[/b], but if you are on a version older than [b]1.6.1130[/b], you need to have [url=https://www.nexusmods.com/skyrimspecialedition/mods/106441]BEES[/url] installed.
 
-You cannot use reskins made for QuickLoot EE with our version of the mod since the menu was completely rewritten from scratch. To indicate this we've decided to rename the swf file to [b]LootMenuIE.swf[/b] to avoid confusion. Should [b]LootMenu.swf[/b] still be present due to an incompatible UI patch, then a warning message will show every time you start the game. To prevent this, either hide the file in your mod manager or disable the check in [b]QuickLootIE.json[/b].
+You cannot use reskins made for QuickLoot EE with our version of the mod since the menu was completely rewritten from scratch. To indicate this we've decided to rename the swf file to [b]LootMenuIE.swf[/b] to avoid confusion.
 
 [color=#6aa84f][size=5][b]Features[/b][/size][/color]
 
