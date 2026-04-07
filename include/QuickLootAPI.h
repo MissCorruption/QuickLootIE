@@ -1,17 +1,19 @@
 #pragma once
 
 /*
-	Header File for QuickLoot integration
+	Header File for QuickLoot IE integration
 */
 
 namespace QuickLoot::API
 {
 	struct ItemStack
 	{
+		// This is a pointer to the inventory entry
 		RE::InventoryEntryData* entry;
+		// This is set if the inventory entry is for an item the NPC dropped on the floor.
 		RE::ObjectRefHandle dropRef;
 	};
-	
+
 	namespace Events
 	{
 		enum class HandleResult : uint8_t
@@ -25,6 +27,7 @@ namespace QuickLoot::API
 			RE::Actor* actor;
 			RE::ObjectRefHandle container;
 			const ItemStack* stack;
+			// Set this to HandleResult::kStop to prevent the item from being taken.
 			HandleResult result = HandleResult::kContinue;
 		};
 
@@ -45,6 +48,7 @@ namespace QuickLoot::API
 		struct OpeningLootMenuEvent
 		{
 			RE::ObjectRefHandle container;
+			// Set this to HandleResult::kStop to prevent the loot menu from opening.
 			HandleResult result = HandleResult::kContinue;
 		};
 
@@ -67,26 +71,35 @@ namespace QuickLoot::API
 		struct ModifyInventoryEvent
 		{
 			RE::ObjectRefHandle container;
+			// Modify this array to change what is displayed in the item list.
+			// Each ItemStack owns its InventoryEntryData object.
+			// - If you remove entries, make sure to delete their InventoryEntryData objects to avoid leaking memory.
+			// - If you add entries, allocate the InventoryEntryData objects with the new operator. QuickLoot will delete them once they are no longer needed.
 			RE::BSTArray<ItemStack>& inventory;
 		};
 
 		struct PopulateInfoBarEvent
 		{
 			RE::ObjectRefHandle container;
+			// The selected item stack. This is null if the container is empty.
 			const ItemStack* stack;
+			// Populate this array with text you want to display in the info bar. Some HTML is supported.
 			RE::BSTArray<RE::BSString> result;
 		};
 
 		struct ButtonDefinition
 		{
 			RE::BSString label;
+			// For a list of valid values, see https://github.com/MissCorruption/QuickLootIE/blob/main/src/Input/ButtonArtIndex.h
 			uint16_t buttonArtIndex;
 		};
 
 		struct PopulateButtonBarEvent
 		{
 			RE::ObjectRefHandle container;
+			// The selected item stack. This is null if the container is empty.
 			const ItemStack* stack;
+			// Populate this array with buttons you want to add.
 			RE::BSTArray<ButtonDefinition> result;
 		};
 
