@@ -196,7 +196,7 @@ namespace QuickLoot::API
 
 		PopulateInfoBarEvent e{
 			.container = container,
-			.stack = &stack,
+			.stack = entry ? &stack : nullptr,
 			.result = {},
 		};
 
@@ -209,7 +209,7 @@ namespace QuickLoot::API
 
 		PopulateButtonBarEvent e{
 			.container = container,
-			.stack = &stack,
+			.stack = entry ? &stack : nullptr,
 			.result = {},
 		};
 
