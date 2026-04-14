@@ -1,4 +1,4 @@
-scriptname QuickLootIENative hidden native
+Scriptname QuickLootIENative Hidden
 
 ; Gets the current plugin version as a full string e.g "1.0.1.2"
 string function GetDllVersion() global native
