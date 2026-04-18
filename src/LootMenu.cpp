@@ -14,6 +14,7 @@
 #include "Items/Inventory.h"
 #include "Items/ItemStack.h"
 #include "LootMenuManager.h"
+#include "MenuVisibilityManager.h"
 #include "Util/ScaleformUtil.h"
 
 #include <numbers>
@@ -555,7 +556,7 @@ namespace QuickLoot
 
 		API::APIServer::DispatchModifyInventoryEvent(_container, inventory);
 
-		if (inventory.empty() && !UserSettings::ShowWhenEmpty()) {
+		if (inventory.empty() && !UserSettings::ShowWhenEmpty() && !MenuVisibilityManager::IsForcedContainer(_container)) {
 			LootMenuManager::RequestHide();
 			return;
 		}
