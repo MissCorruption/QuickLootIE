@@ -37,6 +37,14 @@ namespace QuickLoot::API
 			kStop = 1
 		};
 
+		struct InputActionEvent
+		{
+			RE::ObjectRefHandle container;
+			ActionLabelKind action;
+			// Set this to HandleResult::kStop to suppress the default action behavior.
+			HandleResult result = HandleResult::kContinue;
+		};
+
 		struct TakingItemEvent
 		{
 			RE::Actor* actor;
@@ -153,6 +161,7 @@ namespace QuickLoot::API
 		using ModifyInventoryHandler = EventHandler<ModifyInventoryEvent>;
 		using PopulateInfoBarHandler = EventHandler<PopulateInfoBarEvent>;
 		using PopulateButtonBarHandler = EventHandler<PopulateButtonBarEvent>;
+		using InputActionHandler = EventHandler<InputActionEvent>;
 		using ResolveStealingStateHandler = EventHandler<ResolveStealingStateEvent>;
 		using ResolveActionLabelHandler = EventHandler<ResolveActionLabelEvent>;
 	}
@@ -174,14 +183,21 @@ namespace QuickLoot::API
 		// Call this before any other API function and pass your own plugin name.
 		static bool Init(const char* plugin)
 		{
-			using GetInterfaceProc = InterfaceV20* (*)();
+			using GetInterfaceProcV20 = InterfaceV20* (*)();
+			using GetInterfaceProcV21 = InterfaceV21* (*)();
 
 			const auto dllHandle = GetModuleHandleA(SERVER_PLUGIN_NAME);
-			const auto getInterfaceProc = reinterpret_cast<GetInterfaceProc>(GetProcAddress(dllHandle, "GetQuickLootInterfaceV20"));
+			const auto getInterfaceProcV21 = reinterpret_cast<GetInterfaceProcV21>(GetProcAddress(dllHandle, "GetQuickLootInterfaceV21"));
+			const auto getInterfaceProcV20 = reinterpret_cast<GetInterfaceProcV20>(GetProcAddress(dllHandle, "GetQuickLootInterfaceV20"));
 
-			if (getInterfaceProc) {
+			if (getInterfaceProcV21) {
 				_plugin = plugin;
-				_interface = getInterfaceProc();
+				_interfaceV21 = getInterfaceProcV21();
+				_interface = _interfaceV21;
+			} else if (getInterfaceProcV20) {
+				_plugin = plugin;
+				_interfaceV21 = nullptr;
+				_interface = getInterfaceProcV20();
 			}
 
 			return IsReady();
@@ -290,6 +306,13 @@ namespace QuickLoot::API
 			}
 		}
 
+		static void RegisterInputActionHandler(InputActionHandler handler)
+		{
+			if (_interfaceV21) {
+				_interfaceV21->RegisterInputActionHandler(_plugin, handler);
+			}
+		}
+
 	private:
 		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
 		struct InterfaceV20
@@ -317,7 +340,14 @@ namespace QuickLoot::API
 			virtual void RefreshLootMenu(const char* plugin);
 		};
 
+		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
+		struct InterfaceV21 : InterfaceV20
+		{
+			virtual void RegisterInputActionHandler(const char* plugin, InputActionHandler handler);
+		};
+
 		static inline const char* _plugin;
 		static inline InterfaceV20* _interface;
+		static inline InterfaceV21* _interfaceV21;
 	};
 }

@@ -45,7 +45,14 @@ namespace QuickLoot::API
 			virtual void RefreshLootMenu(const char* plugin);
 		};
 
+		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
+		struct InterfaceV21 : InterfaceV20
+		{
+			virtual void RegisterInputActionHandler(const char* plugin, InputActionHandler handler);
+		};
+
 		static InterfaceV20* GetInterfaceV20() { return &_interface; }
+		static InterfaceV21* GetInterfaceV21() { return &_interfaceV21; }
 
 		static HandleResult DispatchTakingItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 		static void DispatchTakeItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
@@ -60,11 +67,13 @@ namespace QuickLoot::API
 
 		static std::vector<RE::BSString> DispatchPopulateInfoBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 		static std::vector<ButtonDefinition> DispatchPopulateButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
+		static HandleResult DispatchInputActionEvent(RE::ObjectRefHandle container, ActionLabelKind action);
 		static ResolveStealingStateEvent DispatchResolveStealingStateEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 		static RE::BSString DispatchResolveActionLabelEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef, ActionLabelKind action, bool stealingContext);
 
 	private:
 		static inline InterfaceV20 _interface{};
+		static inline InterfaceV21 _interfaceV21{};
 		static inline std::shared_mutex _lock{};
 
 		static inline std::vector<TakingItemHandler> _takingItemHandlers{};
@@ -77,6 +86,7 @@ namespace QuickLoot::API
 		static inline std::vector<ModifyInventoryHandler> _modifyInventoryHandlers{};
 		static inline std::vector<PopulateInfoBarHandler> _populateInfoBarHandlers{};
 		static inline std::vector<PopulateButtonBarHandler> _populateButtonBarHandlers{};
+		static inline std::vector<InputActionHandler> _inputActionHandlers{};
 		static inline std::vector<ResolveStealingStateHandler> _resolveStealingStateHandlers{};
 		static inline std::vector<ResolveActionLabelHandler> _resolveActionLabelHandlers{};
 

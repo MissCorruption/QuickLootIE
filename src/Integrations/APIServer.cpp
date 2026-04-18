@@ -11,6 +11,11 @@ namespace QuickLoot::API
 		return APIServer::GetInterfaceV20();
 	}
 
+	extern "C" __declspec(dllexport) void* GetQuickLootInterfaceV21()
+	{
+		return APIServer::GetInterfaceV21();
+	}
+
 #pragma region Interface
 
 	void APIServer::InterfaceV20::DisableLootMenu(const char* plugin)
@@ -105,6 +110,11 @@ namespace QuickLoot::API
 	{
 		logger::trace("Plugin {} requested a loot menu refresh", plugin);
 		LootMenuManager::RequestRefresh(RefreshFlags::kAll);
+	}
+
+	void APIServer::InterfaceV21::RegisterInputActionHandler(const char* plugin, InputActionHandler handler)
+	{
+		RegisterHandler(plugin, handler, _inputActionHandlers);
 	}
 
 #pragma endregion
@@ -224,6 +234,17 @@ namespace QuickLoot::API
 		};
 
 		return DispatchResultEvent<ButtonDefinition>(_populateButtonBarHandlers, e);
+	}
+
+	HandleResult APIServer::DispatchInputActionEvent(RE::ObjectRefHandle container, ActionLabelKind action)
+	{
+		InputActionEvent e{
+			.container = container,
+			.action = action,
+			.result = HandleResult::kContinue,
+		};
+
+		return DispatchCancelableEvent(_inputActionHandlers, e);
 	}
 
 	ResolveStealingStateEvent APIServer::DispatchResolveStealingStateEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef)

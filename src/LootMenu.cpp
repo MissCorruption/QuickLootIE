@@ -320,20 +320,36 @@ namespace QuickLoot
 			return;
 		}
 
+		auto dispatchInputAction = [&](API::ActionLabelKind actionKind) {
+			return API::APIServer::DispatchInputActionEvent(_container, actionKind) == API::HandleResult::kStop;
+		};
+
 		switch (action) {
 		case Input::QuickLootAction::kUse:
+			if (dispatchInputAction(API::ActionLabelKind::kUse)) {
+				break;
+			}
 			UseItem();
 			break;
 
 		case Input::QuickLootAction::kTake:
+			if (dispatchInputAction(API::ActionLabelKind::kTake)) {
+				break;
+			}
 			TakeStack();
 			break;
 
 		case Input::QuickLootAction::kTakeAll:
+			if (dispatchInputAction(API::ActionLabelKind::kTakeAll)) {
+				break;
+			}
 			TakeAll();
 			break;
 
 		case Input::QuickLootAction::kTransfer:
+			if (dispatchInputAction(API::ActionLabelKind::kTransfer)) {
+				break;
+			}
 			Transfer();
 			break;
 
