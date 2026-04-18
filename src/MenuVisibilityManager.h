@@ -26,6 +26,7 @@ namespace QuickLoot
 		static void OnSneakStateChanged();
 
 		static void SetForcedContainer(RE::ObjectRefHandle container);
+		static bool IsForcedContainer(const RE::ObjectRefHandle& container);
 
 		static inline bool LOG_EVENTS = false;
 

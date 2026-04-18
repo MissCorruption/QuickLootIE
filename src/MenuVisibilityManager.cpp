@@ -238,7 +238,8 @@ namespace QuickLoot
 		}
 
 		const auto container = GetContainerObject(_forcedContainer ? _forcedContainer : _focusedRef);
-		if (CanOpen(container)) {
+		const auto canOpen = _forcedContainer ? container != nullptr : CanOpen(container);
+		if (canOpen) {
 			if (LOG_EVENTS) {
 				if (LootMenuManager::IsShowing()) {
 					logger::debug("RefreshOpenState: Menu staying open");
@@ -403,6 +404,23 @@ namespace QuickLoot
 	{
 		_forcedContainer = std::move(container);
 		RefreshOpenState();
+	}
+
+	bool MenuVisibilityManager::IsForcedContainer(const RE::ObjectRefHandle& container)
+	{
+		if (!_forcedContainer || !container) {
+			return false;
+		}
+
+		if (_forcedContainer == container) {
+			return true;
+		}
+
+		if (const auto resolvedForcedContainer = GetContainerObject(_forcedContainer)) {
+			return resolvedForcedContainer->GetHandle() == container;
+		}
+
+		return false;
 	}
 
 #pragma warning(pop)
