@@ -36,6 +36,8 @@ namespace QuickLoot::API
 			virtual void RegisterModifyInventoryHandler(const char* plugin, ModifyInventoryHandler handler);
 			virtual void RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler);
 			virtual void RegisterPopulateButtonBarHandler(const char* plugin, PopulateButtonBarHandler handler);
+			virtual void RegisterResolveStealingStateHandler(const char* plugin, ResolveStealingStateHandler handler);
+			virtual void RegisterResolveActionLabelHandler(const char* plugin, ResolveActionLabelHandler handler);
 
 			virtual void ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container);
 			virtual void ClearForcedContainer(const char* plugin);
@@ -58,6 +60,8 @@ namespace QuickLoot::API
 
 		static std::vector<RE::BSString> DispatchPopulateInfoBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 		static std::vector<ButtonDefinition> DispatchPopulateButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
+		static ResolveStealingStateEvent DispatchResolveStealingStateEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
+		static RE::BSString DispatchResolveActionLabelEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef, ActionLabelKind action, bool stealingContext);
 
 	private:
 		static inline InterfaceV20 _interface{};
@@ -73,6 +77,8 @@ namespace QuickLoot::API
 		static inline std::vector<ModifyInventoryHandler> _modifyInventoryHandlers{};
 		static inline std::vector<PopulateInfoBarHandler> _populateInfoBarHandlers{};
 		static inline std::vector<PopulateButtonBarHandler> _populateButtonBarHandlers{};
+		static inline std::vector<ResolveStealingStateHandler> _resolveStealingStateHandlers{};
+		static inline std::vector<ResolveActionLabelHandler> _resolveActionLabelHandlers{};
 
 		template <typename THandler>
 		static void RegisterHandler(const char* plugin, THandler handler, std::vector<THandler>& handlerList)

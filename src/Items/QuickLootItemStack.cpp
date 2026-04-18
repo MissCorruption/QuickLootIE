@@ -1,6 +1,7 @@
 #include "QuickLootItemStack.h"
 
 #include "Config/UserSettings.h"
+#include "Integrations/APIServer.h"
 #include "Integrations/Artifacts.h"
 #include "Integrations/Completionist.h"
 
@@ -38,9 +39,17 @@ namespace QuickLoot::Items
 
 		// For backwards compatibility
 		const auto& baseData = GetData();
+		bool stolen = baseData.isStealing;
+		const auto stealingState = API::APIServer::DispatchResolveStealingStateEvent(GetContainer(), GetEntry(), GetDropRef());
+		if (stealingState.itemStolen == API::OverrideState::kFalse) {
+			stolen = false;
+		} else if (stealingState.itemStolen == API::OverrideState::kTrue) {
+			stolen = true;
+		}
+
 		SetDataMember(obj, "value", baseData.value);
 		SetDataMember(obj, "weight", std::max(baseData.weight.value, 0.0f));
-		SetDataMember(obj, "stolen", baseData.isStealing);
+		SetDataMember(obj, "stolen", stolen);
 		if (baseData.formType == RE::FormType::Book) {
 			SetDataMember(obj, "read", baseData.book.isRead);
 		}

@@ -73,6 +73,16 @@ namespace QuickLoot::API
 		RegisterHandler(plugin, handler, _populateButtonBarHandlers);
 	}
 
+	void APIServer::InterfaceV20::RegisterResolveStealingStateHandler(const char* plugin, ResolveStealingStateHandler handler)
+	{
+		RegisterHandler(plugin, handler, _resolveStealingStateHandlers);
+	}
+
+	void APIServer::InterfaceV20::RegisterResolveActionLabelHandler(const char* plugin, ResolveActionLabelHandler handler)
+	{
+		RegisterHandler(plugin, handler, _resolveActionLabelHandlers);
+	}
+
 	void APIServer::InterfaceV20::ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container)
 	{
 		MenuVisibilityManager::SetForcedContainer(std::move(container));
@@ -214,6 +224,42 @@ namespace QuickLoot::API
 		};
 
 		return DispatchResultEvent<ButtonDefinition>(_populateButtonBarHandlers, e);
+	}
+
+	ResolveStealingStateEvent APIServer::DispatchResolveStealingStateEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef)
+	{
+		ItemStack stack{ entry, std::move(dropRef) };
+
+		ResolveStealingStateEvent e{
+			.container = container,
+			.stack = entry ? &stack : nullptr,
+			.stealingContext = OverrideState::kNoChange,
+			.itemStolen = OverrideState::kNoChange,
+		};
+
+		DispatchEvent(_resolveStealingStateHandlers, e);
+		return e;
+	}
+
+	RE::BSString APIServer::DispatchResolveActionLabelEvent(
+		RE::ObjectRefHandle container,
+		RE::InventoryEntryData* entry,
+		RE::ObjectRefHandle dropRef,
+		ActionLabelKind action,
+		bool stealingContext)
+	{
+		ItemStack stack{ entry, std::move(dropRef) };
+
+		ResolveActionLabelEvent e{
+			.container = container,
+			.stack = entry ? &stack : nullptr,
+			.action = action,
+			.stealingContext = stealingContext,
+			.label = {},
+		};
+
+		DispatchEvent(_resolveActionLabelHandlers, e);
+		return e.label;
 	}
 
 #pragma endregion

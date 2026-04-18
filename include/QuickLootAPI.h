@@ -14,6 +14,21 @@ namespace QuickLoot::API
 		RE::ObjectRefHandle dropRef;
 	};
 
+	enum class ActionLabelKind : uint8_t
+	{
+		kUse = 0,
+		kTake = 1,
+		kTakeAll = 2,
+		kTransfer = 3,
+	};
+
+	enum class OverrideState : int8_t
+	{
+		kNoChange = -1,
+		kFalse = 0,
+		kTrue = 1,
+	};
+
 	namespace Events
 	{
 		enum class HandleResult : uint8_t
@@ -103,6 +118,28 @@ namespace QuickLoot::API
 			RE::BSTArray<ButtonDefinition> result;
 		};
 
+		struct ResolveStealingStateEvent
+		{
+			RE::ObjectRefHandle container;
+			// The selected item stack. This is null if there is no selection.
+			const ItemStack* stack;
+			// Set to kFalse or kTrue to override menu stealing context.
+			OverrideState stealingContext = OverrideState::kNoChange;
+			// Set to kFalse or kTrue to override item stolen marker.
+			OverrideState itemStolen = OverrideState::kNoChange;
+		};
+
+		struct ResolveActionLabelEvent
+		{
+			RE::ObjectRefHandle container;
+			// The selected item stack. This is null if there is no selection.
+			const ItemStack* stack;
+			ActionLabelKind action;
+			bool stealingContext;
+			// Set to a non-empty string to override the action label.
+			RE::BSString label;
+		};
+
 		template <typename TEvent>
 		using EventHandler = void (*)(TEvent* e);
 
@@ -116,6 +153,8 @@ namespace QuickLoot::API
 		using ModifyInventoryHandler = EventHandler<ModifyInventoryEvent>;
 		using PopulateInfoBarHandler = EventHandler<PopulateInfoBarEvent>;
 		using PopulateButtonBarHandler = EventHandler<PopulateButtonBarEvent>;
+		using ResolveStealingStateHandler = EventHandler<ResolveStealingStateEvent>;
+		using ResolveActionLabelHandler = EventHandler<ResolveActionLabelEvent>;
 	}
 
 	using namespace Events;
@@ -237,6 +276,20 @@ namespace QuickLoot::API
 			}
 		}
 
+		static void RegisterResolveStealingStateHandler(ResolveStealingStateHandler handler)
+		{
+			if (_interface) {
+				_interface->RegisterResolveStealingStateHandler(_plugin, handler);
+			}
+		}
+
+		static void RegisterResolveActionLabelHandler(ResolveActionLabelHandler handler)
+		{
+			if (_interface) {
+				_interface->RegisterResolveActionLabelHandler(_plugin, handler);
+			}
+		}
+
 	private:
 		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
 		struct InterfaceV20
@@ -255,6 +308,8 @@ namespace QuickLoot::API
 			virtual void RegisterModifyInventoryHandler(const char* plugin, ModifyInventoryHandler handler);
 			virtual void RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler);
 			virtual void RegisterPopulateButtonBarHandler(const char* plugin, PopulateButtonBarHandler handler);
+			virtual void RegisterResolveStealingStateHandler(const char* plugin, ResolveStealingStateHandler handler);
+			virtual void RegisterResolveActionLabelHandler(const char* plugin, ResolveActionLabelHandler handler);
 
 			virtual void ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container);
 			virtual void ClearForcedContainer(const char* plugin);

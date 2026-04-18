@@ -622,27 +622,34 @@ namespace QuickLoot
 		PROFILE_SCOPE;
 
 		const auto keybindings = Input::InputManager::GetButtonBarKeybindings();
-		const bool stealing = WouldBeStealing();
+		const bool defaultStealing = WouldBeStealing();
+		const bool isItemSelected = _selectedIndex >= 0 && _selectedIndex < _inventory.size();
+		const auto entry = isItemSelected ? _inventory[_selectedIndex].get()->GetEntry() : nullptr;
+		const auto dropRef = isItemSelected ? _inventory[_selectedIndex].get()->GetDropRef() : RE::ObjectRefHandle{};
+		const auto stealingState = API::APIServer::DispatchResolveStealingStateEvent(_container, entry, dropRef);
+
+		bool stealing = defaultStealing;
+		if (stealingState.stealingContext == API::OverrideState::kFalse) {
+			stealing = false;
+		} else if (stealingState.stealingContext == API::OverrideState::kTrue) {
+			stealing = true;
+		}
 
 		_buttonBarProvider.ClearElements();
 
 		for (const auto& keybinding : keybindings) {
-			const auto label = GetActionDisplayName(keybinding.action, stealing);
+			const auto label = GetActionDisplayName(keybinding.action, stealing, entry, dropRef);
 			const auto index = keybinding.buttonArtOverride != Input::ButtonArtIndex::kNone ? keybinding.buttonArtOverride : Input::ButtonArt::GetFrameIndexForDeviceKey(keybinding.inputKey);
 
 			RE::GFxValue obj;
 			uiMovie->CreateObject(&obj);
 
-			obj.SetMember("label", label);
+			obj.SetMember("label", label.c_str());
 			obj.SetMember("index", index);
 			obj.SetMember("stolen", stealing);
 
 			_buttonBarProvider.PushBack(obj);
 		}
-
-		bool isItemSelected = _selectedIndex >= 0 && _selectedIndex < _inventory.size();
-		const auto entry = isItemSelected ? _inventory[_selectedIndex].get()->GetEntry() : nullptr;
-		const auto dropRef = isItemSelected ? _inventory[_selectedIndex].get()->GetDropRef() : RE::ObjectRefHandle{};
 
 		for (const auto& extraButton : API::APIServer::DispatchPopulateButtonBarEvent(_container, entry, dropRef)) {
 			RE::GFxValue obj;
@@ -664,14 +671,14 @@ namespace QuickLoot
 
 		_infoBarProvider.ClearElements();
 
-		if (_selectedIndex >= 0 && _selectedIndex < _inventory.size()) {
-			const auto& selectedItem = _inventory[_selectedIndex];
-			const auto strings = API::APIServer::DispatchPopulateInfoBarEvent(_container, selectedItem->GetEntry(), selectedItem->GetDropRef());
+		const bool isItemSelected = _selectedIndex >= 0 && _selectedIndex < _inventory.size();
+		const auto entry = isItemSelected ? _inventory[_selectedIndex].get()->GetEntry() : nullptr;
+		const auto dropRef = isItemSelected ? _inventory[_selectedIndex].get()->GetDropRef() : RE::ObjectRefHandle{};
+		const auto strings = API::APIServer::DispatchPopulateInfoBarEvent(_container, entry, dropRef);
 
-			for (auto string : strings) {
-				if (!string.empty()) {
-					_infoBarProvider.PushBack(string.c_str());
-				}
+		for (auto string : strings) {
+			if (!string.empty()) {
+				_infoBarProvider.PushBack(string.c_str());
 			}
 		}
 
@@ -708,7 +715,7 @@ namespace QuickLoot
 		}
 	}
 
-	const char* LootMenu::GetActionDisplayName(Input::QuickLootAction action, bool stealing) const
+	std::string LootMenu::GetActionDisplayName(Input::QuickLootAction action, bool stealing, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef) const
 	{
 		struct ActionDefinition
 		{
@@ -720,18 +727,22 @@ namespace QuickLoot
 		};
 
 		ActionDefinition button;
+		API::ActionLabelKind actionKind = API::ActionLabelKind::kUse;
 
 		switch (action) {
 		case Input::QuickLootAction::kTake:
 			button = { "sTake", "Take", "sSteal", "Steal" };
+			actionKind = API::ActionLabelKind::kTake;
 			break;
 
 		case Input::QuickLootAction::kTakeAll:
 			button = { "sTakeAll", "Take All", "sTakeAll", "Take All" };
+			actionKind = API::ActionLabelKind::kTakeAll;
 			break;
 
 		case Input::QuickLootAction::kTransfer:
 			button = { "sSearch", "Search", "sStealFrom", "Steal From" };
+			actionKind = API::ActionLabelKind::kTransfer;
 			break;
 
 		case Input::QuickLootAction::kUse:
@@ -740,6 +751,7 @@ namespace QuickLoot
 				const char* useLabel = selectedItem ? selectedItem->GetUseLabel() : "$Use";
 
 				button = { useLabel, useLabel, useLabel, useLabel };
+				actionKind = API::ActionLabelKind::kUse;
 				break;
 			}
 
@@ -751,7 +763,12 @@ namespace QuickLoot
 		const auto labelFallback = stealing ? button.stealingLabelFallback : button.labelFallback;
 
 		const auto setting = RE::GameSettingCollection::GetSingleton()->GetSetting(labelKey);
-		const auto label = setting ? setting->GetString() : labelFallback;
+		std::string label = setting ? setting->GetString() : labelFallback;
+
+		const auto overrideLabel = API::APIServer::DispatchResolveActionLabelEvent(_container, entry, dropRef, actionKind, stealing);
+		if (!overrideLabel.empty()) {
+			label = overrideLabel.c_str();
+		}
 
 		return label;
 	}

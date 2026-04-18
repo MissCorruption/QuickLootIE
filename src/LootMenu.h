@@ -98,7 +98,7 @@ namespace QuickLoot
 		void RefreshWeight();
 		void RefreshTitle();
 
-		[[nodiscard]] const char* GetActionDisplayName(Input::QuickLootAction action, bool stealing) const;
+		[[nodiscard]] std::string GetActionDisplayName(Input::QuickLootAction action, bool stealing, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef) const;
 		[[nodiscard]] static bool CanDisplay(const RE::TESBoundObject& object);
 		[[nodiscard]] bool WouldBeStealing() const;
 
