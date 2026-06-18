@@ -228,6 +228,15 @@ namespace QuickLoot
 	{
 		PROFILE_SCOPE;
 
+		// Prevent reentry to avoid infinite recursion
+		static bool refreshing = false;
+		if (refreshing) {
+			return;
+		}
+		refreshing = true;
+		struct RefreshGuard {
+			~RefreshGuard() { refreshing = false; }
+		} refreshGuard;
 		// Don't refresh while the console is open to work around the missing cursor bug
 		// (any menu events while the console is open cause the cursor to disappear)
 		if (RE::UI::GetSingleton()->IsMenuOpen(RE::Console::MENU_NAME)) {
