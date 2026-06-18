@@ -327,6 +327,34 @@ namespace QuickLoot::API
 			}
 		}
 
+		static void ForceCurrentContainer(RE::ObjectRefHandle container)
+		{
+			if (_interfaceV20) {
+				_interfaceV20->ForceCurrentContainer(_plugin, container);
+			}
+		}
+
+		static void ClearForcedContainer()
+		{
+			if (_interfaceV20) {
+				_interfaceV20->ClearForcedContainer(_plugin);
+			}
+		}
+
+		static void CloseLootMenu()
+		{
+			if (_interfaceV20) {
+				_interfaceV20->CloseLootMenu(_plugin);
+			}
+		}
+
+		static void RefreshLootMenu()
+		{
+			if (_interfaceV20) {
+				_interfaceV20->RefreshLootMenu(_plugin);
+			}
+		}
+
 		static void RegisterModifyButtonBarHandler(ModifyButtonBarHandler handler)
 		{
 			if (_interfaceV21) {
