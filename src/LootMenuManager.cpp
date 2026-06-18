@@ -28,7 +28,6 @@ namespace QuickLoot
 			return;
 		}
 
-		Input::InputManager::BlockConflictingInputs();
 		Behaviors::ContainerAnimator::CloseContainer(_currentContainer);
 
 		if (!RE::PlayerCamera::GetSingleton()->IsInThirdPerson() ||
@@ -43,6 +42,9 @@ namespace QuickLoot
 		_currentContainer = container;
 		const auto index = container == _lastContainer ? _lastSelectedIndex : 0;
 
+		// This may trigger another call to RequestShow, so make sure it happens after _currentContainer is set.
+		Input::InputManager::BlockConflictingInputs();
+
 		EnsureOpen();
 
 		QueueLootMenuTask([=](LootMenu& menu) {
@@ -56,11 +58,13 @@ namespace QuickLoot
 			return;
 		}
 
-		Input::InputManager::UnblockConflictingInputs();
 		Behaviors::ActivationPrompt::Unblock();
 		Behaviors::ContainerAnimator::CloseContainer(_currentContainer);
 
 		_currentContainer.reset();
+
+		// This may trigger another call to RequestHide, so make sure it happens after _currentContainer is reset.
+		Input::InputManager::UnblockConflictingInputs();
 
 		QueueLootMenuTask([=](LootMenu& menu) {
 			menu.Hide();
