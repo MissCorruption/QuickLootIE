@@ -44,7 +44,7 @@ string[] WindowAnchorNames
 
 ; Display > Icon Settings
 bool property QLIE_ShowIconItem = true auto hidden
-bool property QLIE_ShowIconBest = true auto hidden
+bool property QLIE_ShowIconBest = false auto hidden
 bool property QLIE_ShowIconRead = true auto hidden
 bool property QLIE_ShowIconStolen = true auto hidden
 bool property QLIE_ShowIconEnchanted = true auto hidden
@@ -990,7 +990,7 @@ state state_ShowIconBest
 	endevent
 
 	event OnDefaultST()
-		QLIE_ShowIconBest = true
+		QLIE_ShowIconBest = false
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconBest))
 	endevent
 endstate
@@ -1145,7 +1145,7 @@ function ResetSettings_Display()
 	QLIE_WindowOpacityEmpty = 0.3
 
 	QLIE_ShowIconItem = true
-	QLIE_ShowIconBest = true
+	QLIE_ShowIconBest = false
 	QLIE_ShowIconRead = true
 	QLIE_ShowIconStolen = true
 	QLIE_ShowIconEnchanted = true
