@@ -97,6 +97,11 @@ namespace QuickLoot::API
 		LootMenuManager::RequestRefresh(RefreshFlags::kAll);
 	}
 
+	void APIServer::InterfaceV21::RegisterModifyButtonBarHandler(const char* plugin, ModifyButtonBarHandler handler)
+	{
+		RegisterHandler(plugin, handler, _modifyButtonBarHandlers);
+	}
+
 #pragma endregion
 
 #pragma region Dispatch
@@ -214,6 +219,19 @@ namespace QuickLoot::API
 		};
 
 		return DispatchResultEvent<ButtonDefinition>(_populateButtonBarHandlers, e);
+	}
+
+	void APIServer::DispatchModifyButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef, RE::BSTArray<ButtonDefinition2>& buttons)
+	{
+		ItemStack stack{ entry, std::move(dropRef) };
+
+		ModifyButtonBarEvent e{
+			.container = container,
+			.stack = entry ? &stack : nullptr,
+			.buttons = buttons,
+		};
+
+		DispatchEvent(_modifyButtonBarHandlers, e);
 	}
 
 #pragma endregion

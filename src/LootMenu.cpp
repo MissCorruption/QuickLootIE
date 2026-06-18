@@ -626,21 +626,14 @@ namespace QuickLoot
 
 		const auto keybindings = Input::InputManager::GetButtonBarKeybindings();
 		const bool stealing = WouldBeStealing();
-
+		RE::BSTArray<API::ButtonDefinition2> buttons{};
+		
 		_buttonBarProvider.ClearElements();
 
 		for (const auto& keybinding : keybindings) {
 			const auto label = GetActionDisplayName(keybinding.action, stealing);
 			const auto index = keybinding.buttonArtOverride != Input::ButtonArtIndex::kNone ? keybinding.buttonArtOverride : Input::ButtonArt::GetFrameIndexForDeviceKey(keybinding.inputKey);
-
-			RE::GFxValue obj;
-			uiMovie->CreateObject(&obj);
-
-			obj.SetMember("label", label);
-			obj.SetMember("index", index);
-			obj.SetMember("stolen", stealing);
-
-			_buttonBarProvider.PushBack(obj);
+			buttons.emplace_back(label, static_cast<uint16_t>(index), stealing, keybinding.action);
 		}
 
 		bool isItemSelected = _selectedIndex >= 0 && _selectedIndex < _inventory.size();
@@ -648,12 +641,18 @@ namespace QuickLoot
 		const auto dropRef = isItemSelected ? _inventory[_selectedIndex].get()->GetDropRef() : RE::ObjectRefHandle{};
 
 		for (const auto& extraButton : API::APIServer::DispatchPopulateButtonBarEvent(_container, entry, dropRef)) {
+			buttons.emplace_back(extraButton.label, extraButton.buttonArtIndex, stealing, API::QuickLootAction::kNone);
+		}
+
+		API::APIServer::DispatchModifyButtonBarEvent(_container, entry, dropRef, buttons);
+
+		for (auto& button : buttons) {
 			RE::GFxValue obj;
 			uiMovie->CreateObject(&obj);
 
-			obj.SetMember("label", extraButton.label.c_str());
-			obj.SetMember("index", extraButton.buttonArtIndex);
-			obj.SetMember("stolen", stealing);
+			obj.SetMember("label", button.label.c_str());
+			obj.SetMember("index", button.buttonArtIndex);
+			obj.SetMember("stolen", button.stealing);
 
 			_buttonBarProvider.PushBack(obj);
 		}

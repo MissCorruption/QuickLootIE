@@ -46,6 +46,7 @@ namespace QuickLoot::API
 		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
 		struct InterfaceV21 : public InterfaceV20
 		{
+			virtual void RegisterModifyButtonBarHandler(const char* plugin, ModifyButtonBarHandler handler);
 		};
 
 		static InterfaceV20* GetInterfaceV20() { return &_interface; }
@@ -64,6 +65,7 @@ namespace QuickLoot::API
 
 		static std::vector<RE::BSString> DispatchPopulateInfoBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 		static std::vector<ButtonDefinition> DispatchPopulateButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
+		static void DispatchModifyButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef, RE::BSTArray<ButtonDefinition2>& buttons);
 
 	private:
 		static inline InterfaceV21 _interface{};
@@ -79,6 +81,7 @@ namespace QuickLoot::API
 		static inline std::vector<ModifyInventoryHandler> _modifyInventoryHandlers{};
 		static inline std::vector<PopulateInfoBarHandler> _populateInfoBarHandlers{};
 		static inline std::vector<PopulateButtonBarHandler> _populateButtonBarHandlers{};
+		static inline std::vector<ModifyButtonBarHandler> _modifyButtonBarHandlers{};
 
 		template <typename THandler>
 		static void RegisterHandler(const char* plugin, THandler handler, std::vector<THandler>& handlerList)

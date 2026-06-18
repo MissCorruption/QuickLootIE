@@ -14,6 +14,24 @@ namespace QuickLoot::API
 		RE::ObjectRefHandle dropRef;
 	};
 
+	enum class QuickLootAction : uint8_t
+	{
+		kNone,
+
+		kDisable,
+		kEnable,
+
+		kUse,
+		kTake,
+		kTakeAll,
+		kTransfer,
+
+		kScrollUp,
+		kScrollDown,
+		kPrevPage,
+		kNextPage,
+	};
+
 	namespace Events
 	{
 		enum class HandleResult : uint8_t
@@ -94,6 +112,19 @@ namespace QuickLoot::API
 			uint16_t buttonArtIndex;
 		};
 
+		struct ButtonDefinition2
+		{
+			RE::BSString label;
+			// For a list of valid values, see https://github.com/MissCorruption/QuickLootIE/blob/main/src/Input/ButtonArtIndex.h
+			uint16_t buttonArtIndex;
+			// Whether the button is supposed to be red.
+			bool stealing;
+			// The associated QuickLoot action for default buttons.
+			// This is only provided so you can identify them.
+			// Changing this field doesn't have any effect.
+			QuickLootAction action = QuickLootAction::kNone;
+		};
+
 		struct PopulateButtonBarEvent
 		{
 			RE::ObjectRefHandle container;
@@ -101,6 +132,15 @@ namespace QuickLoot::API
 			const ItemStack* stack;
 			// Populate this array with buttons you want to add.
 			RE::BSTArray<ButtonDefinition> result;
+		};
+
+		struct ModifyButtonBarEvent
+		{
+			RE::ObjectRefHandle container;
+			// The selected item stack. This is null if the container is empty.
+			const ItemStack* stack;
+			// Modify this array as you please.
+			RE::BSTArray<ButtonDefinition2>& buttons;
 		};
 
 		template <typename TEvent>
@@ -116,6 +156,7 @@ namespace QuickLoot::API
 		using ModifyInventoryHandler = EventHandler<ModifyInventoryEvent>;
 		using PopulateInfoBarHandler = EventHandler<PopulateInfoBarEvent>;
 		using PopulateButtonBarHandler = EventHandler<PopulateButtonBarEvent>;
+		using ModifyButtonBarHandler = EventHandler<ModifyButtonBarEvent>;
 	}
 
 	using namespace Events;
@@ -258,11 +299,18 @@ namespace QuickLoot::API
 			}
 		}
 
+		[[deprecated("This only exists for backwards compatibility. Use RegisterModifyButtonBarHandler instead.")]]
 		static void RegisterPopulateButtonBarHandler(PopulateButtonBarHandler handler)
 		{
 			if (_interfaceV20) {
 				_interfaceV20->RegisterPopulateButtonBarHandler(_plugin, handler);
 			}
+		}
+
+		static void RegisterModifyButtonBarHandler(ModifyButtonBarHandler handler)
+		{
+			if (_interfaceV21) {
+				_interfaceV21->RegisterModifyButtonBarHandler(_plugin, handler);
 			}
 		}
 
@@ -293,6 +341,7 @@ namespace QuickLoot::API
 
 		struct InterfaceV21 : public InterfaceV20
 		{
+			virtual void RegisterModifyButtonBarHandler(const char* plugin, ModifyButtonBarHandler handler);
 		};
 
 		static inline const char* _plugin;
