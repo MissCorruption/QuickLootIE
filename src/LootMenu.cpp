@@ -14,6 +14,7 @@
 #include "Items/Inventory.h"
 #include "Items/ItemStack.h"
 #include "LootMenuManager.h"
+#include "MenuVisibilityManager.h"
 #include "Util/ScaleformUtil.h"
 
 #include <numbers>
@@ -319,6 +320,10 @@ namespace QuickLoot
 			return;
 		}
 
+		if (API::APIServer::DispatchInputActionEvent(_container, action) != API::HandleResult::kContinue) {
+			return;
+		}
+
 		switch (action) {
 		case Input::QuickLootAction::kUse:
 			UseItem();
@@ -555,12 +560,14 @@ namespace QuickLoot
 
 		API::APIServer::DispatchModifyInventoryEvent(_container, inventory);
 
-		if (inventory.empty() && !UserSettings::ShowWhenEmpty()) {
+		if (inventory.empty() && !UserSettings::ShowWhenEmpty() && !MenuVisibilityManager::IsForcedContainer(_container)) {
 			LootMenuManager::RequestHide();
 			return;
 		}
 
 		API::APIServer::DispatchInvalidateLootMenuEvent(_container, inventory);
+
+		PROFILE_LOG("Loaded {} items", inventory.size());
 
 		{
 			PROFILE_SCOPE_NAMED("Item data")
@@ -573,7 +580,8 @@ namespace QuickLoot
 				_inventory.emplace_back(std::move(s));
 			}
 
-			if (UserSettings::ShowIconBest()) {
+			if (UserSettings::ShowIconBest() && _inventory.size() > 0) {
+
 				for (size_t index : Items::Inventory::FindBestInClassItems(inventory)) {
 					_inventory[index]->GetData().bestInClass = true;
 				}
@@ -598,7 +606,9 @@ namespace QuickLoot
 		SortInventory();
 
 		for (auto& item : _inventory) {
-			_itemListProvider.PushBack(item->BuildDataObject(uiMovie.get()));
+			auto data = item->BuildDataObject(uiMovie.get());
+			API::APIServer::DispatchModifyItemDataEvent(_container, item->GetEntry(), item->GetDropRef(), data);
+			_itemListProvider.PushBack(data);
 		}
 
 		_itemList.InvalidateData();
@@ -622,21 +632,14 @@ namespace QuickLoot
 
 		const auto keybindings = Input::InputManager::GetButtonBarKeybindings();
 		const bool stealing = WouldBeStealing();
-
+		RE::BSTArray<API::ButtonDefinition2> buttons{};
+		
 		_buttonBarProvider.ClearElements();
 
 		for (const auto& keybinding : keybindings) {
 			const auto label = GetActionDisplayName(keybinding.action, stealing);
 			const auto index = keybinding.buttonArtOverride != Input::ButtonArtIndex::kNone ? keybinding.buttonArtOverride : Input::ButtonArt::GetFrameIndexForDeviceKey(keybinding.inputKey);
-
-			RE::GFxValue obj;
-			uiMovie->CreateObject(&obj);
-
-			obj.SetMember("label", label);
-			obj.SetMember("index", index);
-			obj.SetMember("stolen", stealing);
-
-			_buttonBarProvider.PushBack(obj);
+			buttons.emplace_back(label, static_cast<uint16_t>(index), stealing, keybinding.action);
 		}
 
 		bool isItemSelected = _selectedIndex >= 0 && _selectedIndex < _inventory.size();
@@ -644,12 +647,18 @@ namespace QuickLoot
 		const auto dropRef = isItemSelected ? _inventory[_selectedIndex].get()->GetDropRef() : RE::ObjectRefHandle{};
 
 		for (const auto& extraButton : API::APIServer::DispatchPopulateButtonBarEvent(_container, entry, dropRef)) {
+			buttons.emplace_back(extraButton.label, extraButton.buttonArtIndex, stealing, API::QuickLootAction::kNone);
+		}
+
+		API::APIServer::DispatchModifyButtonBarEvent(_container, entry, dropRef, buttons);
+
+		for (auto& button : buttons) {
 			RE::GFxValue obj;
 			uiMovie->CreateObject(&obj);
 
-			obj.SetMember("label", extraButton.label.c_str());
-			obj.SetMember("index", extraButton.buttonArtIndex);
-			obj.SetMember("stolen", stealing);
+			obj.SetMember("label", button.label.c_str());
+			obj.SetMember("index", button.buttonArtIndex);
+			obj.SetMember("stolen", button.stealing);
 
 			_buttonBarProvider.PushBack(obj);
 		}
@@ -736,7 +745,7 @@ namespace QuickLoot
 		case Input::QuickLootAction::kUse:
 			{
 				const auto selectedItem = _selectedIndex >= 0 && _selectedIndex < _inventory.size() ? _inventory[_selectedIndex].get() : nullptr;
-				const char* useLabel = selectedItem ? selectedItem->GetUseLabel() : "$Use";
+				const char* useLabel = selectedItem ? selectedItem->GetUseLabel() : "$qlie_Use";
 
 				button = { useLabel, useLabel, useLabel, useLabel };
 				break;

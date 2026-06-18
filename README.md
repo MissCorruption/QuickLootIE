@@ -17,9 +17,8 @@ For more information about QuickLoot IE, please visit the [Nexus Page](https://w
 ### Tools
 * [Spriggit](https://github.com/Mutagen-Modding/Spriggit)
 	* Below are instructions for the CLI version
-* [Caprica](https://github.com/Orvid/Caprica)
+* [Caprica Fork by KrisV-777](https://github.com/KrisV-777/Caprica/)
 	* To compile the papyrus scripts
-	* Due to the scripts being declared as native, Skyrim's CK will not be able to compile them
 * [PowerShell](https://github.com/PowerShell/PowerShell/releases/latest)
 * [Visual Studio Community 2022](https://visualstudio.microsoft.com/) or any other C++23 compiler
 	* Desktop development with C++
@@ -82,6 +81,6 @@ Path/To/Spriggit.CLI.exe deserialize --InputPath Source\ESP --OutputPath QuickLo
 * [AtomCrafty](https://github.com/AtomCrafty) for major contributions to the codebase, notably the sorting system
 * [Faen90](https://github.com/Faen668) for major contributions to the codebase, notably the MCM
 * [Noggog](https://github.com/Noggog) for Spriggit
-* [Orvid](https://github.com/Orvid) for Caprica
+* [Orvid](https://github.com/Orvid) and [KrisV-777](https://github.com/KrisV-777) for Caprica and the fork
 * [Komegaki](https://github.com/Komegaki) for the new icon
 

@@ -44,7 +44,7 @@ string[] WindowAnchorNames
 
 ; Display > Icon Settings
 bool property QLIE_ShowIconItem = true auto hidden
-bool property QLIE_ShowIconBest = true auto hidden
+bool property QLIE_ShowIconBest = false auto hidden
 bool property QLIE_ShowIconRead = true auto hidden
 bool property QLIE_ShowIconStolen = true auto hidden
 bool property QLIE_ShowIconEnchanted = true auto hidden
@@ -108,6 +108,9 @@ bool property QLIE_ShowIconArtifactDisplayed = true auto hidden
 ; Compatibility > Completionist Icons
 bool property QLIE_ShowIconCompletionistNeeded = true auto hidden
 bool property QLIE_ShowIconCompletionistCollected = true auto hidden
+bool property QLIE_ShowIconCompletionistDisplayable = true auto hidden
+bool property QLIE_ShowIconCompletionistDisplayed = true auto hidden
+bool property QLIE_ShowIconCompletionistOccupied = true auto hidden
 
 ;---------------------------------------------------
 ;-- SkyUI Events -----------------------------------
@@ -465,14 +468,17 @@ function BuildCompatibilityPage()
 
 	SetCursorPosition(0)
 	AddHeaderOption("$qlie_ArtifactIconsHeader")
-	AddTextOptionST("state_ShowIconArtifactNew",			"$qlie_ShowIconArtifactNew_text",				GetEnabledStatusText(QLIE_ShowIconArtifactNew, hasArtifacts), (!hasArtifacts) as int)
-	AddTextOptionST("state_ShowIconArtifactCarried",		"$qlie_ShowIconArtifactCarried_text",			GetEnabledStatusText(QLIE_ShowIconArtifactCarried, hasArtifacts), (!hasArtifacts) as int)
-	AddTextOptionST("state_ShowIconArtifactDisplayed",		"$qlie_ShowIconArtifactDisplayed_text",			GetEnabledStatusText(QLIE_ShowIconArtifactDisplayed, hasArtifacts), (!hasArtifacts) as int)
+	AddTextOptionST("state_ShowIconArtifactNew",				"$qlie_ShowIconArtifactNew_text",				GetEnabledStatusText(QLIE_ShowIconArtifactNew, hasArtifacts), (!hasArtifacts) as int)
+	AddTextOptionST("state_ShowIconArtifactCarried",			"$qlie_ShowIconArtifactCarried_text",			GetEnabledStatusText(QLIE_ShowIconArtifactCarried, hasArtifacts), (!hasArtifacts) as int)
+	AddTextOptionST("state_ShowIconArtifactDisplayed",			"$qlie_ShowIconArtifactDisplayed_text",			GetEnabledStatusText(QLIE_ShowIconArtifactDisplayed, hasArtifacts), (!hasArtifacts) as int)
 
 	SetCursorPosition(1)
 	AddHeaderOption("$qlie_CompletionistIconsHeader")
-	AddTextOptionST("state_ShowIconCompletionistNeeded",	"$qlie_ShowIconCompletionistNeeded_text",		GetEnabledStatusText(QLIE_ShowIconCompletionistNeeded, hasCompletionist), (!hasCompletionist) as int)
-	AddTextOptionST("state_ShowIconCompletionistCollected",	"$qlie_ShowIconCompletionistCollected_text",	GetEnabledStatusText(QLIE_ShowIconCompletionistCollected, hasCompletionist), (!hasCompletionist) as int)
+	AddTextOptionST("state_ShowIconCompletionistNeeded",		"$qlie_ShowIconCompletionistNeeded_text",		GetEnabledStatusText(QLIE_ShowIconCompletionistNeeded, hasCompletionist), (!hasCompletionist) as int)
+	AddTextOptionST("state_ShowIconCompletionistCollected",		"$qlie_ShowIconCompletionistCollected_text",	GetEnabledStatusText(QLIE_ShowIconCompletionistCollected, hasCompletionist), (!hasCompletionist) as int)
+	AddTextOptionST("state_ShowIconCompletionistDisplayable",	"$qlie_ShowIconCompletionistDisplayable_text",	GetEnabledStatusText(QLIE_ShowIconCompletionistDisplayable, hasCompletionist), (!hasCompletionist) as int)
+	AddTextOptionST("state_ShowIconCompletionistDisplayed",		"$qlie_ShowIconCompletionistDisplayed_text",	GetEnabledStatusText(QLIE_ShowIconCompletionistDisplayed, hasCompletionist), (!hasCompletionist) as int)
+	AddTextOptionST("state_ShowIconCompletionistOccupied",		"$qlie_ShowIconCompletionistOccupied_text",		GetEnabledStatusText(QLIE_ShowIconCompletionistOccupied, hasCompletionist), (!hasCompletionist) as int)
 endfunction
 
 ;---------------------------------------------------
@@ -990,7 +996,7 @@ state state_ShowIconBest
 	endevent
 
 	event OnDefaultST()
-		QLIE_ShowIconBest = true
+		QLIE_ShowIconBest = false
 		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconBest))
 	endevent
 endstate
@@ -1145,7 +1151,7 @@ function ResetSettings_Display()
 	QLIE_WindowOpacityEmpty = 0.3
 
 	QLIE_ShowIconItem = true
-	QLIE_ShowIconBest = true
+	QLIE_ShowIconBest = false
 	QLIE_ShowIconRead = true
 	QLIE_ShowIconStolen = true
 	QLIE_ShowIconEnchanted = true
@@ -1843,6 +1849,42 @@ state state_ShowIconCompletionistCollected
 	endevent
 endstate
 
+state state_ShowIconCompletionistDisplayable
+	event OnSelectST()
+		QLIE_ShowIconCompletionistDisplayable = !QLIE_ShowIconCompletionistDisplayable
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconCompletionistDisplayable))
+	endevent
+
+	event OnDefaultST()
+		QLIE_ShowIconCompletionistDisplayable = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconCompletionistDisplayable))
+	endevent
+endstate
+
+state state_ShowIconCompletionistDisplayed
+	event OnSelectST()
+		QLIE_ShowIconCompletionistDisplayed = !QLIE_ShowIconCompletionistDisplayed
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconCompletionistDisplayed))
+	endevent
+
+	event OnDefaultST()
+		QLIE_ShowIconCompletionistDisplayed = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconCompletionistDisplayed))
+	endevent
+endstate
+
+state state_ShowIconCompletionistOccupied
+	event OnSelectST()
+		QLIE_ShowIconCompletionistOccupied = !QLIE_ShowIconCompletionistOccupied
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconCompletionistOccupied))
+	endevent
+
+	event OnDefaultST()
+		QLIE_ShowIconCompletionistOccupied = true
+		SetTextOptionValueST(GetEnabledStatusText(QLIE_ShowIconCompletionistOccupied))
+	endevent
+endstate
+
 ;---------------------------------------------------
 ;-- Compatibility > Manage -------------------------
 ;---------------------------------------------------
@@ -1854,6 +1896,9 @@ function ResetSettings_Compatibility()
 
 	QLIE_ShowIconCompletionistNeeded = true
 	QLIE_ShowIconCompletionistCollected = true
+	QLIE_ShowIconCompletionistDisplayable = true
+	QLIE_ShowIconCompletionistDisplayed = true
+	QLIE_ShowIconCompletionistOccupied = true
 endfunction
 
 function ExportSettings_Compatibility(string path)
@@ -1863,6 +1908,9 @@ function ExportSettings_Compatibility(string path)
 
 	JsonUtil.SetPathIntValue(path, "ShowIconCompletionistNeeded", QLIE_ShowIconCompletionistNeeded as int)
 	JsonUtil.SetPathIntValue(path, "ShowIconCompletionistCollected", QLIE_ShowIconCompletionistCollected as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconCompletionistDisplayable", QLIE_ShowIconCompletionistDisplayable as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconCompletionistDisplayed", QLIE_ShowIconCompletionistDisplayed as int)
+	JsonUtil.SetPathIntValue(path, "ShowIconCompletionistOccupied", QLIE_ShowIconCompletionistOccupied as int)
 endfunction
 
 function ImportSettings_Compatibility(string path)
@@ -1872,4 +1920,7 @@ function ImportSettings_Compatibility(string path)
 
 	QLIE_ShowIconCompletionistNeeded = JsonUtil.GetPathIntValue(path, "ShowIconCompletionistNeeded", QLIE_ShowIconCompletionistNeeded as int)
 	QLIE_ShowIconCompletionistCollected = JsonUtil.GetPathIntValue(path, "ShowIconCompletionistCollected", QLIE_ShowIconCompletionistCollected as int)
+	QLIE_ShowIconCompletionistDisplayable = JsonUtil.GetPathIntValue(path, "ShowIconCompletionistDisplayable", QLIE_ShowIconCompletionistDisplayable as int)
+	QLIE_ShowIconCompletionistDisplayed = JsonUtil.GetPathIntValue(path, "ShowIconCompletionistDisplayed", QLIE_ShowIconCompletionistDisplayed as int)
+	QLIE_ShowIconCompletionistOccupied = JsonUtil.GetPathIntValue(path, "ShowIconCompletionistOccupied", QLIE_ShowIconCompletionistOccupied as int)
 endfunction

@@ -15,7 +15,8 @@
 		"Durability Menu",
 		"UIHS_WidgetMenu",
 		"WidgetMenu",
-		"CombatAlertOverlayMenu"
+		"CombatAlertOverlayMenu",
+		"AchievementWidget"
 	],
 	// Use this to exclude certain containers from being
 	// searchable by QuickLoot IE. Both BaseIDs and RefIDs

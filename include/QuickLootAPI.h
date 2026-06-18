@@ -1,7 +1,8 @@
 #pragma once
 
 /*
-	Header File for QuickLoot IE integration
+	Header File for QuickLoot IE integration.
+	Before using any other functions, call QuickLootAPI::Init and pass in your own plugin name.
 */
 
 namespace QuickLoot::API
@@ -12,6 +13,24 @@ namespace QuickLoot::API
 		RE::InventoryEntryData* entry;
 		// This is set if the inventory entry is for an item the NPC dropped on the floor.
 		RE::ObjectRefHandle dropRef;
+	};
+
+	enum class QuickLootAction : uint8_t
+	{
+		kNone,
+
+		kDisable,
+		kEnable,
+
+		kUse,
+		kTake,
+		kTakeAll,
+		kTransfer,
+
+		kScrollUp,
+		kScrollDown,
+		kPrevPage,
+		kNextPage,
 	};
 
 	namespace Events
@@ -94,6 +113,19 @@ namespace QuickLoot::API
 			uint16_t buttonArtIndex;
 		};
 
+		struct ButtonDefinition2
+		{
+			RE::BSString label;
+			// For a list of valid values, see https://github.com/MissCorruption/QuickLootIE/blob/main/src/Input/ButtonArtIndex.h
+			uint16_t buttonArtIndex;
+			// Whether the button is supposed to be red.
+			bool stealing;
+			// The associated QuickLoot action for default buttons.
+			// This is only provided so you can identify them.
+			// Changing this field doesn't have any effect.
+			QuickLootAction action = QuickLootAction::kNone;
+		};
+
 		struct PopulateButtonBarEvent
 		{
 			RE::ObjectRefHandle container;
@@ -101,6 +133,33 @@ namespace QuickLoot::API
 			const ItemStack* stack;
 			// Populate this array with buttons you want to add.
 			RE::BSTArray<ButtonDefinition> result;
+		};
+
+		struct ModifyButtonBarEvent
+		{
+			RE::ObjectRefHandle container;
+			// The selected item stack. This is null if the container is empty.
+			const ItemStack* stack;
+			// Modify this array as you please.
+			RE::BSTArray<ButtonDefinition2>& buttons;
+		};
+
+		struct ModifyItemDataEvent
+		{
+			RE::ObjectRefHandle container;
+			// The selected item stack.
+			const ItemStack* stack;
+			// This is the data object passed to the swf for display.
+			RE::GFxValue& data;
+		};
+
+		struct InputActionEvent
+		{
+			RE::ObjectRefHandle container;
+			// The action to perform.
+			QuickLootAction action;
+			// Set this to HandleResult::kStop to cancel the action.
+			HandleResult result = HandleResult::kContinue;
 		};
 
 		template <typename TEvent>
@@ -116,9 +175,19 @@ namespace QuickLoot::API
 		using ModifyInventoryHandler = EventHandler<ModifyInventoryEvent>;
 		using PopulateInfoBarHandler = EventHandler<PopulateInfoBarEvent>;
 		using PopulateButtonBarHandler = EventHandler<PopulateButtonBarEvent>;
+		using ModifyButtonBarHandler = EventHandler<ModifyButtonBarEvent>;
+		using ModifyItemDataHandler = EventHandler<ModifyItemDataEvent>;
+		using InputActionHandler = EventHandler<InputActionEvent>;
 	}
 
 	using namespace Events;
+
+	enum class ApiVersion
+	{
+		kV20, kV21,
+
+		kLatest = kV21
+	};
 
 	class QuickLootAPI
 	{
@@ -132,112 +201,192 @@ namespace QuickLoot::API
 
 		static constexpr const char* SERVER_PLUGIN_NAME = "QuickLootIE";
 
-		// Call this before any other API function and pass your own plugin name.
-		static bool Init(const char* plugin)
+		template<typename TInterface>
+		static TInterface* LoadInterface(const char* procName)
 		{
-			using GetInterfaceProc = InterfaceV20* (*)();
+			using GetInterfaceProc = TInterface* (*)();
 
 			const auto dllHandle = GetModuleHandleA(SERVER_PLUGIN_NAME);
-			const auto getInterfaceProc = reinterpret_cast<GetInterfaceProc>(GetProcAddress(dllHandle, "GetQuickLootInterfaceV20"));
-
-			if (getInterfaceProc) {
-				_plugin = plugin;
-				_interface = getInterfaceProc();
+			if (!dllHandle) {
+				return nullptr;
 			}
 
-			return IsReady();
+			const auto getInterfaceProc = reinterpret_cast<GetInterfaceProc>(GetProcAddress(dllHandle, procName));
+			if (!getInterfaceProc) {
+				return nullptr;
+			}
+
+			return getInterfaceProc();
 		}
 
-		static bool IsReady()
+		// Call this before any other API function and pass your own plugin name.
+		static bool Init(const char* plugin, ApiVersion minVersion = ApiVersion::kLatest)
 		{
-			return _interface;
+			_plugin = plugin;
+			_interfaceV20 = LoadInterface<InterfaceV20>("GetQuickLootInterfaceV20");
+			_interfaceV21 = LoadInterface<InterfaceV21>("GetQuickLootInterfaceV21");
+
+			return IsReady(minVersion);
+		}
+
+		static bool IsReady(ApiVersion minVersion = ApiVersion::kLatest)
+		{
+			switch (minVersion) {
+			case ApiVersion::kV20:
+				return _interfaceV20;
+
+			case ApiVersion::kV21:
+				return _interfaceV21;
+
+			default:
+				return false;
+			}
 		}
 
 		static void DisableLootMenu()
 		{
-			if (_interface) {
-				_interface->DisableLootMenu(_plugin);
+			if (_interfaceV20) {
+				_interfaceV20->DisableLootMenu(_plugin);
 			}
 		}
 
 		static void EnableLootMenu()
 		{
-			if (_interface) {
-				_interface->EnableLootMenu(_plugin);
+			if (_interfaceV20) {
+				_interfaceV20->EnableLootMenu(_plugin);
 			}
 		}
 
 		static void RegisterTakingItemHandler(TakingItemHandler handler)
 		{
-			if (_interface) {
-				_interface->RegisterTakingItemHandler(_plugin, handler);
+			if (_interfaceV20) {
+				_interfaceV20->RegisterTakingItemHandler(_plugin, handler);
 			}
 		}
 
 		static void RegisterTakeItemHandler(TakeItemHandler handler)
 		{
-			if (_interface) {
-				_interface->RegisterTakeItemHandler(_plugin, handler);
+			if (_interfaceV20) {
+				_interfaceV20->RegisterTakeItemHandler(_plugin, handler);
 			}
 		}
 
 		static void RegisterSelectItemHandler(SelectItemHandler handler)
 		{
-			if (_interface) {
-				_interface->RegisterSelectItemHandler(_plugin, handler);
+			if (_interfaceV20) {
+				_interfaceV20->RegisterSelectItemHandler(_plugin, handler);
 			}
 		}
 
 		static void RegisterOpeningLootMenuHandler(OpeningLootMenuHandler handler)
 		{
-			if (_interface) {
-				_interface->RegisterOpeningLootMenuHandler(_plugin, handler);
+			if (_interfaceV20) {
+				_interfaceV20->RegisterOpeningLootMenuHandler(_plugin, handler);
 			}
 		}
 
 		static void RegisterOpenLootMenuHandler(OpenLootMenuHandler handler)
 		{
-			if (_interface) {
-				_interface->RegisterOpenLootMenuHandler(_plugin, handler);
+			if (_interfaceV20) {
+				_interfaceV20->RegisterOpenLootMenuHandler(_plugin, handler);
 			}
 		}
 
 		static void RegisterCloseLootMenuHandler(CloseLootMenuHandler handler)
 		{
-			if (_interface) {
-				_interface->RegisterCloseLootMenuHandler(_plugin, handler);
+			if (_interfaceV20) {
+				_interfaceV20->RegisterCloseLootMenuHandler(_plugin, handler);
 			}
 		}
 
 		static void RegisterInvalidateLootMenuHandler(InvalidateLootMenuHandler handler)
 		{
-			if (_interface) {
-				_interface->RegisterInvalidateLootMenuHandler(_plugin, handler);
+			if (_interfaceV20) {
+				_interfaceV20->RegisterInvalidateLootMenuHandler(_plugin, handler);
 			}
 		}
 
 		static void RegisterModifyInventoryHandler(ModifyInventoryHandler handler)
 		{
-			if (_interface) {
-				_interface->RegisterModifyInventoryHandler(_plugin, handler);
+			if (_interfaceV20) {
+				_interfaceV20->RegisterModifyInventoryHandler(_plugin, handler);
 			}
 		}
 
 		static void RegisterPopulateInfoBarHandler(PopulateInfoBarHandler handler)
 		{
-			if (_interface) {
-				_interface->RegisterPopulateInfoBarHandler(_plugin, handler);
+			if (_interfaceV20) {
+				_interfaceV20->RegisterPopulateInfoBarHandler(_plugin, handler);
 			}
 		}
 
+		[[deprecated("This only exists for backwards compatibility. Use RegisterModifyButtonBarHandler instead.")]]
 		static void RegisterPopulateButtonBarHandler(PopulateButtonBarHandler handler)
 		{
-			if (_interface) {
-				_interface->RegisterPopulateButtonBarHandler(_plugin, handler);
+			if (_interfaceV20) {
+				_interfaceV20->RegisterPopulateButtonBarHandler(_plugin, handler);
+			}
+		}
+
+		static void ForceCurrentContainer(RE::ObjectRefHandle container)
+		{
+			if (_interfaceV20) {
+				_interfaceV20->ForceCurrentContainer(_plugin, container);
+			}
+		}
+
+		static void ClearForcedContainer()
+		{
+			if (_interfaceV20) {
+				_interfaceV20->ClearForcedContainer(_plugin);
+			}
+		}
+
+		static void CloseLootMenu()
+		{
+			if (_interfaceV20) {
+				_interfaceV20->CloseLootMenu(_plugin);
+			}
+		}
+
+		static void RefreshLootMenu()
+		{
+			if (_interfaceV20) {
+				_interfaceV20->RefreshLootMenu(_plugin);
+			}
+		}
+
+		static void RegisterModifyButtonBarHandler(ModifyButtonBarHandler handler)
+		{
+			if (_interfaceV21) {
+				_interfaceV21->RegisterModifyButtonBarHandler(_plugin, handler);
+			}
+		}
+
+		static void RegisterModifyItemDataHandler(ModifyItemDataHandler handler)
+		{
+			if (_interfaceV21) {
+				_interfaceV21->RegisterModifyItemDataHandler(_plugin, handler);
+			}
+		}
+
+		static void RegisterInputActionHandler(InputActionHandler handler)
+		{
+			if (_interfaceV21) {
+				_interfaceV21->RegisterInputActionHandler(_plugin, handler);
+			}
+		}
+
+		static void PerformInputAction(QuickLootAction action)
+		{
+			if (_interfaceV21) {
+				_interfaceV21->PerformInputAction(_plugin, action);
 			}
 		}
 
 	private:
+		friend class APIServer;
+
 		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
 		struct InterfaceV20
 		{
@@ -262,7 +411,17 @@ namespace QuickLoot::API
 			virtual void RefreshLootMenu(const char* plugin);
 		};
 
+		struct InterfaceV21 : public InterfaceV20
+		{
+			virtual void RegisterModifyButtonBarHandler(const char* plugin, ModifyButtonBarHandler handler);
+			virtual void RegisterModifyItemDataHandler(const char* plugin, ModifyItemDataHandler handler);
+
+			virtual void RegisterInputActionHandler(const char* plugin, InputActionHandler handler);
+			virtual void PerformInputAction(const char* plugin, QuickLootAction action);
+		};
+
 		static inline const char* _plugin;
-		static inline InterfaceV20* _interface;
+		static inline InterfaceV20* _interfaceV20;
+		static inline InterfaceV21* _interfaceV21;
 	};
 }

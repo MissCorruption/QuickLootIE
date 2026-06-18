@@ -10,6 +10,8 @@ namespace QuickLoot::Items
 			return {};
 		}
 
+		PROFILE_SCOPE
+
 		const auto changes = container->GetInventoryChanges();
 
 		if (const auto actor = skyrim_cast<RE::Actor*>(container)) {
@@ -48,7 +50,10 @@ namespace QuickLoot::Items
 					lookup.emplace(object, inventory.size());
 					inventory.emplace_back(InventoryEntry{ new RE::InventoryEntryData(object, entry.count), {} });
 				} else {
-					inventory[it->second].entry->countDelta += entry.count;
+					auto changeEntry = inventory[it->second].entry;
+					if (!changeEntry->IsLeveled()) {
+						changeEntry->countDelta += entry.count;
+					}
 				}
 
 				return RE::BSContainer::ForEachResult::kContinue;
@@ -93,6 +98,8 @@ namespace QuickLoot::Items
 
 	std::vector<size_t> Inventory::FindBestInClassItems(const RE::BSTArray<InventoryEntry>& inventory, bool includePlayerInventory)
 	{
+		PROFILE_SCOPE
+
 		struct BestItem
 		{
 			int index = -1;

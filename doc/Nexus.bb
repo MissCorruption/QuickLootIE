@@ -6,7 +6,7 @@ QuickLoot IE allows you to look through and take items from containers without t
 
 QuickLoot IE supports all game versions in the range of [b]1.5.97[/b] to [b]1.6.1179[/b], but if you are on a version older than [b]1.6.1130[/b], you need to have [url=https://www.nexusmods.com/skyrimspecialedition/mods/106441]BEES[/url] installed.
 
-You cannot use reskins made for QuickLoot EE with our version of the mod since the menu was completely rewritten from scratch. To indicate this we've decided to rename the swf file to [b]LootMenuIE.swf[/b] to avoid confusion. Should [b]LootMenu.swf[/b] still be present due to an incompatible UI patch, then a warning message will show every time you start the game. To prevent this, either hide the file in your mod manager or disable the check in [b]QuickLootIE.json[/b].
+You cannot use reskins made for QuickLoot EE with our version of the mod since the menu was completely rewritten from scratch. To indicate this we've decided to rename the swf file to [b]LootMenuIE.swf[/b] to avoid confusion.
 
 [color=#6aa84f][size=5][b]Features[/b][/size][/color]
 
@@ -58,7 +58,7 @@ If you are using a UI overhaul and want the loot menu to match its design, check
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/123475]Untarnished UI - QuickLoot IE Patch[/url] by Wuerfelhusten
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/123469]NORDIC UI - QuickLoot IE Patch[/url] by Wuerfelhusten
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/127118]Edge UI - QuickLoot IE Reskin[/url] by EugeneUI
-[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/136012]QuickLoot IE Vanilla Skin[/url] by TigerCowZ
+[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/181922]QuickLoot IE Vanilla Skin[/url] by TigerCowZ
 [/list]
 [color=#6aa84f][size=5][b]Frequently Asked Questions[/b][/size][/color]
 

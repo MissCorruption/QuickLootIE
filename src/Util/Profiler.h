@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Config/SystemSettings.h"
+
 #define PROFILE_MERGE2(a, b) a##b
 #define PROFILE_MERGE(a, b) PROFILE_MERGE2(a, b)
 #define PROFILE_UNIQUE(name) PROFILE_MERGE(name, __LINE__)
@@ -8,6 +10,8 @@
 #define PROFILE_SCOPE_NAMED(name)                                                               \
 	static const auto PROFILE_UNIQUE(scope) = ::QuickLoot::Util::Profiler::RegisterScope(name); \
 	const auto PROFILE_UNIQUE(interval) = ::QuickLoot::Util::Profiler::StartInterval(PROFILE_UNIQUE(scope));
+
+#define PROFILE_LOG(...) ::QuickLoot::Util::Profiler::Log(__VA_ARGS__);
 
 namespace QuickLoot::Util
 {
@@ -47,7 +51,19 @@ namespace QuickLoot::Util
 		static IntervalHandle StartInterval(ScopeId scope);
 		static void EndInterval(const IntervalHandle& handle);
 
+		template <typename... Args>
+		static void Log(fmt::format_string<Args...> format, Args&&... args)
+		{
+			if (!Config::SystemSettings::EnableProfiler()) {
+				return;
+			}
+
+			_logger->info("{}{}", GetIndent(_intervalStack.size() - 1), fmt::format(format, std::forward<Args>(args)...));
+		}
+
 	private:
+		static std::string GetIndent(size_t depth);
+
 		struct Interval
 		{
 			IntervalId id;

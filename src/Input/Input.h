@@ -1,5 +1,7 @@
 #pragma once
 
+#include "QuickLootAPI.h"
+
 namespace QuickLoot::Input
 {
 	using DeviceType = RE::INPUT_DEVICE;
@@ -75,23 +77,9 @@ namespace QuickLoot::Input
 		kPageKeys = 13 | kOptional,
 	};
 
-	enum class QuickLootAction : uint8_t
-	{
-		kDisable,
-		kEnable,
-
-		kUse,
-		kTake,
-		kTakeAll,
-		kTransfer,
-
-		kScrollUp,
-		kScrollDown,
-		kPrevPage,
-		kNextPage,
-	};
-
 	enum class ButtonArtIndex : uint16_t;
+
+	using QuickLootAction = API::QuickLootAction;
 
 	struct Keybinding
 	{

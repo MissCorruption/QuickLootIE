@@ -131,15 +131,21 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .github/Caprica
-          key: ${{ runner.os }}-papyrus-compiler
+          key: caprica-0.3.0a
 
-      - name: Fetch Caprica 0.3.0
+      - name: Fetch Caprica
         if: steps.cache-com.outputs.cache-hit != 'true'
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download -O .github/Caprica.7z -p '*.7z' -R Orvid/Caprica v0.3.0
-          7z x .github/Caprica.7z "-o.github\Caprica"
+          New-Item -ItemType Directory -Path .github -Force | Out-Null
+          gh release download 0.3.0a -R KrisV-777/Caprica --pattern "Caprica.zip" --dir .github --clobber
+          7z x .github/Caprica.zip "-o.github\Caprica" -y
+
+          if (-not (Test-Path ".github/Caprica/Caprica.exe")) {
+            Write-Error "Caprica.exe not found after extraction."
+            exit 1
+          }
 
       - name: Checkout Papyrus Sources
         if: steps.cache-ss.outputs.cache-hit != 'true'

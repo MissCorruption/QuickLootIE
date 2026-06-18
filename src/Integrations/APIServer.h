@@ -19,31 +19,14 @@ namespace QuickLoot::API
 		APIServer operator=(APIServer&) = delete;
 		APIServer operator=(APIServer&&) = delete;
 
-		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
-		struct InterfaceV20
-		{
-			virtual void DisableLootMenu(const char* plugin);
-			virtual void EnableLootMenu(const char* plugin);
+		using InterfaceV20 = QuickLootAPI::InterfaceV20;
+		using InterfaceV21 = QuickLootAPI::InterfaceV21;
 
-			virtual void RegisterTakingItemHandler(const char* plugin, TakingItemHandler handler);
-			virtual void RegisterTakeItemHandler(const char* plugin, TakeItemHandler handler);
-			virtual void RegisterSelectItemHandler(const char* plugin, SelectItemHandler handler);
-			virtual void RegisterOpeningLootMenuHandler(const char* plugin, OpeningLootMenuHandler handler);
-			virtual void RegisterOpenLootMenuHandler(const char* plugin, OpenLootMenuHandler handler);
-			virtual void RegisterCloseLootMenuHandler(const char* plugin, CloseLootMenuHandler handler);
-			virtual void RegisterInvalidateLootMenuHandler(const char* plugin, InvalidateLootMenuHandler handler);
-
-			virtual void RegisterModifyInventoryHandler(const char* plugin, ModifyInventoryHandler handler);
-			virtual void RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler);
-			virtual void RegisterPopulateButtonBarHandler(const char* plugin, PopulateButtonBarHandler handler);
-
-			virtual void ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container);
-			virtual void ClearForcedContainer(const char* plugin);
-			virtual void CloseLootMenu(const char* plugin);
-			virtual void RefreshLootMenu(const char* plugin);
-		};
+		friend struct QuickLootAPI::InterfaceV20;
+		friend struct QuickLootAPI::InterfaceV21;
 
 		static InterfaceV20* GetInterfaceV20() { return &_interface; }
+		static InterfaceV21* GetInterfaceV21() { return &_interface; }
 
 		static HandleResult DispatchTakingItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 		static void DispatchTakeItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
@@ -58,9 +41,14 @@ namespace QuickLoot::API
 
 		static std::vector<RE::BSString> DispatchPopulateInfoBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 		static std::vector<ButtonDefinition> DispatchPopulateButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
+		static void DispatchModifyButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef, RE::BSTArray<ButtonDefinition2>& buttons);
+
+		static void DispatchModifyItemDataEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef, RE::GFxValue& data);
+
+		static HandleResult DispatchInputActionEvent(RE::ObjectRefHandle container, QuickLootAction action);
 
 	private:
-		static inline InterfaceV20 _interface{};
+		static inline InterfaceV21 _interface{};
 		static inline std::shared_mutex _lock{};
 
 		static inline std::vector<TakingItemHandler> _takingItemHandlers{};
@@ -73,6 +61,9 @@ namespace QuickLoot::API
 		static inline std::vector<ModifyInventoryHandler> _modifyInventoryHandlers{};
 		static inline std::vector<PopulateInfoBarHandler> _populateInfoBarHandlers{};
 		static inline std::vector<PopulateButtonBarHandler> _populateButtonBarHandlers{};
+		static inline std::vector<ModifyButtonBarHandler> _modifyButtonBarHandlers{};
+		static inline std::vector<ModifyItemDataHandler> _modifyItemDataHandlers{};
+		static inline std::vector<InputActionHandler> _inputActionHandlers{};
 
 		template <typename THandler>
 		static void RegisterHandler(const char* plugin, THandler handler, std::vector<THandler>& handlerList)
