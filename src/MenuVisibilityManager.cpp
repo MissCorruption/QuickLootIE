@@ -228,17 +228,15 @@ namespace QuickLoot
 	{
 		PROFILE_SCOPE;
 
-		// DRHEISEN1 -> re-entrancy guard. RequestShow() -> BlockConflictingInputs()
-
-		static bool s_refreshing = false;
-		if (s_refreshing) {
+		// Prevent reentry to avoid infinite recursion
+		static bool refreshing = false;
+		if (refreshing) {
 			return;
 		}
-		s_refreshing = true;
+		refreshing = true;
 		struct RefreshGuard {
-			~RefreshGuard() { s_refreshing = false; }
+			~RefreshGuard() { refreshing = false; }
 		} refreshGuard;
-
 		// Don't refresh while the console is open to work around the missing cursor bug
 		// (any menu events while the console is open cause the cursor to disappear)
 		if (RE::UI::GetSingleton()->IsMenuOpen(RE::Console::MENU_NAME)) {
