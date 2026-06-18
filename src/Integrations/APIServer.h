@@ -19,39 +19,11 @@ namespace QuickLoot::API
 		APIServer operator=(APIServer&) = delete;
 		APIServer operator=(APIServer&&) = delete;
 
-		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
-		struct InterfaceV20
-		{
-			virtual void DisableLootMenu(const char* plugin);
-			virtual void EnableLootMenu(const char* plugin);
+		using InterfaceV20 = QuickLootAPI::InterfaceV20;
+		using InterfaceV21 = QuickLootAPI::InterfaceV21;
 
-			virtual void RegisterTakingItemHandler(const char* plugin, TakingItemHandler handler);
-			virtual void RegisterTakeItemHandler(const char* plugin, TakeItemHandler handler);
-			virtual void RegisterSelectItemHandler(const char* plugin, SelectItemHandler handler);
-			virtual void RegisterOpeningLootMenuHandler(const char* plugin, OpeningLootMenuHandler handler);
-			virtual void RegisterOpenLootMenuHandler(const char* plugin, OpenLootMenuHandler handler);
-			virtual void RegisterCloseLootMenuHandler(const char* plugin, CloseLootMenuHandler handler);
-			virtual void RegisterInvalidateLootMenuHandler(const char* plugin, InvalidateLootMenuHandler handler);
-
-			virtual void RegisterModifyInventoryHandler(const char* plugin, ModifyInventoryHandler handler);
-			virtual void RegisterPopulateInfoBarHandler(const char* plugin, PopulateInfoBarHandler handler);
-			virtual void RegisterPopulateButtonBarHandler(const char* plugin, PopulateButtonBarHandler handler);
-
-			virtual void ForceCurrentContainer(const char* plugin, RE::ObjectRefHandle container);
-			virtual void ClearForcedContainer(const char* plugin);
-			virtual void CloseLootMenu(const char* plugin);
-			virtual void RefreshLootMenu(const char* plugin);
-		};
-
-		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
-		struct InterfaceV21 : public InterfaceV20
-		{
-			virtual void RegisterModifyButtonBarHandler(const char* plugin, ModifyButtonBarHandler handler);
-			virtual void RegisterModifyItemDataHandler(const char* plugin, ModifyItemDataHandler handler);
-
-			virtual void RegisterInputActionHandler(const char* plugin, InputActionHandler handler);
-			virtual void PerformInputAction(const char* plugin, QuickLootAction action);
-		};
+		friend struct QuickLootAPI::InterfaceV20;
+		friend struct QuickLootAPI::InterfaceV21;
 
 		static InterfaceV20* GetInterfaceV20() { return &_interface; }
 		static InterfaceV21* GetInterfaceV21() { return &_interface; }

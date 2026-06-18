@@ -1,7 +1,8 @@
 #pragma once
 
 /*
-	Header File for QuickLoot IE integration
+	Header File for QuickLoot IE integration.
+	Before using any other functions, call QuickLootAPI::Init and pass in your own plugin name.
 */
 
 namespace QuickLoot::API
@@ -384,6 +385,8 @@ namespace QuickLoot::API
 		}
 
 	private:
+		friend class APIServer;
+
 		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
 		struct InterfaceV20
 		{
