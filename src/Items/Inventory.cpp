@@ -50,7 +50,10 @@ namespace QuickLoot::Items
 					lookup.emplace(object, inventory.size());
 					inventory.emplace_back(InventoryEntry{ new RE::InventoryEntryData(object, entry.count), {} });
 				} else {
-					inventory[it->second].entry->countDelta += entry.count;
+					auto changeEntry = inventory[it->second].entry;
+					if (!changeEntry->IsLeveled()) {
+						changeEntry->countDelta += entry.count;
+					}
 				}
 
 				return RE::BSContainer::ForEachResult::kContinue;
