@@ -43,7 +43,13 @@ namespace QuickLoot::API
 			virtual void RefreshLootMenu(const char* plugin);
 		};
 
+		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
+		struct InterfaceV21 : public InterfaceV20
+		{
+		};
+
 		static InterfaceV20* GetInterfaceV20() { return &_interface; }
+		static InterfaceV21* GetInterfaceV21() { return &_interface; }
 
 		static HandleResult DispatchTakingItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 		static void DispatchTakeItemEvent(RE::Actor* actor, RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
@@ -60,7 +66,7 @@ namespace QuickLoot::API
 		static std::vector<ButtonDefinition> DispatchPopulateButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 
 	private:
-		static inline InterfaceV20 _interface{};
+		static inline InterfaceV21 _interface{};
 		static inline std::shared_mutex _lock{};
 
 		static inline std::vector<TakingItemHandler> _takingItemHandlers{};
