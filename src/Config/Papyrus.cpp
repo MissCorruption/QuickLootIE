@@ -126,13 +126,16 @@ namespace QuickLoot::Config
 		LoadSettingsVar(QLIE_KeybindingEnableGamepadModifier, -1);
 
 		// Compatibility > LOTD Icons
-		LoadSettingsVar(QLIE_ShowIconArtifactNew, false);
-		LoadSettingsVar(QLIE_ShowIconArtifactCarried, false);
-		LoadSettingsVar(QLIE_ShowIconArtifactDisplayed, false);
+		LoadSettingsVar(QLIE_ShowIconArtifactNew, true);
+		LoadSettingsVar(QLIE_ShowIconArtifactCarried, true);
+		LoadSettingsVar(QLIE_ShowIconArtifactDisplayed, true);
 
 		// Compatibility > Completionist Icons
-		LoadSettingsVar(QLIE_ShowIconCompletionistNeeded, false);
-		LoadSettingsVar(QLIE_ShowIconCompletionistCollected, false);
+		LoadSettingsVar(QLIE_ShowIconCompletionistNeeded, true);
+		LoadSettingsVar(QLIE_ShowIconCompletionistCollected, true);
+		LoadSettingsVar(QLIE_ShowIconCompletionistDisplayable, true);
+		LoadSettingsVar(QLIE_ShowIconCompletionistDisplayed, true);
+		LoadSettingsVar(QLIE_ShowIconCompletionistOccupied, true);
 
 #undef LoadSettingsVar
 	}
