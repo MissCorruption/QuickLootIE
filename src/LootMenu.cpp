@@ -575,7 +575,8 @@ namespace QuickLoot
 				_inventory.emplace_back(std::move(s));
 			}
 
-			if (UserSettings::ShowIconBest()) {
+			if (UserSettings::ShowIconBest() && _inventory.size() > 0) {
+
 				for (size_t index : Items::Inventory::FindBestInClassItems(inventory)) {
 					_inventory[index]->GetData().bestInClass = true;
 				}
