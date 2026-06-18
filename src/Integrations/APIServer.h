@@ -48,6 +48,8 @@ namespace QuickLoot::API
 		{
 			virtual void RegisterModifyButtonBarHandler(const char* plugin, ModifyButtonBarHandler handler);
 			virtual void RegisterModifyItemDataHandler(const char* plugin, ModifyItemDataHandler handler);
+
+			virtual void RegisterInputActionHandler(const char* plugin, InputActionHandler handler);
 		};
 
 		static InterfaceV20* GetInterfaceV20() { return &_interface; }
@@ -70,6 +72,8 @@ namespace QuickLoot::API
 
 		static void DispatchModifyItemDataEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef, RE::GFxValue& data);
 
+		static HandleResult DispatchInputActionEvent(RE::ObjectRefHandle container, QuickLootAction action);
+
 	private:
 		static inline InterfaceV21 _interface{};
 		static inline std::shared_mutex _lock{};
@@ -86,6 +90,7 @@ namespace QuickLoot::API
 		static inline std::vector<PopulateButtonBarHandler> _populateButtonBarHandlers{};
 		static inline std::vector<ModifyButtonBarHandler> _modifyButtonBarHandlers{};
 		static inline std::vector<ModifyItemDataHandler> _modifyItemDataHandlers{};
+		static inline std::vector<InputActionHandler> _inputActionHandlers{};
 
 		template <typename THandler>
 		static void RegisterHandler(const char* plugin, THandler handler, std::vector<THandler>& handlerList)

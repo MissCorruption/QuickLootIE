@@ -107,6 +107,11 @@ namespace QuickLoot::API
 		RegisterHandler(plugin, handler, _modifyItemDataHandlers);
 	}
 
+	void APIServer::InterfaceV21::RegisterInputActionHandler(const char* plugin, InputActionHandler handler)
+	{
+		RegisterHandler(plugin, handler, _inputActionHandlers);
+	}
+
 #pragma endregion
 
 #pragma region Dispatch
@@ -250,6 +255,16 @@ namespace QuickLoot::API
 		};
 
 		DispatchEvent(_modifyItemDataHandlers, e);
+	}
+
+	HandleResult APIServer::DispatchInputActionEvent(RE::ObjectRefHandle container, QuickLootAction action)
+	{
+		InputActionEvent e{
+			.container = container,
+			.action = action
+		};
+
+		return DispatchCancelableEvent(_inputActionHandlers, e);
 	}
 
 #pragma endregion

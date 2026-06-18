@@ -152,6 +152,15 @@ namespace QuickLoot::API
 			RE::GFxValue& data;
 		};
 
+		struct InputActionEvent
+		{
+			RE::ObjectRefHandle container;
+			// The action to perform.
+			QuickLootAction action;
+			// Set this to HandleResult::kStop to cancel the action.
+			HandleResult result = HandleResult::kContinue;
+		};
+
 		template <typename TEvent>
 		using EventHandler = void (*)(TEvent* e);
 
@@ -167,6 +176,7 @@ namespace QuickLoot::API
 		using PopulateButtonBarHandler = EventHandler<PopulateButtonBarEvent>;
 		using ModifyButtonBarHandler = EventHandler<ModifyButtonBarEvent>;
 		using ModifyItemDataHandler = EventHandler<ModifyItemDataEvent>;
+		using InputActionHandler = EventHandler<InputActionEvent>;
 	}
 
 	using namespace Events;
@@ -331,6 +341,13 @@ namespace QuickLoot::API
 			}
 		}
 
+		static void RegisterInputActionHandler(InputActionHandler handler)
+		{
+			if (_interfaceV21) {
+				_interfaceV21->RegisterInputActionHandler(_plugin, handler);
+			}
+		}
+
 	private:
 		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
 		struct InterfaceV20
@@ -360,6 +377,8 @@ namespace QuickLoot::API
 		{
 			virtual void RegisterModifyButtonBarHandler(const char* plugin, ModifyButtonBarHandler handler);
 			virtual void RegisterModifyItemDataHandler(const char* plugin, ModifyItemDataHandler handler);
+
+			virtual void RegisterInputActionHandler(const char* plugin, InputActionHandler handler);
 		};
 
 		static inline const char* _plugin;

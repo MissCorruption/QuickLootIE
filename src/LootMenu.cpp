@@ -320,6 +320,10 @@ namespace QuickLoot
 			return;
 		}
 
+		if (API::APIServer::DispatchInputActionEvent(_container, action) != API::HandleResult::kContinue) {
+			return;
+		}
+
 		switch (action) {
 		case Input::QuickLootAction::kUse:
 			UseItem();
