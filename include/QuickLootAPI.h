@@ -348,6 +348,13 @@ namespace QuickLoot::API
 			}
 		}
 
+		static void PerformInputAction(QuickLootAction action)
+		{
+			if (_interfaceV21) {
+				_interfaceV21->PerformInputAction(_plugin, action);
+			}
+		}
+
 	private:
 		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
 		struct InterfaceV20
@@ -379,6 +386,7 @@ namespace QuickLoot::API
 			virtual void RegisterModifyItemDataHandler(const char* plugin, ModifyItemDataHandler handler);
 
 			virtual void RegisterInputActionHandler(const char* plugin, InputActionHandler handler);
+			virtual void PerformInputAction(const char* plugin, QuickLootAction action);
 		};
 
 		static inline const char* _plugin;

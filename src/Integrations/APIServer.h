@@ -50,6 +50,7 @@ namespace QuickLoot::API
 			virtual void RegisterModifyItemDataHandler(const char* plugin, ModifyItemDataHandler handler);
 
 			virtual void RegisterInputActionHandler(const char* plugin, InputActionHandler handler);
+			virtual void PerformInputAction(const char* plugin, QuickLootAction action);
 		};
 
 		static InterfaceV20* GetInterfaceV20() { return &_interface; }

@@ -112,6 +112,11 @@ namespace QuickLoot::API
 		RegisterHandler(plugin, handler, _inputActionHandlers);
 	}
 
+	void APIServer::InterfaceV21::PerformInputAction(const char* plugin, QuickLootAction action)
+	{
+		LootMenuManager::OnInputAction(action);
+	}
+
 #pragma endregion
 
 #pragma region Dispatch
