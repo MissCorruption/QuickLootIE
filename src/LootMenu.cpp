@@ -602,7 +602,9 @@ namespace QuickLoot
 		SortInventory();
 
 		for (auto& item : _inventory) {
-			_itemListProvider.PushBack(item->BuildDataObject(uiMovie.get()));
+			auto data = item->BuildDataObject(uiMovie.get());
+			API::APIServer::DispatchModifyItemDataEvent(_container, item->GetEntry(), item->GetDropRef(), data);
+			_itemListProvider.PushBack(data);
 		}
 
 		_itemList.InvalidateData();

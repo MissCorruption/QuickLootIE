@@ -102,6 +102,11 @@ namespace QuickLoot::API
 		RegisterHandler(plugin, handler, _modifyButtonBarHandlers);
 	}
 
+	void APIServer::InterfaceV21::RegisterModifyItemDataHandler(const char* plugin, ModifyItemDataHandler handler)
+	{
+		RegisterHandler(plugin, handler, _modifyItemDataHandlers);
+	}
+
 #pragma endregion
 
 #pragma region Dispatch
@@ -232,6 +237,19 @@ namespace QuickLoot::API
 		};
 
 		DispatchEvent(_modifyButtonBarHandlers, e);
+	}
+
+	void APIServer::DispatchModifyItemDataEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef, RE::GFxValue& data)
+	{
+		ItemStack stack{ entry, std::move(dropRef) };
+
+		ModifyItemDataEvent e{
+			.container = container,
+			.stack = entry ? &stack : nullptr,
+			.data = data,
+		};
+
+		DispatchEvent(_modifyItemDataHandlers, e);
 	}
 
 #pragma endregion

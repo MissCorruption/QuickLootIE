@@ -47,6 +47,7 @@ namespace QuickLoot::API
 		struct InterfaceV21 : public InterfaceV20
 		{
 			virtual void RegisterModifyButtonBarHandler(const char* plugin, ModifyButtonBarHandler handler);
+			virtual void RegisterModifyItemDataHandler(const char* plugin, ModifyItemDataHandler handler);
 		};
 
 		static InterfaceV20* GetInterfaceV20() { return &_interface; }
@@ -67,6 +68,8 @@ namespace QuickLoot::API
 		static std::vector<ButtonDefinition> DispatchPopulateButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef);
 		static void DispatchModifyButtonBarEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef, RE::BSTArray<ButtonDefinition2>& buttons);
 
+		static void DispatchModifyItemDataEvent(RE::ObjectRefHandle container, RE::InventoryEntryData* entry, RE::ObjectRefHandle dropRef, RE::GFxValue& data);
+
 	private:
 		static inline InterfaceV21 _interface{};
 		static inline std::shared_mutex _lock{};
@@ -82,6 +85,7 @@ namespace QuickLoot::API
 		static inline std::vector<PopulateInfoBarHandler> _populateInfoBarHandlers{};
 		static inline std::vector<PopulateButtonBarHandler> _populateButtonBarHandlers{};
 		static inline std::vector<ModifyButtonBarHandler> _modifyButtonBarHandlers{};
+		static inline std::vector<ModifyItemDataHandler> _modifyItemDataHandlers{};
 
 		template <typename THandler>
 		static void RegisterHandler(const char* plugin, THandler handler, std::vector<THandler>& handlerList)

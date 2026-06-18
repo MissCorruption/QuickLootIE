@@ -143,6 +143,15 @@ namespace QuickLoot::API
 			RE::BSTArray<ButtonDefinition2>& buttons;
 		};
 
+		struct ModifyItemDataEvent
+		{
+			RE::ObjectRefHandle container;
+			// The selected item stack.
+			const ItemStack* stack;
+			// This is the data object passed to the swf for display.
+			RE::GFxValue& data;
+		};
+
 		template <typename TEvent>
 		using EventHandler = void (*)(TEvent* e);
 
@@ -157,6 +166,7 @@ namespace QuickLoot::API
 		using PopulateInfoBarHandler = EventHandler<PopulateInfoBarEvent>;
 		using PopulateButtonBarHandler = EventHandler<PopulateButtonBarEvent>;
 		using ModifyButtonBarHandler = EventHandler<ModifyButtonBarEvent>;
+		using ModifyItemDataHandler = EventHandler<ModifyItemDataEvent>;
 	}
 
 	using namespace Events;
@@ -314,6 +324,13 @@ namespace QuickLoot::API
 			}
 		}
 
+		static void RegisterModifyItemDataHandler(ModifyItemDataHandler handler)
+		{
+			if (_interfaceV21) {
+				_interfaceV21->RegisterModifyItemDataHandler(_plugin, handler);
+			}
+		}
+
 	private:
 		// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
 		struct InterfaceV20
@@ -342,6 +359,7 @@ namespace QuickLoot::API
 		struct InterfaceV21 : public InterfaceV20
 		{
 			virtual void RegisterModifyButtonBarHandler(const char* plugin, ModifyButtonBarHandler handler);
+			virtual void RegisterModifyItemDataHandler(const char* plugin, ModifyItemDataHandler handler);
 		};
 
 		static inline const char* _plugin;
