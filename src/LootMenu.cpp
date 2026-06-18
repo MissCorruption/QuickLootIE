@@ -736,7 +736,7 @@ namespace QuickLoot
 		case Input::QuickLootAction::kUse:
 			{
 				const auto selectedItem = _selectedIndex >= 0 && _selectedIndex < _inventory.size() ? _inventory[_selectedIndex].get() : nullptr;
-				const char* useLabel = selectedItem ? selectedItem->GetUseLabel() : "$Use";
+				const char* useLabel = selectedItem ? selectedItem->GetUseLabel() : "$qlie_Use";
 
 				button = { useLabel, useLabel, useLabel, useLabel };
 				break;

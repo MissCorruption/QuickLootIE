@@ -371,20 +371,20 @@ namespace QuickLoot::Items
 		switch (data.type.value.get()) {
 		case ItemType::kArmor:
 		case ItemType::kWeapon:
-			return "$Equip";
+			return "$qlie_Equip";
 
 		case ItemType::kBook:
-			return "$Read";
+			return "$qlie_Read";
 
 		case ItemType::kFood:
 		case ItemType::kIngredient:
 			if (data.formType == RE::FormType::AlchemyItem && data.potion.subType == PotionType::kDrink) {
-				return "$Use";
+				return "$qlie_Use";
 			}
-			return "$Eat";
+			return "$qlie_Eat";
 
 		default:
-			return "$Use";
+			return "$qlie_Use";
 		}
 	}
 
