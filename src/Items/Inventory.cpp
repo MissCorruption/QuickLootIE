@@ -10,6 +10,8 @@ namespace QuickLoot::Items
 			return {};
 		}
 
+		PROFILE_SCOPE
+
 		const auto changes = container->GetInventoryChanges();
 
 		if (const auto actor = skyrim_cast<RE::Actor*>(container)) {
@@ -93,6 +95,8 @@ namespace QuickLoot::Items
 
 	std::vector<size_t> Inventory::FindBestInClassItems(const RE::BSTArray<InventoryEntry>& inventory, bool includePlayerInventory)
 	{
+		PROFILE_SCOPE
+
 		struct BestItem
 		{
 			int index = -1;

@@ -562,6 +562,8 @@ namespace QuickLoot
 
 		API::APIServer::DispatchInvalidateLootMenuEvent(_container, inventory);
 
+		PROFILE_LOG("Loaded {} items", inventory.size());
+
 		{
 			PROFILE_SCOPE_NAMED("Item data")
 			_inventory.clear();

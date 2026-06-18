@@ -45,7 +45,7 @@ namespace QuickLoot::Util
 		logger::info("Started profiler");
 	}
 
-	std::string GetIndent(size_t depth)
+	std::string Profiler::GetIndent(size_t depth)
 	{
 		static std::string indentCache = "| | | | | | | | ";
 
