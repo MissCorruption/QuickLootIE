@@ -58,7 +58,7 @@ If you are using a UI overhaul and want the loot menu to match its design, check
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/123475]Untarnished UI - QuickLoot IE Patch[/url] by Wuerfelhusten
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/123469]NORDIC UI - QuickLoot IE Patch[/url] by Wuerfelhusten
 [*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/127118]Edge UI - QuickLoot IE Reskin[/url] by EugeneUI
-[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/136012]QuickLoot IE Vanilla Skin[/url] by TigerCowZ
+[*] [url=https://www.nexusmods.com/skyrimspecialedition/mods/181922]QuickLoot IE Vanilla Skin[/url] by TigerCowZ
 [/list]
 [color=#6aa84f][size=5][b]Frequently Asked Questions[/b][/size][/color]
 
