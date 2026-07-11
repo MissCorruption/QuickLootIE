@@ -413,14 +413,17 @@ namespace QuickLoot
 		// TODO implement
 	}
 
-	void LootMenu::DispelEffectsWithArchetype(RE::MagicTarget* target, RE::MagicTarget::Archetype type, bool force)
+	void LootMenu::DispelInvisibility(RE::MagicTarget* target, bool force)
 	{
 		if (!target || !target->GetActiveEffectList()) {
 			return;
 		}
 
 		for (auto* effect : *target->GetActiveEffectList()) {
-			if (effect && effect->GetBaseObject() && effect->GetBaseObject()->HasArchetype(type)) {
+			if (effect && effect->GetBaseObject() &&
+				effect->GetBaseObject()->HasArchetype(RE::EffectArchetypes::ArchetypeID::kInvisibility) &&
+				// Vanilla interactions don't dispel when this flag isn't set. For example: https://www.nexusmods.com/skyrimspecialedition/mods/1310
+				effect->GetBaseObject()->data.flags.all(RE::EffectSetting::EffectSettingData::Flag::kRecover)) {
 				effect->Dispel(force);
 			}
 		}
@@ -435,7 +438,7 @@ namespace QuickLoot
 		// Taken from WaterFox' fork of QuickLootEE
 		// See: https://github.com/Eloquence4/QuickLootEE/blob/c93e56dcb7f0372a5ad7df4b22e118e37deeb286/src/Scaleform/LootMenu.h#L136-L162
 		if (UserSettings::DispelInvisibility()) {
-			DispelEffectsWithArchetype(player->AsMagicTarget(), RE::EffectArchetypes::ArchetypeID::kInvisibility, false);
+			DispelInvisibility(player->AsMagicTarget(), false);
 		}
 
 		QueueRefresh(RefreshFlags::kInventory);

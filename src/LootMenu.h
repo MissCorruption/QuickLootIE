@@ -82,7 +82,7 @@ namespace QuickLoot
 		void ScrollPrevPage();
 		void ScrollNextPage();
 
-		static void DispelEffectsWithArchetype(RE::MagicTarget* target, RE::MagicTarget::Archetype type, bool force);
+		static void DispelInvisibility(RE::MagicTarget* target, bool force);
 		void OnTakeAction();
 		void TakeStack();
 		void TakeAll();
