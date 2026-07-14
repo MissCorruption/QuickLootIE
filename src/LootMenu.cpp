@@ -20,10 +20,6 @@
 
 #include <numbers>
 
-#ifdef ENABLE_SKYRIM_VR
-#	include "RE/W/WSActivateRollover.h"
-#endif
-
 #undef PlaySound
 
 using namespace QuickLoot::Config;
@@ -872,12 +868,8 @@ namespace QuickLoot
 
 #if defined(ENABLE_SKYRIM_VR)
 		if (REL::Module::IsVR()) {
-			if (_container.get() && Behaviors::ActivationPrompt::IsBlocked() &&
-				RE::UI::GetSingleton()->IsMenuOpen(RE::WSActivateRollover::MENU_NAME)) {
-				RE::UIMessageQueue::GetSingleton()->AddMessage(
-					RE::WSActivateRollover::MENU_NAME,
-					RE::UI_MESSAGE_TYPE::kHide,
-					nullptr);
+			if (_container.get() && Behaviors::ActivationPrompt::IsBlocked()) {
+				Behaviors::ActivationPrompt::HideRolloverIfOpen();
 			}
 
 			UniversalMenu::AdvanceMovie(interval, currentTime);

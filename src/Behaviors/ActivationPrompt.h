@@ -24,6 +24,8 @@ namespace QuickLoot::Behaviors
 		static void Unblock() noexcept { _blocked = false; }
 		static bool IsBlocked() noexcept { return _blocked && Config::SystemSettings::SuppressActivationPrompt(); }
 
+		static void HideRolloverIfOpen() noexcept;
+
 	private:
 		static void HideRollover() noexcept;
 	};

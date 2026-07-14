@@ -2,7 +2,7 @@
 
 #include "RE/U/UIMessageQueue.h"
 
-#ifdef ENABLE_SKYRIM_VR
+#if defined(ENABLE_SKYRIM_VR)
 #	include "RE/W/WSActivateRollover.h"
 #endif
 
@@ -10,7 +10,7 @@ namespace QuickLoot::Behaviors
 {
 	void ActivationPrompt::HideRollover() noexcept
 	{
-#ifdef ENABLE_SKYRIM_VR
+#if defined(ENABLE_SKYRIM_VR)
 		if (!REL::Module::IsVR()) {
 			return;
 		}
@@ -19,6 +19,17 @@ namespace QuickLoot::Behaviors
 			RE::WSActivateRollover::MENU_NAME,
 			RE::UI_MESSAGE_TYPE::kHide,
 			nullptr);
+#endif
+	}
+
+	void ActivationPrompt::HideRolloverIfOpen() noexcept
+	{
+#if defined(ENABLE_SKYRIM_VR)
+		if (!REL::Module::IsVR() || !RE::UI::GetSingleton()->IsMenuOpen(RE::WSActivateRollover::MENU_NAME)) {
+			return;
+		}
+
+		HideRollover();
 #endif
 	}
 
@@ -36,7 +47,7 @@ namespace QuickLoot::Behaviors
 		static void thunk(RE::UIMessageQueue* _this, const RE::BSFixedString& menuName, RE::UI_MESSAGE_TYPE type, RE::HUDData* data)
 		{
 			if (ActivationPrompt::IsBlocked()) {
-#ifdef ENABLE_SKYRIM_VR
+#if defined(ENABLE_SKYRIM_VR)
 				if (REL::Module::IsVR() &&
 					menuName == RE::WSActivateRollover::MENU_NAME &&
 					(type == RE::UI_MESSAGE_TYPE::kShow || type == RE::UI_MESSAGE_TYPE::kUpdate)) {
