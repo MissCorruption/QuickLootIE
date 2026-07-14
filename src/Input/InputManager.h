@@ -33,6 +33,7 @@ namespace QuickLoot::Input
 		static inline std::set<DeviceKey> _allModifierKeys{};
 		static inline const RE::Setting* _grabDelaySetting = nullptr;
 		static inline bool _triggerOnActivateRelease = false;
+		static inline bool _suppressTransferUntilGripRelease = false;
 
 		static void ReloadKeybindings();
 		static Keybinding* FindConflictingKeybinding(const UserEventMapping&, DeviceType);

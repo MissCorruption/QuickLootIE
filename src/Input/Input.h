@@ -14,6 +14,7 @@ namespace QuickLoot::Input
 		{
 			kBY = RE::BSOpenVRControllerDevice::Key::kBY,
 			kGrip = RE::BSOpenVRControllerDevice::Key::kGrip,
+			kGripAlt = RE::BSOpenVRControllerDevice::Key::kGripAlt,
 			kXA = RE::BSOpenVRControllerDevice::Key::kXA,
 			kJoystickTrigger = RE::BSOpenVRControllerDevice::Key::kJoystickTrigger,
 			kTrigger = RE::BSOpenVRControllerDevice::Key::kTrigger,

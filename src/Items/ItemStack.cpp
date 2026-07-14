@@ -586,6 +586,23 @@ namespace QuickLoot::Items
 
 	RE::ExtraDataList* ItemStack::GetInventoryEntryExtraListForRemoval(RE::InventoryEntryData* entry, int count, bool isViewingContainer)
 	{
+		if (REL::Module::IsVR()) {
+			// No VR relocation is known for the native helper below (id 50948/51825 only cover
+			// SE/AE, and RELOCATION_ID's 2-arg form silently reuses the SE id for VR, which isn't
+			// present in the VR address library and hard-fails via stl::report_and_fail). Approximate
+			// it with pure C++ using only already VR-safe RE:: APIs: hand RemoveItem a pre-existing
+			// extra list only when it exactly covers the removal, otherwise defer to its own default
+			// selection (nullptr). This skips the native version's narrow extra check for bypassing
+			// ownership when removing from the player's own inventory (not a container), which only
+			// affects a rare drop/give edge case, not looting.
+			if (!entry || !entry->extraLists || entry->extraLists->empty()) {
+				return nullptr;
+			}
+
+			const auto first = entry->extraLists->front();
+			return first && first->GetCount() >= count ? first : nullptr;
+		}
+
 		using func_t = decltype(&GetInventoryEntryExtraListForRemoval);
 		REL::Relocation<func_t> func{ RELOCATION_ID(50948, 51825) };
 		return func(entry, count, isViewingContainer);

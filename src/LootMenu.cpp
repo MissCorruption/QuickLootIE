@@ -484,6 +484,35 @@ namespace QuickLoot
 
 	void LootMenu::Transfer()
 	{
+		const auto container = _container;
+
+		if (REL::Module::IsVR()) {
+			const auto ui = RE::UI::GetSingleton();
+			if (ui->IsMenuOpen(RE::ContainerMenu::MENU_NAME)) {
+				return;
+			}
+
+			// ActivatePickRef() reads the crosshair pick ref, which is unreliable in VR once
+			// QuickLoot closes (and may not match _container at all). Open the vanilla menu
+			// directly on the container we were already looting, deferred one frame so hide
+			// finishes before ContainerMenu pushes onto the UI stack.
+			LootMenuManager::RequestHide();
+
+			SKSE::GetTaskInterface()->AddTask([container] {
+				if (RE::UI::GetSingleton()->IsMenuOpen(RE::ContainerMenu::MENU_NAME)) {
+					return;
+				}
+
+				const auto containerRef = container.get().get();
+				if (!containerRef) {
+					return;
+				}
+
+				RE::ContainerMenu::OpenMenu(containerRef, RE::ContainerMenu::ContainerMode::kLoot);
+			});
+			return;
+		}
+
 		RE::PlayerCharacter::GetSingleton()->ActivatePickRef();
 	}
 
