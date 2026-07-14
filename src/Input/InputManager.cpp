@@ -18,34 +18,89 @@ namespace QuickLoot::Input
 			return RE::BSOpenVRControllerDevice::IsGripButton(keyCode);
 		}
 
+		bool IsVrPrimaryFamily(DeviceType deviceType)
+		{
+			return deviceType == DeviceType::kOculusPrimary ||
+			       deviceType == DeviceType::kVivePrimary ||
+			       deviceType == DeviceType::kWMRPrimary;
+		}
+
+		bool IsVrSecondaryFamily(DeviceType deviceType)
+		{
+			return deviceType == DeviceType::kOculusSecondary ||
+			       deviceType == DeviceType::kViveSecondary ||
+			       deviceType == DeviceType::kWMRSecondary;
+		}
+
+		bool VrDevicesEquivalent(DeviceType bindingDevice, DeviceType eventDevice)
+		{
+			if (bindingDevice == eventDevice) {
+				return true;
+			}
+
+			if (IsVrPrimaryFamily(bindingDevice)) {
+				return RE::BSOpenVRControllerDevice::IsPrimaryController(eventDevice);
+			}
+
+			if (IsVrSecondaryFamily(bindingDevice)) {
+				return RE::BSOpenVRControllerDevice::IsSecondaryController(eventDevice);
+			}
+
+			return false;
+		}
+
+		bool VrKeyCodesEquivalent(std::uint32_t bindingKeyCode, std::uint32_t eventKeyCode)
+		{
+			if (bindingKeyCode == eventKeyCode) {
+				return true;
+			}
+
+			return IsVrGripKeyCode(bindingKeyCode) && IsVrGripKeyCode(eventKeyCode);
+		}
+
 		bool IsRegisteredInputKey(const std::set<DeviceKey>& registeredKeys, DeviceKey eventKey)
 		{
 			if (registeredKeys.contains(eventKey)) {
 				return true;
 			}
 
-			if (!REL::Module::IsVR() || !IsVrGripKeyCode(eventKey.keyCode)) {
+			if (!REL::Module::IsVR()) {
 				return false;
 			}
 
 			return std::ranges::any_of(registeredKeys, [&](const DeviceKey& registeredKey) {
-				return registeredKey.deviceType == eventKey.deviceType && IsVrGripKeyCode(registeredKey.keyCode);
+				return VrKeyCodesEquivalent(registeredKey.keyCode, eventKey.keyCode) &&
+				       VrDevicesEquivalent(registeredKey.deviceType, eventKey.deviceType);
 			});
 		}
 
 		bool KeybindingMatchesEvent(const Keybinding& keybinding, DeviceType deviceType, std::uint32_t inputKey)
 		{
-			if (keybinding.inputKey.deviceType != deviceType) {
+			if (!VrKeyCodesEquivalent(keybinding.inputKey.keyCode, inputKey)) {
 				return false;
 			}
 
-			if (keybinding.inputKey.keyCode == inputKey) {
-				return true;
-			}
+			return VrDevicesEquivalent(keybinding.inputKey.deviceType, deviceType);
+		}
 
-			return REL::Module::IsVR() &&
-			       IsVrGripKeyCode(inputKey) &&
-			       IsVrGripKeyCode(keybinding.inputKey.keyCode);
+		bool IsVrTriggerKeyCode(std::uint32_t keyCode)
+		{
+			return keyCode == VRInput::kTrigger || keyCode == VRInput::kJoystickTrigger;
+		}
+
+		bool IsVrTakeAllButtonPress(const RE::ButtonEvent* event)
+		{
+			return event->IsUp();
+		}
+
+		bool IsVrControllerDevice(DeviceType deviceType)
+		{
+			return deviceType == DeviceType::kOculusPrimary ||
+			       deviceType == DeviceType::kOculusSecondary ||
+			       deviceType == DeviceType::kVivePrimary ||
+			       deviceType == DeviceType::kViveSecondary ||
+			       deviceType == DeviceType::kWMRPrimary ||
+			       deviceType == DeviceType::kWMRSecondary;
 		}
 	}
 #endif
@@ -248,6 +303,11 @@ namespace QuickLoot::Input
 
 		if (_allModifierKeys.contains(eventKey)) {
 			UpdateModifierStates();
+#if defined(ENABLE_SKYRIM_VR)
+			if (REL::Module::IsVR() && LootMenuManager::IsShowing() && IsVrTriggerKeyCode(eventKey.keyCode)) {
+				LootMenuManager::RequestRefresh(RefreshFlags::kButtonBar);
+			}
+#endif
 		}
 
 #if defined(ENABLE_SKYRIM_VR)
@@ -267,6 +327,16 @@ namespace QuickLoot::Input
 		if (!keybinding) {
 			return;
 		}
+
+#if defined(ENABLE_SKYRIM_VR)
+		// Quest controllers often skip IsDown() on B/Y; accept several press edge shapes.
+		if (REL::Module::IsVR() && keybinding->action == QuickLootAction::kTakeAll) {
+			if (IsVrTakeAllButtonPress(event)) {
+				TriggerKeybinding(keybinding);
+			}
+			return;
+		}
+#endif
 
 		if (event->IsDown()) {
 			keybinding->nextRetriggerTime = 0.0f;
@@ -345,9 +415,13 @@ namespace QuickLoot::Input
 		std::vector<Keybinding> filtered{};
 
 		if (REL::Module::IsVR()) {
-			// Take rides the wand's "Activate" key itself via HandleGrab's tap split (its key code
-			// is resolved dynamically, not a fixed DeviceKey, so it can't come from _keybindings).
-			filtered.push_back(Keybinding{ .action = QuickLootAction::kTake, .buttonArtOverride = ButtonArtIndex::kOculusA });
+			// Take/Use share the wand Activate button (tap). Use requires holding the trigger
+			// first, matching flatrim's modifier-key Use binding.
+			if (IsVrUseModifierPressed()) {
+				filtered.push_back(Keybinding{ .action = QuickLootAction::kUse, .buttonArtOverride = ButtonArtIndex::kVrTriggerHold });
+			} else {
+				filtered.push_back(Keybinding{ .action = QuickLootAction::kTake, .buttonArtOverride = ButtonArtIndex::kOculusA });
+			}
 
 			// TakeAll/Transfer are displayed once each regardless of headset brand, even though
 			// _keybindings holds a separate functional entry per VR device family (Oculus/Vive/WMR
@@ -356,13 +430,65 @@ namespace QuickLoot::Input
 			filtered.push_back(Keybinding{ .action = QuickLootAction::kTakeAll, .buttonArtOverride = ButtonArtIndex::kOculusB });
 			filtered.push_back(Keybinding{ .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kVrGrip });
 		} else {
+			UpdateModifierStates();
+
 			const bool isGamepad = QUsingGamepad(RE::BSInputDeviceManager::GetSingleton());
 
-			std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
-				return keybinding.group == ControlGroup::kButtonBar &&
-				       keybinding.isModifierSatisfied &&
-				       (keybinding.inputKey.deviceType == DeviceType::kGamepad) == isGamepad;
-			});
+			const auto collectBindings = [&](bool gamepadFilter) {
+				for (const auto& keybinding : _keybindings) {
+					if (keybinding.group != ControlGroup::kButtonBar || !keybinding.isModifierSatisfied) {
+						continue;
+					}
+
+#if defined(ENABLE_SKYRIM_VR)
+					if (IsVrControllerDevice(keybinding.inputKey.deviceType)) {
+						continue;
+					}
+#endif
+
+					if ((keybinding.inputKey.deviceType == DeviceType::kGamepad) != gamepadFilter) {
+						continue;
+					}
+
+					if (std::ranges::any_of(filtered, [&](const Keybinding& existing) {
+							return existing.action == keybinding.action;
+						})) {
+						continue;
+					}
+
+					filtered.push_back(keybinding);
+				}
+			};
+
+			collectBindings(isGamepad);
+			if (filtered.empty()) {
+				collectBindings(!isGamepad);
+			}
+			if (filtered.empty()) {
+				for (const auto& keybinding : _keybindings) {
+					if (keybinding.group != ControlGroup::kButtonBar || keybinding.modifierKey) {
+						continue;
+					}
+
+#if defined(ENABLE_SKYRIM_VR)
+					if (IsVrControllerDevice(keybinding.inputKey.deviceType)) {
+						continue;
+					}
+#endif
+
+					if ((keybinding.inputKey.deviceType == DeviceType::kGamepad) != isGamepad) {
+						continue;
+					}
+
+					if (std::ranges::any_of(filtered, [&](const Keybinding& existing) {
+							return existing.action == keybinding.action;
+						})) {
+						continue;
+					}
+
+					filtered.push_back(keybinding);
+				}
+			}
 		}
 
 		return filtered;
@@ -405,22 +531,44 @@ namespace QuickLoot::Input
 		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kMainThumbStickUp), none, QuickLootAction::kScrollUp, true);
 		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kMainThumbStickDown), none, QuickLootAction::kScrollDown, true);
 
-		// B/Y and Grip on the main-hand wand are the VR equivalents of Flatrim's dedicated Take All
-		// and Search keys (Take instead rides the "Activate" key itself via HandleGrab's tap split,
-		// and hold-Activate remains the physics grab, so Transfer/Search needed its own button too).
-		_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kOculusPrimary, VRInput::kBY), .action = QuickLootAction::kTakeAll, .buttonArtOverride = ButtonArtIndex::kOculusB });
-		_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kVivePrimary, VRInput::kBY), .action = QuickLootAction::kTakeAll, .buttonArtOverride = ButtonArtIndex::kOculusB });
-		_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kBY), .action = QuickLootAction::kTakeAll, .buttonArtOverride = ButtonArtIndex::kOculusB });
-
-		_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kOculusPrimary, VRInput::kGrip), .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kVrGrip });
-		_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kVivePrimary, VRInput::kGrip), .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kVrGrip });
-		_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kGrip), .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kVrGrip });
-
 		if (REL::Module::IsVR()) {
+			// B/Y and Grip on the main-hand wand are the VR equivalents of Flatrim's dedicated Take All
+			// and Search keys (Take instead rides the "Activate" key itself via HandleGrab's tap split,
+			// and hold-Activate remains the physics grab, so Transfer/Search needed its own button too).
+			_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kOculusPrimary, VRInput::kBY), .action = QuickLootAction::kTakeAll, .buttonArtOverride = ButtonArtIndex::kOculusB });
+			_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kVivePrimary, VRInput::kBY), .action = QuickLootAction::kTakeAll, .buttonArtOverride = ButtonArtIndex::kOculusB });
+			_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kBY), .action = QuickLootAction::kTakeAll, .buttonArtOverride = ButtonArtIndex::kOculusB });
+
+			_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kOculusPrimary, VRInput::kGrip), .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kVrGrip });
+			_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kVivePrimary, VRInput::kGrip), .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kVrGrip });
+			_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kGrip), .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kVrGrip });
+
 			// Quest/Oculus report grip as kGripAlt (axis 2) rather than kGrip - register both so
 			// UpdateMappings can suppress the conflicting vanilla mapping for either code.
 			for (auto device : { DeviceType::kOculusPrimary, DeviceType::kVivePrimary, DeviceType::kWMRPrimary }) {
 				_keybindings.push_back(Keybinding{ .group = ControlGroup::kButtonBar, .inputKey = DeviceKey::Get(device, VRInput::kGripAlt), .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kVrGrip });
+			}
+
+			const auto controlMap = RE::ControlMap::GetSingleton();
+			for (auto device : { DeviceType::kOculusPrimary, DeviceType::kVivePrimary, DeviceType::kWMRPrimary }) {
+				const auto activateKey = controlMap->GetMappedKey("Activate", device);
+				if (activateKey == RE::ControlMap::kInvalid) {
+					continue;
+				}
+
+				const auto activate = DeviceKey::Get(device, activateKey);
+				_keybindings.push_back(Keybinding{
+					.group = ControlGroup::kButtonBar,
+					.inputKey = activate,
+					.modifierKey = DeviceKey::Get(device, VRInput::kTrigger),
+					.action = QuickLootAction::kUse,
+					.buttonArtOverride = ButtonArtIndex::kVrTriggerHold });
+				_keybindings.push_back(Keybinding{
+					.group = ControlGroup::kButtonBar,
+					.inputKey = activate,
+					.modifierKey = DeviceKey::Get(device, VRInput::kJoystickTrigger),
+					.action = QuickLootAction::kUse,
+					.buttonArtOverride = ButtonArtIndex::kVrTriggerHold });
 			}
 		}
 
@@ -450,6 +598,11 @@ namespace QuickLoot::Input
 				if (key != RE::ControlMap::kInvalid) {
 					_allInputKeys.insert(DeviceKey::Get(device, key));
 				}
+
+				_allInputKeys.insert(DeviceKey::Get(device, VRInput::kTrigger));
+				_allInputKeys.insert(DeviceKey::Get(device, VRInput::kJoystickTrigger));
+				_allModifierKeys.insert(DeviceKey::Get(device, VRInput::kTrigger));
+				_allModifierKeys.insert(DeviceKey::Get(device, VRInput::kJoystickTrigger));
 			}
 		}
 
@@ -608,7 +761,7 @@ namespace QuickLoot::Input
 			// fixed key code we can register up front), so tapping it always means Take while
 			// the menu is showing rather than relying on a matched Keybinding entry.
 			if (REL::Module::IsVR() && LootMenuManager::IsShowing()) {
-				LootMenuManager::OnInputAction(QuickLootAction::kTake);
+				LootMenuManager::OnInputAction(IsVrUseModifierPressed() ? QuickLootAction::kUse : QuickLootAction::kTake);
 				return true;
 			}
 
@@ -627,6 +780,24 @@ namespace QuickLoot::Input
 		}
 
 		return true;
+	}
+
+	bool InputManager::IsVrUseModifierPressed()
+	{
+#if defined(ENABLE_SKYRIM_VR)
+		if (!REL::Module::IsVR()) {
+			return false;
+		}
+
+		const auto device = GetInputDevice(DeviceType::kOculusPrimary);
+		if (!device) {
+			return false;
+		}
+
+		return device->IsPressed(VRInput::kTrigger) || device->IsPressed(VRInput::kJoystickTrigger);
+#else
+		return false;
+#endif
 	}
 
 	bool InputManager::TryGrab()

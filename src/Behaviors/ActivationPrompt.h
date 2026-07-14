@@ -20,8 +20,11 @@ namespace QuickLoot::Behaviors
 
 		static void Install();
 
-		static void Block() noexcept { _blocked = true; }
+		static void Block() noexcept;
 		static void Unblock() noexcept { _blocked = false; }
 		static bool IsBlocked() noexcept { return _blocked && Config::SystemSettings::SuppressActivationPrompt(); }
+
+	private:
+		static void HideRollover() noexcept;
 	};
 }

@@ -1,5 +1,6 @@
 #include "LootMenu.h"
 
+#include "Behaviors/ActivationPrompt.h"
 #include "Behaviors/ContainerAnimator.h"
 #include "CLIK/Array.h"
 #include "CLIK/GFx/Controls/ButtonBar.h"
@@ -18,6 +19,10 @@
 #include "Util/ScaleformUtil.h"
 
 #include <numbers>
+
+#ifdef ENABLE_SKYRIM_VR
+#	include "RE/W/WSActivateRollover.h"
+#endif
 
 #undef PlaySound
 
@@ -864,6 +869,21 @@ namespace QuickLoot
 
 		// Refresh any components that require updates
 		Refresh();
+
+#if defined(ENABLE_SKYRIM_VR)
+		if (REL::Module::IsVR()) {
+			if (_container.get() && Behaviors::ActivationPrompt::IsBlocked() &&
+				RE::UI::GetSingleton()->IsMenuOpen(RE::WSActivateRollover::MENU_NAME)) {
+				RE::UIMessageQueue::GetSingleton()->AddMessage(
+					RE::WSActivateRollover::MENU_NAME,
+					RE::UI_MESSAGE_TYPE::kHide,
+					nullptr);
+			}
+
+			UniversalMenu::AdvanceMovie(interval, currentTime);
+			return;
+		}
+#endif
 
 		// Redraw visuals
 		UniversalMenu::AdvanceMovie(interval, currentTime);

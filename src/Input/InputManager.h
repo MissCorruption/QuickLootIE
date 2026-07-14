@@ -48,6 +48,7 @@ namespace QuickLoot::Input
 		static bool TryGrab();
 		static void TriggerKeybinding(const Keybinding* keybinding);
 		static void HandleRetrigger(const RE::ButtonEvent* event, Keybinding* keybinding);
+		static bool IsVrUseModifierPressed();
 
 		static void WalkMappings(const std::function<void(UserEventMapping&, DeviceType)>& functor, bool allContexts = false);
 	};
