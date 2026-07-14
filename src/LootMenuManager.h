@@ -21,6 +21,11 @@ namespace QuickLoot
 		static void RequestHide();
 		static void RequestRefresh(RefreshFlags flags);
 
+		// Clears the menu's kOnStack flag and fires MenuOpenCloseEvent(closing) directly,
+		// without a kHide UIMessage. Used on VR to avoid the engine's destroy/recreate cycle
+		// for the world-space menu node (see LootMenuManager::RequestHide).
+		static void SoftCloseForVR();
+
 		static void OnInputAction(Input::QuickLootAction action);
 
 		// These should only ever be called from the loot menu itself.

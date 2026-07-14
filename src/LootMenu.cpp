@@ -814,6 +814,14 @@ namespace QuickLoot
 		if (message.type == RE::UI_MESSAGE_TYPE::kHide) {
 			Hide();
 
+			if (REL::Module::IsVR()) {
+				// Defensive fallback: if something external (another mod, Papyrus UI.CloseMenu)
+				// sends a literal kHide directly, soft-close instead of falling through to
+				// UniversalMenu::ProcessMessage, which would forward to the engine's native
+				// WorldSpaceMenu teardown and destroy/recreate this instance.
+				LootMenuManager::SoftCloseForVR();
+			}
+
 			return RE::UI_MESSAGE_RESULTS::kHandled;
 		}
 
