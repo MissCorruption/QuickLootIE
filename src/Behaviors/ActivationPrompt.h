@@ -9,7 +9,6 @@ namespace QuickLoot::Behaviors
 	class ActivationPrompt
 	{
 		static inline std::atomic_bool _blocked = false;
-		static inline std::atomic_bool _softHidden = false;
 
 	public:
 		ActivationPrompt() = delete;
@@ -25,10 +24,7 @@ namespace QuickLoot::Behaviors
 		static void Unblock() noexcept;
 		static bool IsBlocked() noexcept { return _blocked && Config::SystemSettings::SuppressActivationPrompt(); }
 
+		// Kept for LootMenu::AdvanceMovie; node-level hide proved unsafe on VR.
 		static void HideRolloverIfOpen() noexcept;
-
-	private:
-		static void SoftHideRollover() noexcept;
-		static void SoftShowRollover() noexcept;
 	};
 }
