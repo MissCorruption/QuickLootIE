@@ -1,6 +1,6 @@
 #include "ActivationPrompt.h"
 
-#include "RE/U/UIMessageQueue.h"
+#include "RE/U/UI.h"
 
 #if defined(ENABLE_SKYRIM_VR)
 #	include "RE/W/WSActivateRollover.h"
@@ -8,17 +8,39 @@
 
 namespace QuickLoot::Behaviors
 {
-	void ActivationPrompt::HideRollover() noexcept
+	void ActivationPrompt::SoftHideRollover() noexcept
 	{
 #if defined(ENABLE_SKYRIM_VR)
 		if (!REL::Module::IsVR()) {
 			return;
 		}
 
-		RE::UIMessageQueue::GetSingleton()->AddMessage(
-			RE::WSActivateRollover::MENU_NAME,
-			RE::UI_MESSAGE_TYPE::kHide,
-			nullptr);
+		const auto menu = RE::UI::GetSingleton()->GetMenu<RE::WSActivateRollover>().get();
+		if (!menu || !menu->menuNode || menu->menuNode->GetAppCulled()) {
+			return;
+		}
+
+		// Mirrors WorldSpaceMenu::ProcessMessage's kHide NiNode hide bit (menuNode+0x10C bit 0)
+		// without posting a UI kHide that destroys the WorldSpaceMenu instance.
+		menu->menuNode->SetAppCulled(true);
+		menu->Unk_09(RE::UI_MENU_Unk09::kNone);
+		_softHidden = true;
+#endif
+	}
+
+	void ActivationPrompt::SoftShowRollover() noexcept
+	{
+#if defined(ENABLE_SKYRIM_VR)
+		if (!REL::Module::IsVR() || !_softHidden.exchange(false)) {
+			return;
+		}
+
+		const auto menu = RE::UI::GetSingleton()->GetMenu<RE::WSActivateRollover>().get();
+		if (!menu || !menu->menuNode) {
+			return;
+		}
+
+		menu->menuNode->SetAppCulled(false);
 #endif
 	}
 
@@ -29,7 +51,7 @@ namespace QuickLoot::Behaviors
 			return;
 		}
 
-		HideRollover();
+		SoftHideRollover();
 #endif
 	}
 
@@ -38,8 +60,14 @@ namespace QuickLoot::Behaviors
 		_blocked = true;
 
 		if (IsBlocked()) {
-			HideRollover();
+			SoftHideRollover();
 		}
+	}
+
+	void ActivationPrompt::Unblock() noexcept
+	{
+		_blocked = false;
+		SoftShowRollover();
 	}
 
 	struct AddMessageHook
@@ -48,10 +76,20 @@ namespace QuickLoot::Behaviors
 		{
 			if (ActivationPrompt::IsBlocked()) {
 #if defined(ENABLE_SKYRIM_VR)
-				if (REL::Module::IsVR() &&
-					menuName == RE::WSActivateRollover::MENU_NAME &&
-					(type == RE::UI_MESSAGE_TYPE::kShow || type == RE::UI_MESSAGE_TYPE::kUpdate)) {
-					return;
+				if (REL::Module::IsVR() && menuName == RE::WSActivateRollover::MENU_NAME) {
+					// Drop show/update so the prompt cannot reappear, and drop hide/force-hide so
+					// the UI framework cannot destroy the WorldSpaceMenu instance while we only
+					// want a soft (NiNode) suppress alongside LootMenu on the shared VR graph.
+					switch (type) {
+					case RE::UI_MESSAGE_TYPE::kShow:
+					case RE::UI_MESSAGE_TYPE::kUpdate:
+					case RE::UI_MESSAGE_TYPE::kReshow:
+					case RE::UI_MESSAGE_TYPE::kHide:
+					case RE::UI_MESSAGE_TYPE::kForceHide:
+						return;
+					default:
+						break;
+					}
 				}
 #endif
 				if (data && (data->type == RE::HUD_MESSAGE_TYPE::kSetCrosshairTarget || data->type == RE::HUD_MESSAGE_TYPE::kSetCrosshairTargetTextOnly)) {

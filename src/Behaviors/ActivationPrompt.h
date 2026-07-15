@@ -9,6 +9,7 @@ namespace QuickLoot::Behaviors
 	class ActivationPrompt
 	{
 		static inline std::atomic_bool _blocked = false;
+		static inline std::atomic_bool _softHidden = false;
 
 	public:
 		ActivationPrompt() = delete;
@@ -21,12 +22,13 @@ namespace QuickLoot::Behaviors
 		static void Install();
 
 		static void Block() noexcept;
-		static void Unblock() noexcept { _blocked = false; }
+		static void Unblock() noexcept;
 		static bool IsBlocked() noexcept { return _blocked && Config::SystemSettings::SuppressActivationPrompt(); }
 
 		static void HideRolloverIfOpen() noexcept;
 
 	private:
-		static void HideRollover() noexcept;
+		static void SoftHideRollover() noexcept;
+		static void SoftShowRollover() noexcept;
 	};
 }
