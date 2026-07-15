@@ -586,18 +586,9 @@ namespace QuickLoot::Items
 
 	RE::ExtraDataList* ItemStack::GetInventoryEntryExtraListForRemoval(RE::InventoryEntryData* entry, int count, bool isViewingContainer)
 	{
-		if (REL::Module::IsVR()) {
-			// No VR relocation for id 50948/51825; use a C++ fallback with VR-safe RE:: APIs.
-			if (!entry || !entry->extraLists || entry->extraLists->empty()) {
-				return nullptr;
-			}
-
-			const auto first = entry->extraLists->front();
-			return first && first->GetCount() >= count ? first : nullptr;
-		}
-
 		using func_t = decltype(&GetInventoryEntryExtraListForRemoval);
-		REL::Relocation<func_t> func{ RELOCATION_ID(50948, 51825) };
+		// SE/AE: Address Library ids. VR: raw offset (SkyrimVR.exe+0x8B9210).
+		REL::Relocation<func_t> func{ REL::VariantID(50948, 51825, 0x8B9210) };
 		return func(entry, count, isViewingContainer);
 	}
 }

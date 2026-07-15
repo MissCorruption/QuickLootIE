@@ -8,6 +8,18 @@
 
 namespace QuickLoot::Behaviors
 {
+#if defined(ENABLE_SKYRIM_VR)
+	namespace
+	{
+		// WorldSpaceMenu::menuNode is at 0x48 on VR runtime objects (IMenu 0x40 + event sink),
+		// but SKYRIM_CROSS_VR compiles the member at 0x30. Always relocate when touching native menus.
+		RE::NiPointer<RE::NiNode>& RolloverMenuNode(RE::WSActivateRollover* menu) noexcept
+		{
+			return REL::RelocateMember<RE::NiPointer<RE::NiNode>>(menu, 0x30, 0x48);
+		}
+	}
+#endif
+
 	void ActivationPrompt::SoftHideRollover() noexcept
 	{
 #if defined(ENABLE_SKYRIM_VR)
@@ -16,13 +28,18 @@ namespace QuickLoot::Behaviors
 		}
 
 		const auto menu = RE::UI::GetSingleton()->GetMenu<RE::WSActivateRollover>().get();
-		if (!menu || !menu->menuNode || menu->menuNode->GetAppCulled()) {
+		if (!menu) {
 			return;
 		}
 
-		// Mirrors WorldSpaceMenu::ProcessMessage's kHide NiNode hide bit (menuNode+0x10C bit 0)
-		// without posting a UI kHide that destroys the WorldSpaceMenu instance.
-		menu->menuNode->SetAppCulled(true);
+		auto& menuNode = RolloverMenuNode(menu);
+		if (!menuNode || menuNode->GetAppCulled()) {
+			return;
+		}
+
+		// Mirrors WorldSpaceMenu::ProcessMessage's kHide NiNode hide bit without posting a UI
+		// kHide that destroys the WorldSpaceMenu instance.
+		menuNode->SetAppCulled(true);
 		menu->Unk_09(RE::UI_MENU_Unk09::kNone);
 		_softHidden = true;
 #endif
@@ -36,11 +53,16 @@ namespace QuickLoot::Behaviors
 		}
 
 		const auto menu = RE::UI::GetSingleton()->GetMenu<RE::WSActivateRollover>().get();
-		if (!menu || !menu->menuNode) {
+		if (!menu) {
 			return;
 		}
 
-		menu->menuNode->SetAppCulled(false);
+		auto& menuNode = RolloverMenuNode(menu);
+		if (!menuNode) {
+			return;
+		}
+
+		menuNode->SetAppCulled(false);
 #endif
 	}
 
