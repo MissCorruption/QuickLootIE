@@ -845,11 +845,8 @@ namespace QuickLoot
 			Hide();
 
 			if (REL::Module::IsVR()) {
-				// Defensive fallback: if something external (another mod, Papyrus UI.CloseMenu)
-				// sends a literal kHide directly, soft-close instead of falling through to
-				// UniversalMenu::ProcessMessage, which would forward to the engine's native
-				// WorldSpaceMenu teardown and destroy/recreate this instance.
-				LootMenuManager::SoftCloseForVR();
+				// Native WSM teardown; menuNode lives under our wand anchor, not the wand itself.
+				return UniversalMenu::ProcessMessage(message);
 			}
 
 			return RE::UI_MESSAGE_RESULTS::kHandled;
@@ -890,10 +887,58 @@ namespace QuickLoot
 
 #pragma region VR
 
+	namespace
+	{
+		RE::NiPointer<RE::NiNode> g_attachAnchor{};
+		constexpr std::string_view kAttachAnchorName{ "QuickLootIE_Anchor" };
+	}
+
 	RE::NiPointer<RE::NiNode> LootMenu::GetAttachingNode()
 	{
 		auto& vrData = RE::PlayerCharacter::GetSingleton()->GetVRPlayerRuntimeData();
 		return vrData.isRightHandMainHand ? vrData.RightWandNode : vrData.LeftWandNode;
+	}
+
+	RE::NiNode* LootMenu::EnsureAttachAnchor()
+	{
+		const auto wand = GetAttachingNode();
+		if (!wand) {
+			logger::warn("EnsureAttachAnchor: wand node is null");
+			return nullptr;
+		}
+
+		if (g_attachAnchor && g_attachAnchor->parent == wand.get()) {
+			return g_attachAnchor.get();
+		}
+
+		if (const auto existing = wand->GetObjectByName(RE::BSFixedString{ kAttachAnchorName })) {
+			if (const auto asNode = existing->AsNode()) {
+				g_attachAnchor.reset(asNode);
+				logger::debug("EnsureAttachAnchor: reused existing {} under wand children={}",
+					kAttachAnchorName, wand->GetChildren().size());
+				return g_attachAnchor.get();
+			}
+		}
+
+		if (g_attachAnchor) {
+			if (g_attachAnchor->parent) {
+				g_attachAnchor->parent->DetachChild2(g_attachAnchor.get());
+			}
+		} else {
+			g_attachAnchor.reset(RE::NiNode::Create(1));
+			g_attachAnchor->name = RE::BSFixedString{ kAttachAnchorName };
+		}
+
+		wand->AttachChild(g_attachAnchor.get(), true);
+		RE::NiUpdateData data{};
+		g_attachAnchor->Update(data);
+
+		logger::debug("EnsureAttachAnchor: attached {} to wand; wandChildren={} anchorParent={}",
+			kAttachAnchorName,
+			wand->GetChildren().size(),
+			static_cast<void*>(g_attachAnchor->parent));
+
+		return g_attachAnchor.get();
 	}
 
 	void LootMenu::SetTransform()
@@ -908,13 +953,31 @@ namespace QuickLoot
 
 		const float scale = UserSettings::VrScale();
 
+		auto* parent = GetMenuParentNode();
+		if (!menuNode || !parent) {
+			logger::warn("SetTransform: menuNode={} parent={}", static_cast<void*>(menuNode.get()), static_cast<void*>(parent));
+			return;
+		}
+
+		if (menuNode->parent && menuNode->parent != parent) {
+			menuNode->parent->DetachChild2(menuNode.get());
+		}
+
 		menuNode->local.translate = RE::NiPoint3(dx, dy, dz);
 		menuNode->local.rotate.EulerAnglesToAxesZXY(rx, ry, rz);
 		menuNode->local.scale = scale;
 
-		GetAttachingNode()->AttachChild(menuNode.get(), true);
+		if (menuNode->parent != parent) {
+			parent->AttachChild(menuNode.get(), true);
+		}
+
 		RE::NiUpdateData data{};
 		menuNode->Update(data);
+
+		logger::debug("SetTransform: menuNode={} parent={} (anchor) parentChildren={}",
+			static_cast<void*>(menuNode.get()),
+			static_cast<void*>(parent),
+			parent->GetChildren().size());
 	}
 
 	void LootMenu::PostCreate()
@@ -923,6 +986,7 @@ namespace QuickLoot
 			return;
 		}
 
+		EnsureAttachAnchor();
 		SetupMenuNode();
 		SetTransform();
 
@@ -946,8 +1010,10 @@ namespace QuickLoot
 
 	RE::NiNode* LootMenu::GetMenuParentNode()
 	{
-		// No need to specify this here because we attach the node manually in SetTransform
-		return nullptr;
+		if (!REL::Module::IsVR()) {
+			return nullptr;
+		}
+		return EnsureAttachAnchor();
 	}
 
 	RE::BSEventNotifyControl LootMenu::ProcessEvent(const RE::HudModeChangeEvent*, RE::BSTEventSource<RE::HudModeChangeEvent>*)

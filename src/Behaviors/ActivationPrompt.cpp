@@ -1,6 +1,7 @@
 #include "ActivationPrompt.h"
 
 #include "RE/U/UI.h"
+#include "RE/U/UIMessageQueue.h"
 
 #if defined(ENABLE_SKYRIM_VR)
 #	include "RE/W/WSActivateRollover.h"
@@ -10,12 +11,30 @@ namespace QuickLoot::Behaviors
 {
 	void ActivationPrompt::HideRolloverIfOpen() noexcept
 	{
-		// No-op: NiNode / QueueMenuNodeUpdate / Unk_09 soft-hide paths crashed or white-squared.
+#if defined(ENABLE_SKYRIM_VR)
+		if (!REL::Module::IsVR()) {
+			return;
+		}
+
+		// AlwaysOpen: kHide hides the node; it does not destroy the menu instance.
+		if (!RE::UI::GetSingleton()->IsMenuOpen(RE::WSActivateRollover::MENU_NAME)) {
+			return;
+		}
+
+		RE::UIMessageQueue::GetSingleton()->AddMessage(
+			RE::WSActivateRollover::MENU_NAME,
+			RE::UI_MESSAGE_TYPE::kHide,
+			nullptr);
+#endif
 	}
 
 	void ActivationPrompt::Block() noexcept
 	{
 		_blocked = true;
+
+		if (IsBlocked()) {
+			HideRolloverIfOpen();
+		}
 	}
 
 	void ActivationPrompt::Unblock() noexcept
@@ -29,15 +48,12 @@ namespace QuickLoot::Behaviors
 		{
 			if (ActivationPrompt::IsBlocked()) {
 #if defined(ENABLE_SKYRIM_VR)
+				// Swallow show/update so the prompt does not reappear over LootMenu; allow kHide through.
 				if (REL::Module::IsVR() && menuName == RE::WSActivateRollover::MENU_NAME) {
-					// Swallow lifecycle messages so the AlwaysOpen WorldSpaceMenu is neither
-					// shown/updated nor destroyed via kHide while LootMenu is up.
 					switch (type) {
 					case RE::UI_MESSAGE_TYPE::kShow:
 					case RE::UI_MESSAGE_TYPE::kUpdate:
 					case RE::UI_MESSAGE_TYPE::kReshow:
-					case RE::UI_MESSAGE_TYPE::kHide:
-					case RE::UI_MESSAGE_TYPE::kForceHide:
 						return;
 					default:
 						break;
@@ -61,10 +77,7 @@ namespace QuickLoot::Behaviors
 
 	void ActivationPrompt::Install()
 	{
-		// We intercept the call to UIMessageQueue::AddMessage in PlayerCharacter::UpdateCrosshairs.
-		// This is the same way Simple Activate and Which Key do it.
-		// Copied from https://github.com/powerof3/SimpleActivateSKSE/blob/master/src/Manager.cpp
-
+		// Same call site as Simple Activate / Which Key: AddMessage inside UpdateCrosshairs.
 		REL::Relocation loc{ RELOCATION_ID(39535, 40621), REL::VariantOffset(0x289, 0x280, 0x22E) };
 		AddMessageHook::func = SKSE::GetTrampoline().write_call<5>(loc.address(), AddMessageHook::thunk);
 

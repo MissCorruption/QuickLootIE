@@ -9,8 +9,6 @@
 #include "LootMenu.h"
 #include "MenuVisibilityManager.h"
 
-#include "RE/M/MenuOpenCloseEvent.h"
-
 namespace QuickLoot
 {
 	bool LootMenuManager::IsShowing()
@@ -68,41 +66,13 @@ namespace QuickLoot
 		// This may trigger another call to RequestHide, so make sure it happens after _currentContainer is reset.
 		Input::InputManager::UnblockConflictingInputs();
 
-		if (REL::Module::IsVR()) {
-			// A real kHide destroys and recreates the LootMenu instance, which repeatedly
-			// attaches/detaches its world-space node on the shared VR wand scene graph and
-			// corrupts WSActivateRollover after a few cycles. Hide in place instead and clear
-			// kOnStack manually - UI::IsMenuOpen()/MenuOpenCloseEvent still behave exactly as
-			// they would after a real kHide.
-			if (const auto menu = RE::UI::GetSingleton()->GetMenu<LootMenu>()) {
-				menu->Hide();
-			}
-
-			SoftCloseForVR();
-			return;
+		{
+			std::scoped_lock lock{ _lock };
+			// kHide destroys the instance; drop tasks that would otherwise run on the next CreateInstance.
+			_taskQueue.clear();
 		}
-
-		QueueLootMenuTask([=](LootMenu& menu) {
-			menu.Hide();
-		});
 
 		RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
-	}
-
-	void LootMenuManager::SoftCloseForVR()
-	{
-		const auto ui = RE::UI::GetSingleton();
-		const auto menu = ui->GetMenu(LootMenu::MENU_NAME);
-		if (!menu) {
-			return;
-		}
-
-		menu->menuFlags.reset(RE::IMenu::Flag::kOnStack);
-
-		RE::MenuOpenCloseEvent event{};
-		event.menuName = LootMenu::MENU_NAME;
-		event.opening = false;
-		ui->GetEventSource<RE::MenuOpenCloseEvent>()->SendEvent(std::addressof(event));
 	}
 
 	void LootMenuManager::RequestRefresh(RefreshFlags flags)
@@ -152,23 +122,27 @@ namespace QuickLoot
 
 	void LootMenuManager::ProcessPendingTasks(LootMenu& menu)
 	{
-		std::scoped_lock lock{ _lock };
-
-		if (_taskQueue.empty()) {
-			return;
+		std::vector<LootMenuTask> tasks;
+		{
+			std::scoped_lock lock{ _lock };
+			// Swap out so QueueLootMenuTask during a task cannot reallocate the vector mid-iteration.
+			tasks.swap(_taskQueue);
 		}
 
-		for (auto& task : _taskQueue) {
-			task(menu);
+		for (auto& task : tasks) {
+			if (task) {
+				task(menu);
+			}
 		}
-
-		_taskQueue.clear();
 	}
 
 	void LootMenuManager::QueueLootMenuTask(LootMenuTask task)
 	{
-		std::scoped_lock lock{ _lock };
+		if (!task) {
+			return;
+		}
 
+		std::scoped_lock lock{ _lock };
 		_taskQueue.push_back(std::move(task));
 	}
 }

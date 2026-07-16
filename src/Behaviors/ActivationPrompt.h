@@ -24,7 +24,7 @@ namespace QuickLoot::Behaviors
 		static void Unblock() noexcept;
 		static bool IsBlocked() noexcept { return _blocked && Config::SystemSettings::SuppressActivationPrompt(); }
 
-		// Kept for LootMenu::AdvanceMovie; node-level hide proved unsafe on VR.
+		// Soft-hide WSActivateRollover (AlwaysOpen) the same way vanilla does on look-away.
 		static void HideRolloverIfOpen() noexcept;
 	};
 }

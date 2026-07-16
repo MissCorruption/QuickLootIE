@@ -104,6 +104,8 @@ namespace QuickLoot
 
 		// UniversalMenu implementation
 		static RE::NiPointer<RE::NiNode> GetAttachingNode();
+		// Own parent under the wand so destroy/recreate does not touch sibling world-space menus.
+		static RE::NiNode* EnsureAttachAnchor();
 
 		void PostCreate() override;
 		RE::UI_MESSAGE_RESULTS ProcessMessage(RE::UIMessage& message) override;
