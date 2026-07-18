@@ -39,7 +39,7 @@ jobs:
       should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Get Date
@@ -66,7 +66,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Create Pack Folder
         run: mkdir -p $env:GITHUB_WORKSPACE\\to-pack
@@ -74,7 +74,7 @@ jobs:
 
       - name: Cache Spriggit
         id: cache-spriggit
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .github/spriggit
           key: ${{ runner.os }}-spriggit-${{ inputs.spriggit_tool_version }}
@@ -101,7 +101,7 @@ jobs:
         shell: cmd
 
       - name: Upload Plugin Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: plugin
           path: res/esp/QuickLootIE.esp
@@ -113,11 +113,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Cache Script Sources
         id: cache-ss
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             .github/Papyrus/SRC
@@ -128,7 +128,7 @@ jobs:
 
       - name: Cache Compiler
         id: cache-com
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .github/Caprica
           key: caprica-0.3.0a
@@ -185,71 +185,100 @@ jobs:
         run: .github/Caprica/Caprica.exe --game skyrim --import ".github/Papyrus/SRC;.github/Papyrus/SRC_SKYUI;.github/Papyrus/SRC_PAPUTIL;" --output "res/pex/Scripts" --flags=".github/Papyrus/SRC/TESV_Papyrus_Flags.flg" "${{ github.workspace }}/res/pex/Source/Scripts" -R -q
 
       - name: Upload Compiled Scripts Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: compiled-scripts
           path: res/pex/Scripts
 
   compile-skse:
+    name: Compile SKSE plugin (xmake)
     needs: prepare
     if: ${{ needs.prepare.outputs.should_run >= 1 || github.event_name == 'workflow_dispatch' && always() }}
     runs-on: windows-latest
-    
+
     steps:
       - name: Recursive Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
+      - name: CommonLib revision
+        id: commonlib
+        shell: bash
+        run: echo "sha=$(git -C extern/CommonLibSSE-NG rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Set xmake env
-        run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
+        shell: pwsh
+        run: |
+          echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $env:GITHUB_ENV
+          echo "XMAKE_ROOT=y" >> $env:GITHUB_ENV
+          echo "XMAKE_ACTION_BUILD_CACHE=true" >> $env:GITHUB_ENV
 
       - name: Create xmake cache directories
+        shell: pwsh
         run: |
-          mkdir -p ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
-          mkdir -p ${{ env.XMAKE_GLOBALDIR }}/build-cache
+          New-Item -ItemType Directory -Force -Path "${{ runner.workspace }}/xmake-global/packages" | Out-Null
+          New-Item -ItemType Directory -Force -Path "${{ runner.workspace }}/xmake-global/xmake-cache" | Out-Null
+          New-Item -ItemType Directory -Force -Path "${{ runner.workspace }}/xmake-global/build-cache" | Out-Null
 
       - name: Cache xmake dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
-            ~/.xmake/packages
-            ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
-          key: xmake-deps-${{ runner.os }}-${{ hashFiles('xmake-require.lock') }}
+            ${{ runner.workspace }}/xmake-global/packages
+            ${{ runner.workspace }}/xmake-global/xmake-cache
+          key: ${{ runner.os }}-xmake-deps-${{ steps.commonlib.outputs.sha }}-${{ hashFiles('xmake.lua', 'xmake-requires.lock', 'extern/CommonLibSSE-NG/xmake.lua', 'extern/CommonLibSSE-NG/xmake-rules.lua') }}
           restore-keys: |
-            xmake-deps-${{ runner.os }}-
+            ${{ runner.os }}-xmake-deps-${{ steps.commonlib.outputs.sha }}-
+            ${{ runner.os }}-xmake-deps-
 
-      - name: Cache xmake build cache
-        uses: actions/cache@v4
+      - name: Cache xmake ccache
+        uses: actions/cache@v5
         with:
-          path: ${{ env.XMAKE_GLOBALDIR }}/build-cache
-          key: xmake-build-${{ runner.os }}-${{ github.sha }}
+          path: ${{ runner.workspace }}/xmake-global/build-cache
+          key: ${{ runner.os }}-xmake-ccache-${{ steps.commonlib.outputs.sha }}-${{ hashFiles('xmake.lua', 'xmake-requires.lock', 'src/**/*', 'include/**/*') }}
           restore-keys: |
-            xmake-build-${{ runner.os }}-
+            ${{ runner.os }}-xmake-ccache-${{ steps.commonlib.outputs.sha }}-
+            ${{ runner.os }}-xmake-ccache-
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: 'latest'
-          actions-cache-folder: ${{ env.XMAKE_GLOBALDIR }}/xmake-cache
-          actions-cache-key: '.xmake-actions-cache'
-          build-cache: true
-          build-cache-path: ${{ env.XMAKE_GLOBALDIR }}/build-cache
-          build-cache-key: xmake-build-${{ runner.os }}-${{ github.run_id }}
+          xmake-version: latest
+          actions-cache-folder: ${{ runner.workspace }}/xmake-global/xmake-cache
+          actions-cache-key: ".xmake-actions-cache"
+          # Do not use the action's build-cache: it keys by hour and can wipe our restored dir.
+          build-cache: false
+          package-cache: false
+
+      - name: Validate CommonLib submodule
+        shell: pwsh
+        run: |
+          if (!(Test-Path "extern/CommonLibSSE-NG/xmake.lua")) {
+            Write-Error "Missing CommonLib submodule at extern/CommonLibSSE-NG."
+            exit 1
+          }
 
       - name: Install dependencies
+        shell: pwsh
         run: |
           xmake repo --update
           xmake require -y
 
-      - name: Compile SKSE plugin
-        run: xmake
+      - name: Configure and build
+        shell: pwsh
+        run: |
+          $ccacheDir = "${{ runner.workspace }}/xmake-global/build-cache"
+          # MSVC disables ccache unless policy is forced; --ccachedir must match the cached path.
+          xmake f -y -m release -p windows -a x64 --policies=build.ccache:y --ccachedir="$ccacheDir"
+          xmake -y
 
       - name: Verify output files
-        run: dir "${{ github.workspace }}/build/windows/x64/release"
+        shell: pwsh
+        run: Get-ChildItem "${{ github.workspace }}/build/windows/x64/release"
 
       - name: Upload SKSE Plugin Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: skse-plugin
           path: |
@@ -264,22 +293,22 @@ jobs:
     steps:
 
       - name: Recursive Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: plugin
           path: res/esp
       - name: Download Compiled Scripts Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: compiled-scripts
           path: res/pex/Scripts
       - name: Download SKSE Plugin Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: skse-plugin
           path: res/dll/SKSE/Plugins
@@ -309,30 +338,30 @@ jobs:
           cp -a "extern/CommonLibSSE-NG/Flash/." "${{ github.workspace }}/pack-dev/external"
 
       - name: Zip Release Files
-        uses: vimtor/action-zip@v1.2
+        uses: vimtor/action-zip@v1.3
         with:
           files: to-pack/.
           dest: QuickLootIE-${{ needs.prepare.outputs.version }}.zip
 
       - name: Zip Dev SDK Files
-        uses: vimtor/action-zip@v1.2
+        uses: vimtor/action-zip@v1.3
         with:
           files: pack-dev/.
           dest: QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}.zip
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: QuickLootIE-${{ needs.prepare.outputs.version }}
           path: QuickLootIE-${{ needs.prepare.outputs.version }}.zip
       - name: Upload Dev SDK Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}
           path: QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}.zip
 
       - name: Remove Temporary Artifacts
-        uses: geekyeggo/delete-artifact@v4
+        uses: geekyeggo/delete-artifact@v6
         with:
           name: |
             plugin
@@ -346,15 +375,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download Release Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: QuickLootIE-${{ needs.prepare.outputs.version }}
 
       - name: Download Dev SDK Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}
 
@@ -367,7 +396,7 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: ncipollo/release-action@v1.13.0
+        uses: ncipollo/release-action@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -386,7 +415,7 @@ jobs:
             QuickLootIE-DevSDK-${{ needs.prepare.outputs.version }}.zip
 
       - name: Remove Temporary Artifacts
-        uses: geekyeggo/delete-artifact@v2
+        uses: geekyeggo/delete-artifact@v6
         with:
           name: |
             QuickLootIE-${{ needs.prepare.outputs.version }}.zip
