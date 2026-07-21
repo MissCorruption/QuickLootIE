@@ -66,9 +66,12 @@ namespace QuickLoot
 		// This may trigger another call to RequestHide, so make sure it happens after _currentContainer is reset.
 		Input::InputManager::UnblockConflictingInputs();
 
-		QueueLootMenuTask([=](LootMenu& menu) {
-			menu.Hide();
-		});
+		{
+			// kHide destroys the instance, so any pending messages would be run when the
+			// next loot menu instance is created. Here, we discard them instead.
+			std::scoped_lock lock{ _lock };
+			_taskQueue.clear();
+		}
 
 		RE::UIMessageQueue::GetSingleton()->AddMessage(LootMenu::MENU_NAME, RE::UI_MESSAGE_TYPE::kHide, nullptr);
 	}
@@ -120,23 +123,27 @@ namespace QuickLoot
 
 	void LootMenuManager::ProcessPendingTasks(LootMenu& menu)
 	{
-		std::scoped_lock lock{ _lock };
+		std::vector<LootMenuTask> tasks;
 
-		if (_taskQueue.empty()) {
-			return;
+		{
+			// Swap out the queue so queueing new tasks within another task
+			// cannot reallocate the vector mid-iteration.
+			std::scoped_lock lock{ _lock };
+			tasks.swap(_taskQueue);
 		}
 
-		for (auto& task : _taskQueue) {
+		for (auto& task : tasks) {
 			task(menu);
 		}
-
-		_taskQueue.clear();
 	}
 
 	void LootMenuManager::QueueLootMenuTask(LootMenuTask task)
 	{
-		std::scoped_lock lock{ _lock };
+		if (!task) {
+			return;
+		}
 
+		std::scoped_lock lock{ _lock };
 		_taskQueue.push_back(std::move(task));
 	}
 }
