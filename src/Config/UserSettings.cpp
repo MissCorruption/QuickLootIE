@@ -108,9 +108,10 @@ namespace QuickLoot::Config
 			modifierKey = { SkseKeyToDeviceKey(skseModifierKey) };
 		}
 
-		const bool global = group == Input::ControlGroup::kEnableState;
+		const auto flags = group == Input::ControlGroup::kEnableState ? Input::KeybindingFlags::kGlobal :
+		                                                                Input::KeybindingFlags::kNone;
 
-		return Input::Keybinding{ group, inputKey, modifierKey, action, false, global };
+		return Input::Keybinding{ group, inputKey, modifierKey, action, flags };
 	}
 
 	Input::DeviceKey UserSettings::SkseKeyToDeviceKey(int skseKey)

@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "Input/InputManager.h"
 
 #include "ButtonArtIndex.h"
@@ -187,7 +189,7 @@ namespace QuickLoot::Input
 			return;
 		}
 
-		Keybinding* keybinding = FindSatisfiedKeybinding(event);
+		Keybinding* keybinding = FindSatisfiedKeybinding(eventKey, event->HeldDuration());
 
 		if (HandleGrab(event, keybinding)) {
 			return;
@@ -197,13 +199,14 @@ namespace QuickLoot::Input
 			return;
 		}
 
-		if (event->IsDown()) {
+		if (event->IsDown() && keybinding->flags.none(KeybindingFlags::kOnRelease, KeybindingFlags::kOnHold) ||
+			event->IsUp() && keybinding->flags.all(KeybindingFlags::kOnRelease)) {
 			keybinding->nextRetriggerTime = 0.0f;
 			TriggerKeybinding(keybinding);
 			return;
 		}
 
-		HandleRetrigger(event, keybinding);
+		HandleHold(event, keybinding);
 	}
 
 	void InputManager::HandleThumbstickEvent(const RE::ThumbstickEvent* event)
@@ -291,45 +294,26 @@ namespace QuickLoot::Input
 
 	void InputManager::ReloadKeybindings()
 	{
-		_keybindings.clear();
+		_keybindings = Config::UserSettings::GetKeybindings();
 
-		constexpr std::optional<DeviceKey> none = {};
-		constexpr std::optional<DeviceKey> shift = { DeviceKey::Get(KeyboardKey::kLeftShift) };
+		constexpr std::optional<DeviceKey> modNone = {};
+		constexpr auto flagsNone = KeybindingFlags::kNone;
+		constexpr auto flagsRetrigger = KeybindingFlags::kRetrigger;
 
-		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelUp), none, QuickLootAction::kScrollUp, false);
-		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelDown), none, QuickLootAction::kScrollDown, false);
-		//_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelUp), shift, QuickLootAction::kPrevPage, false);
-		//_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelDown), shift, QuickLootAction::kNextPage, false);
+		// Hardcoded keybindings for scrolling
+		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelUp), modNone, QuickLootAction::kScrollUp, flagsNone);
+		_keybindings.emplace_back(ControlGroup::kMouseWheel, DeviceKey::Get(MouseButton::kWheelDown), modNone, QuickLootAction::kScrollDown, flagsNone);
+		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kUp), modNone, QuickLootAction::kScrollUp, flagsRetrigger);
+		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kDown), modNone, QuickLootAction::kScrollDown, flagsRetrigger);
+		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_8), modNone, QuickLootAction::kScrollUp, flagsRetrigger);
+		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_2), modNone, QuickLootAction::kScrollDown, flagsRetrigger);
+		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kUp), modNone, QuickLootAction::kScrollUp, flagsRetrigger);
+		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kDown), modNone, QuickLootAction::kScrollDown, flagsRetrigger);
 
-		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kUp), none, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kDown), none, QuickLootAction::kScrollDown, true);
-		//_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kLeft), none, QuickLootAction::kPrevPage, false);
-		//_keybindings.emplace_back(ControlGroup::kArrowKeys, DeviceKey::Get(KeyboardKey::kRight), none, QuickLootAction::kNextPage, false);
-
-		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_8), none, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_2), none, QuickLootAction::kScrollDown, true);
-		//_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_4), none, QuickLootAction::kPrevPage, false);
-		//_keybindings.emplace_back(ControlGroup::kNumPadArrowKeys, DeviceKey::Get(KeyboardKey::kKP_6), none, QuickLootAction::kNextPage, false);
-
-		//_keybindings.emplace_back(ControlGroup::kPageKeys, DeviceKey::Get(KeyboardKey::kPageUp), none, QuickLootAction::kPrevPage, false);
-		//_keybindings.emplace_back(ControlGroup::kPageKeys, DeviceKey::Get(KeyboardKey::kPageDown), none, QuickLootAction::kNextPage, false);
-
-		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kUp), none, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kDown), none, QuickLootAction::kScrollDown, true);
-		//_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kLeft), none, QuickLootAction::kPrevPage, false);
-		//_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kRight), none, QuickLootAction::kNextPage, false);
-
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kOculusPrimary, VRInput::kMainThumbStickUp), none, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kOculusPrimary, VRInput::kMainThumbStickDown), none, QuickLootAction::kScrollDown, true);
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kVivePrimary, VRInput::kMainThumbStickUp), none, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kVivePrimary, VRInput::kMainThumbStickDown), none, QuickLootAction::kScrollDown, true);
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kMainThumbStickUp), none, QuickLootAction::kScrollUp, true);
-		_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(DeviceType::kWMRPrimary, VRInput::kMainThumbStickDown), none, QuickLootAction::kScrollDown, true);
-
-		_keybindings.append_range(Config::UserSettings::GetKeybindings());
 
 		_allInputKeys.clear();
 		_allModifierKeys.clear();
+		_allHoldKeys.clear();
 
 		for (size_t i = 0; i < _keybindings.size(); ++i) {
 			auto& keybinding = _keybindings[i];
@@ -338,6 +322,20 @@ namespace QuickLoot::Input
 
 			if (keybinding.modifierKey) {
 				_allModifierKeys.insert(*keybinding.modifierKey);
+			}
+
+			if (keybinding.flags.all(KeybindingFlags::kOnHold)) {
+				_allHoldKeys.insert(keybinding.inputKey);
+			}
+		}
+
+		// If a keybinding with kOnHold exists, then all keybindings with the same input key
+		// must only trigger once the button is released.
+		for (size_t i = 0; i < _keybindings.size(); ++i) {
+			auto& keybinding = _keybindings[i];
+
+			if (_allHoldKeys.contains(keybinding.inputKey) && keybinding.flags.none(KeybindingFlags::kOnHold)) {
+				keybinding.flags.set(KeybindingFlags::kOnRelease);
 			}
 		}
 
@@ -349,30 +347,34 @@ namespace QuickLoot::Input
 		const auto it = std::ranges::find_if(_keybindings, [&](const Keybinding& keybinding) {
 			return keybinding.inputKey.deviceType == deviceType &&
 			       keybinding.inputKey.keyCode == mapping.inputKey &&
-			       !keybinding.global;
+			       !keybinding.flags.all(KeybindingFlags::kGlobal);
 		});
 
 		return it != _keybindings.end() ? &*it : nullptr;
 	}
 
-	Keybinding* InputManager::FindSatisfiedKeybinding(const RE::ButtonEvent* event)
+	Keybinding* InputManager::FindSatisfiedKeybinding(DeviceKey key, float holdTime)
 	{
-		const auto deviceType = event->GetDevice();
-		auto inputKey = event->GetIDCode();
+		Keybinding* result = nullptr;
 
-		if (deviceType == RE::INPUT_DEVICE::kGamepad &&
-			RE::ControlMap::GetSingleton()->GetGamePadType() == RE::PC_GAMEPAD_TYPE::kOrbis) {
-			inputKey = SKSE::InputMap::ScePadOffsetToXInput(inputKey);
+		for (auto& keybinding : _keybindings) {
+			// kOnHold keybindings take precedence over regular keybindings, so we continue even if result is already set.
+			if (result != nullptr && keybinding.flags.none(KeybindingFlags::kOnHold))
+				continue;
+
+			if (!keybinding.isModifierSatisfied)
+				continue;
+
+			if (keybinding.inputKey != key)
+				continue;
+
+			if (keybinding.flags.all(KeybindingFlags::kOnHold) && holdTime < holdTimeThreshold)
+				continue;
+
+			result = &keybinding;
 		}
 
-		const auto it = std::ranges::find_if(_keybindings, [&](const Keybinding& keybinding) {
-			return (keybinding.global || LootMenuManager::IsShowing()) &&
-			       keybinding.inputKey.deviceType == deviceType &&
-			       keybinding.inputKey.keyCode == inputKey &&
-			       keybinding.isModifierSatisfied;
-		});
-
-		return it != _keybindings.end() ? &*it : nullptr;
+		return result;
 	}
 
 	bool InputManager::IsKeyPressed(DeviceKey key)
@@ -525,32 +527,39 @@ namespace QuickLoot::Input
 
 	void InputManager::TriggerKeybinding(const Keybinding* keybinding)
 	{
-		LootMenuManager::OnInputAction(keybinding->action);
+		if (keybinding->flags.all(KeybindingFlags::kGlobal) || LootMenuManager::IsShowing()) {
+			LootMenuManager::OnInputAction(keybinding->action);
+		}
 	}
 
-	void InputManager::HandleRetrigger(const RE::ButtonEvent* event, Keybinding* keybinding)
+	void InputManager::HandleHold(const RE::ButtonEvent* event, Keybinding* keybinding)
 	{
-		if (!keybinding->retrigger) {
-			return;
-		}
-
 		if (event->IsUp()) {
 			keybinding->nextRetriggerTime = 0.0f;
 			return;
 		}
 
-		const auto holdTime = event->HeldDuration();
+		bool retrigger = keybinding->flags.all(KeybindingFlags::kRetrigger);
+		bool hold = keybinding->flags.all(KeybindingFlags::kOnHold);
 
-		constexpr auto initialDelay = 0.5f;
-		constexpr auto subsequentDelay = 0.05f;
-
-		if (keybinding->nextRetriggerTime < initialDelay) {
-			keybinding->nextRetriggerTime = initialDelay;
+		if (!retrigger && !hold) {
+			return;
 		}
 
+		const auto holdTime = event->HeldDuration();
+		const auto threshold = hold ? holdTimeThreshold : initialRetriggerDelay;
+
+		keybinding->nextRetriggerTime = std::max(keybinding->nextRetriggerTime, threshold);
+
 		if (holdTime >= keybinding->nextRetriggerTime) {
-			keybinding->nextRetriggerTime += subsequentDelay;
 			TriggerKeybinding(keybinding);
+
+			if (retrigger) {
+				keybinding->nextRetriggerTime += subsequentRetriggerDelay;
+			} else {
+				// This prevents kOnHold keybindings without kRetrigger from firing again until released.
+				keybinding->nextRetriggerTime = std::numeric_limits<float>::infinity();
+			}
 		}
 	}
 

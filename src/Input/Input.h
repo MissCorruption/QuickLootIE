@@ -4,6 +4,11 @@
 
 namespace QuickLoot::Input
 {
+	// How long a button needs to be held down for a kOnHold keybinding to trigger.
+	constexpr auto holdTimeThreshold = 0.4f;
+	constexpr auto initialRetriggerDelay = 0.5f;
+	constexpr auto subsequentRetriggerDelay = 0.05f;
+
 	using DeviceType = RE::INPUT_DEVICE;
 	using UEFlag = RE::UserEvents::USER_EVENT_FLAG;
 	using UserEventMapping = RE::ControlMap::UserEventMapping;
@@ -81,6 +86,19 @@ namespace QuickLoot::Input
 
 	using QuickLootAction = API::QuickLootAction;
 
+	enum class KeybindingFlags
+	{
+		kNone = 0,
+		// Whether the keybinding should be active while the loot menu is closed.
+		kGlobal = 1 << 0,
+		// The action should be periodically re-triggered when the button is held.
+		kRetrigger = 1 << 1,
+		// The action should be triggered when the button is released.
+		kOnRelease = 1 << 2,
+		// The action should be triggered when the button is held for a minimum amount of time.
+		kOnHold = 1 << 3,
+	};
+
 	struct Keybinding
 	{
 		// If a keybinding is part of a group with the kOptional bit set and conflicts with a
@@ -89,10 +107,7 @@ namespace QuickLoot::Input
 		DeviceKey inputKey;
 		std::optional<DeviceKey> modifierKey;
 		QuickLootAction action;
-		// Whether the action should be periodically re-triggered when the button is held.
-		bool retrigger;
-		// Whether the keybinding should be active while the loot menu is closed.
-		bool global = false;
+		RE::stl::enumeration<KeybindingFlags> flags;
 		ButtonArtIndex buttonArtOverride = static_cast<ButtonArtIndex>(0);
 
 		// Dynamic information
