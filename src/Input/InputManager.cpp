@@ -157,9 +157,11 @@ namespace QuickLoot::Input
 		RE::ControlMap::GetSingleton()->ToggleControls(QUICKLOOT_EVENT_GROUP_FLAG, false, false);
 
 		if (REL::Module::IsVR()) {
+			// VR bypasses the standard input group system, so these conflicting input handlers need to be disabled manually.
 			const auto playerControls = RE::PlayerControls::GetSingleton();
 			playerControls->sneakHandler->SetInputEventHandlingEnabled(false);
 			playerControls->jumpHandler->SetInputEventHandlingEnabled(false);
+			playerControls->activateHandler->SetInputEventHandlingEnabled(false);
 		}
 	}
 
@@ -171,15 +173,13 @@ namespace QuickLoot::Input
 			const auto playerControls = RE::PlayerControls::GetSingleton();
 			playerControls->sneakHandler->SetInputEventHandlingEnabled(true);
 			playerControls->jumpHandler->SetInputEventHandlingEnabled(true);
+			playerControls->activateHandler->SetInputEventHandlingEnabled(true);
 		}
 	}
 
 	void InputManager::HandleButtonEvent(const RE::ButtonEvent* event)
 	{
-		const DeviceKey eventKey = {
-			.deviceType = event->GetDevice(),
-			.keyCode = event->GetIDCode(),
-		};
+		const auto eventKey = NormalizeDeviceKey(event->GetDevice(), event->GetIDCode());
 
 		if (_allModifierKeys.contains(eventKey)) {
 			UpdateModifierStates();
@@ -263,9 +263,14 @@ namespace QuickLoot::Input
 
 	bool QUsingGamepad(RE::BSInputDeviceManager* _this)
 	{
-		uint64_t aeId = 68622;
-		if (REL::Module::get().version() >= REL::Version(1, 6, 1130, 0)) aeId = 443396;
-		if (REL::Module::get().version() >= REL::Version(1, 6, 1179, 0)) aeId = 510926;
+		if (REL::Module::IsVR()) {
+			return false;
+		}
+
+		uint64_t aeId =
+			REL::Module::get().version() >= REL::Version(1, 6, 1179, 0) ? 510926 :
+			REL::Module::get().version() >= REL::Version(1, 6, 1130, 0) ? 443396 :
+																		  68622;
 
 		using func_t = decltype(&QUsingGamepad);
 		REL::Relocation<func_t> func{ RELOCATION_ID(67320, aeId) };
@@ -276,18 +281,15 @@ namespace QuickLoot::Input
 	{
 		std::vector<Keybinding> filtered{};
 
-		if (REL::Module::IsVR()) {
-			filtered.push_back(Keybinding{ .action = QuickLootAction::kTake, .buttonArtOverride = ButtonArtIndex::kOculusA });
-			filtered.push_back(Keybinding{ .action = QuickLootAction::kTransfer, .buttonArtOverride = ButtonArtIndex::kOculusAHold });
-		} else {
-			const bool isGamepad = QUsingGamepad(RE::BSInputDeviceManager::GetSingleton());
+		const bool isVr = REL::Module::IsVR();
+		const bool isGamepad = !isVr && QUsingGamepad(RE::BSInputDeviceManager::GetSingleton());
 
-			std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
-				return keybinding.group == ControlGroup::kButtonBar &&
-				       keybinding.isModifierSatisfied &&
-				       (keybinding.inputKey.deviceType == DeviceType::kGamepad) == isGamepad;
-			});
-		}
+		std::ranges::copy_if(_keybindings, std::back_inserter(filtered), [=](const Keybinding& keybinding) {
+			return keybinding.group == ControlGroup::kButtonBar &&
+			       keybinding.isModifierSatisfied &&
+			       (keybinding.inputKey.deviceType == DeviceType::kGamepad) == isGamepad &&
+			       (keybinding.inputKey.deviceType == DeviceType::kOculusPrimary) == isVr;
+		});
 
 		return filtered;
 	}
@@ -310,6 +312,19 @@ namespace QuickLoot::Input
 		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kUp), modNone, QuickLootAction::kScrollUp, flagsRetrigger);
 		_keybindings.emplace_back(ControlGroup::kDpad, DeviceKey::Get(GamepadInput::kDown), modNone, QuickLootAction::kScrollDown, flagsRetrigger);
 
+		if (REL::Module::IsVR()) {
+			// We only register keybindings for kOculusPrimary and normalize all incoming
+			// input events for other controller types to this device type.
+			constexpr auto vrDevice = DeviceType::kOculusPrimary;
+			constexpr auto modVRTrigger = DeviceKey::Get(vrDevice, VRInput::kTrigger);
+			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceKey::Get(vrDevice, VRInput::kXA), modVRTrigger, QuickLootAction::kUse, flagsNone, ButtonArtIndex::kOculusA);
+			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceKey::Get(vrDevice, VRInput::kXA), modNone, QuickLootAction::kTake, flagsNone, ButtonArtIndex::kOculusA);
+			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceKey::Get(vrDevice, VRInput::kBY), modNone, QuickLootAction::kTakeAll, flagsNone, ButtonArtIndex::kOculusB);
+			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceKey::Get(vrDevice, VRInput::kXA), modNone, QuickLootAction::kTransfer, KeybindingFlags::kOnHold, ButtonArtIndex::kOculusAHold);
+			_keybindings.emplace_back(ControlGroup::kButtonBar, DeviceKey::Get(vrDevice, VRInput::kXA), modVRTrigger, QuickLootAction::kTransfer, KeybindingFlags::kOnHold, ButtonArtIndex::kOculusAHold);
+			_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(vrDevice, VRInput::kMainThumbStickUp), modNone, QuickLootAction::kScrollUp, flagsRetrigger);
+			_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(vrDevice, VRInput::kMainThumbStickDown), modNone, QuickLootAction::kScrollDown, flagsRetrigger);
+		}
 
 		_allInputKeys.clear();
 		_allModifierKeys.clear();
@@ -475,6 +490,10 @@ namespace QuickLoot::Input
 
 	bool InputManager::HandleGrab(const RE::ButtonEvent* event, const Keybinding* keybinding)
 	{
+		if (REL::Module::IsVR()) {
+			return false;
+		}
+
 		const auto activateKey = RE::ControlMap::GetSingleton()->GetMappedKey("Activate", event->GetDevice());
 
 		if (event->GetIDCode() != activateKey) {

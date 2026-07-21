@@ -19,6 +19,7 @@ namespace QuickLoot::Input
 		{
 			kBY = RE::BSOpenVRControllerDevice::Key::kBY,
 			kGrip = RE::BSOpenVRControllerDevice::Key::kGrip,
+			kGripAlt = RE::BSOpenVRControllerDevice::Key::kGripAlt,
 			kXA = RE::BSOpenVRControllerDevice::Key::kXA,
 			kJoystickTrigger = RE::BSOpenVRControllerDevice::Key::kJoystickTrigger,
 			kTrigger = RE::BSOpenVRControllerDevice::Key::kTrigger,
@@ -115,4 +116,44 @@ namespace QuickLoot::Input
 		float nextRetriggerTime = 0.0f;
 		bool isModifierSatisfied = false;
 	};
+
+	inline bool IsVrPrimary(DeviceType deviceType)
+	{
+		return deviceType == DeviceType::kOculusPrimary ||
+		       deviceType == DeviceType::kVivePrimary ||
+		       deviceType == DeviceType::kWMRPrimary;
+	}
+
+	inline bool IsVrSecondary(DeviceType deviceType)
+	{
+		return deviceType == DeviceType::kOculusSecondary ||
+		       deviceType == DeviceType::kViveSecondary ||
+		       deviceType == DeviceType::kWMRSecondary;
+	}
+
+	inline DeviceKey NormalizeDeviceKey(DeviceType deviceType, uint32_t keyCode)
+	{
+		bool isVr = false;
+
+		if (IsVrPrimary(deviceType)) {
+			deviceType = RE::INPUT_DEVICE::kOculusPrimary;
+			isVr = true;
+		}
+
+		if (IsVrSecondary(deviceType)) {
+			deviceType = RE::INPUT_DEVICE::kOculusSecondary;
+			isVr = true;
+		}
+
+		if (isVr && keyCode == VRInput::kGripAlt) {
+			keyCode = VRInput::kGrip;
+		}
+
+		if (deviceType == RE::INPUT_DEVICE::kGamepad &&
+			RE::ControlMap::GetSingleton()->GetGamePadType() == RE::PC_GAMEPAD_TYPE::kOrbis) {
+			keyCode = SKSE::InputMap::ScePadOffsetToXInput(keyCode);
+		}
+
+		return DeviceKey::Get(deviceType, keyCode);
+	}
 }
