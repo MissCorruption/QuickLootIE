@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Config/SystemSettings.h"
-
 #include <atomic>
 
 namespace QuickLoot::Behaviors
@@ -23,5 +21,7 @@ namespace QuickLoot::Behaviors
 		static void Block() noexcept { _blocked = true; }
 		static void Unblock() noexcept { _blocked = false; }
 		static bool IsBlocked() noexcept { return _blocked && Config::SystemSettings::SuppressActivationPrompt(); }
+
+		static void HideWSActivateRollover();
 	};
 }
