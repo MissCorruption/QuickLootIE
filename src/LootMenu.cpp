@@ -649,7 +649,7 @@ namespace QuickLoot
 		const auto keybindings = Input::InputManager::GetButtonBarKeybindings();
 		const bool stealing = WouldBeStealing();
 		RE::BSTArray<API::ButtonDefinition2> buttons{};
-		
+
 		_buttonBarProvider.ClearElements();
 
 		for (const auto& keybinding : keybindings) {
@@ -829,8 +829,6 @@ namespace QuickLoot
 	{
 		if (message.type == RE::UI_MESSAGE_TYPE::kHide) {
 			Hide();
-
-			return RE::UI_MESSAGE_RESULTS::kHandled;
 		}
 
 		return UniversalMenu::ProcessMessage(message);
@@ -875,13 +873,31 @@ namespace QuickLoot
 
 		const float scale = UserSettings::VrScale();
 
+		auto* parent = GetMenuParentNode();
+		if (!menuNode || !parent) {
+			logger::warn("SetTransform: menuNode={} parent={}", static_cast<void*>(menuNode.get()), static_cast<void*>(parent));
+			return;
+		}
+
+		if (menuNode->parent && menuNode->parent != parent) {
+			menuNode->parent->DetachChild2(menuNode.get());
+		}
+
 		menuNode->local.translate = RE::NiPoint3(dx, dy, dz);
 		menuNode->local.rotate.EulerAnglesToAxesZXY(rx, ry, rz);
 		menuNode->local.scale = scale;
 
-		GetAttachingNode()->AttachChild(menuNode.get(), true);
+		if (menuNode->parent != parent) {
+			parent->AttachChild(menuNode.get(), true);
+		}
+
 		RE::NiUpdateData data{};
 		menuNode->Update(data);
+
+		logger::debug("SetTransform: menuNode={} parent={} ({} children)",
+			static_cast<void*>(menuNode.get()),
+			static_cast<void*>(parent),
+			parent->GetChildren().size());
 	}
 
 	void LootMenu::PostCreate()
@@ -913,8 +929,40 @@ namespace QuickLoot
 
 	RE::NiNode* LootMenu::GetMenuParentNode()
 	{
-		// No need to specify this here because we attach the node manually in SetTransform
-		return nullptr;
+		if (!REL::Module::IsVR()) {
+			return nullptr;
+		}
+
+		const auto wand = GetAttachingNode();
+		if (!wand) {
+			logger::warn("GetMenuParentNode: wand node is null");
+			return nullptr;
+		}
+
+		if (_menuParentNode) {
+			if (_menuParentNode->parent == wand.get()) {
+				logger::debug("GetMenuParentNode: reusing existing menu parent node");
+				return _menuParentNode.get();
+			}
+
+			// This should be impossible unless the wand node somehow gets recreated.
+			// I'll leave it in for now just in case it pops up somewhere.
+			const auto parentName = _menuParentNode->parent ? _menuParentNode->parent->name.c_str() : "<null>";
+			logger::warn("GetMenuParentNode: menu parent node has an unexpected parent: is {}, but was expected to be {}", parentName, wand->name.c_str());
+			_menuParentNode->parent->DetachChild2(_menuParentNode.get());
+			_menuParentNode.reset();
+		}
+
+		_menuParentNode.reset(RE::NiNode::Create(1));
+		_menuParentNode->name = "QuickLootIE_Anchor";
+
+		wand->AttachChild(_menuParentNode.get(), true);
+		RE::NiUpdateData data{};
+		_menuParentNode->Update(data);
+
+		logger::debug("GetMenuParentNode: attached {} to wand {} ({} children)", _menuParentNode->name.c_str(), wand->name.c_str(), wand->GetChildren().size());
+
+		return _menuParentNode.get();
 	}
 
 	RE::BSEventNotifyControl LootMenu::ProcessEvent(const RE::HudModeChangeEvent*, RE::BSTEventSource<RE::HudModeChangeEvent>*)

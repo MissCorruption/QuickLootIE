@@ -71,6 +71,10 @@ namespace QuickLoot
 		RE::GFxValue _infoBarProvider;
 		RE::GFxValue _buttonBarProvider;
 
+		// A dummy NiNode under the primary wand to avoid repeatedly attaching to and detaching from
+		// the wand node itself, since that appears to mess up unrelated parts of the scene graph.
+		static inline RE::NiPointer<RE::NiNode> _menuParentNode{};
+
 		void InjectUtilsClass();
 		void LoadSwfObject(CLIK::Object& target, std::string_view path) const;
 		RE::GFxValue BuildSettingsObject() const;
