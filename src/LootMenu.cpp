@@ -909,22 +909,16 @@ namespace QuickLoot
 		SetupMenuNode();
 		SetTransform();
 
-		auto def = uiMovie->GetMovieDef();
-		auto rect = def->GetFrameRect();
-		logger::info("movie: size: {}/{}, frame: {}/{}/{}/{}", def->GetWidth(), def->GetHeight(), rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
-
 		RE::GViewport viewport;
 		uiMovie->GetViewport(&viewport);
-		logger::info("viewport: buffer: {}/{}, origin: {}/{}, size: {}/{}", viewport.bufferWidth, viewport.bufferHeight, viewport.left, viewport.top, viewport.width, viewport.height);
 
-		//viewport.bufferWidth = static_cast<int>(def->GetWidth());
-		//viewport.bufferHeight = static_cast<int>(def->GetHeight());
-		viewport.width = static_cast<int>(def->GetWidth());
-		viewport.height = static_cast<int>(def->GetHeight());
-		viewport.left = 0;
-		viewport.top = 0;
+		auto def = uiMovie->GetMovieDef();
+
+		// Usually an aspect ratio would be height/width, but this is here
+		// to undo the vertical squish caused by something else.
+		viewport.aspectRatio = def->GetWidth() / def->GetHeight();
+
 		uiMovie->SetViewport(viewport);
-		logger::info("viewport: buffer: {}/{}, origin: {}/{}, size: {}/{}", viewport.bufferWidth, viewport.bufferHeight, viewport.left, viewport.top, viewport.width, viewport.height);
 	}
 
 	RE::NiNode* LootMenu::GetMenuParentNode()
