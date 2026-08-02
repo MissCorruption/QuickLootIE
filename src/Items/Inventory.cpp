@@ -66,7 +66,8 @@ namespace QuickLoot::Items
 			for (const auto& dropRefHandle : extraDrops->droppedItemList) {
 				const auto reference = dropRefHandle.get();
 
-				if (!reference) {
+				// PickUpObject marks the ref deleted before ExtraDroppedItemList is cleared.
+				if (!reference || reference->IsDeleted() || reference->IsDisabled()) {
 					continue;
 				}
 
