@@ -1,5 +1,7 @@
 #include "UniversalMenu.h"
 
+#include <SKSE/API.h>
+
 UniversalMenu::~UniversalMenu()
 {
 	// TODO, unregister if registered for HudModeChangeEvent
@@ -7,10 +9,14 @@ UniversalMenu::~UniversalMenu()
 	//logger::trace("UniversalMenu::~UniversalMenu (menu node: {})", static_cast<void*>(menuNode.get()));
 
 	if (menuNode && menuNode->parent) {
-		menuNode->parent->DetachChild2(menuNode.get());
+		const auto node(menuNode);
+		menuNode.reset();
+		SKSE::GetTaskInterface()->AddTask([node] {
+			node->parent->DetachChild2(node.get());
+			logger::debug("Detached menu node (ref count {})", node->GetRefCount());
+		});
 	}
 
-	menuNode.reset();
 	menuName.~BSFixedString();
 	fxDelegate.reset();
 	uiMovie.reset();

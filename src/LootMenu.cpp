@@ -18,6 +18,8 @@
 #include "Behaviors/ActivationPrompt.h"
 #include "Util/ScaleformUtil.h"
 
+#include <SKSE/API.h>
+
 #include <numbers>
 
 #undef PlaySound
@@ -855,49 +857,55 @@ namespace QuickLoot
 
 #pragma region VR
 
-	RE::NiPointer<RE::NiNode> LootMenu::GetAttachingNode()
-	{
-		auto& vrData = RE::PlayerCharacter::GetSingleton()->GetVRPlayerRuntimeData();
-		return vrData.isRightHandMainHand ? vrData.RightWandNode : vrData.LeftWandNode;
-	}
-
 	void LootMenu::SetTransform()
 	{
-		const float dx = UserSettings::VrOffsetX();
-		const float dy = UserSettings::VrOffsetY();
-		const float dz = UserSettings::VrOffsetZ();
-
-		const float rx = static_cast<float>(UserSettings::VrAngleX() * std::numbers::pi / 180);
-		const float ry = static_cast<float>(UserSettings::VrAngleY() * std::numbers::pi / 180);
-		const float rz = static_cast<float>(UserSettings::VrAngleZ() * std::numbers::pi / 180);
-
-		const float scale = UserSettings::VrScale();
-
-		auto* parent = GetMenuParentNode();
-		if (!menuNode || !parent) {
-			logger::warn("SetTransform: menuNode={} parent={}", static_cast<void*>(menuNode.get()), static_cast<void*>(parent));
+		const auto node = menuNode;
+		if (!node) {
 			return;
 		}
 
-		if (menuNode->parent && menuNode->parent != parent) {
-			menuNode->parent->DetachChild2(menuNode.get());
+		const auto parent = RE::NiPointer(GetMenuParentNode());
+		if (!parent) {
+			logger::warn("SetTransform: parent is null (menuNode={})", static_cast<void*>(node.get()));
+			return;
 		}
 
-		menuNode->local.translate = RE::NiPoint3(dx, dy, dz);
-		menuNode->local.rotate.EulerAnglesToAxesZXY(rx, ry, rz);
-		menuNode->local.scale = scale;
+		// May run on the UI thread; attach/update must happen on the main thread.
+		SKSE::GetTaskInterface()->AddTask([node, parent]() {
+			const float dx = UserSettings::VrOffsetX();
+			const float dy = UserSettings::VrOffsetY();
+			const float dz = UserSettings::VrOffsetZ();
 
-		if (menuNode->parent != parent) {
-			parent->AttachChild(menuNode.get(), true);
-		}
+			const float rx = static_cast<float>(UserSettings::VrAngleX() * std::numbers::pi / 180);
+			const float ry = static_cast<float>(UserSettings::VrAngleY() * std::numbers::pi / 180);
+			const float rz = static_cast<float>(UserSettings::VrAngleZ() * std::numbers::pi / 180);
 
-		RE::NiUpdateData data{};
-		menuNode->Update(data);
+			const float scale = UserSettings::VrScale();
 
-		logger::debug("SetTransform: menuNode={} parent={} ({} children)",
-			static_cast<void*>(menuNode.get()),
-			static_cast<void*>(parent),
-			parent->GetChildren().size());
+			if (node->parent && node->parent != parent.get()) {
+				node->parent->DetachChild2(node.get());
+			}
+
+			node->local.translate = RE::NiPoint3(dx, dy, dz);
+			node->local.rotate.EulerAnglesToAxesZXY(rx, ry, rz);
+			node->local.scale = scale;
+
+			node->GetFlags().reset(RE::NiAVObject::Flag::kShadowCaster, RE::NiAVObject::Flag::kShadowReceiver);
+
+			if (node->parent != parent.get()) {
+				parent->AttachChild(node.get(), true);
+			}
+
+			// Bind the SWF quad; kDisableCollision avoids Havok side effects from this Update.
+			RE::NiUpdateData data{};
+			data.flags.set(RE::NiUpdateData::Flag::kDisableCollision);
+			node->Update(data);
+
+			logger::debug("SetTransform: menuNode={} parent={} ({} children)",
+				static_cast<void*>(node.get()),
+				parent->name.c_str(),
+				parent->GetChildren().size());
+		});
 	}
 
 	void LootMenu::PostCreate()
@@ -917,46 +925,14 @@ namespace QuickLoot
 		// Usually an aspect ratio would be height/width, but this is here
 		// to undo the vertical squish caused by something else.
 		viewport.aspectRatio = def->GetWidth() / def->GetHeight();
-
 		uiMovie->SetViewport(viewport);
 	}
 
 	RE::NiNode* LootMenu::GetMenuParentNode()
 	{
-		if (!REL::Module::IsVR()) {
-			return nullptr;
-		}
-
-		const auto wand = GetAttachingNode();
-		if (!wand) {
-			logger::warn("GetMenuParentNode: wand node is null");
-			return nullptr;
-		}
-
-		if (_menuParentNode) {
-			if (_menuParentNode->parent == wand.get()) {
-				logger::debug("GetMenuParentNode: reusing existing menu parent node");
-				return _menuParentNode.get();
-			}
-
-			// This should be impossible unless the wand node somehow gets recreated.
-			// I'll leave it in for now just in case it pops up somewhere.
-			const auto parentName = _menuParentNode->parent ? _menuParentNode->parent->name.c_str() : "<null>";
-			logger::warn("GetMenuParentNode: menu parent node has an unexpected parent: is {}, but was expected to be {}", parentName, wand->name.c_str());
-			_menuParentNode->parent->DetachChild2(_menuParentNode.get());
-			_menuParentNode.reset();
-		}
-
-		_menuParentNode.reset(RE::NiNode::Create(1));
-		_menuParentNode->name = "QuickLootIE_Anchor";
-
-		wand->AttachChild(_menuParentNode.get(), true);
-		RE::NiUpdateData data{};
-		_menuParentNode->Update(data);
-
-		logger::debug("GetMenuParentNode: attached {} to wand {} ({} children)", _menuParentNode->name.c_str(), wand->name.c_str(), wand->GetChildren().size());
-
-		return _menuParentNode.get();
+		auto& vrData = RE::PlayerCharacter::GetSingleton()->GetVRPlayerRuntimeData();
+		const auto wand = vrData.isRightHandMainHand ? vrData.RightWandNode : vrData.LeftWandNode;
+		return wand.get();
 	}
 
 	RE::BSEventNotifyControl LootMenu::ProcessEvent(const RE::HudModeChangeEvent*, RE::BSTEventSource<RE::HudModeChangeEvent>*)

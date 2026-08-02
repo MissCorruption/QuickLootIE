@@ -71,10 +71,6 @@ namespace QuickLoot
 		RE::GFxValue _infoBarProvider;
 		RE::GFxValue _buttonBarProvider;
 
-		// A dummy NiNode under the primary wand to avoid repeatedly attaching to and detaching from
-		// the wand node itself, since that appears to mess up unrelated parts of the scene graph.
-		static inline RE::NiPointer<RE::NiNode> _menuParentNode{};
-
 		void InjectUtilsClass();
 		void LoadSwfObject(CLIK::Object& target, std::string_view path) const;
 		RE::GFxValue BuildSettingsObject() const;
@@ -107,8 +103,6 @@ namespace QuickLoot
 		[[nodiscard]] bool WouldBeStealing() const;
 
 		// UniversalMenu implementation
-		static RE::NiPointer<RE::NiNode> GetAttachingNode();
-
 		void PostCreate() override;
 		RE::UI_MESSAGE_RESULTS ProcessMessage(RE::UIMessage& message) override;
 		void AdvanceMovie(float interval, std::uint32_t currentTime) override;
