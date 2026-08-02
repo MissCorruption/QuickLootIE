@@ -1,0 +1,270 @@
+name: Reusable Build
+
+on:
+  workflow_call:
+    inputs:
+      spriggit_tool_version:
+        description: 'Spriggit version (optional, used for cache key)'
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  build-plugin:
+    name: Build ESP from Spriggit files
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Create Pack Folder
+        run: mkdir -p $env:GITHUB_WORKSPACE\\to-pack
+        shell: pwsh
+
+      - name: Cache Spriggit
+        id: cache-spriggit
+        uses: actions/cache@v5
+        with:
+          path: .github/spriggit
+          key: ${{ runner.os }}-spriggit-${{ inputs.spriggit_tool_version }}
+
+      - name: Fetch Spriggit
+        if: steps.cache-spriggit.outputs.cache-hit != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download -R Mutagen-Modding/Spriggit --pattern "SpriggitCLI.zip" --dir .github
+
+          7z x .github/SpriggitCLI.zip -o".github/spriggit/"
+
+          if (Test-Path ".github/spriggit/Spriggit.CLI.exe") {
+              Write-Host "Spriggit.CLI.exe found and ready."
+          } else {
+              Write-Error "Spriggit.CLI.exe not found! Exiting."
+              exit 1
+          }
+        shell: pwsh
+
+      - name: Run Spriggit
+        run: .github\spriggit\Spriggit.CLI.exe deserialize --InputPath "res/esp" --OutputPath "res/esp/QuickLootIE.esp"
+        shell: cmd
+
+      - name: Upload Plugin Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: plugin
+          path: res/esp/QuickLootIE.esp
+
+  compile-scripts:
+    name: Compile Papyrus scripts
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Cache Script Sources
+        id: cache-ss
+        uses: actions/cache@v5
+        with:
+          path: |
+            .github/Papyrus/SRC
+            .github/Papyrus/SRC_SKYUI
+            .github/Papyrus/SRC_PAPUTIL
+            .github/Papyrus/SRC/TESV_Papyrus_Flags.flg
+          key: script-sources-clean
+
+      - name: Cache Compiler
+        id: cache-com
+        uses: actions/cache@v5
+        with:
+          path: .github/Caprica
+          key: caprica-0.3.0a
+
+      - name: Fetch Caprica
+        if: steps.cache-com.outputs.cache-hit != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          New-Item -ItemType Directory -Path .github -Force | Out-Null
+          gh release download 0.3.0a -R KrisV-777/Caprica --pattern "Caprica.zip" --dir .github --clobber
+          7z x .github/Caprica.zip "-o.github\Caprica" -y
+
+          if (-not (Test-Path ".github/Caprica/Caprica.exe")) {
+            Write-Error "Caprica.exe not found after extraction."
+            exit 1
+          }
+
+      - name: Checkout Papyrus Sources
+        if: steps.cache-ss.outputs.cache-hit != 'true'
+        run: |
+          mkdir .github/Papyrus
+          $repos = @("SRC", "SRC_SKYUI", "SRC_PAPUTIL")
+          Set-Location .github/Papyrus
+          foreach ($repo in $repos) {
+            New-Item -ItemType Directory -Name $repo
+            Set-Location $repo
+            git init
+            git remote add origin https://github.com/IHateMyKite/PAPYRUS.git
+            git sparse-checkout set --no-cone $repo
+            git fetch --depth=1 origin main
+            git checkout main
+            Remove-Item .git -Recurse -Force
+            Set-Location ..
+          }
+
+      - name: Checkout TESV Flags File
+        if: steps.cache-ss.outputs.cache-hit != 'true'
+        run: |
+          cd .github/Papyrus/SRC
+          mkdir temp
+          cd temp
+          git init
+          git remote add origin https://github.com/Rukan/Grimy-Skyrim-Papyrus-Source.git
+          git sparse-checkout set --no-cone 'TESV_Papyrus_Flags.flg'
+          git fetch --depth=1 origin master
+          git checkout master
+          Remove-Item .git -Recurse -Force
+          mv TESV_Papyrus_Flags.flg ../TESV_Papyrus_Flags.flg
+          Set-Location ..
+          Remove-Item temp -Recurse -Force
+
+      - name: Run Caprica
+        run: .github/Caprica/Caprica.exe --game skyrim --import ".github/Papyrus/SRC;.github/Papyrus/SRC_SKYUI;.github/Papyrus/SRC_PAPUTIL;" --output "res/pex/Scripts" --flags=".github/Papyrus/SRC/TESV_Papyrus_Flags.flg" "${{ github.workspace }}/res/pex/Source/Scripts" -R -q
+
+      - name: Upload Compiled Scripts Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: compiled-scripts
+          path: res/pex/Scripts
+
+  compile-skse:
+    name: Compile SKSE plugin (xmake)
+    runs-on: windows-latest
+    steps:
+      - name: Recursive Checkout
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: CommonLib revision
+        id: commonlib
+        shell: bash
+        run: echo "sha=$(git -C extern/CommonLibSSE-NG rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: MSVC toolset
+        id: msvc
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $clPath = $null
+          if (Test-Path $vswhere) {
+            $installPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+            if ($installPath) {
+              $candidate = Get-ChildItem -Path "$installPath\VC\Tools\MSVC" -Filter cl.exe -Recurse -ErrorAction SilentlyContinue |
+                Where-Object { $_.FullName -match '\\bin\\Hostx64\\x64\\cl\.exe$' } |
+                Sort-Object FullName -Descending |
+                Select-Object -First 1
+              if ($candidate) { $clPath = $candidate.FullName }
+            }
+          }
+          if (-not $clPath) {
+            $cl = Get-Command cl.exe -ErrorAction SilentlyContinue
+            if ($cl) { $clPath = $cl.Source }
+          }
+          if (-not $clPath) {
+            Write-Error "cl.exe not found; cannot key build cache by toolset."
+            exit 1
+          }
+          $verLine = & $clPath 2>&1 | Select-String -Pattern 'Version\s+([\d.]+)' | Select-Object -First 1
+          if (-not $verLine) {
+            Write-Error "Failed to parse MSVC version from cl.exe."
+            exit 1
+          }
+          $toolset = ($verLine.Matches[0].Groups[1].Value -replace '\.', '_')
+          Write-Host "MSVC toolset key: $toolset ($clPath)"
+          "toolset=$toolset" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Set xmake env
+        shell: pwsh
+        run: |
+          echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $env:GITHUB_ENV
+          echo "XMAKE_ROOT=y" >> $env:GITHUB_ENV
+          echo "XMAKE_ACTION_BUILD_CACHE=true" >> $env:GITHUB_ENV
+
+      - name: Create xmake cache directories
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "${{ runner.workspace }}/xmake-global/packages" | Out-Null
+          New-Item -ItemType Directory -Force -Path "${{ runner.workspace }}/xmake-global/xmake-cache" | Out-Null
+
+      - name: Cache xmake dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            ${{ runner.workspace }}/xmake-global/packages
+            ${{ runner.workspace }}/xmake-global/xmake-cache
+          key: ${{ runner.os }}-xmake-deps-${{ steps.commonlib.outputs.sha }}-${{ hashFiles('xmake.lua', 'xmake-requires.lock', 'extern/CommonLibSSE-NG/xmake.lua', 'extern/CommonLibSSE-NG/xmake-rules.lua') }}
+          restore-keys: |
+            ${{ runner.os }}-xmake-deps-${{ steps.commonlib.outputs.sha }}-
+            ${{ runner.os }}-xmake-deps-
+
+      # Cache objs + PCH together. MSVC+ccache often skips regenerating .pch while /Yu still needs it.
+      - name: Cache xmake build tree
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/build
+          key: ${{ runner.os }}-xmake-build-${{ steps.commonlib.outputs.sha }}-${{ steps.msvc.outputs.toolset }}-${{ hashFiles('xmake.lua', 'xmake-requires.lock', 'src/**/*', 'include/**/*') }}
+          restore-keys: |
+            ${{ runner.os }}-xmake-build-${{ steps.commonlib.outputs.sha }}-${{ steps.msvc.outputs.toolset }}-
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+          actions-cache-folder: ${{ runner.workspace }}/xmake-global/xmake-cache
+          actions-cache-key: ".xmake-actions-cache"
+          # Do not use the action's build-cache: it keys by hour and can wipe our restored dir.
+          build-cache: false
+          package-cache: false
+
+      - name: Validate CommonLib submodule
+        shell: pwsh
+        run: |
+          if (!(Test-Path "extern/CommonLibSSE-NG/xmake.lua")) {
+            Write-Error "Missing CommonLib submodule at extern/CommonLibSSE-NG."
+            exit 1
+          }
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          xmake repo --update
+          xmake require -y
+
+      - name: Configure and build
+        shell: pwsh
+        run: |
+          xmake f -y -m release -p windows -a x64
+          xmake -y
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Incremental build failed; retrying once with --rebuild."
+            xmake -y --rebuild
+            if ($LASTEXITCODE -ne 0) {
+              exit $LASTEXITCODE
+            }
+          }
+
+      - name: Verify output files
+        shell: pwsh
+        run: Get-ChildItem "${{ github.workspace }}/build/windows/x64/release"
+
+      - name: Upload SKSE Plugin Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: skse-plugin
+          path: |
+            ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.dll
+            ${{ github.workspace }}/build/windows/x64/release/QuickLootIE.pdb
