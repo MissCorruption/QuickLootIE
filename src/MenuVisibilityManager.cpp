@@ -215,8 +215,7 @@ namespace QuickLoot
 				logger::debug("LootMenu disabled for dragons");
 				return false;
 			}
-		}
-		else if (!UserSettings::EnableForContainers()) {
+		} else if (!UserSettings::EnableForContainers()) {
 			logger::debug("LootMenu disabled for containers");
 			return false;
 		}
@@ -227,6 +226,17 @@ namespace QuickLoot
 	void MenuVisibilityManager::RefreshOpenState()
 	{
 		PROFILE_SCOPE;
+
+		// Prevent reentry
+		static bool refreshing = false;
+		if (refreshing) {
+			return;
+		}
+		refreshing = true;
+		struct RefreshGuard
+		{
+			~RefreshGuard() { refreshing = false; }
+		} refreshGuard;
 
 		// Don't refresh while the console is open to work around the missing cursor bug
 		// (any menu events while the console is open cause the cursor to disappear)
@@ -243,8 +253,7 @@ namespace QuickLoot
 			if (LOG_EVENTS) {
 				if (LootMenuManager::IsShowing()) {
 					logger::debug("RefreshOpenState: Menu staying open");
-				}
-				else {
+				} else {
 					logger::debug("RefreshOpenState: Menu opening");
 				}
 			}
@@ -255,8 +264,7 @@ namespace QuickLoot
 			if (LOG_EVENTS) {
 				if (LootMenuManager::IsShowing()) {
 					logger::debug("RefreshOpenState: Menu closing");
-				}
-				else {
+				} else {
 					logger::debug("RefreshOpenState: Menu staying closed");
 				}
 			}
