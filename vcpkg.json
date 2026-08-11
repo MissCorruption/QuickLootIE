@@ -1,9 +1,9 @@
 {
-  "name": "quicklootie",
-  "version-semver": "2.0.0",
+  "name": "QuickLootIE",
+  "version-semver": "4.0.0",
   "description": "A port of QuickLootEE to NG for one DLL for all versions.",
   "homepage": "https://github.com/MissCorruption/QuickLootIE",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "dependencies": [
     "boost-stl-interfaces",
     "frozen",

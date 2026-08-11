@@ -10,7 +10,7 @@ PROJECT_NAME = "QuickLootIE"
 set_project(PROJECT_NAME)
 set_version("4.0.0")
 set_languages("cxx23")
-set_license("MIT")
+set_license("GPL-3.0-or-later")
 set_warnings("allextra", "error")
 
 -- Build options

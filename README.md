@@ -65,6 +65,11 @@ cmake --build build --config Release
 Path/To/Spriggit.CLI.exe deserialize --InputPath Source\ESP --OutputPath QuickLootIE.esp
 ```
 
+## License
+
+This project is provided under [GPL-3.0-or-later](LICENSE) WITH [Modding Exception AND GPL-3.0 Linking Exception (with Corresponding Source)](EXCEPTIONS.md). For more information on these exceptions refer to the [CLib readme](https://github.com/alandtse/CommonLibSSE-NG/blob/12f8518657cd525c7579a746e211c98bddacba6c/README.md#license).
+
+Originally based on code under [MIT](MIT).
 
 ## End User Dependencies
 * [Address Library for SKSE Plugins](https://www.nexusmods.com/skyrimspecialedition/mods/32444)
