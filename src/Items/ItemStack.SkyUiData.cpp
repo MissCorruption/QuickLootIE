@@ -59,7 +59,7 @@ namespace QuickLoot::Items
 			SkyUiProcessArmorPartMask();
 			SkyUiProcessMaterialKeywords();
 			SkyUiProcessArmorOther();
-			SkyUiProcessArmorOther();
+			SkyUiProcessArmorKnownForms();
 			break;
 
 		case RE::FormType::Book:
@@ -81,7 +81,7 @@ namespace QuickLoot::Items
 
 		case RE::FormType::Weapon:
 			_data.weapon.isEnchanted = _entry->IsEnchanted();
-			_data.weapon.isPoisoned = _entry->extraLists && !_entry->extraLists->empty() && !_entry->extraLists->front()->HasType(RE::ExtraDataType::kPoison);
+			_data.weapon.isPoisoned = _entry->IsPoisoned();
 			_data.weapon.infoDamage = TruncatePrecision(player->GetDamage(_entry.get()));
 
 			if (_data.weapon.infoDamage.value <= 0) {

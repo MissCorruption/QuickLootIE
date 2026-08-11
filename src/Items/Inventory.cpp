@@ -149,6 +149,7 @@ namespace QuickLoot::Items
 					case RE::WEAPON_TYPE::kTwoHandAxe:
 					case RE::WEAPON_TYPE::kTwoHandSword:
 						UpdateBest(bestTwoHandWeapon, player->GetDamage(entry), index);
+						break;
 
 					case RE::WEAPON_TYPE::kBow:
 					case RE::WEAPON_TYPE::kCrossbow:

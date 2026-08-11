@@ -17,7 +17,6 @@ UniversalMenu::~UniversalMenu()
 		});
 	}
 
-	menuName.~BSFixedString();
 	fxDelegate.reset();
 	uiMovie.reset();
 }

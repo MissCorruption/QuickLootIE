@@ -47,8 +47,8 @@ namespace QuickLoot::Config
 			}
 
 			config = json::parse(ifs, nullptr, true, true);
-		} catch (nlohmann::json::parse_error& error) {
-			logger::error("Failed to parse system settings file: {}", error.what());
+		} catch (std::exception& ex) {
+			logger::error("Failed to parse system settings file: {}", ex.what());
 			return;
 		}
 
@@ -89,9 +89,12 @@ namespace QuickLoot::Config
 	{
 		const auto blacklist = LoadStringArray(config, "containerBlacklist");
 
+		std::set<RE::FormID> ids{};
+
 		for (auto identifier : blacklist) {
-			const auto formId = Util::FormUtil::ParseFormID(identifier);
-			_containerBlacklist.insert(formId);
+			ids.insert(Util::FormUtil::ParseFormID(identifier));
 		}
+
+		_containerBlacklist.swap(ids);
 	}
 }
