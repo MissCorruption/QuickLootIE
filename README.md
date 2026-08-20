@@ -71,6 +71,8 @@ This project is provided under [GPL-3.0-or-later](LICENSE) WITH [Modding Excepti
 
 Originally based on code under [MIT](MIT).
 
+The API header (include/QuickLootAPI.h) continues to be available under the MIT license to ensure that mods can use our API even if their license is incompatible with GPL3.
+
 ## End User Dependencies
 * [Address Library for SKSE Plugins](https://www.nexusmods.com/skyrimspecialedition/mods/32444)
 * [Microsoft Visual C++ Redistributable for Visual Studio 2022](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)

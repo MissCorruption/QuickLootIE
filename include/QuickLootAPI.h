@@ -3,6 +3,9 @@
 /*
 	Header File for QuickLoot IE integration.
 	Before using any other functions, call QuickLootAPI::Init and pass in your own plugin name.
+
+	Unlike the rest of the project, this file continues to be available under the MIT license.
+	This means you can use the QuickLoot API in projects that are licensed under terms not compatible with GPL3.
 */
 
 namespace QuickLoot::API
