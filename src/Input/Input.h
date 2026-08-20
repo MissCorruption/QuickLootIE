@@ -63,6 +63,12 @@ namespace QuickLoot::Input
 		{
 			return Get(RE::INPUT_DEVICE::kGamepad, keyCode);
 		}
+
+		constexpr bool IsValid() const
+		{
+			// 65535 is the 'unmapped' constant
+			return keyCode > 0 && keyCode < 65535;
+		}
 	};
 
 	enum class ControlGroup : uint8_t

@@ -326,6 +326,11 @@ namespace QuickLoot::Input
 			_keybindings.emplace_back(ControlGroup::kVrScroll, DeviceKey::Get(vrDevice, VRInput::kMainThumbStickDown), modNone, QuickLootAction::kScrollDown, flagsRetrigger);
 		}
 
+		// Remove unmapped keybindings.
+		std::erase_if(_keybindings, [](const Keybinding& keybinding) {
+			return !keybinding.inputKey.IsValid();
+		});
+
 		_allInputKeys.clear();
 		_allModifierKeys.clear();
 		_allHoldKeys.clear();

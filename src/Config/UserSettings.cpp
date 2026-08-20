@@ -71,12 +71,6 @@ namespace QuickLoot::Config
 			BuildKeybinding(Input::ControlGroup::kEnableState, Input::QuickLootAction::kEnable, QLIE_KeybindingEnableGamepad, QLIE_KeybindingEnableGamepadModifier),
 		};
 
-		// Remove unmapped keybindings.
-		std::erase_if(keybindings, [](const auto& keybinding) {
-			return keybinding.inputKey.keyCode == static_cast<uint32_t>(-1)
-			    || keybinding.inputKey.keyCode == 0;
-		});
-
 		return keybindings;
 	}
 
