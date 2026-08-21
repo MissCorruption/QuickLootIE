@@ -493,8 +493,7 @@ namespace QuickLoot
 		const auto player = RE::PlayerCharacter::GetSingleton();
 
 		if (REL::Module::IsVR()) {
-			auto& vrData = player->GetVRPlayerRuntimeData();
-			auto device = vrData.isRightHandMainHand ? RE::VR_DEVICE::kRightController : RE::VR_DEVICE::kLeftController;
+			auto device = player->GetVRPlayerRuntimeData()->isRightHandMainHand ? RE::VR_DEVICE::kRightController : RE::VR_DEVICE::kLeftController;
 			player->ActivatePickRefVR(device);
 		} else {
 			player->ActivatePickRef();
@@ -930,8 +929,8 @@ namespace QuickLoot
 
 	RE::NiNode* LootMenu::GetMenuParentNode()
 	{
-		auto& vrData = RE::PlayerCharacter::GetSingleton()->GetVRPlayerRuntimeData();
-		const auto wand = vrData.isRightHandMainHand ? vrData.RightWandNode : vrData.LeftWandNode;
+		auto vrData = RE::PlayerCharacter::GetSingleton()->GetVRPlayerRuntimeData();
+		const auto wand = vrData->isRightHandMainHand ? vrData->RightWandNode : vrData->LeftWandNode;
 		return wand.get();
 	}
 
