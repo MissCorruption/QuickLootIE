@@ -11,6 +11,11 @@ namespace QuickLoot::API
 		return APIServer::GetInterfaceV20();
 	}
 
+	extern "C" __declspec(dllexport) void* GetQuickLootInterfaceV21()
+	{
+		return APIServer::GetInterfaceV21();
+	}
+
 #pragma region Interface
 
 	void APIServer::InterfaceV20::DisableLootMenu(const char* plugin)
