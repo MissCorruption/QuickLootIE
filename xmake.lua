@@ -8,7 +8,7 @@ PROJECT_NAME = "QuickLootIE"
 
 -- Project
 set_project(PROJECT_NAME)
-set_version("4.1.1")
+set_version("4.1.2")
 set_languages("cxx23")
 set_license("GPL-3.0-or-later")
 set_warnings("allextra", "error")
