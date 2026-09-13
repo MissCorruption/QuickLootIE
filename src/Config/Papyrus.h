@@ -4,7 +4,7 @@
 
 namespace QuickLoot::Config
 {
-	static Util::ScriptObject MCMScript;
+	static Util::ScriptObject MCMScript{};
 
 	inline bool QLIE_ShowInCombat;
 	inline bool QLIE_ShowWhenEmpty;
