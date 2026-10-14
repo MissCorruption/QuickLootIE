@@ -111,6 +111,8 @@ namespace QuickLoot::API
 				for (auto const& item : e.result) {
 					result.push_back(std::move(item));
 				}
+
+				e.result.clear();
 			}
 
 			return result;
