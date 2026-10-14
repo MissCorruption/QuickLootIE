@@ -227,8 +227,8 @@ namespace QuickLoot
 
 		static int ByName(Items::QuickLootItemStack& a, Items::QuickLootItemStack& b)
 		{
-			const auto& nameA = a.GetQuickLootData().displayName.value.c_str();
-			const auto& nameB = b.GetQuickLootData().displayName.value.c_str();
+			const auto nameA = a.GetQuickLootData().displayName.value.c_str();
+			const auto nameB = b.GetQuickLootData().displayName.value.c_str();
 			return strcmp(nameA, nameB);
 		}
 
